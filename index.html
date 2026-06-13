@@ -636,8 +636,11 @@
     <div class="container">
       <div class="sec">Project History</div>
       <div id="visual-timeline-wrap" style="background:var(--surface);border:2px solid var(--border);box-shadow:var(--glow);padding:16px 0 8px;margin-bottom:20px;overflow:hidden">
-        <div id="visual-timeline-scroll" style="overflow-x:auto;overflow-y:visible;padding:0 24px 8px">
-          <canvas id="visual-timeline-canvas" style="display:block;cursor:crosshair"></canvas>
+        <div style="position:relative;display:flex">
+          <canvas id="visual-timeline-labels" style="display:block;flex-shrink:0;z-index:2;position:relative"></canvas>
+          <div id="visual-timeline-scroll" style="overflow-x:auto;overflow-y:visible;padding:0 0 8px;flex:1">
+            <canvas id="visual-timeline-canvas" style="display:block;cursor:crosshair"></canvas>
+          </div>
         </div>
         <div id="visual-timeline-tooltip" style="display:none;position:fixed;background:var(--surface2);border:2px solid var(--accent);color:var(--text);font-family:var(--font);font-size:7px;padding:6px 10px;pointer-events:none;z-index:1000;box-shadow:var(--glow);line-height:1.8;max-width:220px"></div>
         <div style="font-size:7px;color:var(--muted);padding:4px 24px;display:flex;gap:20px;flex-wrap:wrap">
@@ -1253,9 +1256,11 @@ function buildDigest(data) {
 
 // ── Visual Timeline (canvas) ─────────────────────────────────────────────────
 function buildVisualTimeline(repos) {
-  const canvas  = document.getElementById("visual-timeline-canvas");
-  const tooltip = document.getElementById("visual-timeline-tooltip");
-  const ctx     = canvas.getContext("2d");
+  const canvas      = document.getElementById("visual-timeline-canvas");
+  const labelCanvas = document.getElementById("visual-timeline-labels");
+  const tooltip     = document.getElementById("visual-timeline-tooltip");
+  const ctx         = canvas.getContext("2d");
+  const lctx        = labelCanvas.getContext("2d");
 
   // Gather date range across all repos
   const now = new Date();
@@ -1278,17 +1283,22 @@ function buildVisualTimeline(repos) {
   const totalDays = Math.ceil((now - minDate) / 86400000) + 30;
   const DAY_PX    = 3;   // pixels per day
   const ROW_H     = 68;  // height per repo row (extra for branch lines)
-  const LABEL_W   = 130; // left label column
+  const LABEL_W   = 130; // left label column (separate canvas)
   const HEADER_H  = 32;  // top axis height
   const MARGIN_B  = 12;
 
-  const W = LABEL_W + totalDays * DAY_PX;
+  const W = totalDays * DAY_PX;   // scrolling canvas: no label column
   const H = HEADER_H + repos.length * ROW_H + MARGIN_B;
 
   canvas.width  = W;
   canvas.height = H;
   canvas.style.height = H + "px";
   canvas.style.minWidth = W + "px";
+
+  // Label canvas: fixed on the left
+  labelCanvas.width  = LABEL_W;
+  labelCanvas.height = H;
+  labelCanvas.style.height = H + "px";
 
   // Retro colors
   const C = {
@@ -1305,16 +1315,25 @@ function buildVisualTimeline(repos) {
     purple:   "#ff00ff",
   };
 
+  // ── Label canvas (fixed, not scrolled) ──────────────────────────────────────
+  lctx.fillStyle = C.bg;
+  lctx.fillRect(0, 0, LABEL_W, H);
+  // Header area
+  lctx.fillStyle = C.surface;
+  lctx.fillRect(0, 0, LABEL_W, HEADER_H);
+
+  // ── Scrolling timeline canvas ────────────────────────────────────────────────
   ctx.fillStyle = C.bg;
   ctx.fillRect(0, 0, W, H);
 
+  // x() converts a date to an x position in the scrolling canvas (no LABEL_W offset)
+  const dateToX = d => Math.floor((d - minDate) / 86400000) * DAY_PX;
+
   // Year axis
   ctx.font = "7px 'Press Start 2P', monospace";
-  ctx.fillStyle = C.muted;
   for (let y = minDate.getFullYear(); y <= now.getFullYear() + 1; y++) {
-    const yearDate = new Date(y, 0, 1);
-    const x = LABEL_W + Math.floor((yearDate - minDate) / 86400000) * DAY_PX;
-    if (x > LABEL_W && x < W) {
+    const x = dateToX(new Date(y, 0, 1));
+    if (x >= 0 && x < W) {
       ctx.strokeStyle = C.border + "55";
       ctx.lineWidth = 1;
       ctx.setLineDash([3, 4]);
@@ -1330,10 +1349,9 @@ function buildVisualTimeline(repos) {
 
   // Month ticks
   for (let y = minDate.getFullYear(); y <= now.getFullYear() + 1; y++) {
-    for (let m = 0; m < 12; m++) {
-      const md = new Date(y, m, 1);
-      const x  = LABEL_W + Math.floor((md - minDate) / 86400000) * DAY_PX;
-      if (x > LABEL_W && x < W && m !== 0) {
+    for (let m = 1; m < 12; m++) {
+      const x = dateToX(new Date(y, m, 1));
+      if (x >= 0 && x < W) {
         ctx.strokeStyle = C.border + "22";
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -1345,7 +1363,7 @@ function buildVisualTimeline(repos) {
   }
 
   // "Today" line
-  const todayX = LABEL_W + Math.floor((now - minDate) / 86400000) * DAY_PX;
+  const todayX = dateToX(now);
   ctx.strokeStyle = C.yellow;
   ctx.lineWidth = 2;
   ctx.setLineDash([4, 3]);
@@ -1355,29 +1373,40 @@ function buildVisualTimeline(repos) {
   ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = C.yellow;
-  ctx.fillText("NOW", todayX + 2, HEADER_H + 10);
+  ctx.font = "7px 'Press Start 2P', monospace";
+  ctx.fillText("NOW", todayX - 18, 20);
 
-  // Hotspot registry for tooltip
+  // Hotspot registry for tooltip (x coords relative to scrolling canvas)
   const hotspots = [];
 
   repos.forEach((r, i) => {
-    const rowY    = HEADER_H + i * ROW_H;
-    const barY    = rowY + 18;
-    const barH    = 16;
+    const rowY = HEADER_H + i * ROW_H;
+    const barY = rowY + 18;
+    const barH = 16;
 
-    // Row background alternating
-    ctx.fillStyle = i % 2 === 0 ? "#001400" : "#001800";
+    // Row background alternating — both canvases
+    const rowBg = i % 2 === 0 ? "#001400" : "#001800";
+    ctx.fillStyle  = rowBg;
     ctx.fillRect(0, rowY, W, ROW_H);
+    lctx.fillStyle = rowBg;
+    lctx.fillRect(0, rowY, LABEL_W, ROW_H);
 
-    // Label
-    ctx.font      = "7px 'Press Start 2P', monospace";
-    ctx.fillStyle = C.yellow;
-    ctx.fillText(r.repo.slice(0, 14), 4, rowY + 14);
-    ctx.font      = "6px 'Press Start 2P', monospace";
-    ctx.fillStyle = C.muted;
-    ctx.fillText(r.owner.slice(0, 14), 4, rowY + 26);
+    // Labels — drawn on the fixed label canvas
+    lctx.font      = "7px 'Press Start 2P', monospace";
+    lctx.fillStyle = C.yellow;
+    lctx.fillText(r.repo.slice(0, 13), 4, rowY + 14);
+    lctx.font      = "6px 'Press Start 2P', monospace";
+    lctx.fillStyle = C.muted;
+    lctx.fillText(r.owner.slice(0, 13), 4, rowY + 26);
 
-    // Separator line
+    // Row separator on both canvases
+    lctx.strokeStyle = C.border + "44";
+    lctx.lineWidth   = 1;
+    lctx.beginPath();
+    lctx.moveTo(0, rowY + ROW_H - 1);
+    lctx.lineTo(LABEL_W, rowY + ROW_H - 1);
+    lctx.stroke();
+
     ctx.strokeStyle = C.border + "44";
     ctx.lineWidth   = 1;
     ctx.beginPath();
@@ -1385,18 +1414,18 @@ function buildVisualTimeline(repos) {
     ctx.lineTo(W, rowY + ROW_H - 1);
     ctx.stroke();
 
-    // Label divider
-    ctx.strokeStyle = C.border;
-    ctx.lineWidth   = 1;
-    ctx.beginPath();
-    ctx.moveTo(LABEL_W, rowY);
-    ctx.lineTo(LABEL_W, rowY + ROW_H);
-    ctx.stroke();
+    // Right border on label canvas
+    lctx.strokeStyle = C.border;
+    lctx.lineWidth   = 1;
+    lctx.beginPath();
+    lctx.moveTo(LABEL_W - 1, rowY);
+    lctx.lineTo(LABEL_W - 1, rowY + ROW_H);
+    lctx.stroke();
 
     // Repo created dot
     if (r.created_at) {
-      const cx = LABEL_W + Math.floor((new Date(r.created_at) - minDate) / 86400000) * DAY_PX;
-      ctx.fillStyle = C.orange;
+      const cx = dateToX(new Date(r.created_at));
+      ctx.fillStyle   = C.orange;
       ctx.shadowColor = C.orange; ctx.shadowBlur = 6;
       ctx.beginPath();
       ctx.arc(cx, barY + barH / 2, 5, 0, Math.PI * 2);
@@ -1406,39 +1435,36 @@ function buildVisualTimeline(repos) {
         label: `${r.repo}\nCreated: ${r.created_at}` });
     }
 
-    // Baseline rail from creation to today (always visible)
-    const railStartX = r.created_at
-      ? LABEL_W + Math.floor((new Date(r.created_at) - minDate) / 86400000) * DAY_PX
-      : LABEL_W;
+    // Baseline rail from creation to today
+    const railStartX = r.created_at ? dateToX(new Date(r.created_at)) : 0;
     ctx.strokeStyle = "#004400";
     ctx.lineWidth   = 2;
     ctx.setLineDash([4, 6]);
     ctx.beginPath();
     ctx.moveTo(railStartX, barY + barH);
-    ctx.lineTo(todayX, barY + barH);
+    ctx.lineTo(todayX,     barY + barH);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Commit activity bars (weekly buckets from commit_activity)
-    const activity = r.commit_activity || [];
+    // Commit activity bars
+    const activity    = r.commit_activity || [];
     const hasActivity = (r.commits_30d || 0) > 0;
     if (hasActivity) {
       const maxC = Math.max(1, ...activity.map(w => w.total));
       activity.forEach(w => {
         if (!w.week || !w.total) return;
-        const weekDate = new Date(w.week * 1000);
-        const wx = LABEL_W + Math.floor((weekDate - minDate) / 86400000) * DAY_PX;
+        const wx = dateToX(new Date(w.week * 1000));
         const ww = 7 * DAY_PX - 1;
         const bh = Math.max(2, Math.round((w.total / maxC) * barH));
-        ctx.fillStyle = C.accent;
+        ctx.fillStyle   = C.accent;
         ctx.shadowColor = C.accent; ctx.shadowBlur = 4;
         ctx.fillRect(wx, barY + barH - bh, ww, bh);
         ctx.shadowBlur = 0;
         hotspots.push({ x: wx, y: barY + barH - bh, w: ww, h: bh,
-          label: `${r.repo}\nWeek of ${weekDate.toISOString().slice(0,10)}\n${w.total} commits` });
+          label: `${r.repo}\nWeek of ${new Date(w.week*1000).toISOString().slice(0,10)}\n${w.total} commits` });
       });
     } else {
-      ctx.font = "5px 'Press Start 2P', monospace";
+      ctx.font      = "5px 'Press Start 2P', monospace";
       ctx.fillStyle = C.muted;
       ctx.fillText("dormant", todayX - 52, barY + barH - 4);
     }
@@ -1446,8 +1472,8 @@ function buildVisualTimeline(repos) {
     // Releases as triangles
     (r.releases || []).forEach(rel => {
       if (!rel.date) return;
-      const rx = LABEL_W + Math.floor((new Date(rel.date) - minDate) / 86400000) * DAY_PX;
-      ctx.fillStyle = C.yellow;
+      const rx = dateToX(new Date(rel.date));
+      ctx.fillStyle   = C.yellow;
       ctx.shadowColor = C.yellow; ctx.shadowBlur = 8;
       ctx.beginPath();
       ctx.moveTo(rx, barY - 2);
@@ -1456,47 +1482,45 @@ function buildVisualTimeline(repos) {
       ctx.closePath();
       ctx.fill();
       ctx.shadowBlur = 0;
-      ctx.font = "5px 'Press Start 2P', monospace";
+      ctx.font      = "5px 'Press Start 2P', monospace";
       ctx.fillStyle = C.yellow;
       ctx.fillText(rel.tag.slice(0, 8), rx - 12, barY - 4);
       hotspots.push({ x: rx - 8, y: barY - 10, w: 16, h: 20,
         label: `${r.repo}\nRelease: ${rel.tag}\n${rel.date}\n${rel.name || ""}` });
     });
 
-    // Active branches — draw as small horizontal lines below the bar
+    // Branch lines below the bar
     const branchColors = [C.purple, C.teal, C.orange, C.red, "#88ff00", "#ff88ff"];
-    const branchY0 = barY + barH + 4;
-    const branchLineH = 4;
-    const branchGap   = 6;
+    const branchY0     = barY + barH + 4;
+    const branchGap    = 6;
     (r.branch_activity || []).forEach((b, bi) => {
       if (!b.last_commit) return;
-      const bColor  = branchColors[bi % branchColors.length];
-      const endX    = LABEL_W + Math.floor((new Date(b.last_commit) - minDate) / 86400000) * DAY_PX + DAY_PX;
-      const startX  = Math.max(LABEL_W, endX - b.commits_30d * DAY_PX * 2);
-      const lineY   = branchY0 + bi * branchGap;
+      const bColor = branchColors[bi % branchColors.length];
+      const endX   = dateToX(new Date(b.last_commit)) + DAY_PX;
+      const startX = Math.max(0, endX - b.commits_30d * DAY_PX * 2);
+      const lineY  = branchY0 + bi * branchGap;
       ctx.strokeStyle = bColor;
       ctx.shadowColor = bColor; ctx.shadowBlur = 4;
-      ctx.lineWidth   = branchLineH;
+      ctx.lineWidth   = 4;
       ctx.beginPath();
       ctx.moveTo(startX, lineY);
       ctx.lineTo(endX,   lineY);
       ctx.stroke();
-      ctx.shadowBlur  = 0;
-      // Dot at tip
-      ctx.fillStyle   = bColor;
+      ctx.shadowBlur = 0;
+      ctx.fillStyle  = bColor;
       ctx.beginPath();
       ctx.arc(endX, lineY, 3, 0, Math.PI * 2);
       ctx.fill();
-      // Label
-      ctx.font        = "5px 'Press Start 2P', monospace";
-      ctx.fillStyle   = bColor;
-      ctx.fillText(b.name.slice(0, 12), LABEL_W - 1 > startX - 40 ? endX + 3 : startX - 2, lineY - 2);
+      ctx.font      = "5px 'Press Start 2P', monospace";
+      ctx.fillStyle = bColor;
+      ctx.fillText(b.name.slice(0, 12), endX + 3, lineY - 2);
       hotspots.push({ x: startX, y: lineY - 3, w: endX - startX + 6, h: 8,
         label: `${r.repo}\nBranch: ${b.name}\nLast commit: ${b.last_commit}\n${b.commits_30d} commits (30d)` });
     });
   });
 
   // Tooltip on hover
+  const scrollWrap = document.getElementById("visual-timeline-scroll");
   canvas.addEventListener("mousemove", e => {
     const rect   = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -1505,20 +1529,18 @@ function buildVisualTimeline(repos) {
     const my     = (e.clientY - rect.top)  * scaleY;
     const hit    = hotspots.find(h => mx >= h.x && mx <= h.x + h.w && my >= h.y && my <= h.y + h.h);
     if (hit) {
-      tooltip.style.display  = "block";
-      tooltip.style.left     = (e.clientX + 12) + "px";
-      tooltip.style.top      = (e.clientY - 10) + "px";
-      tooltip.innerHTML      = hit.label.split("\n").map(l => `<div>${esc(l)}</div>`).join("");
+      tooltip.style.display = "block";
+      tooltip.style.left    = (e.clientX + 12) + "px";
+      tooltip.style.top     = (e.clientY - 10) + "px";
+      tooltip.innerHTML     = hit.label.split("\n").map(l => `<div>${esc(l)}</div>`).join("");
     } else {
-      tooltip.style.display  = "none";
+      tooltip.style.display = "none";
     }
   });
   canvas.addEventListener("mouseleave", () => { tooltip.style.display = "none"; });
 
-  // Scroll to show the last 2 years by default
-  const scrollWrap = document.getElementById("visual-timeline-scroll");
-  const twoYearsAgo = LABEL_W + Math.max(0, Math.floor((now - minDate) / 86400000) - 730) * DAY_PX;
-  scrollWrap.scrollLeft = twoYearsAgo;
+  // Scroll to the right end (today) by default
+  scrollWrap.scrollLeft = W;
 }
 
 // ── Build Timeline ───────────────────────────────────────────────────────────
