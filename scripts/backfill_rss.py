@@ -120,25 +120,44 @@ def main():
         owner, repo = r["owner"], r["repo"]
         print(f"Fetching {owner}/{repo}...")
 
-        # Get all commits for the lookback window
+        # Get all branches
+        branches_raw = gh_get(
+            f"https://api.github.com/repos/{owner}/{repo}/branches",
+            params={"per_page": 100},
+        ) or []
+        branch_names = [b.get("name", "") for b in branches_raw if b.get("name")]
+        if not branch_names:
+            branch_names = ["main"]
+        print(f"  {len(branch_names)} branch(es): {', '.join(branch_names[:8])}")
+        time.sleep(0.3)
+
+        # Get all commits across all branches, deduplicated by SHA
+        seen_shas = set()
         commits_raw = []
-        page = 1
-        while True:
-            page_data = gh_get(
-                f"https://api.github.com/repos/{owner}/{repo}/commits",
-                params={"since": since, "per_page": 100, "page": page},
-            )
-            if not page_data or not isinstance(page_data, list):
-                break
-            commits_raw.extend(page_data)
-            if len(page_data) < 100:
-                break
-            page += 1
-        time.sleep(0.5)
+        for branch in branch_names:
+            page = 1
+            while True:
+                page_data = gh_get(
+                    f"https://api.github.com/repos/{owner}/{repo}/commits",
+                    params={"sha": branch, "since": since, "per_page": 100, "page": page},
+                )
+                if not page_data or not isinstance(page_data, list):
+                    break
+                for c in page_data:
+                    sha = c.get("sha", "")
+                    if sha not in seen_shas:
+                        seen_shas.add(sha)
+                        c["_branch"] = branch
+                        commits_raw.append(c)
+                if len(page_data) < 100:
+                    break
+                page += 1
+            time.sleep(0.3)
 
         if not commits_raw:
             print(f"  No commits in last {LOOKBACK_DAYS} days, skipping.")
             continue
+        print(f"  {len(commits_raw)} unique commits across all branches")
 
         # Group commits by day
         by_day = {}
@@ -161,8 +180,10 @@ def main():
                 url   = c.get("html_url", repo_url)
                 ctype = classify_commit_type(msg)
                 commit_lines.append(f"[{date_str}] {author}: {msg}")
+                branch_label = c.get("_branch", "")
+                branch_html = f" <small>[{xml_escape(branch_label)}]</small>" if branch_label else ""
                 commits_html_list.append(
-                    f"<li>[{ctype}] <a href='{xml_escape(url)}'>"
+                    f"<li>[{ctype}]{branch_html} <a href='{xml_escape(url)}'>"
                     f"<code>{xml_escape(sha)}</code></a> "
                     f"{xml_escape(msg)} <em>— {xml_escape(author)}</em></li>"
                 )

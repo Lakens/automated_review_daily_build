@@ -577,8 +577,8 @@
 
       <div class="sec">Community Narrative</div>
       <div class="narrative-box" id="narrative-box">
-        <div class="ai-label">Gemini AI · Cross-repo digest</div>
-        <p id="narrative-text">No narrative generated yet.</p>
+        <div class="ai-label" id="narrative-label">Gemini AI · Cross-repo digest</div>
+        <div id="narrative-text"></div>
       </div>
 
       <div class="sec">This Week's Activity</div>
@@ -764,7 +764,24 @@ function buildOverview(data) {
 
   // Narrative
   if (d.narrative) {
-    document.getElementById("narrative-text").textContent = d.narrative;
+    document.getElementById("narrative-label").textContent = "Gemini AI · Cross-repo digest";
+    document.getElementById("narrative-text").innerHTML = `<p>${esc(d.narrative)}</p>`;
+  } else {
+    // Fall back to per-repo Groq summaries
+    const summaries = (data.repos || []).filter(r => r.summary && !r.summary.startsWith("Placeholder"));
+    if (summaries.length) {
+      document.getElementById("narrative-label").textContent = "Groq AI · Per-repo summaries (30d)";
+      document.getElementById("narrative-text").innerHTML = summaries.map(r => `
+        <div style="margin-bottom:10px">
+          <div style="font-size:7px;color:var(--yellow);text-shadow:var(--glow-y);margin-bottom:3px">
+            <a href="${esc(r.url)}" target="_blank" style="color:inherit">${esc(r.owner)}/${esc(r.repo)}</a>
+          </div>
+          <div style="font-size:8px;line-height:1.9;color:var(--text)">${esc(r.summary)}</div>
+        </div>`).join(`<div style="height:1px;background:var(--border);margin:8px 0"></div>`);
+    } else {
+      document.getElementById("narrative-label").textContent = "AI narrative";
+      document.getElementById("narrative-text").innerHTML = `<p style="color:var(--muted)">Trigger the GitHub Actions workflow to generate summaries.</p>`;
+    }
   }
 
   // Week table
