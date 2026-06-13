@@ -719,9 +719,9 @@ def process_repo(owner, repo, description, all_logins_seen, repos_list):
     if r_meta.get("title"):
         scopus_citations = scopus_cited_by_count(r_meta["title"])
 
-    # AI summary (Groq)
+    # AI summary (Groq) — only for repos with recent commits
     commit_lines = [commit_to_text(c) for c in commits_30d]
-    summary = summarize_commits_groq(f"{owner}/{repo}", commit_lines)
+    summary = summarize_commits_groq(f"{owner}/{repo}", commit_lines) if commit_lines else ""
 
     pushed_at = info.get("pushed_at", "")
     last_push_days = None
