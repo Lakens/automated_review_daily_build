@@ -1410,9 +1410,9 @@ function buildVisualTimeline(repos) {
     const railStartX = r.created_at
       ? LABEL_W + Math.floor((new Date(r.created_at) - minDate) / 86400000) * DAY_PX
       : LABEL_W;
-    ctx.strokeStyle = C.muted + "55";
-    ctx.lineWidth   = 1;
-    ctx.setLineDash([2, 4]);
+    ctx.strokeStyle = "#004400";
+    ctx.lineWidth   = 2;
+    ctx.setLineDash([4, 6]);
     ctx.beginPath();
     ctx.moveTo(railStartX, barY + barH);
     ctx.lineTo(todayX, barY + barH);
@@ -1421,7 +1421,8 @@ function buildVisualTimeline(repos) {
 
     // Commit activity bars (weekly buckets from commit_activity)
     const activity = r.commit_activity || [];
-    if (activity.length) {
+    const hasActivity = (r.commits_30d || 0) > 0;
+    if (hasActivity) {
       const maxC = Math.max(1, ...activity.map(w => w.total));
       activity.forEach(w => {
         if (!w.week || !w.total) return;
@@ -1437,10 +1438,9 @@ function buildVisualTimeline(repos) {
           label: `${r.repo}\nWeek of ${weekDate.toISOString().slice(0,10)}\n${w.total} commits` });
       });
     } else {
-      // Dormant label
       ctx.font = "5px 'Press Start 2P', monospace";
       ctx.fillStyle = C.muted;
-      ctx.fillText("no recent commits", todayX - 90, barY + barH - 4);
+      ctx.fillText("dormant", todayX - 52, barY + barH - 4);
     }
 
     // Releases as triangles
