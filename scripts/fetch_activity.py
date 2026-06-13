@@ -936,12 +936,13 @@ def generate_rss(results, digest, generated_at, output_path):
     for r in results:
         events = []
         if r["commits_1d"] > 0:
+            today_commits = [c for c in r.get("recent_commits", []) if c["date"] == today]
             commits_html = "".join(
                 f"<li><code>{xml_escape(c['sha'])}</code> "
+                f"[{xml_escape(c.get('branch', ''))}] "
                 f"<a href='{xml_escape(c['url'])}'>{xml_escape(c['message'])}</a> "
                 f"— {xml_escape(c['author'])}</li>"
-                for c in r.get("recent_commits", [])[:5]
-                if c["date"] == today
+                for c in (today_commits or r.get("recent_commits", []))[:20]
             )
             events.append(
                 f"<p><strong>{r['commits_1d']} commit(s) today:</strong></p>"
@@ -968,6 +969,7 @@ def generate_rss(results, digest, generated_at, output_path):
             f"<h3><a href='{xml_escape(r['url'])}'>{xml_escape(r['owner'])}/{xml_escape(r['repo'])}</a></h3>"
             + summary_html
             + "\n".join(events)
+            + (f"<p><a href='{xml_escape(r['url'])}/commits'>View all commits &rarr;</a></p>")
         )
         items.append({
             "title": f"{r['repo']}: {r['commits_1d']} commit{'s' if r['commits_1d'] != 1 else ''} today"
