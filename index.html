@@ -797,7 +797,8 @@ function buildHeatmap(repos) {
     const max = Math.max(1, ...activity.map(w => w.total));
     const cells = activity.slice(-weeks).map(w => {
       const lvl = w.total === 0 ? 0 : w.total < max*0.25 ? 1 : w.total < max*0.5 ? 2 : w.total < max*0.75 ? 3 : 4;
-      return `<div class="hmap-cell l${lvl}" title="${w.total} commits"></div>`;
+      const weekLabel = w.week ? new Date(w.week * 1000).toISOString().slice(0,10) : "";
+      return `<div class="hmap-cell l${lvl}" title="${w.total} commits${weekLabel ? ' · w/c ' + weekLabel : ''}"></div>`;
     }).join("");
     return `
       <div class="heatmap-row">

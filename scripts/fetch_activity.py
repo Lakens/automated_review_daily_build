@@ -321,11 +321,48 @@ def fetch_stargazers_timeseries(owner, repo):
         return []
 
 
+def build_commit_activity_from_commits(commits, n_weeks=12):
+    """Compute weekly commit counts from a list of commit objects (all branches)."""
+    import math
+    now = datetime.now(timezone.utc)
+    # Start of current week (Monday)
+    week_start = now - timedelta(days=now.weekday())
+    week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    buckets = {}
+    for w in range(n_weeks):
+        ws = week_start - timedelta(weeks=w)
+        buckets[ws] = 0
+
+    for c in commits:
+        date_str = c.get("commit", {}).get("author", {}).get("date", "")
+        if not date_str:
+            continue
+        try:
+            dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+            # Find which week bucket this falls in
+            days_ago = (now - dt).days
+            weeks_ago = days_ago // 7
+            if weeks_ago < n_weeks:
+                ws = week_start - timedelta(weeks=weeks_ago)
+                if ws in buckets:
+                    buckets[ws] += 1
+        except Exception:
+            continue
+
+    return [
+        {"week": int(ws.timestamp()), "total": count}
+        for ws, count in sorted(buckets.items())
+    ]
+
+
 def fetch_commit_activity(owner, repo):
-    """Weekly commit count for last 52 weeks."""
+    """Weekly commit count for last 52 weeks (GitHub stats, default branch only)."""
     try:
         data = gh_get(f"https://api.github.com/repos/{owner}/{repo}/stats/commit_activity") or []
-        return [{"week": w.get("week"), "total": w.get("total", 0)} for w in data[-12:]]
+        if isinstance(data, list) and data:
+            return [{"week": w.get("week"), "total": w.get("total", 0)} for w in data[-12:]]
+        return []
     except Exception:
         return []
 
@@ -665,8 +702,11 @@ def process_repo(owner, repo, description, all_logins_seen, repos_list):
             "html_url": c.get("html_url", ""),
         })
 
-    # Activity timeseries
-    commit_activity = fetch_commit_activity(owner, repo)
+    # Activity timeseries — compute from actual fetched commits (all branches),
+    # fall back to GitHub stats API which only covers default branch
+    commit_activity = build_commit_activity_from_commits(commits_90d or commits_30d, n_weeks=12)
+    if not any(w["total"] > 0 for w in commit_activity):
+        commit_activity = fetch_commit_activity(owner, repo)
     code_frequency  = fetch_code_frequency(owner, repo)
     star_history    = fetch_stargazers_timeseries(owner, repo)
 
