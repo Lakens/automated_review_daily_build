@@ -759,6 +759,135 @@ def build_weekly_digest(repos_data, gemini_narrative_text):
     }
 
 
+SITE_URL = "https://lakens.github.io/automated_review_daily_build"
+
+
+def xml_escape(s):
+    return (str(s or "")
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;")
+            .replace("'", "&apos;"))
+
+
+def rfc822(iso):
+    """Convert ISO 8601 UTC string to RFC 822 format for RSS."""
+    try:
+        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+        return dt.strftime("%a, %d %b %Y %H:%M:%S +0000")
+    except Exception:
+        return datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
+
+
+def generate_rss(results, digest, generated_at, output_path):
+    """Generate an RSS 2.0 feed with one item per notable daily event."""
+    items = []
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    # Item 1: daily digest summary
+    active = [r for r in results if r["commits_7d"] > 0]
+    narrative = digest.get("narrative", "")
+    total_commits = digest.get("total_commits_7d", 0)
+    digest_desc = []
+    if narrative:
+        digest_desc.append(f"<p>{xml_escape(narrative)}</p>")
+    digest_desc.append(f"<p><strong>{total_commits}</strong> commits across {len(active)} active repositories this week.</p>")
+    if digest.get("new_releases"):
+        rels = ", ".join(f"{r['repo']} {r['tag']}" for r in digest["new_releases"])
+        digest_desc.append(f"<p>New releases: {xml_escape(rels)}</p>")
+    if digest.get("dormant_revived"):
+        repos = ", ".join(r["repo"] for r in digest["dormant_revived"])
+        digest_desc.append(f"<p>Dormant repos revived: {xml_escape(repos)}</p>")
+    most_active = digest.get("most_active", [])
+    if most_active:
+        rows = "".join(
+            f"<tr><td><a href='https://github.com/{xml_escape(r['owner'])}/{xml_escape(r['repo'])}'>"
+            f"{xml_escape(r['repo'])}</a></td><td>{r['commits']} commits</td></tr>"
+            for r in most_active
+        )
+        digest_desc.append(f"<p><strong>Most active:</strong></p><table>{rows}</table>")
+
+    items.append({
+        "title": f"Daily digest — {today}",
+        "link": SITE_URL,
+        "guid": f"{SITE_URL}/digest/{today}",
+        "pubDate": rfc822(generated_at),
+        "description": "\n".join(digest_desc),
+    })
+
+    # One item per repo that had commits today or a new release
+    for r in results:
+        events = []
+        if r["commits_1d"] > 0:
+            commits_html = "".join(
+                f"<li><code>{xml_escape(c['sha'])}</code> "
+                f"<a href='{xml_escape(c['url'])}'>{xml_escape(c['message'])}</a> "
+                f"— {xml_escape(c['author'])}</li>"
+                for c in r.get("recent_commits", [])[:5]
+                if c["date"] == today
+            )
+            events.append(
+                f"<p><strong>{r['commits_1d']} commit(s) today:</strong></p>"
+                f"<ul>{commits_html}</ul>"
+            )
+        if r.get("releases") and r["releases"][0].get("date") == today:
+            rel = r["releases"][0]
+            events.append(
+                f"<p>New release: <a href='{xml_escape(rel['url'])}'>"
+                f"{xml_escape(rel['tag'])}</a>"
+                + (f" — {xml_escape(rel['name'])}" if rel.get("name") else "")
+                + "</p>"
+            )
+        if r.get("dormant_revived"):
+            events.append("<p>&#9888; This repository was dormant and has recently become active again.</p>")
+
+        if not events:
+            continue
+
+        summary_html = (
+            f"<p><em>{xml_escape(r['summary'])}</em></p>" if r.get("summary") else ""
+        )
+        desc = (
+            f"<h3><a href='{xml_escape(r['url'])}'>{xml_escape(r['owner'])}/{xml_escape(r['repo'])}</a></h3>"
+            + summary_html
+            + "\n".join(events)
+        )
+        items.append({
+            "title": f"{r['repo']}: {r['commits_1d']} commit{'s' if r['commits_1d'] != 1 else ''} today"
+                     if r["commits_1d"] > 0 else f"{r['repo']}: new release {r['releases'][0]['tag']}",
+            "link": r["url"],
+            "guid": f"{SITE_URL}/repo/{r['owner']}/{r['repo']}/{today}",
+            "pubDate": rfc822(r.get("pushed_at") or generated_at),
+            "description": desc,
+        })
+
+    items_xml = "\n".join(f"""    <item>
+      <title>{xml_escape(i['title'])}</title>
+      <link>{i['link']}</link>
+      <guid isPermaLink="false">{i['guid']}</guid>
+      <pubDate>{i['pubDate']}</pubDate>
+      <description><![CDATA[{i['description']}]]></description>
+    </item>""" for i in items)
+
+    feed = f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>What Is Being Built — Daily Activity Feed</title>
+    <link>{SITE_URL}</link>
+    <description>Daily updates on open-source automated research tools: commits, releases, and community activity.</description>
+    <language>en-us</language>
+    <lastBuildDate>{rfc822(generated_at)}</lastBuildDate>
+    <atom:link href="{SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>
+{items_xml}
+  </channel>
+</rss>
+"""
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(feed)
+    print(f"Wrote RSS feed to {output_path} ({len(items)} items)")
+
+
 def main():
     repos_path  = Path(__file__).parent.parent / "repos.json"
     output_dir  = Path(__file__).parent.parent / "data"
@@ -817,6 +946,9 @@ def main():
     out_path = output_dir / "activity.json"
     with open(out_path, "w") as f:
         json.dump(output, f, indent=2)
+
+    rss_path = Path(__file__).parent.parent / "feed.xml"
+    generate_rss(results, digest, output["generated_at"], rss_path)
 
     print(f"Done. Wrote {len(results)} repos, {len(people)} people to {out_path}")
 
