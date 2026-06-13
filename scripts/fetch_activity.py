@@ -72,13 +72,43 @@ def fetch_repo_info(owner, repo):
     return data
 
 
-def fetch_commits(owner, repo, since_days=30):
+def fetch_branches(owner, repo):
+    """Return list of branch dicts with name and last commit date."""
+    try:
+        branches = gh_get(
+            f"https://api.github.com/repos/{owner}/{repo}/branches",
+            params={"per_page": 100},
+        ) or []
+        result = []
+        for b in branches:
+            name = b.get("name", "")
+            sha  = (b.get("commit") or {}).get("sha", "")
+            # Get last commit date from the commit object
+            commit_date = ""
+            if sha:
+                try:
+                    c = gh_get(f"https://api.github.com/repos/{owner}/{repo}/commits/{sha}")
+                    commit_date = (c.get("commit", {}).get("author", {}).get("date", "") or "")[:10]
+                except Exception:
+                    pass
+            result.append({"name": name, "sha": sha, "last_commit": commit_date})
+        return result
+    except Exception:
+        return []
+
+
+def fetch_commits(owner, repo, since_days=30, sha=None):
+    """Fetch commits since N days ago, optionally from a specific branch SHA."""
     since = (datetime.now(timezone.utc) - timedelta(days=since_days)).isoformat()
+    params = {"since": since, "per_page": 100}
+    if sha:
+        params["sha"] = sha
     commits, page = [], 1
     while True:
+        params["page"] = page
         page_data = gh_get(
             f"https://api.github.com/repos/{owner}/{repo}/commits",
-            params={"since": since, "per_page": 100, "page": page},
+            params=params,
         )
         if not page_data:
             break
@@ -87,6 +117,38 @@ def fetch_commits(owner, repo, since_days=30):
             break
         page += 1
     return commits
+
+
+def fetch_commits_all_branches(owner, repo, branches, since_days=30):
+    """Fetch commits across all active branches, deduplicated by SHA."""
+    seen_shas = set()
+    all_commits = []
+    branch_activity = []
+    now = datetime.now(timezone.utc)
+    cutoff = (now - timedelta(days=since_days)).strftime("%Y-%m-%d")
+
+    for b in branches:
+        # Skip branches with no recent activity
+        if b.get("last_commit", "") < cutoff:
+            continue
+        branch_commits = fetch_commits(owner, repo, since_days=since_days, sha=b["sha"])
+        new_commits = []
+        for c in branch_commits:
+            sha = c.get("sha", "")
+            if sha not in seen_shas:
+                seen_shas.add(sha)
+                c["_branch"] = b["name"]
+                new_commits.append(c)
+                all_commits.append(c)
+        if new_commits:
+            branch_activity.append({
+                "name": b["name"],
+                "last_commit": b.get("last_commit", ""),
+                "commits_30d": len(new_commits),
+            })
+        time.sleep(0.2)
+
+    return all_commits, branch_activity
 
 
 def fetch_recent_commits(owner, repo, n=20):
@@ -519,22 +581,32 @@ def process_repo(owner, repo, description, all_logins_seen, repos_list):
 
     now = datetime.now(timezone.utc)
 
-    # Commits
+    # Branches — fetch all, then gather commits across active ones
+    print(f"    fetching branches...")
+    branches = fetch_branches(owner, repo)
+
     commits_30d = []
+    branch_activity = []
     try:
-        commits_30d = fetch_commits(owner, repo, since_days=30)
+        commits_30d, branch_activity = fetch_commits_all_branches(owner, repo, branches, since_days=30)
     except Exception as e:
         print(f"    warn commits: {e}", file=sys.stderr)
 
-    commits_7d  = [c for c in commits_30d if datetime.fromisoformat(c["commit"]["author"]["date"].replace("Z","+00:00")) > now - timedelta(days=7)]
-    commits_1d  = [c for c in commits_30d if datetime.fromisoformat(c["commit"]["author"]["date"].replace("Z","+00:00")) > now - timedelta(days=1)]
+    def parse_dt(c):
+        return datetime.fromisoformat(c["commit"]["author"]["date"].replace("Z", "+00:00"))
+
+    commits_7d = [c for c in commits_30d if parse_dt(c) > now - timedelta(days=7)]
+    commits_1d = [c for c in commits_30d if parse_dt(c) > now - timedelta(days=1)]
+
     commits_90d = []
     try:
-        commits_90d = fetch_commits(owner, repo, since_days=90)
+        commits_90d, _ = fetch_commits_all_branches(owner, repo, branches, since_days=90)
     except Exception:
         pass
 
-    recent_commits_raw = fetch_recent_commits(owner, repo, n=20)
+    # Recent commits sorted newest-first (across all branches)
+    commits_30d_sorted = sorted(commits_30d, key=parse_dt, reverse=True)
+    recent_commits_raw = commits_30d_sorted[:20]
 
     # Classify commits
     recent_commits = []
@@ -550,14 +622,15 @@ def process_repo(owner, repo, description, all_logins_seen, repos_list):
             "date": c.get("commit", {}).get("author", {}).get("date", "")[:10],
             "url": c.get("html_url", ""),
             "type": ctype,
+            "branch": c.get("_branch", ""),
             "diff": {},
         }
         recent_commits.append(entry)
 
     # Diff for most recent commit only (API quota care)
-    if recent_commits:
+    if recent_commits_raw:
         full_sha = recent_commits_raw[0].get("sha", "")
-        if full_sha:
+        if full_sha and recent_commits:
             recent_commits[0]["diff"] = fetch_commit_diff(owner, repo, full_sha)
             diff_summary = summarize_diff_groq(
                 f"{owner}/{repo}",
@@ -566,7 +639,7 @@ def process_repo(owner, repo, description, all_logins_seen, repos_list):
             )
             recent_commits[0]["diff_summary"] = diff_summary
 
-    # Commit type breakdown (30d)
+    # Commit type breakdown (30d, all branches)
     type_breakdown = {}
     for c in commits_30d:
         msg = c.get("commit", {}).get("message", "").split("\n")[0]
@@ -646,7 +719,10 @@ def process_repo(owner, repo, description, all_logins_seen, repos_list):
         "last_push_days": last_push_days,
         "default_branch": info.get("default_branch", "main"),
         "license": (info.get("license") or {}).get("spdx_id", ""),
-        # Commit counts
+        # Branches
+        "branches": [{"name": b["name"], "last_commit": b.get("last_commit", "")} for b in branches],
+        "branch_activity": branch_activity,
+        # Commit counts (across all branches)
         "commits_30d": len(commits_30d),
         "commits_7d":  len(commits_7d),
         "commits_1d":  len(commits_1d),

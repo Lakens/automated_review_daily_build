@@ -634,6 +634,22 @@
   <!-- ── TIMELINE ── -->
   <div class="page" id="page-timeline">
     <div class="container">
+      <div class="sec">Project History</div>
+      <div id="visual-timeline-wrap" style="background:var(--surface);border:2px solid var(--border);box-shadow:var(--glow);padding:16px 0 8px;margin-bottom:20px;overflow:hidden">
+        <div id="visual-timeline-scroll" style="overflow-x:auto;overflow-y:visible;padding:0 24px 8px">
+          <canvas id="visual-timeline-canvas" style="display:block;cursor:crosshair"></canvas>
+        </div>
+        <div id="visual-timeline-tooltip" style="display:none;position:fixed;background:var(--surface2);border:2px solid var(--accent);color:var(--text);font-family:var(--font);font-size:7px;padding:6px 10px;pointer-events:none;z-index:1000;box-shadow:var(--glow);line-height:1.8;max-width:220px"></div>
+        <div style="font-size:7px;color:var(--muted);padding:4px 24px;display:flex;gap:20px;flex-wrap:wrap">
+          <span><span style="color:var(--yellow)">&#9650;</span> Release</span>
+          <span><span style="color:var(--accent)">&#9646;</span> Commit activity</span>
+          <span><span style="color:var(--orange)">&#11044;</span> Repo created</span>
+          <span><span style="color:var(--purple)">&#9644;</span> Active branch</span>
+          <span style="color:var(--muted)">Scroll horizontally to navigate years &bull; Hover for details</span>
+        </div>
+      </div>
+
+      <div class="sec">Commit Feed</div>
       <div class="toolbar">
         <button class="fbtn active" data-tfilter="all">All types</button>
         <button class="fbtn" data-tfilter="feat">Features</button>
@@ -857,6 +873,7 @@ function buildRepoCard(r) {
           ${typeBadge(c.type)}
           <a class="csha" href="${esc(c.url)}" target="_blank">${esc(c.sha)}</a>
           <span class="cmsg" title="${esc(c.message)}">${esc(c.message)}</span>
+          ${c.branch && c.branch !== r.default_branch ? `<span style="font-size:6px;color:var(--purple);border:1px solid var(--purple);padding:0 4px;white-space:nowrap">${esc(c.branch)}</span>` : ""}
           <span class="cmeta">${esc(c.date)}</span>
         </li>`).join("")}</ul>`
     : `<div class="empty">No recent commits.</div>`;
@@ -954,15 +971,27 @@ function buildRepoCard(r) {
       ${panels.map((html,i)=>`<div class="cpanel${i===0?" active":""}">${html}</div>`).join("")}
     </div>
 
+    ${r.branch_activity?.length > 1 ? `
+    <div>
+      <div style="font-size:7px;color:var(--muted);margin-bottom:5px;text-shadow:none">ACTIVE BRANCHES (30D)</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        ${r.branch_activity.map(b=>`
+          <a href="${esc(r.url)}/tree/${esc(b.name)}" target="_blank"
+             style="font-size:7px;padding:2px 7px;border:1px solid var(--purple);color:var(--purple);text-shadow:var(--glow-p)">
+            ${esc(b.name)} <span style="color:var(--muted)">${b.commits_30d}c</span>
+          </a>`).join("")}
+      </div>
+    </div>` : ""}
+
     ${r.contributors?.length ? `
     <div>
-      <div style="font-size:10px;color:var(--muted);margin-bottom:5px">Contributors</div>
+      <div style="font-size:7px;color:var(--muted);margin-bottom:5px">CONTRIBUTORS</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${r.contributors.map(c=>`
-          <a href="${esc(c.html_url)}" target="_blank" style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text)">
-            <img src="${esc(c.avatar_url)}" style="width:20px;height:20px;border-radius:50%;border:1px solid var(--border)" />
+          <a href="${esc(c.html_url)}" target="_blank" style="display:flex;align-items:center;gap:5px;font-size:8px;color:var(--text)">
+            <img src="${esc(c.avatar_url)}" style="width:18px;height:18px;border:1px solid var(--accent);image-rendering:pixelated" />
             ${esc(c.login)}
-            <span style="color:var(--muted);font-size:10px">${c.contributions}</span>
+            <span style="color:var(--muted);font-size:7px">${c.contributions}</span>
           </a>`).join("")}
       </div>
     </div>` : ""}
@@ -1193,6 +1222,258 @@ function buildDigest(data) {
   }).join("");
 }
 
+// ── Visual Timeline (canvas) ─────────────────────────────────────────────────
+function buildVisualTimeline(repos) {
+  const canvas  = document.getElementById("visual-timeline-canvas");
+  const tooltip = document.getElementById("visual-timeline-tooltip");
+  const ctx     = canvas.getContext("2d");
+
+  // Gather date range across all repos
+  const now = new Date();
+  let minDate = new Date(now);
+  repos.forEach(r => {
+    if (r.created_at) {
+      const d = new Date(r.created_at);
+      if (d < minDate) minDate = d;
+    }
+    (r.releases || []).forEach(rel => {
+      if (rel.date) {
+        const d = new Date(rel.date);
+        if (d < minDate) minDate = d;
+      }
+    });
+  });
+  // Round down to start of year
+  minDate = new Date(minDate.getFullYear(), 0, 1);
+
+  const totalDays = Math.ceil((now - minDate) / 86400000) + 30;
+  const DAY_PX    = 3;   // pixels per day
+  const ROW_H     = 68;  // height per repo row (extra for branch lines)
+  const LABEL_W   = 130; // left label column
+  const HEADER_H  = 32;  // top axis height
+  const MARGIN_B  = 12;
+
+  const W = LABEL_W + totalDays * DAY_PX;
+  const H = HEADER_H + repos.length * ROW_H + MARGIN_B;
+
+  canvas.width  = W;
+  canvas.height = H;
+  canvas.style.height = H + "px";
+  canvas.style.minWidth = W + "px";
+
+  // Retro colors
+  const C = {
+    bg:       "#001200",
+    surface:  "#001a00",
+    border:   "#00aa00",
+    text:     "#00ff41",
+    muted:    "#007700",
+    yellow:   "#ffff00",
+    orange:   "#ff8800",
+    accent:   "#00ff41",
+    teal:     "#00ffff",
+    red:      "#ff2222",
+    purple:   "#ff00ff",
+  };
+
+  ctx.fillStyle = C.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Year axis
+  ctx.font = "7px 'Press Start 2P', monospace";
+  ctx.fillStyle = C.muted;
+  for (let y = minDate.getFullYear(); y <= now.getFullYear() + 1; y++) {
+    const yearDate = new Date(y, 0, 1);
+    const x = LABEL_W + Math.floor((yearDate - minDate) / 86400000) * DAY_PX;
+    if (x > LABEL_W && x < W) {
+      ctx.strokeStyle = C.border + "55";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 4]);
+      ctx.beginPath();
+      ctx.moveTo(x, HEADER_H);
+      ctx.lineTo(x, H - MARGIN_B);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = C.muted;
+      ctx.fillText(String(y), x + 2, 20);
+    }
+  }
+
+  // Month ticks
+  for (let y = minDate.getFullYear(); y <= now.getFullYear() + 1; y++) {
+    for (let m = 0; m < 12; m++) {
+      const md = new Date(y, m, 1);
+      const x  = LABEL_W + Math.floor((md - minDate) / 86400000) * DAY_PX;
+      if (x > LABEL_W && x < W && m !== 0) {
+        ctx.strokeStyle = C.border + "22";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x, HEADER_H - 4);
+        ctx.lineTo(x, HEADER_H);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // "Today" line
+  const todayX = LABEL_W + Math.floor((now - minDate) / 86400000) * DAY_PX;
+  ctx.strokeStyle = C.yellow;
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  ctx.moveTo(todayX, HEADER_H);
+  ctx.lineTo(todayX, H - MARGIN_B);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = C.yellow;
+  ctx.fillText("NOW", todayX + 2, HEADER_H + 10);
+
+  // Hotspot registry for tooltip
+  const hotspots = [];
+
+  repos.forEach((r, i) => {
+    const rowY    = HEADER_H + i * ROW_H;
+    const barY    = rowY + 18;
+    const barH    = 16;
+
+    // Row background alternating
+    ctx.fillStyle = i % 2 === 0 ? "#001400" : "#001800";
+    ctx.fillRect(0, rowY, W, ROW_H);
+
+    // Label
+    ctx.font      = "7px 'Press Start 2P', monospace";
+    ctx.fillStyle = C.yellow;
+    ctx.fillText(r.repo.slice(0, 14), 4, rowY + 14);
+    ctx.font      = "6px 'Press Start 2P', monospace";
+    ctx.fillStyle = C.muted;
+    ctx.fillText(r.owner.slice(0, 14), 4, rowY + 26);
+
+    // Separator line
+    ctx.strokeStyle = C.border + "44";
+    ctx.lineWidth   = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, rowY + ROW_H - 1);
+    ctx.lineTo(W, rowY + ROW_H - 1);
+    ctx.stroke();
+
+    // Label divider
+    ctx.strokeStyle = C.border;
+    ctx.lineWidth   = 1;
+    ctx.beginPath();
+    ctx.moveTo(LABEL_W, rowY);
+    ctx.lineTo(LABEL_W, rowY + ROW_H);
+    ctx.stroke();
+
+    // Repo created dot
+    if (r.created_at) {
+      const cx = LABEL_W + Math.floor((new Date(r.created_at) - minDate) / 86400000) * DAY_PX;
+      ctx.fillStyle = C.orange;
+      ctx.shadowColor = C.orange; ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.arc(cx, barY + barH / 2, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      hotspots.push({ x: cx - 6, y: barY, w: 12, h: barH,
+        label: `${r.repo}\nCreated: ${r.created_at}` });
+    }
+
+    // Commit activity bars (weekly buckets from commit_activity)
+    const activity = r.commit_activity || [];
+    if (activity.length) {
+      const maxC = Math.max(1, ...activity.map(w => w.total));
+      activity.forEach(w => {
+        if (!w.week || !w.total) return;
+        const weekDate = new Date(w.week * 1000);
+        const wx = LABEL_W + Math.floor((weekDate - minDate) / 86400000) * DAY_PX;
+        const ww = 7 * DAY_PX - 1;
+        const bh = Math.max(2, Math.round((w.total / maxC) * barH));
+        ctx.fillStyle = C.accent;
+        ctx.shadowColor = C.accent; ctx.shadowBlur = 4;
+        ctx.fillRect(wx, barY + barH - bh, ww, bh);
+        ctx.shadowBlur = 0;
+        hotspots.push({ x: wx, y: barY + barH - bh, w: ww, h: bh,
+          label: `${r.repo}\nWeek of ${weekDate.toISOString().slice(0,10)}\n${w.total} commits` });
+      });
+    }
+
+    // Releases as triangles
+    (r.releases || []).forEach(rel => {
+      if (!rel.date) return;
+      const rx = LABEL_W + Math.floor((new Date(rel.date) - minDate) / 86400000) * DAY_PX;
+      ctx.fillStyle = C.yellow;
+      ctx.shadowColor = C.yellow; ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(rx, barY - 2);
+      ctx.lineTo(rx + 6, barY + 8);
+      ctx.lineTo(rx - 6, barY + 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.font = "5px 'Press Start 2P', monospace";
+      ctx.fillStyle = C.yellow;
+      ctx.fillText(rel.tag.slice(0, 8), rx - 12, barY - 4);
+      hotspots.push({ x: rx - 8, y: barY - 10, w: 16, h: 20,
+        label: `${r.repo}\nRelease: ${rel.tag}\n${rel.date}\n${rel.name || ""}` });
+    });
+
+    // Active branches — draw as small horizontal lines below the bar
+    const branchColors = [C.purple, C.teal, C.orange, C.red, "#88ff00", "#ff88ff"];
+    const branchY0 = barY + barH + 4;
+    const branchLineH = 4;
+    const branchGap   = 6;
+    (r.branch_activity || []).forEach((b, bi) => {
+      if (!b.last_commit) return;
+      const bColor  = branchColors[bi % branchColors.length];
+      const endX    = LABEL_W + Math.floor((new Date(b.last_commit) - minDate) / 86400000) * DAY_PX + DAY_PX;
+      const startX  = Math.max(LABEL_W, endX - b.commits_30d * DAY_PX * 2);
+      const lineY   = branchY0 + bi * branchGap;
+      ctx.strokeStyle = bColor;
+      ctx.shadowColor = bColor; ctx.shadowBlur = 4;
+      ctx.lineWidth   = branchLineH;
+      ctx.beginPath();
+      ctx.moveTo(startX, lineY);
+      ctx.lineTo(endX,   lineY);
+      ctx.stroke();
+      ctx.shadowBlur  = 0;
+      // Dot at tip
+      ctx.fillStyle   = bColor;
+      ctx.beginPath();
+      ctx.arc(endX, lineY, 3, 0, Math.PI * 2);
+      ctx.fill();
+      // Label
+      ctx.font        = "5px 'Press Start 2P', monospace";
+      ctx.fillStyle   = bColor;
+      ctx.fillText(b.name.slice(0, 12), LABEL_W - 1 > startX - 40 ? endX + 3 : startX - 2, lineY - 2);
+      hotspots.push({ x: startX, y: lineY - 3, w: endX - startX + 6, h: 8,
+        label: `${r.repo}\nBranch: ${b.name}\nLast commit: ${b.last_commit}\n${b.commits_30d} commits (30d)` });
+    });
+  });
+
+  // Tooltip on hover
+  canvas.addEventListener("mousemove", e => {
+    const rect   = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mx     = (e.clientX - rect.left) * scaleX;
+    const my     = (e.clientY - rect.top)  * scaleY;
+    const hit    = hotspots.find(h => mx >= h.x && mx <= h.x + h.w && my >= h.y && my <= h.y + h.h);
+    if (hit) {
+      tooltip.style.display  = "block";
+      tooltip.style.left     = (e.clientX + 12) + "px";
+      tooltip.style.top      = (e.clientY - 10) + "px";
+      tooltip.innerHTML      = hit.label.split("\n").map(l => `<div>${esc(l)}</div>`).join("");
+    } else {
+      tooltip.style.display  = "none";
+    }
+  });
+  canvas.addEventListener("mouseleave", () => { tooltip.style.display = "none"; });
+
+  // Scroll to show the last 2 years by default
+  const scrollWrap = document.getElementById("visual-timeline-scroll");
+  const twoYearsAgo = LABEL_W + Math.max(0, Math.floor((now - minDate) / 86400000) - 730) * DAY_PX;
+  scrollWrap.scrollLeft = twoYearsAgo;
+}
+
 // ── Build Timeline ───────────────────────────────────────────────────────────
 let allTimelineItems = [];
 
@@ -1267,6 +1548,7 @@ async function init() {
   buildRepos(data.repos||[]);
   buildPeople(data.people||[]);
   buildDigest(data);
+  buildVisualTimeline(data.repos||[]);
   buildTimeline(data.repos||[]);
 
   // Populate ticker tape with live stats
