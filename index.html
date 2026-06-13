@@ -9,519 +9,388 @@
       --bg: #0d1117;
       --surface: #161b22;
       --surface2: #21262d;
+      --surface3: #2d333b;
       --border: #30363d;
       --text: #e6edf3;
-      --text-muted: #8b949e;
+      --muted: #8b949e;
       --accent: #58a6ff;
       --green: #3fb950;
       --yellow: #d29922;
       --red: #f85149;
       --purple: #bc8cff;
       --orange: #ffa657;
-      --tag-bg: #21262d;
-      --radius: 8px;
+      --teal: #39d353;
+      --r: 8px;
       --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.6; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--mono); font-size: 12px; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font);
-      font-size: 14px;
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-
+    /* ── Top nav ── */
     header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 20px 32px;
+      padding: 0 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      height: 56px;
+      position: sticky; top: 0; z-index: 200;
     }
-
-    header h1 {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--text);
-    }
+    header h1 { font-size: 18px; font-weight: 700; }
     header h1 span { color: var(--accent); }
+    #last-updated { font-size: 12px; color: var(--muted); }
 
-    #last-updated {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 24px 32px;
-    }
-
-    /* ── Summary bar ─────────────────────────────────────────── */
-    .summary-bar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px;
-      margin-bottom: 28px;
-    }
-
-    .stat-card {
+    /* ── Page tabs ── */
+    .page-tabs {
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 20px;
-      text-align: center;
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex; gap: 0;
+      position: sticky; top: 56px; z-index: 190;
     }
-    .stat-card .num {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--accent);
-      display: block;
+    .page-tab {
+      background: none; border: none; border-bottom: 2px solid transparent;
+      color: var(--muted); cursor: pointer; font-size: 14px; font-family: var(--font);
+      padding: 10px 18px; transition: color .15s, border-color .15s;
     }
-    .stat-card .label {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
+    .page-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .page-tab:hover { color: var(--text); }
 
-    /* ── Section titles ──────────────────────────────────────── */
-    .section-title {
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--text-muted);
-      margin: 32px 0 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .section-title::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
+    .page { display: none; }
+    .page.active { display: block; }
 
-    /* ── Alerts row ──────────────────────────────────────────── */
-    .alerts-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
+    /* ── Layout ── */
+    .container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
+    @media (max-width: 700px) { .container { padding: 12px 16px; } }
 
-    .alert-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 500;
-      border: 1px solid;
+    /* ── Stat bar ── */
+    .stat-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px; margin-bottom: 24px;
     }
-    .alert-chip.dormant {
-      background: rgba(210, 153, 34, .12);
-      border-color: var(--yellow);
-      color: var(--yellow);
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 14px 16px; text-align: center;
     }
-    .alert-chip.new-release {
-      background: rgba(63, 185, 80, .12);
-      border-color: var(--green);
-      color: var(--green);
-    }
-    .alert-chip.active {
-      background: rgba(88, 166, 255, .12);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+    .stat-card .n { font-size: 26px; font-weight: 700; color: var(--accent); display: block; }
+    .stat-card .l { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-    /* ── Repo grid ───────────────────────────────────────────── */
+    /* ── Section title ── */
+    .sec { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+           color: var(--muted); margin: 28px 0 12px; display: flex; align-items: center; gap: 8px; }
+    .sec::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── Chips/alerts ── */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1px solid;
+    }
+    .chip.dormant  { background: rgba(210,153,34,.12); border-color: var(--yellow); color: var(--yellow); }
+    .chip.release  { background: rgba(63,185,80,.12);  border-color: var(--green);  color: var(--green);  }
+    .chip.active   { background: rgba(88,166,255,.12); border-color: var(--accent); color: var(--accent); }
+    .chip.pr       { background: rgba(188,140,255,.12);border-color: var(--purple); color: var(--purple); }
+    .chip.none     { border-color: var(--border); color: var(--muted); }
+
+    /* ── Digest / narrative ── */
+    .narrative-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 3px solid var(--purple); border-radius: var(--r);
+      padding: 16px 20px; margin-bottom: 16px;
+    }
+    .narrative-box .ai-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--purple); margin-bottom: 6px;
+    }
+    .narrative-box p { font-size: 14px; line-height: 1.75; color: var(--text); }
+
+    .digest-table { width: 100%; border-collapse: collapse; }
+    .digest-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+    .digest-table tr:last-child td { border-bottom: none; }
+    .digest-table .repo-col { color: var(--accent); font-weight: 600; width: 160px; white-space: nowrap; }
+    .digest-table .type-badge {
+      display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 7px;
+      border-radius: 10px; margin-right: 6px; text-transform: uppercase;
+    }
+    .type-feat    { background: rgba(63,185,80,.2);   color: var(--green);  }
+    .type-fix     { background: rgba(248,81,73,.2);   color: var(--red);    }
+    .type-docs    { background: rgba(88,166,255,.2);  color: var(--accent); }
+    .type-test    { background: rgba(188,140,255,.2); color: var(--purple); }
+    .type-refactor{ background: rgba(255,166,87,.2);  color: var(--orange); }
+    .type-chore   { background: rgba(139,148,158,.2); color: var(--muted);  }
+    .type-other   { background: rgba(139,148,158,.15);color: var(--muted);  }
+
+    /* ── Toolbar ── */
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+    .search { background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+              color: var(--text); font-size: 13px; padding: 6px 12px; outline: none;
+              width: 220px; font-family: var(--font); }
+    .search:focus { border-color: var(--accent); }
+    .search::placeholder { color: var(--muted); }
+    .fbtn {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+      color: var(--muted); cursor: pointer; font-size: 12px; padding: 6px 12px;
+      font-family: var(--font); transition: border-color .15s, color .15s;
+    }
+    .fbtn.active, .fbtn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Repo cards ── */
     .repo-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(580px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(560px, 1fr));
+      gap: 18px;
     }
+    @media (max-width: 700px) { .repo-grid { grid-template-columns: 1fr; } }
 
-    @media (max-width: 700px) {
-      .repo-grid { grid-template-columns: 1fr; }
-      .container { padding: 16px; }
-    }
-
-    .repo-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+    .rcard {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); display: flex; flex-direction: column;
       transition: border-color .15s;
     }
-    .repo-card:hover { border-color: var(--accent); }
-    .repo-card.dormant-revived { border-color: var(--yellow); }
+    .rcard:hover { border-color: var(--accent); }
+    .rcard.revived { border-color: var(--yellow); }
+    .rcard.archived { opacity: .6; }
 
-    .card-header {
-      padding: 16px 20px 12px;
+    .rcard-head {
+      padding: 14px 18px 10px;
       border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
+      display: flex; justify-content: space-between; gap: 12px; align-items: flex-start;
     }
-
-    .repo-name {
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .repo-name a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-    .repo-name a:hover { text-decoration: underline; }
-
-    .repo-owner {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .badge-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 6px;
-      align-items: center;
-    }
-
+    .rname { font-size: 15px; font-weight: 600; }
+    .rown  { font-size: 12px; color: var(--muted); }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; align-items: center; }
     .badge {
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
+      font-size: 11px; padding: 1px 8px; border-radius: 10px;
+      border: 1px solid var(--border); color: var(--muted); white-space: nowrap;
+    }
+    .badge.lang   { border-color: var(--purple); color: var(--purple); }
+    .badge.star   { border-color: var(--yellow); color: var(--yellow); }
+    .badge.fork   { }
+    .badge.iss    { border-color: var(--red); color: var(--red); }
+    .badge.topic  { background: var(--surface2); }
+    .badge.ver    { border-color: var(--green); color: var(--green); }
+    .badge.license{ border-color: var(--muted); }
+    .revived-pill {
+      font-size: 11px; padding: 2px 10px; border-radius: 10px;
+      background: rgba(210,153,34,.15); border: 1px solid var(--yellow);
+      color: var(--yellow); font-weight: 700; white-space: nowrap;
+    }
+
+    .rcard-body { padding: 14px 18px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+
+    /* Activity mini-stats */
+    .act-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .act-cell {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 7px 8px; text-align: center;
+    }
+    .act-cell .n { font-size: 18px; font-weight: 700; display: block; }
+    .act-cell .l { font-size: 10px; color: var(--muted); }
+    .hot  { color: var(--orange); }
+    .warm { color: var(--yellow); }
+    .cool { color: var(--muted); }
+    .green-n { color: var(--green); }
+
+    /* Commit type bar */
+    .type-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; gap: 1px; }
+    .type-bar-seg { height: 100%; }
+
+    /* AI summary */
+    .ai-box {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent); border-radius: 4px;
+      padding: 9px 13px; font-size: 13px; line-height: 1.7;
+    }
+    .ai-label { font-size: 10px; font-weight: 700; text-transform: uppercase;
+                letter-spacing: .08em; color: var(--accent); margin-bottom: 4px; }
+
+    /* R meta */
+    .r-meta { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px; }
+    .r-meta span { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 7px; }
+
+    /* Card tabs */
+    .ctabs { display: flex; border-bottom: 1px solid var(--border); gap: 0; }
+    .ctab {
+      background: none; border: none; border-bottom: 2px solid transparent;
+      color: var(--muted); cursor: pointer; font-size: 12px; padding: 5px 12px;
+      font-family: var(--font); transition: color .15s;
+    }
+    .ctab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .ctab:hover { color: var(--text); }
+    .cpanel { display: none; padding-top: 8px; }
+    .cpanel.active { display: block; }
+
+    /* Commit list */
+    .clist { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .citem { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; }
+    .csha { font-family: var(--mono); color: var(--accent); white-space: nowrap; min-width: 48px; }
+    .cmsg { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cmeta { color: var(--muted); white-space: nowrap; }
+
+    /* PR list */
+    .prlist { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .pritem { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; }
+    .pr-state {
+      font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 10px;
       white-space: nowrap;
     }
-    .badge.lang { border-color: var(--purple); color: var(--purple); }
-    .badge.stars { border-color: var(--yellow); color: var(--yellow); }
-    .badge.forks { border-color: var(--text-muted); }
-    .badge.issues { border-color: var(--red); color: var(--red); }
-    .badge.topic { background: var(--tag-bg); }
+    .pr-open   { background: rgba(63,185,80,.2);   color: var(--green);  }
+    .pr-closed { background: rgba(139,148,158,.2); color: var(--muted);  }
+    .pr-merged { background: rgba(188,140,255,.2); color: var(--purple); }
+    .pr-draft  { background: rgba(139,148,158,.2); color: var(--muted);  font-style: italic; }
 
-    .dormant-badge {
-      font-size: 11px;
-      padding: 2px 10px;
-      border-radius: 12px;
-      background: rgba(210, 153, 34, .15);
-      border: 1px solid var(--yellow);
-      color: var(--yellow);
-      font-weight: 600;
+    /* Release list */
+    .rellist { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .relitem { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; }
+    .rel-tag { font-family: var(--mono); color: var(--green); font-weight: 600; }
+    .rel-body { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: pre-wrap; word-break: break-word; }
+
+    /* Issue list */
+    .isslist { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .issitem { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; }
+    .iss-num { color: var(--muted); min-width: 36px; }
+    .iss-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .iss-label {
+      font-size: 10px; padding: 0 6px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--surface2); color: var(--muted);
     }
 
-    .card-body {
-      padding: 16px 20px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+    /* Sparkline canvas */
+    canvas.spark { display: block; width: 100%; height: 40px; }
+
+    /* Empty */
+    .empty { color: var(--muted); font-style: italic; font-size: 12px; padding: 4px 0; }
+
+    /* ── People page ── */
+    .people-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 16px;
     }
-
-    /* ── AI Summary ──────────────────────────────────────────── */
-    .summary-box {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: 4px;
-      padding: 10px 14px;
-      font-size: 13px;
-      color: var(--text);
-      line-height: 1.7;
+    .person-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 10px;
+      transition: border-color .15s;
     }
-    .summary-label {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--accent);
-      margin-bottom: 5px;
+    .person-card:hover { border-color: var(--accent); }
+    .person-head { display: flex; gap: 12px; align-items: flex-start; }
+    .person-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; }
+    .person-name { font-size: 14px; font-weight: 600; }
+    .person-login { font-size: 12px; color: var(--muted); }
+    .person-bio { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .person-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+    .person-meta .pm {
+      font-size: 11px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 7px; color: var(--muted);
     }
+    .person-repos { font-size: 12px; }
+    .person-repos .repo-pill {
+      display: inline-block; background: rgba(88,166,255,.1); border: 1px solid rgba(88,166,255,.3);
+      border-radius: 10px; padding: 1px 8px; font-size: 11px; color: var(--accent);
+      margin: 2px; white-space: nowrap;
+    }
+    .person-scopus {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 8px 10px; font-size: 12px;
+      display: flex; gap: 12px; flex-wrap: wrap;
+    }
+    .person-scopus .sn { font-size: 16px; font-weight: 700; color: var(--orange); }
+    .person-scopus .sl { font-size: 10px; color: var(--muted); }
+    .contrib-bar-wrap { display: flex; flex-direction: column; gap: 4px; }
+    .contrib-bar-row { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+    .contrib-bar-label { color: var(--muted); min-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .contrib-bar-track { flex: 1; background: var(--surface3); border-radius: 3px; height: 6px; }
+    .contrib-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+    .contrib-bar-n { color: var(--muted); min-width: 28px; text-align: right; }
 
-    /* ── Activity bar ────────────────────────────────────────── */
-    .activity-row {
+    /* ── Digest page ── */
+    .digest-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 16px;
     }
-    .activity-stat {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px 10px;
-      text-align: center;
+    .dcard {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 10px;
     }
-    .activity-stat .n {
-      font-size: 20px;
-      font-weight: 700;
-      display: block;
-    }
-    .activity-stat .n.hot { color: var(--orange); }
-    .activity-stat .n.warm { color: var(--yellow); }
-    .activity-stat .n.cool { color: var(--text-muted); }
-    .activity-stat .lbl {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+    .dcard h3 { font-size: 14px; font-weight: 600; color: var(--text); }
+    .dcard .dval { font-size: 28px; font-weight: 700; color: var(--accent); }
+    .dcard .dsub { font-size: 12px; color: var(--muted); }
 
-    /* ── Tabs ────────────────────────────────────────────────── */
-    .tabs {
-      display: flex;
-      gap: 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .tab-btn {
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 13px;
-      padding: 6px 14px;
-      transition: color .15s, border-color .15s;
-      font-family: var(--font);
-    }
-    .tab-btn.active {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-    }
-    .tab-btn:hover { color: var(--text); }
+    /* Timeline */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .tl-item { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .tl-item:last-child { border-bottom: none; }
+    .tl-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .tl-dot.feat    { background: var(--green); }
+    .tl-dot.fix     { background: var(--red); }
+    .tl-dot.docs    { background: var(--accent); }
+    .tl-dot.test    { background: var(--purple); }
+    .tl-dot.refactor{ background: var(--orange); }
+    .tl-dot.chore   { background: var(--muted); }
+    .tl-dot.other   { background: var(--muted); }
+    .tl-body { flex: 1; min-width: 0; }
+    .tl-msg { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tl-sub { font-size: 11px; color: var(--muted); }
 
-    .tab-panel { display: none; padding-top: 10px; }
-    .tab-panel.active { display: block; }
+    /* Activity heatmap */
+    .heatmap { display: flex; flex-direction: column; gap: 3px; }
+    .heatmap-row { display: flex; gap: 3px; align-items: center; }
+    .heatmap-label { font-size: 10px; color: var(--muted); width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .heatmap-cells { display: flex; gap: 3px; }
+    .hmap-cell {
+      width: 18px; height: 18px; border-radius: 3px;
+      background: var(--surface2); border: 1px solid var(--border);
+      title: "";
+    }
+    .hmap-cell.l1 { background: rgba(57,211,83,.25); border-color: rgba(57,211,83,.4); }
+    .hmap-cell.l2 { background: rgba(57,211,83,.5);  border-color: rgba(57,211,83,.6); }
+    .hmap-cell.l3 { background: rgba(57,211,83,.75); border-color: rgba(57,211,83,.8); }
+    .hmap-cell.l4 { background: rgba(57,211,83,1);   border-color: rgba(57,211,83,1);  }
 
-    /* ── Commit list ─────────────────────────────────────────── */
-    .commit-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    /* Dependency list */
+    .dep-list { display: flex; flex-wrap: wrap; gap: 5px; }
+    .dep-pill {
+      font-family: var(--mono); font-size: 11px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 8px; color: var(--muted);
     }
-    .commit-item {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      font-size: 13px;
-    }
-    .commit-sha {
-      font-family: monospace;
-      font-size: 12px;
-      color: var(--accent);
-      white-space: nowrap;
-      text-decoration: none;
-      min-width: 52px;
-    }
-    .commit-sha:hover { text-decoration: underline; }
-    .commit-msg {
-      flex: 1;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .commit-meta {
-      font-size: 11px;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
+    .dep-pill.shared { border-color: var(--accent); color: var(--accent); background: rgba(88,166,255,.08); }
 
-    /* ── Releases ────────────────────────────────────────────── */
-    .release-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .release-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-    }
-    .release-tag {
-      font-family: monospace;
-      font-size: 12px;
-      color: var(--green);
-      font-weight: 600;
-      text-decoration: none;
-    }
-    .release-tag:hover { text-decoration: underline; }
-    .release-name { flex: 1; color: var(--text); }
-    .release-date { font-size: 11px; color: var(--text-muted); }
+    /* Code freq bar chart */
+    .freq-chart { display: flex; align-items: flex-end; gap: 2px; height: 50px; }
+    .freq-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 1px; flex: 1; }
+    .freq-add { background: rgba(63,185,80,.7); width: 100%; min-height: 1px; }
+    .freq-del { background: rgba(248,81,73,.5); width: 100%; min-height: 1px; }
 
-    /* ── Issues ──────────────────────────────────────────────── */
-    .issue-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .issue-item {
-      display: flex;
-      gap: 8px;
-      align-items: flex-start;
-      font-size: 13px;
-    }
-    .issue-num {
-      color: var(--text-muted);
-      font-size: 12px;
-      white-space: nowrap;
-    }
-    .issue-title {
-      flex: 1;
-      color: var(--text);
-      text-decoration: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: block;
-    }
-    .issue-title:hover { color: var(--accent); }
-    .issue-date { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+    /* Star history */
+    .star-list { font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
+    .star-entry { display: flex; gap: 8px; align-items: center; }
+    .star-entry .star-user { color: var(--text); }
+    .star-entry .star-date { color: var(--muted); }
 
-    /* ── Contributors ────────────────────────────────────────── */
-    .contributors-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .contributor {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      text-decoration: none;
-      color: var(--text);
-      font-size: 13px;
-    }
-    .contributor img {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-    }
-    .contributor:hover .clogin { color: var(--accent); }
-    .contributor .contrib-n {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    /* ── Empty state ─────────────────────────────────────────── */
-    .empty {
-      color: var(--text-muted);
-      font-style: italic;
-      font-size: 13px;
-      padding: 6px 0;
-    }
-
-    /* ── Daily digest ────────────────────────────────────────── */
-    .digest-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 24px;
-      margin-bottom: 8px;
-    }
-    .digest-card h3 {
-      font-size: 16px;
-      margin-bottom: 12px;
-      color: var(--text);
-    }
-    .digest-entry {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .digest-entry:last-child { border-bottom: none; }
-    .digest-repo {
-      font-weight: 600;
-      color: var(--accent);
-      min-width: 150px;
-      font-size: 13px;
-    }
-    .digest-text {
-      flex: 1;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    /* ── Filter/search bar ───────────────────────────────────── */
-    .toolbar {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    .search-input {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-size: 13px;
-      padding: 7px 12px;
-      outline: none;
-      width: 240px;
-      font-family: var(--font);
-    }
-    .search-input:focus { border-color: var(--accent); }
-    .search-input::placeholder { color: var(--text-muted); }
-
-    .filter-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 13px;
-      padding: 7px 14px;
-      font-family: var(--font);
-      transition: border-color .15s, color .15s;
-    }
-    .filter-btn.active, .filter-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
+    /* Scopus badge */
+    .scopus-cite {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(255,166,87,.1); border: 1px solid rgba(255,166,87,.4);
+      border-radius: 10px; padding: 2px 10px; font-size: 11px; color: var(--orange);
     }
 
     footer {
-      border-top: 1px solid var(--border);
-      color: var(--text-muted);
-      font-size: 12px;
-      margin-top: 48px;
-      padding: 20px 32px;
-      text-align: center;
+      border-top: 1px solid var(--border); color: var(--muted);
+      font-size: 12px; margin-top: 48px; padding: 20px 32px; text-align: center;
     }
 
-    #loading {
-      text-align: center;
-      padding: 80px 20px;
-      color: var(--text-muted);
-      font-size: 16px;
-    }
-
+    #loading { text-align: center; padding: 80px; color: var(--muted); font-size: 16px; }
     #error-msg {
-      display: none;
-      background: rgba(248, 81, 73, .12);
-      border: 1px solid var(--red);
-      border-radius: var(--radius);
-      color: var(--red);
-      padding: 16px 20px;
-      margin: 20px 0;
+      display: none; background: rgba(248,81,73,.1); border: 1px solid var(--red);
+      border-radius: var(--r); color: var(--red); padding: 14px 18px; margin: 20px 0;
     }
   </style>
 </head>
@@ -532,311 +401,719 @@
   <div id="last-updated">Loading...</div>
 </header>
 
-<div class="container">
-  <div id="loading">Fetching community activity data...</div>
-  <div id="error-msg"></div>
-  <div id="app" style="display:none">
+<nav class="page-tabs">
+  <button class="page-tab active" onclick="showPage('overview')">Overview</button>
+  <button class="page-tab" onclick="showPage('repos')">Repositories</button>
+  <button class="page-tab" onclick="showPage('people')">People</button>
+  <button class="page-tab" onclick="showPage('digest')">Digest</button>
+  <button class="page-tab" onclick="showPage('timeline')">Timeline</button>
+</nav>
 
-    <!-- Summary stats -->
-    <div class="summary-bar" id="summary-bar"></div>
+<div id="loading">Loading community data...</div>
+<div id="error-msg"></div>
 
-    <!-- Alerts -->
-    <div class="section-title">Highlights</div>
-    <div class="alerts-row" id="alerts-row"></div>
+<div id="app" style="display:none">
 
-    <!-- Daily digest -->
-    <div class="section-title">Today's Digest</div>
-    <div class="digest-card">
-      <h3>Activity in the last 24 hours</h3>
-      <div id="digest-body"></div>
+  <!-- ── OVERVIEW ── -->
+  <div class="page active" id="page-overview">
+    <div class="container">
+      <div class="stat-bar" id="stat-bar"></div>
+
+      <div class="sec">Highlights</div>
+      <div class="chips" id="highlights"></div>
+
+      <div class="sec">Community Narrative</div>
+      <div class="narrative-box" id="narrative-box">
+        <div class="ai-label">Gemini AI · Cross-repo digest</div>
+        <p id="narrative-text">No narrative generated yet.</p>
+      </div>
+
+      <div class="sec">This Week's Activity</div>
+      <table class="digest-table" id="week-table" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);border-collapse:separate;border-spacing:0;overflow:hidden"></table>
+
+      <div class="sec">Commit Activity (12 weeks)</div>
+      <div id="heatmap-section"></div>
     </div>
-
-    <!-- Toolbar -->
-    <div class="section-title">All Repositories</div>
-    <div class="toolbar">
-      <input type="text" class="search-input" id="search-input" placeholder="Filter repos..." />
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="active">Active (7d)</button>
-      <button class="filter-btn" data-filter="dormant-revived">Dormant &amp; Revived</button>
-    </div>
-
-    <!-- Repo cards -->
-    <div class="repo-grid" id="repo-grid"></div>
-
   </div>
-</div>
+
+  <!-- ── REPOS ── -->
+  <div class="page" id="page-repos">
+    <div class="container">
+      <div class="toolbar">
+        <input type="text" class="search" id="repo-search" placeholder="Filter repos..." />
+        <button class="fbtn active" data-filter="all">All</button>
+        <button class="fbtn" data-filter="active">Active (7d)</button>
+        <button class="fbtn" data-filter="revived">Dormant Revived</button>
+        <button class="fbtn" data-filter="releases">Has Release</button>
+      </div>
+      <div class="repo-grid" id="repo-grid"></div>
+    </div>
+  </div>
+
+  <!-- ── PEOPLE ── -->
+  <div class="page" id="page-people">
+    <div class="container">
+      <div class="sec">All Contributors</div>
+      <div class="toolbar">
+        <input type="text" class="search" id="people-search" placeholder="Filter people..." />
+      </div>
+      <div class="people-grid" id="people-grid"></div>
+    </div>
+  </div>
+
+  <!-- ── DIGEST ── -->
+  <div class="page" id="page-digest">
+    <div class="container">
+      <div class="sec">Weekly Digest</div>
+      <div class="digest-grid" id="digest-grid"></div>
+
+      <div class="sec">Dependencies (R packages)</div>
+      <div id="deps-section"></div>
+
+      <div class="sec">Code Frequency</div>
+      <div id="freq-section"></div>
+
+      <div class="sec">Recent Stars</div>
+      <div id="stars-section"></div>
+    </div>
+  </div>
+
+  <!-- ── TIMELINE ── -->
+  <div class="page" id="page-timeline">
+    <div class="container">
+      <div class="toolbar">
+        <button class="fbtn active" data-tfilter="all">All types</button>
+        <button class="fbtn" data-tfilter="feat">Features</button>
+        <button class="fbtn" data-tfilter="fix">Fixes</button>
+        <button class="fbtn" data-tfilter="docs">Docs</button>
+        <button class="fbtn" data-tfilter="test">Tests</button>
+        <button class="fbtn" data-tfilter="refactor">Refactor</button>
+        <button class="fbtn" data-tfilter="chore">Chore</button>
+      </div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </div>
+
+</div><!-- #app -->
 
 <footer>
-  Data refreshed daily via GitHub Actions &bull; Summaries by <a href="https://groq.com" style="color:var(--accent)">Groq</a> (llama-3.3-70b-versatile) &bull; <a href="repos.json" style="color:var(--accent)">repos.json</a>
+  Refreshed daily via GitHub Actions &bull;
+  Summaries: <a href="https://groq.com">Groq</a> (llama-3.3-70b) &bull;
+  Narrative: <a href="https://deepmind.google/technologies/gemini/">Gemini</a> (1.5 Flash) &bull;
+  Citations: <a href="https://www.scopus.com">Scopus</a> &bull;
+  <a href="repos.json">repos.json</a>
 </footer>
 
 <script>
-const DATA_URL = "data/activity.json";
+// ── Utilities ────────────────────────────────────────────────────────────────
+const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
-async function loadData() {
-  const r = await fetch(DATA_URL + "?t=" + Date.now());
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  return r.json();
-}
-
-function relativeDate(isoStr) {
-  if (!isoStr) return "unknown";
-  const d = new Date(isoStr);
-  const diff = (Date.now() - d) / 1000;
-  if (diff < 60) return "just now";
-  if (diff < 3600) return `${Math.round(diff/60)}m ago`;
-  if (diff < 86400) return `${Math.round(diff/3600)}h ago`;
-  if (diff < 86400*7) return `${Math.round(diff/86400)}d ago`;
-  if (diff < 86400*30) return `${Math.round(diff/86400/7)}w ago`;
+function rel(iso) {
+  if (!iso) return "—";
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 60)         return "just now";
+  if (diff < 3600)       return `${Math.round(diff/60)}m ago`;
+  if (diff < 86400)      return `${Math.round(diff/3600)}h ago`;
+  if (diff < 86400*7)    return `${Math.round(diff/86400)}d ago`;
+  if (diff < 86400*30)   return `${Math.round(diff/86400/7)}w ago`;
   return `${Math.round(diff/86400/30)}mo ago`;
 }
 
-function escHtml(s) {
-  return String(s ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;");
+function nDaysAgo(n) {
+  const d = new Date(); d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0,10);
 }
 
-function buildSummaryBar(repos) {
-  const totalCommits30 = repos.reduce((s, r) => s + r.commits_30d, 0);
-  const totalCommits7 = repos.reduce((s, r) => s + r.commits_7d, 0);
-  const totalCommits1 = repos.reduce((s, r) => s + r.commits_1d, 0);
-  const activeRepos = repos.filter(r => r.commits_7d > 0).length;
-  const dormantRevived = repos.filter(r => r.dormant_revived).length;
-  const totalStars = repos.reduce((s, r) => s + r.stars, 0);
+const TYPE_COLORS = {
+  feat: "#3fb950", fix: "#f85149", docs: "#58a6ff",
+  test: "#bc8cff", refactor: "#ffa657", chore: "#8b949e", other: "#8b949e"
+};
 
+function typeBadge(t) {
+  return `<span class="type-badge type-${t}">${t}</span>`;
+}
+
+function prStateLabel(pr) {
+  if (pr.draft)      return `<span class="pr-state pr-draft">Draft</span>`;
+  if (pr.merged_at)  return `<span class="pr-state pr-merged">Merged</span>`;
+  if (pr.state === "open") return `<span class="pr-state pr-open">Open</span>`;
+  return `<span class="pr-state pr-closed">Closed</span>`;
+}
+
+// ── Page switching ───────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".page-tab").forEach(t => t.classList.remove("active"));
+  document.getElementById(`page-${name}`)?.classList.add("active");
+  [...document.querySelectorAll(".page-tab")].find(t => t.textContent.toLowerCase().includes(name.slice(0,4)))?.classList.add("active");
+}
+window.showPage = showPage;
+
+// ── Card tabs ────────────────────────────────────────────────────────────────
+function switchCardTab(prefix, idx) {
+  const wrap = document.getElementById(`ctabs-${prefix}`);
+  if (!wrap) return;
+  wrap.querySelectorAll(".ctab").forEach((b,i) => b.classList.toggle("active", i===idx));
+  wrap.parentElement.querySelectorAll(".cpanel").forEach((p,i) => p.classList.toggle("active", i===idx));
+}
+window.switchCardTab = switchCardTab;
+
+// ── Build Overview ───────────────────────────────────────────────────────────
+function buildOverview(data) {
+  const agg = data.aggregate;
+  const d   = data.digest;
+
+  // Stat bar
   const stats = [
-    { num: repos.length, label: "Tracked Repos" },
-    { num: activeRepos, label: "Active This Week" },
-    { num: totalCommits1, label: "Commits Today" },
-    { num: totalCommits7, label: "Commits (7d)" },
-    { num: totalCommits30, label: "Commits (30d)" },
-    { num: dormantRevived, label: "Dormant Revived" },
-    { num: totalStars, label: "Total Stars" },
+    { n: agg.total_repos,        l: "Tracked Repos" },
+    { n: agg.active_repos_7d,    l: "Active This Week" },
+    { n: agg.total_commits_1d,   l: "Commits Today" },
+    { n: agg.total_commits_7d,   l: "Commits (7d)" },
+    { n: agg.total_commits_30d,  l: "Commits (30d)" },
+    { n: agg.unique_authors_30d, l: "Active Authors (30d)" },
+    { n: agg.total_open_prs,     l: "Open PRs" },
+    { n: agg.total_open_issues,  l: "Open Issues" },
+    { n: agg.dormant_revived,    l: "Dormant Revived" },
+    { n: agg.total_stars,        l: "Total Stars" },
+    { n: agg.total_contributors, l: "Contributors" },
   ];
+  document.getElementById("stat-bar").innerHTML = stats.map(s =>
+    `<div class="stat-card"><span class="n">${s.n}</span><span class="l">${s.l}</span></div>`
+  ).join("");
 
-  return stats.map(s => `
-    <div class="stat-card">
-      <span class="num">${s.num}</span>
-      <span class="label">${s.label}</span>
-    </div>
-  `).join("");
-}
-
-function buildAlerts(repos) {
+  // Highlights
   const chips = [];
-  repos.filter(r => r.dormant_revived).forEach(r => {
-    chips.push(`<span class="alert-chip dormant">&#9888; ${escHtml(r.repo)} — dormant, now active</span>`);
-  });
-  repos.filter(r => r.releases && r.releases.length && r.releases[0].date >= tenDaysAgo()).forEach(r => {
-    chips.push(`<span class="alert-chip new-release">&#10003; ${escHtml(r.repo)} released ${escHtml(r.releases[0].tag)}</span>`);
-  });
-  repos.filter(r => r.commits_1d > 0).forEach(r => {
-    chips.push(`<span class="alert-chip active">&#9679; ${escHtml(r.repo)}: ${r.commits_1d} commit${r.commits_1d !== 1 ? "s" : ""} today</span>`);
-  });
-  if (!chips.length) chips.push(`<span class="alert-chip" style="border-color:var(--text-muted);color:var(--text-muted)">No notable activity in the last 24 hours</span>`);
-  return chips.join("");
-}
+  (d.dormant_revived||[]).forEach(r => chips.push(`<span class="chip dormant">&#9888; ${esc(r.repo)} revived</span>`));
+  (d.new_releases||[]).forEach(r => chips.push(`<span class="chip release">&#10003; ${esc(r.repo)} ${esc(r.tag)}</span>`));
+  data.repos.filter(r => r.commits_1d > 0).forEach(r =>
+    chips.push(`<span class="chip active">&#9679; ${esc(r.repo)}: ${r.commits_1d} commit${r.commits_1d>1?"s":""} today</span>`)
+  );
+  data.repos.filter(r => r.open_prs_count > 0).forEach(r =>
+    chips.push(`<span class="chip pr">&#8634; ${esc(r.repo)}: ${r.open_prs_count} open PR${r.open_prs_count>1?"s":""}</span>`)
+  );
+  if (!chips.length) chips.push(`<span class="chip none">No notable activity in the last 24 hours</span>`);
+  document.getElementById("highlights").innerHTML = chips.join("");
 
-function tenDaysAgo() {
-  const d = new Date();
-  d.setDate(d.getDate() - 10);
-  return d.toISOString().slice(0, 10);
-}
-
-function buildDigest(repos) {
-  const active = repos.filter(r => r.commits_1d > 0 || (r.releases && r.releases[0] && r.releases[0].date === new Date().toISOString().slice(0,10)));
-  if (!active.length) {
-    return `<div class="empty">No commits or releases detected in the last 24 hours.</div>`;
+  // Narrative
+  if (d.narrative) {
+    document.getElementById("narrative-text").textContent = d.narrative;
   }
-  return active.map(r => {
-    const latestCommits = r.recent_commits.filter(c => c.date === new Date().toISOString().slice(0,10));
-    const snippets = latestCommits.slice(0,3).map(c => `<code style="font-size:11px;color:var(--text-muted)">${escHtml(c.sha)}</code> ${escHtml(c.message)}`).join("<br>");
+
+  // Week table
+  const highlights = (d.highlights||[]).slice(0, 30);
+  const weekTable = document.getElementById("week-table");
+  if (!highlights.length) {
+    weekTable.innerHTML = `<tr><td colspan="4" style="padding:12px;color:var(--muted);font-style:italic">No feature or fix commits this week.</td></tr>`;
+  } else {
+    weekTable.innerHTML = highlights.map(h => `
+      <tr>
+        <td style="width:90px;padding:7px 12px;color:var(--muted);font-size:11px">${esc(h.date)}</td>
+        <td style="width:120px;padding:7px 6px"><a href="https://github.com/${esc(h.owner)}/${esc(h.repo)}" style="color:var(--accent);font-size:12px;font-weight:600">${esc(h.repo)}</a></td>
+        <td style="padding:7px 6px">${typeBadge(h.type)}<span style="font-size:13px">${esc(h.message)}</span></td>
+        <td style="width:100px;padding:7px 12px;color:var(--muted);font-size:11px;text-align:right">${esc(h.author)}</td>
+      </tr>
+    `).join("");
+  }
+
+  // Heatmap
+  buildHeatmap(data.repos);
+}
+
+function buildHeatmap(repos) {
+  const section = document.getElementById("heatmap-section");
+  const weeks = 12;
+  const html = repos.map(r => {
+    const activity = r.commit_activity || [];
+    // Pad to 12 weeks
+    while (activity.length < weeks) activity.unshift({ total: 0 });
+    const max = Math.max(1, ...activity.map(w => w.total));
+    const cells = activity.slice(-weeks).map(w => {
+      const lvl = w.total === 0 ? 0 : w.total < max*0.25 ? 1 : w.total < max*0.5 ? 2 : w.total < max*0.75 ? 3 : 4;
+      return `<div class="hmap-cell l${lvl}" title="${w.total} commits"></div>`;
+    }).join("");
     return `
-      <div class="digest-entry">
-        <div class="digest-repo"><a href="${escHtml(r.url)}" target="_blank" style="color:inherit;text-decoration:none">${escHtml(r.repo)}</a></div>
-        <div class="digest-text">${snippets || `${r.commits_1d} commits today`}</div>
-      </div>
-    `;
+      <div class="heatmap-row">
+        <div class="heatmap-label"><a href="${esc(r.url)}">${esc(r.repo)}</a></div>
+        <div class="heatmap-cells">${cells}</div>
+        <div style="font-size:10px;color:var(--muted);margin-left:8px">${r.commits_30d} this month</div>
+      </div>`;
   }).join("");
+  section.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 20px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Weekly commit counts (last 12 weeks, darker = more)</div>
+      <div class="heatmap">${html}</div>
+    </div>`;
 }
 
-function tabId(repo, name) {
-  return `tab-${repo}-${name}`.replace(/[^a-z0-9-]/gi, "_");
-}
+// ── Build Repos ──────────────────────────────────────────────────────────────
+function buildRepoCard(r) {
+  const prefix = `${r.owner}_${r.repo}`.replace(/[^a-z0-9]/gi,"_");
+  const revived = r.dormant_revived ? " revived" : "";
+  const archived = r.is_archived ? " archived" : "";
 
-function buildRepoCard(repo) {
-  const dormantClass = repo.dormant_revived ? " dormant-revived" : "";
-  const dormantBadge = repo.dormant_revived ? `<span class="dormant-badge">&#9888; Dormant Revived</span>` : "";
-  const langBadge = repo.language ? `<span class="badge lang">${escHtml(repo.language)}</span>` : "";
-  const starsBadge = `<span class="badge stars">&#9733; ${repo.stars}</span>`;
-  const forksBadge = `<span class="badge forks">&#10234; ${repo.forks}</span>`;
-  const issuesBadge = repo.open_issues_count > 0 ? `<span class="badge issues">&#9679; ${repo.open_issues_count} issues</span>` : "";
-  const topicBadges = (repo.topics || []).slice(0, 4).map(t => `<span class="badge topic">${escHtml(t)}</span>`).join("");
+  const badges = [
+    r.language ? `<span class="badge lang">${esc(r.language)}</span>` : "",
+    `<span class="badge star">&#9733; ${r.stars}</span>`,
+    r.forks ? `<span class="badge fork">&#10234; ${r.forks}</span>` : "",
+    r.open_issues_count ? `<span class="badge iss">&#9679; ${r.open_issues_count}</span>` : "",
+    r.r_meta?.version ? `<span class="badge ver">v${esc(r.r_meta.version)}</span>` : "",
+    r.license ? `<span class="badge license">${esc(r.license)}</span>` : "",
+    ...(r.topics||[]).slice(0,3).map(t => `<span class="badge topic">${esc(t)}</span>`),
+  ].filter(Boolean).join("");
 
-  const pushedText = repo.pushed_at ? `Last push: ${relativeDate(repo.pushed_at)}` : "";
+  const c1Color = r.commits_1d > 0 ? "hot" : "cool";
+  const c7Color = r.commits_7d > 5 ? "hot" : r.commits_7d > 0 ? "warm" : "cool";
+  const c30Color = r.commits_30d > 20 ? "hot" : r.commits_30d > 0 ? "warm" : "cool";
+  const c90Color = r.commits_90d > 50 ? "hot" : r.commits_90d > 0 ? "warm" : "cool";
 
-  // Activity stats
-  const c1Color = repo.commits_1d > 0 ? "hot" : "cool";
-  const c7Color = repo.commits_7d > 5 ? "hot" : repo.commits_7d > 0 ? "warm" : "cool";
-  const c30Color = repo.commits_30d > 20 ? "hot" : repo.commits_30d > 0 ? "warm" : "cool";
+  // Type bar
+  const td = r.type_breakdown || {};
+  const total = Object.values(td).reduce((a,b)=>a+b,0) || 1;
+  const typeBar = Object.entries(td).map(([t,n]) =>
+    `<div class="type-bar-seg" style="flex:${n};background:${TYPE_COLORS[t]||'#555'}" title="${t}: ${n}"></div>`
+  ).join("");
 
-  // Tabs
-  const tabPrefix = `${repo.owner}_${repo.repo}`.replace(/[^a-z0-9]/gi, "_");
-  const tabs = ["Commits", "Releases", "Issues", "Contributors"];
+  // AI summary
+  const aiBox = r.summary ? `
+    <div class="ai-box">
+      <div class="ai-label">Groq AI Summary (30d)</div>
+      ${esc(r.summary)}
+    </div>` : "";
 
-  // Commit list
-  const commitListHtml = repo.recent_commits.length
-    ? `<ul class="commit-list">${repo.recent_commits.map(c => `
-        <li class="commit-item">
-          <a class="commit-sha" href="${escHtml(c.url)}" target="_blank">${escHtml(c.sha)}</a>
-          <span class="commit-msg" title="${escHtml(c.message)}">${escHtml(c.message)}</span>
-          <span class="commit-meta">${escHtml(c.date)}</span>
+  // Scopus
+  const scopusBox = r.scopus_citations != null
+    ? `<span class="scopus-cite">Scopus citations: <strong>${r.scopus_citations}</strong></span>` : "";
+
+  // R meta
+  const rMeta = r.r_meta?.imports?.length ? `
+    <div class="r-meta">
+      ${r.r_meta.imports.slice(0,12).map(i=>`<span>${esc(i)}</span>`).join("")}
+    </div>` : "";
+
+  // README excerpt
+  const readmeSnip = r.readme_excerpt ? `
+    <div style="font-size:12px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:8px 12px;max-height:70px;overflow:hidden">
+      ${esc(r.readme_excerpt.slice(0,250))}…
+    </div>` : "";
+
+  // Commits tab
+  const commitsHtml = r.recent_commits?.length
+    ? `<ul class="clist">${r.recent_commits.map(c => `
+        <li class="citem">
+          ${typeBadge(c.type)}
+          <a class="csha" href="${esc(c.url)}" target="_blank">${esc(c.sha)}</a>
+          <span class="cmsg" title="${esc(c.message)}">${esc(c.message)}</span>
+          <span class="cmeta">${esc(c.date)}</span>
         </li>`).join("")}</ul>`
-    : `<div class="empty">No recent commits found.</div>`;
+    : `<div class="empty">No recent commits.</div>`;
 
-  // Releases list
-  const releasesHtml = repo.releases && repo.releases.length
-    ? `<ul class="release-list">${repo.releases.map(rel => `
-        <li class="release-item">
-          <a class="release-tag" href="${escHtml(rel.url)}" target="_blank">${escHtml(rel.tag)}</a>
-          <span class="release-name">${escHtml(rel.name)}</span>
-          <span class="release-date">${escHtml(rel.date)}</span>
+  // PRs tab
+  const prsHtml = r.prs?.length
+    ? `<ul class="prlist">${r.prs.slice(0,10).map(p => `
+        <li class="pritem">
+          ${prStateLabel(p)}
+          <a href="${esc(p.url)}" target="_blank" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px" title="${esc(p.title)}">${esc(p.title)}</a>
+          <span class="cmeta">${esc(p.author)} · ${esc(p.updated_at)}</span>
         </li>`).join("")}</ul>`
-    : `<div class="empty">No releases found.</div>`;
+    : `<div class="empty">No pull requests.</div>`;
 
-  // Issues list
-  const issuesHtml = repo.open_issues && repo.open_issues.length
-    ? `<ul class="issue-list">${repo.open_issues.map(i => `
-        <li class="issue-item">
-          <span class="issue-num">#${i.number}</span>
-          <a class="issue-title" href="${escHtml(i.url)}" target="_blank" title="${escHtml(i.title)}">${escHtml(i.title)}</a>
-          <span class="issue-date">${escHtml(i.updated_at)}</span>
+  // Releases tab
+  const relsHtml = r.releases?.length
+    ? `<ul class="rellist">${r.releases.map(rel => `
+        <li class="relitem">
+          <a class="rel-tag" href="${esc(rel.url)}" target="_blank">${esc(rel.tag)}</a>
+          <span style="flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(rel.name)}</span>
+          <span class="cmeta">${esc(rel.date)}</span>
+        </li>
+        ${rel.body ? `<li style="padding-left:70px"><div class="rel-body">${esc(rel.body)}</div></li>` : ""}`
+      ).join("")}</ul>`
+    : `<div class="empty">No releases.</div>`;
+
+  // Issues tab
+  const issHtml = r.open_issues?.length
+    ? `<ul class="isslist">${r.open_issues.map(i => `
+        <li class="issitem">
+          <span class="iss-num">#${i.number}</span>
+          <a class="iss-title" href="${esc(i.url)}" target="_blank" title="${esc(i.title)}">${esc(i.title)}</a>
+          ${(i.labels||[]).slice(0,2).map(l=>`<span class="iss-label">${esc(l)}</span>`).join("")}
+          <span class="cmeta">${esc(i.updated_at)}</span>
         </li>`).join("")}</ul>`
     : `<div class="empty">No open issues.</div>`;
 
-  // Contributors
-  const contribHtml = repo.contributors && repo.contributors.length
-    ? `<div class="contributors-row">${repo.contributors.map(c => `
-        <a class="contributor" href="${escHtml(c.html_url)}" target="_blank">
-          <img src="${escHtml(c.avatar_url)}" alt="${escHtml(c.login)}" />
-          <span class="clogin">${escHtml(c.login)}</span>
-          <span class="contrib-n">${c.contributions}</span>
-        </a>`).join("")}</div>`
-    : `<div class="empty">No contributor data.</div>`;
+  // Stars tab
+  const starsHtml = r.star_history?.length
+    ? `<div class="star-list">${r.star_history.map(s=>`
+        <div class="star-entry">
+          <span>&#9733;</span>
+          <span class="star-user">${esc(s.user)}</span>
+          <span class="star-date">${esc(s.date)}</span>
+        </div>`).join("")}</div>`
+    : `<div class="empty">No recent star data.</div>`;
 
-  const tabPanels = [commitListHtml, releasesHtml, issuesHtml, contribHtml];
+  const tabs = ["Commits","PRs","Releases","Issues","Stars"];
+  const panels = [commitsHtml, prsHtml, relsHtml, issHtml, starsHtml];
 
   return `
-<div class="repo-card${dormantClass}" data-repo="${escHtml(repo.repo)}" data-owner="${escHtml(repo.owner)}" data-commits7="${repo.commits_7d}" data-dormant="${repo.dormant_revived}">
-  <div class="card-header">
+<div class="rcard${revived}${archived}"
+     data-repo="${esc(r.repo)}" data-owner="${esc(r.owner)}"
+     data-c7="${r.commits_7d}" data-revived="${r.dormant_revived}"
+     data-release="${r.releases?.length?'1':'0'}">
+  <div class="rcard-head">
     <div>
-      <div class="repo-owner">${escHtml(repo.owner)} / </div>
-      <div class="repo-name"><a href="${escHtml(repo.url)}" target="_blank">${escHtml(repo.repo)}</a></div>
-      <div class="badge-row">
-        ${langBadge}${starsBadge}${forksBadge}${issuesBadge}${topicBadges}
-      </div>
+      <div class="rown">${esc(r.owner)}</div>
+      <div class="rname"><a href="${esc(r.url)}" target="_blank">${esc(r.repo)}</a></div>
+      <div class="badge-row">${badges}</div>
     </div>
     <div style="text-align:right;flex-shrink:0">
-      ${dormantBadge}
-      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">${pushedText}</div>
+      ${r.dormant_revived ? `<div class="revived-pill">&#9888; Revived</div>` : ""}
+      ${r.is_archived ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">Archived</div>` : ""}
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">${r.pushed_at ? `Last push: ${rel(r.pushed_at)}` : ""}</div>
+      <div style="font-size:11px;color:var(--muted)">Created ${esc(r.created_at)}</div>
+      ${scopusBox}
     </div>
   </div>
-  <div class="card-body">
-    ${repo.description ? `<div style="color:var(--text-muted);font-size:13px">${escHtml(repo.description)}</div>` : ""}
+  <div class="rcard-body">
+    ${r.description ? `<div style="font-size:13px;color:var(--muted)">${esc(r.description)}</div>` : ""}
 
-    <div class="activity-row">
-      <div class="activity-stat">
-        <span class="n ${c1Color}">${repo.commits_1d}</span>
-        <span class="lbl">Commits today</span>
-      </div>
-      <div class="activity-stat">
-        <span class="n ${c7Color}">${repo.commits_7d}</span>
-        <span class="lbl">This week</span>
-      </div>
-      <div class="activity-stat">
-        <span class="n ${c30Color}">${repo.commits_30d}</span>
-        <span class="lbl">This month</span>
-      </div>
+    <div class="act-row">
+      <div class="act-cell"><span class="n ${c1Color}">${r.commits_1d}</span><span class="l">Today</span></div>
+      <div class="act-cell"><span class="n ${c7Color}">${r.commits_7d}</span><span class="l">This week</span></div>
+      <div class="act-cell"><span class="n ${c30Color}">${r.commits_30d}</span><span class="l">30 days</span></div>
+      <div class="act-cell"><span class="n ${c90Color}">${r.commits_90d}</span><span class="l">90 days</span></div>
     </div>
 
-    <div class="summary-box">
-      <div class="summary-label">AI Summary (last 30 days)</div>
-      ${escHtml(repo.summary)}
-    </div>
+    ${total > 0 ? `
+    <div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Commit types (30d): ${
+        Object.entries(td).map(([t,n])=>`<span style="color:${TYPE_COLORS[t]}">${t} ${n}</span>`).join(" · ")
+      }</div>
+      <div class="type-bar">${typeBar}</div>
+    </div>` : ""}
+
+    ${aiBox}
+    ${rMeta ? `<div><div style="font-size:10px;color:var(--muted);margin-bottom:3px">R dependencies</div>${rMeta}</div>` : ""}
 
     <div>
-      <div class="tabs" id="tabs-${tabPrefix}">
-        ${tabs.map((t, i) => `<button class="tab-btn${i===0?" active":""}" onclick="switchTab('${tabPrefix}',${i})">${t}</button>`).join("")}
+      <div class="ctabs" id="ctabs-${prefix}">
+        ${tabs.map((t,i)=>`<button class="ctab${i===0?" active":""}" onclick="switchCardTab('${prefix}',${i})">${t}</button>`).join("")}
       </div>
-      ${tabPanels.map((html, i) => `<div class="tab-panel${i===0?" active":""}" id="panel-${tabPrefix}-${i}">${html}</div>`).join("")}
+      ${panels.map((html,i)=>`<div class="cpanel${i===0?" active":""}">${html}</div>`).join("")}
     </div>
+
+    ${r.contributors?.length ? `
+    <div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:5px">Contributors</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${r.contributors.map(c=>`
+          <a href="${esc(c.html_url)}" target="_blank" style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text)">
+            <img src="${esc(c.avatar_url)}" style="width:20px;height:20px;border-radius:50%;border:1px solid var(--border)" />
+            ${esc(c.login)}
+            <span style="color:var(--muted);font-size:10px">${c.contributions}</span>
+          </a>`).join("")}
+      </div>
+    </div>` : ""}
   </div>
 </div>`;
 }
 
-function switchTab(prefix, idx) {
-  const tabContainer = document.getElementById(`tabs-${prefix}`);
-  tabContainer.querySelectorAll(".tab-btn").forEach((b, i) => b.classList.toggle("active", i === idx));
-  const panels = tabContainer.parentElement.querySelectorAll(".tab-panel");
-  panels.forEach((p, i) => p.classList.toggle("active", i === idx));
-}
-window.switchTab = switchTab;
+function buildRepos(repos) {
+  document.getElementById("repo-grid").innerHTML = repos.map(buildRepoCard).join("");
 
-function applyFilters() {
-  const query = document.getElementById("search-input").value.toLowerCase();
-  const activeFilter = document.querySelector(".filter-btn.active")?.dataset.filter || "all";
-  document.querySelectorAll(".repo-card").forEach(card => {
-    const repo = card.dataset.repo.toLowerCase();
-    const owner = card.dataset.owner.toLowerCase();
-    const matchesSearch = !query || repo.includes(query) || owner.includes(query);
-    const commits7 = parseInt(card.dataset.commits7 || "0", 10);
-    const dormant = card.dataset.dormant === "true";
-    let matchesFilter = true;
-    if (activeFilter === "active") matchesFilter = commits7 > 0;
-    if (activeFilter === "dormant-revived") matchesFilter = dormant;
-    card.style.display = (matchesSearch && matchesFilter) ? "" : "none";
+  document.querySelectorAll(".fbtn[data-filter]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".fbtn[data-filter]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      filterRepos();
+    });
+  });
+  document.getElementById("repo-search").addEventListener("input", filterRepos);
+}
+
+function filterRepos() {
+  const q = document.getElementById("repo-search").value.toLowerCase();
+  const f = document.querySelector(".fbtn[data-filter].active")?.dataset.filter || "all";
+  document.querySelectorAll(".rcard").forEach(card => {
+    const name = (card.dataset.repo+card.dataset.owner).toLowerCase();
+    const matchQ = !q || name.includes(q);
+    const c7 = parseInt(card.dataset.c7||"0");
+    const revived = card.dataset.revived === "true";
+    const hasRelease = card.dataset.release === "1";
+    let matchF = true;
+    if (f === "active") matchF = c7 > 0;
+    if (f === "revived") matchF = revived;
+    if (f === "releases") matchF = hasRelease;
+    card.style.display = matchQ && matchF ? "" : "none";
   });
 }
 
+// ── Build People ─────────────────────────────────────────────────────────────
+function buildPeople(people) {
+  const grid = document.getElementById("people-grid");
+  const maxContribs = Math.max(1, ...people.map(p => p.total_contributions));
+
+  grid.innerHTML = people.map(p => {
+    const repos = Object.entries(p.repos || {});
+    const maxR = Math.max(1, ...repos.map(([,n])=>n));
+    const scopus = p.scopus || {};
+    const scopusHtml = (scopus.document_count || scopus.h_index) ? `
+      <div class="person-scopus">
+        ${scopus.document_count ? `<div><span class="sn">${scopus.document_count}</span><br><span class="sl">Publications</span></div>` : ""}
+        ${scopus.h_index ? `<div><span class="sn">${scopus.h_index}</span><br><span class="sl">h-index</span></div>` : ""}
+        ${scopus.affiliation ? `<div style="font-size:11px;color:var(--muted);align-self:center">${esc(scopus.affiliation)}</div>` : ""}
+      </div>` : "";
+
+    const metaPills = [
+      p.location && `<span class="pm">&#9679; ${esc(p.location)}</span>`,
+      p.company  && `<span class="pm">&#127970; ${esc(p.company)}</span>`,
+      p.public_repos && `<span class="pm">${p.public_repos} repos</span>`,
+      p.followers && `<span class="pm">${p.followers} followers</span>`,
+      p.twitter && `<span class="pm">@${esc(p.twitter)}</span>`,
+    ].filter(Boolean).join("");
+
+    const contribBars = repos.slice(0,5).map(([repoKey, n]) => `
+      <div class="contrib-bar-row">
+        <span class="contrib-bar-label">${esc(repoKey.split("/")[1] || repoKey)}</span>
+        <div class="contrib-bar-track">
+          <div class="contrib-bar-fill" style="width:${Math.round(n/maxR*100)}%"></div>
+        </div>
+        <span class="contrib-bar-n">${n}</span>
+      </div>`).join("");
+
+    return `
+<div class="person-card" data-login="${esc(p.login)}" data-name="${esc(p.name||"")}">
+  <div class="person-head">
+    <img class="person-avatar" src="${esc(p.avatar_url||"")}" alt="${esc(p.login)}" />
+    <div>
+      <div class="person-name"><a href="${esc(p.html_url||"")}" target="_blank">${esc(p.name || p.login)}</a></div>
+      <div class="person-login"><a href="${esc(p.html_url||"")}" target="_blank" style="color:var(--muted)">@${esc(p.login)}</a></div>
+      <div style="margin-top:4px;font-size:11px;color:var(--orange);font-weight:600">${p.total_contributions} total commits</div>
+    </div>
+  </div>
+  ${p.bio ? `<div class="person-bio">${esc(p.bio)}</div>` : ""}
+  ${metaPills ? `<div class="person-meta">${metaPills}</div>` : ""}
+  ${scopusHtml}
+  ${repos.length ? `
+  <div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Contributions by repo</div>
+    <div class="contrib-bar-wrap">${contribBars}</div>
+  </div>` : ""}
+  ${p.blog ? `<div style="font-size:11px"><a href="${esc(p.blog)}" target="_blank">${esc(p.blog)}</a></div>` : ""}
+</div>`;
+  }).join("");
+
+  document.getElementById("people-search").addEventListener("input", e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll(".person-card").forEach(c => {
+      const match = !q || c.dataset.login.toLowerCase().includes(q) || (c.dataset.name||"").toLowerCase().includes(q);
+      c.style.display = match ? "" : "none";
+    });
+  });
+}
+
+// ── Build Digest ─────────────────────────────────────────────────────────────
+function buildDigest(data) {
+  const d = data.digest;
+  const repos = data.repos;
+
+  // Top cards
+  const topActive = [...repos].sort((a,b)=>b.commits_7d-a.commits_7d).slice(0,3);
+  const mostStars = [...repos].sort((a,b)=>b.stars-a.stars).slice(0,1)[0];
+
+  const cards = [
+    `<div class="dcard">
+       <h3>Most Active Repo (7d)</h3>
+       ${topActive.map((r,i)=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid var(--border)">
+         <a href="${esc(r.url)}">${esc(r.repo)}</a>
+         <span style="color:var(--muted)">${r.commits_7d} commits</span>
+       </div>`).join("")}
+     </div>`,
+    `<div class="dcard">
+       <h3>Open PRs</h3>
+       ${repos.filter(r=>r.open_prs_count>0).map(r=>`
+         <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid var(--border)">
+           <a href="${esc(r.url)}/pulls">${esc(r.repo)}</a>
+           <span style="color:var(--purple)">${r.open_prs_count} open</span>
+         </div>`).join("") || `<div class="empty">No open PRs</div>`}
+     </div>`,
+    `<div class="dcard">
+       <h3>Recent Releases</h3>
+       ${repos.flatMap(r=>(r.releases||[]).slice(0,2).map(rel=>({...rel, repoName:r.repo, repoUrl:r.url}))).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6).map(rel=>`
+         <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid var(--border)">
+           <span><a href="${esc(rel.repoUrl)}">${esc(rel.repoName)}</a> <a href="${esc(rel.url)}" style="color:var(--green);font-family:var(--mono)">${esc(rel.tag)}</a></span>
+           <span style="color:var(--muted)">${esc(rel.date)}</span>
+         </div>`).join("") || `<div class="empty">No releases</div>`}
+     </div>`,
+    `<div class="dcard">
+       <h3>Dormant &amp; Revived</h3>
+       ${repos.filter(r=>r.dormant_revived).map(r=>`
+         <div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--border)">
+           <a href="${esc(r.url)}">${esc(r.repo)}</a>
+           <span style="color:var(--muted);font-size:11px"> — ${r.commits_7d} commit${r.commits_7d>1?"s":""} after inactivity</span>
+         </div>`).join("") || `<div class="empty">No dormant repos revived this week</div>`}
+     </div>`,
+    `<div class="dcard">
+       <h3>Issue Activity</h3>
+       ${repos.flatMap(r=>(r.open_issues||[]).slice(0,2).map(i=>({...i, repoName:r.repo, repoUrl:r.url}))).sort((a,b)=>b.updated_at.localeCompare(a.updated_at)).slice(0,6).map(i=>`
+         <div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+           <span style="color:var(--muted)">${esc(i.repoName)} #${i.number}</span> <a href="${esc(i.url)}">${esc(i.title)}</a>
+         </div>`).join("") || `<div class="empty">No open issues</div>`}
+     </div>`,
+    `<div class="dcard">
+       <h3>Commit Type Breakdown (30d)</h3>
+       ${repos.map(r=>{
+         const td = r.type_breakdown||{};
+         const total = Object.values(td).reduce((a,b)=>a+b,0)||1;
+         return `<div style="margin-bottom:8px">
+           <div style="font-size:12px;font-weight:600;margin-bottom:3px"><a href="${esc(r.url)}">${esc(r.repo)}</a></div>
+           <div style="display:flex;gap:6px;flex-wrap:wrap">
+             ${Object.entries(td).map(([t,n])=>`<span class="type-badge type-${t}">${t} <strong>${n}</strong></span>`).join("")}
+           </div>
+         </div>`;
+       }).join("")}
+     </div>`,
+  ];
+  document.getElementById("digest-grid").innerHTML = cards.join("");
+
+  // Dependencies
+  const allDeps = {};
+  repos.forEach(r => {
+    (r.r_meta?.imports||[]).forEach(dep => { allDeps[dep] = (allDeps[dep]||0)+1; });
+  });
+  const sharedDeps = Object.entries(allDeps).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
+
+  document.getElementById("deps-section").innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 20px">
+      ${repos.map(r => {
+        const imports = r.r_meta?.imports||[];
+        if (!imports.length) return "";
+        return `<div style="margin-bottom:12px">
+          <div style="font-size:12px;font-weight:600;margin-bottom:5px"><a href="${esc(r.url)}">${esc(r.repo)}</a> (${imports.length} imports)</div>
+          <div class="dep-list">${imports.map(dep=>`
+            <span class="dep-pill${sharedDeps.find(([d])=>d===dep)?" shared":""}" title="${sharedDeps.find(([d])=>d===dep)?"shared across repos":""}">${esc(dep)}</span>`).join("")}
+          </div>
+        </div>`;
+      }).join("")}
+      ${sharedDeps.length ? `<div style="margin-top:12px;font-size:12px;color:var(--muted)">
+        Shared deps (highlighted blue): ${sharedDeps.map(([d,n])=>`<strong>${esc(d)}</strong> (${n} repos)`).join(", ")}
+      </div>` : ""}
+    </div>`;
+
+  // Code frequency
+  document.getElementById("freq-section").innerHTML = repos.map(r => {
+    const freq = r.code_frequency||[];
+    if (!freq.length) return "";
+    const maxAdd = Math.max(1, ...freq.map(w=>w.additions));
+    const maxDel = Math.max(1, ...freq.map(w=>Math.abs(w.deletions)));
+    const maxV = Math.max(maxAdd, maxDel);
+    return `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:600;margin-bottom:8px"><a href="${esc(r.url)}">${esc(r.repo)}</a> — additions/deletions (12w)</div>
+        <div class="freq-chart">
+          ${freq.map(w=>`
+            <div class="freq-bar-wrap">
+              <div class="freq-add" style="height:${Math.round(w.additions/maxV*44)}px" title="+${w.additions}"></div>
+              <div class="freq-del" style="height:${Math.round(Math.abs(w.deletions)/maxV*44)}px" title="-${Math.abs(w.deletions)}"></div>
+            </div>`).join("")}
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px"><span style="color:rgba(63,185,80,.9)">&#9632;</span> additions &nbsp; <span style="color:rgba(248,81,73,.7)">&#9632;</span> deletions</div>
+      </div>`;
+  }).join("");
+
+  // Stars section
+  document.getElementById("stars-section").innerHTML = repos.map(r => {
+    const stars = r.star_history||[];
+    if (!stars.length) return "";
+    return `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:600;margin-bottom:6px">
+          <a href="${esc(r.url)}">${esc(r.repo)}</a> — ${r.stars} total stars
+        </div>
+        <div class="star-list">${stars.map(s=>`
+          <div class="star-entry">
+            <span style="color:var(--yellow)">&#9733;</span>
+            <a href="https://github.com/${esc(s.user)}" class="star-user">${esc(s.user)}</a>
+            <span class="star-date">${esc(s.date)}</span>
+          </div>`).join("")}
+        </div>
+      </div>`;
+  }).join("");
+}
+
+// ── Build Timeline ───────────────────────────────────────────────────────────
+let allTimelineItems = [];
+
+function buildTimeline(repos) {
+  allTimelineItems = [];
+  repos.forEach(r => {
+    (r.recent_commits||[]).forEach(c => {
+      allTimelineItems.push({
+        ...c,
+        repo: r.repo,
+        owner: r.owner,
+        repoUrl: r.url,
+      });
+    });
+  });
+  allTimelineItems.sort((a,b) => b.date.localeCompare(a.date));
+  renderTimeline("all");
+
+  document.querySelectorAll(".fbtn[data-tfilter]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".fbtn[data-tfilter]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderTimeline(btn.dataset.tfilter);
+    });
+  });
+}
+
+function renderTimeline(typeFilter) {
+  const items = typeFilter === "all" ? allTimelineItems : allTimelineItems.filter(c => c.type === typeFilter);
+  document.getElementById("timeline").innerHTML = items.slice(0,60).map(c => `
+    <div class="tl-item">
+      <div class="tl-dot ${c.type}"></div>
+      <div class="tl-body">
+        <div class="tl-msg">
+          ${typeBadge(c.type)}
+          <a href="${esc(c.url)}" target="_blank" style="color:var(--text)">${esc(c.message)}</a>
+        </div>
+        <div class="tl-sub">
+          <a href="${esc(c.repoUrl)}" style="color:var(--accent)">${esc(c.repo)}</a>
+          &bull; ${esc(c.author)} &bull; ${esc(c.sha)}
+          ${c.diff_summary ? `&bull; <em style="color:var(--muted)">${esc(c.diff_summary)}</em>` : ""}
+          &bull; ${esc(c.date)}
+        </div>
+      </div>
+    </div>`).join("") || `<div class="empty" style="padding:20px">No commits of this type found.</div>`;
+}
+
+// ── Main ─────────────────────────────────────────────────────────────────────
 async function init() {
   let data;
   try {
-    data = await loadData();
+    const r = await fetch("data/activity.json?t=" + Date.now());
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    data = await r.json();
   } catch (e) {
     document.getElementById("loading").style.display = "none";
-    const errDiv = document.getElementById("error-msg");
-    errDiv.style.display = "block";
-    errDiv.textContent = `Could not load activity data: ${e.message}. Run the fetch script or check GitHub Actions.`;
+    const err = document.getElementById("error-msg");
+    err.style.display = "block";
+    err.textContent = `Could not load data: ${e.message}. Trigger the GitHub Actions workflow to generate data/activity.json.`;
     return;
   }
 
   document.getElementById("loading").style.display = "none";
   document.getElementById("app").style.display = "block";
 
-  const repos = data.repos || [];
   const genAt = data.generated_at ? new Date(data.generated_at) : null;
   document.getElementById("last-updated").textContent = genAt
-    ? `Updated ${relativeDate(genAt.toISOString())} (${genAt.toLocaleDateString()})`
+    ? `Updated ${rel(genAt.toISOString())} · ${genAt.toLocaleDateString()}`
     : "Update time unknown";
 
-  document.getElementById("summary-bar").innerHTML = buildSummaryBar(repos);
-  document.getElementById("alerts-row").innerHTML = buildAlerts(repos);
-  document.getElementById("digest-body").innerHTML = buildDigest(repos);
-  document.getElementById("repo-grid").innerHTML = repos.map(buildRepoCard).join("");
-
-  // Filter buttons
-  document.querySelectorAll(".filter-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      applyFilters();
-    });
-  });
-
-  document.getElementById("search-input").addEventListener("input", applyFilters);
+  buildOverview(data);
+  buildRepos(data.repos||[]);
+  buildPeople(data.people||[]);
+  buildDigest(data);
+  buildTimeline(data.repos||[]);
 }
 
 init();
