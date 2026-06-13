@@ -559,7 +559,7 @@ def gemini_narrative(all_repo_summaries):
     text = "\n\n".join(f"**{name}**: {summary}" for name, summary in all_repo_summaries)
     try:
         r = requests.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}",
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}",
             json={
                 "contents": [{"parts": [{"text":
                     f"You are a science communication assistant. Based on the following summaries of "
