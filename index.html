@@ -4,8 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WHAT IS BEING BUILT</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Open+Sans:wght@400;500;600&family=Montserrat:wght@600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   <style>
+    /* ── RETRO THEME (default) ── */
     :root {
       --bg: #000800;
       --surface: #001200;
@@ -31,6 +32,32 @@
       --glow-c: 0 0 8px #00ffff, 0 0 16px #00ffff66;
     }
 
+    /* ── CLEAN THEME ── */
+    html.theme-clean {
+      --bg: #fffafa;
+      --surface: #ffffff;
+      --surface2: #f7f4f4;
+      --surface3: #ede8e8;
+      --border: #d6dadc;
+      --text: #1c1717;
+      --muted: #6b6361;
+      --accent: #a60a0a;
+      --green: #2d6a2d;
+      --yellow: #b45309;
+      --red: #a60a0a;
+      --purple: #6b21a8;
+      --orange: #c2410c;
+      --teal: #0e7490;
+      --r: 6px;
+      --font: "Open Sans", sans-serif;
+      --mono: "Fira Code", monospace;
+      --glow: none;
+      --glow-y: none;
+      --glow-r: none;
+      --glow-p: none;
+      --glow-c: none;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -39,7 +66,7 @@
       font-family: var(--font);
       font-size: 10px;
       line-height: 1.8;
-      /* CRT scanlines */
+      /* CRT scanlines — retro only */
       background-image: repeating-linear-gradient(
         0deg,
         transparent,
@@ -48,9 +75,16 @@
         rgba(0,0,0,0.15) 4px
       );
       min-height: 100vh;
+      transition: background .3s, color .3s;
     }
 
-    /* CRT screen flicker */
+    html.theme-clean body {
+      background-image: none;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* CRT vignette — retro only */
     body::before {
       content: "";
       position: fixed;
@@ -59,10 +93,14 @@
       pointer-events: none;
       z-index: 9999;
     }
+    html.theme-clean body::before { display: none; }
 
     a { color: var(--accent); text-decoration: none; text-shadow: var(--glow); }
     a:hover { color: var(--yellow); text-shadow: var(--glow-y); text-decoration: none; }
+    html.theme-clean a { text-shadow: none; }
+    html.theme-clean a:hover { text-shadow: none; color: #1d4ed8; }
     code { font-family: var(--mono); font-size: 9px; }
+    html.theme-clean code { font-size: 13px; }
 
     /* Blinking cursor animation */
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
@@ -194,6 +232,10 @@
     }
     .narrative-box p { font-size: 9px; line-height: 2; color: var(--text); }
     .narrative-box a { text-shadow: none; }
+    .narrative-repo-block { margin-bottom: 10px; }
+    .narrative-repo-name { font-size: 7px; color: var(--yellow); text-shadow: var(--glow-y); margin-bottom: 3px; }
+    .narrative-summary { font-size: 8px; line-height: 1.9; color: var(--text); }
+    .narrative-commits { margin: 6px 0 0 0; padding-left: 14px; font-size: 7px; color: var(--muted); line-height: 2; }
 
     .digest-table { width: 100%; border-collapse: collapse; }
     .digest-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
@@ -424,8 +466,41 @@
     .dcard .dval { font-size: 28px; font-weight: 700; color: var(--accent); }
     .dcard .dsub { font-size: 12px; color: var(--muted); }
 
+    /* Visual timeline canvas wrap */
+    .tl-canvas-wrap {
+      background: var(--surface); border: 2px solid var(--border);
+      box-shadow: var(--glow); padding: 16px 0 8px;
+      margin-bottom: 20px; overflow: hidden;
+    }
+    .tl-tooltip {
+      display: none; position: fixed;
+      background: var(--surface2); border: 2px solid var(--accent);
+      color: var(--text); font-family: var(--font); font-size: 7px;
+      padding: 6px 10px; pointer-events: none; z-index: 1000;
+      box-shadow: var(--glow); line-height: 1.8; max-width: 220px;
+    }
+    .tl-legend {
+      font-size: 7px; color: var(--muted);
+      padding: 4px 24px; display: flex; gap: 20px; flex-wrap: wrap;
+    }
+    html.theme-clean .tl-canvas-wrap {
+      background: #ffffff; border: 1px solid #d6dadc;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    html.theme-clean .tl-tooltip {
+      font-family: "Open Sans", sans-serif; font-size: 13px;
+      border: 1px solid #d6dadc; box-shadow: 0 4px 12px rgba(0,0,0,.1);
+      background: #ffffff; color: #1c1717; border-radius: 6px; line-height: 1.6;
+    }
+    html.theme-clean .tl-legend {
+      font-size: 13px; color: #6b6361; font-family: "Open Sans", sans-serif;
+    }
+
     /* Timeline */
     .timeline { display: flex; flex-direction: column; gap: 0; }
+    .tl-month-sep { display: flex; align-items: center; gap: 10px; padding: 14px 0 6px; }
+    .tl-month-sep span { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); white-space: nowrap; }
+    .tl-month-sep::after { content: ""; flex: 1; border-top: 1px dotted var(--border); }
     .tl-item { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
     .tl-item:last-child { border-bottom: none; }
     .tl-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
@@ -526,14 +601,242 @@
       color: var(--red); padding: 14px 18px; margin: 20px 0;
       text-shadow: var(--glow-r); font-size: 8px;
     }
+
+    /* ── CLEAN THEME OVERRIDES ── */
+    html.theme-clean header {
+      background: #fffafa;
+      border-bottom: 2px solid #a60a0a;
+      box-shadow: none;
+      height: 64px;
+    }
+    html.theme-clean header h1 {
+      font-family: "Montserrat", sans-serif;
+      font-size: 20px; font-weight: 600; letter-spacing: 0.01em;
+      text-shadow: none; color: #404040;
+    }
+    html.theme-clean header h1 span { color: #a60a0a; text-shadow: none; }
+    html.theme-clean .retro-toggle-wrap { color: #404040; font-family: "Open Sans", sans-serif; }
+    html.theme-clean .page-tabs {
+      background: #fffafa;
+      border-bottom: 1px solid #d6dadc;
+      box-shadow: none;
+      top: 64px;
+    }
+    html.theme-clean .page-tab {
+      font-size: 14px; font-family: "Open Sans", sans-serif;
+      color: var(--muted); padding: 12px 18px;
+      border-bottom: 2px solid transparent;
+      letter-spacing: 0;
+    }
+    html.theme-clean .page-tab.active {
+      color: #a60a0a; border-bottom-color: #a60a0a;
+      text-shadow: none; font-weight: 600;
+    }
+    html.theme-clean .page-tab:hover { color: #1c1717; text-shadow: none; }
+
+    html.theme-clean .ticker {
+      background: var(--accent);
+      border-bottom: none;
+      height: 32px;
+    }
+    html.theme-clean .ticker-inner {
+      font-size: 13px; color: #fff; text-shadow: none; font-family: var(--font);
+    }
+    html.theme-clean #last-updated { font-size: 13px; color: var(--muted); }
+
+    html.theme-clean .stat-card {
+      border: 1px solid #d6dadc; border-radius: var(--r);
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+      padding: 16px 12px; background: #ffffff;
+    }
+    html.theme-clean .stat-card .n {
+      font-family: "Montserrat", sans-serif;
+      font-size: 28px; color: #a60a0a; text-shadow: none; font-weight: 700;
+    }
+    html.theme-clean .stat-card .l { font-size: 11px; color: #6b6361; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    html.theme-clean .sec {
+      font-family: "Montserrat", sans-serif;
+      font-size: 13px; color: #404040; text-shadow: none; font-weight: 600;
+      letter-spacing: 0.03em; margin: 32px 0 16px; text-transform: uppercase;
+    }
+    html.theme-clean .sec::before { content: ""; }
+    html.theme-clean .sec::after { background: #d6dadc; box-shadow: none; }
+
+    html.theme-clean .chip {
+      font-size: 12px; border-radius: 6px; border-width: 1px;
+    }
+    html.theme-clean .chip.dormant  { text-shadow: none; box-shadow: none; background: #fef3e2; border-color: #f5c07a; color: #92400e; }
+    html.theme-clean .chip.release  { text-shadow: none; box-shadow: none; background: #f0faf0; border-color: #86c986; color: #2d6a2d; }
+    html.theme-clean .chip.active   { text-shadow: none; box-shadow: none; background: #fdf2f2; border-color: #e8a0a0; color: #a60a0a; }
+    html.theme-clean .chip.pr       { text-shadow: none; box-shadow: none; background: #f5f0fa; border-color: #c4a8e0; color: #6b21a8; }
+
+    html.theme-clean .narrative-box {
+      border: 1px solid #d6dadc; border-left: 3px solid #a60a0a;
+      border-radius: var(--r); background: #fffafa;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    }
+    html.theme-clean .narrative-box .ai-label {
+      font-family: "Montserrat", sans-serif;
+      font-size: 11px; color: #a60a0a; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    html.theme-clean .narrative-box p { font-size: 15px; line-height: 1.75; color: #1c1717; }
+    html.theme-clean .narrative-repo-name { font-family: "Montserrat", sans-serif; font-size: 13px; color: #a60a0a; text-shadow: none; font-weight: 600; margin-bottom: 4px; }
+    html.theme-clean .narrative-summary { font-size: 15px; line-height: 1.75; color: #1c1717; }
+    html.theme-clean .narrative-commits { font-size: 13px; line-height: 1.7; color: #6b6361; }
+
+    html.theme-clean .rcard {
+      border: 1px solid var(--border); border-radius: var(--r);
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    html.theme-clean .rcard:hover {
+      border-color: var(--accent); box-shadow: 0 4px 16px rgba(37,99,235,.1);
+    }
+    html.theme-clean .rcard.revived { border-color: var(--yellow); box-shadow: none; }
+    html.theme-clean .rcard-head { border-bottom: 1px solid var(--border); }
+    html.theme-clean .rname { font-size: 15px; font-weight: 600; color: var(--text); text-shadow: none; }
+    html.theme-clean .rown  { font-size: 12px; }
+    html.theme-clean .badge { font-size: 11px; border-radius: 4px; }
+    html.theme-clean .badge.lang   { text-shadow: none; }
+    html.theme-clean .revived-pill { font-size: 11px; border-radius: 4px; text-shadow: none; box-shadow: none; border-color: var(--yellow); color: var(--yellow); background: #fef3c7; }
+
+    html.theme-clean .act-cell { border-radius: 6px; border: 1px solid var(--border); }
+    html.theme-clean .act-cell .n { font-size: 22px; }
+    html.theme-clean .act-cell .l { font-size: 11px; }
+    html.theme-clean .hot  { color: var(--orange); text-shadow: none; }
+    html.theme-clean .warm { color: var(--yellow); text-shadow: none; }
+    html.theme-clean .green-n { text-shadow: none; }
+
+    html.theme-clean .ai-box {
+      border: 1px solid #d6dadc; border-left: 3px solid #2d6a2d;
+      border-radius: var(--r); background: #f7faf7; box-shadow: none;
+    }
+    html.theme-clean .ai-label {
+      font-family: "Montserrat", sans-serif;
+      font-size: 11px; font-weight: 600; text-shadow: none;
+      color: #2d6a2d; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    html.theme-clean .search {
+      font-size: 14px; border-radius: var(--r); border: 1px solid var(--border);
+      box-shadow: none; font-family: var(--font);
+    }
+    html.theme-clean .search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+    html.theme-clean .fbtn {
+      font-size: 13px; border-radius: var(--r); border: 1px solid var(--border);
+      font-family: var(--font);
+    }
+    html.theme-clean .fbtn.active, html.theme-clean .fbtn:hover {
+      border-color: var(--accent); color: var(--accent);
+      text-shadow: none; box-shadow: none; background: #eff6ff;
+    }
+
+    html.theme-clean .ctab { font-size: 12px; font-family: var(--font); }
+    html.theme-clean .ctab.active { text-shadow: none; }
+    html.theme-clean .ctab:hover { text-shadow: none; color: var(--text); }
+    html.theme-clean .citem { font-size: 13px; }
+    html.theme-clean .csha { text-shadow: none; color: var(--teal); }
+    html.theme-clean .timeline { gap: 0; }
+    html.theme-clean .tl-item {
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    html.theme-clean .tl-dot {
+      width: 10px; height: 10px; border-radius: 50%; margin-top: 6px;
+    }
+    html.theme-clean .tl-msg { font-size: 15px; font-weight: 500; color: var(--text); }
+    html.theme-clean .tl-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    html.theme-clean .tl-msg a, html.theme-clean .tl-sub a { text-shadow: none; }
+
+    html.theme-clean .person-card {
+      border: 1px solid var(--border); border-radius: var(--r);
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    html.theme-clean .person-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); border-color: var(--accent); }
+    html.theme-clean .person-avatar { border-radius: 50%; image-rendering: auto; border: 2px solid var(--border); }
+    html.theme-clean .person-name { font-size: 15px; font-weight: 600; color: var(--text); text-shadow: none; }
+    html.theme-clean .person-login { font-size: 13px; }
+    html.theme-clean .person-bio   { font-size: 13px; }
+    html.theme-clean .person-scopus { border-radius: var(--r); border: 1px solid #fed7aa; background: #fff7ed; box-shadow: none; font-size: 13px; }
+    html.theme-clean .person-scopus .sn { font-size: 20px; text-shadow: none; }
+
+    html.theme-clean footer {
+      border-top: 2px solid #a60a0a; font-size: 12px;
+      color: #6b6361; box-shadow: none; letter-spacing: 0;
+      background: #fffafa; font-family: "Open Sans", sans-serif;
+    }
+
+    html.theme-clean #loading { font-size: 16px; text-shadow: none; color: var(--accent); }
+    html.theme-clean #error-msg { font-size: 13px; text-shadow: none; border-radius: var(--r); border-width: 1px; }
+
+    /* ── Strip all remaining hardcoded glow/bleed in clean mode ── */
+    html.theme-clean header { box-shadow: none; }
+    html.theme-clean .page-tabs { box-shadow: none; }
+    html.theme-clean .stat-card { box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+    html.theme-clean .stat-card .n { text-shadow: none; }
+    html.theme-clean .ai-box { box-shadow: none; }
+    html.theme-clean .hot  { text-shadow: none; }
+    html.theme-clean .warm { text-shadow: none; }
+    html.theme-clean .green-n { text-shadow: none; }
+    html.theme-clean .csha { text-shadow: none; }
+    html.theme-clean .person-scopus { box-shadow: none; border: 1px solid #fed7aa; }
+    html.theme-clean .person-scopus .sn { text-shadow: none; }
+    html.theme-clean .contrib-bar-fill { box-shadow: none; }
+    html.theme-clean footer { box-shadow: none; }
+
+    /* ── RETRO SLIDER in header ── */
+    .retro-toggle-wrap {
+      display: flex; align-items: center; gap: 10px;
+      font-family: "Inter", sans-serif; font-size: 13px;
+      color: var(--muted); user-select: none; cursor: pointer;
+    }
+    .retro-toggle-wrap .retro-label { font-weight: 500; white-space: nowrap; }
+
+    /* The toggle switch */
+    .retro-switch {
+      position: relative; width: 44px; height: 24px; flex-shrink: 0;
+    }
+    .retro-switch input { opacity: 0; width: 0; height: 0; }
+    .retro-switch .slider-track {
+      position: absolute; inset: 0; border-radius: 24px;
+      background: #d1d5db; transition: background .2s;
+      cursor: pointer;
+    }
+    .retro-switch .slider-track::after {
+      content: ""; position: absolute;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #fff; top: 3px; left: 3px;
+      transition: transform .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+    .retro-switch input:checked + .slider-track { background: #00aa00; }
+    .retro-switch input:checked + .slider-track::after { transform: translateX(20px); }
+
+    /* In retro mode the whole wrap gets a retro font */
+    html:not(.theme-clean) .retro-toggle-wrap {
+      font-family: "Press Start 2P", monospace;
+      font-size: 7px; color: var(--muted);
+    }
+    html:not(.theme-clean) .retro-switch .slider-track { background: #003300; }
+    html:not(.theme-clean) .retro-switch input:checked + .slider-track { background: var(--accent); box-shadow: var(--glow); }
+
+    /* Hide ticker in clean mode */
+    html.theme-clean .ticker { display: none; }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>&gt; WHAT IS <span>BEING BUILT</span> <span style="animation:blink 1s step-end infinite">_</span></h1>
+  <h1 id="site-title">What Is <span>Being Built</span></h1>
   <div style="display:flex;align-items:center;gap:16px">
     <div id="last-updated">Loading...</div>
+    <label class="retro-toggle-wrap" title="Toggle retro CRT mode">
+      <span class="retro-label">Retro Mode</span>
+      <span class="retro-switch">
+        <input type="checkbox" id="retro-checkbox" onchange="toggleTheme(this.checked)">
+        <span class="slider-track"></span>
+      </span>
+    </label>
     <a href="feed.xml" title="Subscribe via RSS" style="display:flex;align-items:center;gap:5px;color:var(--orange);font-size:12px;text-decoration:none;border:1px solid var(--orange);border-radius:4px;padding:3px 9px">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19.01 7.38 20 6.18 20C4.98 20 4 19.01 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z"/></svg>
       RSS
@@ -629,20 +932,20 @@
   <div class="page" id="page-timeline">
     <div class="container">
       <div class="sec">Project History</div>
-      <div id="visual-timeline-wrap" style="background:var(--surface);border:2px solid var(--border);box-shadow:var(--glow);padding:16px 0 8px;margin-bottom:20px;overflow:hidden">
+      <div id="visual-timeline-wrap" class="tl-canvas-wrap">
         <div style="position:relative;display:flex">
           <canvas id="visual-timeline-labels" style="display:block;flex-shrink:0;z-index:2;position:relative"></canvas>
           <div id="visual-timeline-scroll" style="overflow-x:auto;overflow-y:visible;padding:0 0 8px;flex:1">
             <canvas id="visual-timeline-canvas" style="display:block;cursor:crosshair"></canvas>
           </div>
         </div>
-        <div id="visual-timeline-tooltip" style="display:none;position:fixed;background:var(--surface2);border:2px solid var(--accent);color:var(--text);font-family:var(--font);font-size:7px;padding:6px 10px;pointer-events:none;z-index:1000;box-shadow:var(--glow);line-height:1.8;max-width:220px"></div>
-        <div style="font-size:7px;color:var(--muted);padding:4px 24px;display:flex;gap:20px;flex-wrap:wrap">
+        <div id="visual-timeline-tooltip" class="tl-tooltip"></div>
+        <div class="tl-legend">
           <span><span style="color:var(--yellow)">&#9650;</span> Release</span>
           <span><span style="color:var(--accent)">&#9646;</span> Commit activity</span>
           <span><span style="color:var(--orange)">&#11044;</span> Repo created</span>
           <span><span style="color:var(--purple)">&#9644;</span> Active branch</span>
-          <span style="color:var(--muted)">Scroll horizontally to navigate years &bull; Hover for details</span>
+          <span>Scroll horizontally to navigate years · Hover for details</span>
         </div>
       </div>
 
@@ -683,6 +986,34 @@
 </footer>
 
 <script>
+// ── Theme ────────────────────────────────────────────────────────────────────
+function applyTheme(retro) {
+  const html = document.documentElement;
+  const cb = document.getElementById('retro-checkbox');
+  const title = document.getElementById('site-title');
+  if (retro) {
+    html.classList.remove('theme-clean');
+    if (title) title.innerHTML = '&gt; WHAT IS <span>BEING BUILT</span> <span style="animation:blink 1s step-end infinite">_</span>';
+  } else {
+    html.classList.add('theme-clean');
+    if (title) title.innerHTML = 'What Is <span>Being Built</span>';
+  }
+  if (cb) cb.checked = retro;
+  localStorage.setItem('wib-theme', retro ? 'retro' : 'clean');
+}
+
+function toggleTheme(retro) {
+  applyTheme(retro);
+  // Redraw canvas timeline with new theme colors
+  if (window._timelineRepos) buildVisualTimeline(window._timelineRepos);
+}
+
+// On load: default is clean
+(function() {
+  const saved = localStorage.getItem('wib-theme');
+  applyTheme(saved === 'retro');
+})();
+
 // ── Utilities ────────────────────────────────────────────────────────────────
 const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
@@ -782,7 +1113,7 @@ function buildOverview(data) {
       document.getElementById("narrative-text").innerHTML = summaries.map(r => {
         const recentCommits = (r.recent_commits || []).slice(0, 10);
         const commitList = recentCommits.length
-          ? `<ul style="margin:6px 0 0 0;padding-left:14px;font-size:7px;color:var(--muted);line-height:2">${
+          ? `<ul class="narrative-commits">${
               recentCommits.map(c =>
                 `<li><code style="color:var(--accent)">${esc(c.sha)}</code> `
                 + (c.branch ? `<span style="color:var(--border)">[${esc(c.branch)}]</span> ` : "")
@@ -791,11 +1122,11 @@ function buildOverview(data) {
               ).join("")
             }</ul>`
           : "";
-        return `<div style="margin-bottom:10px">
-          <div style="font-size:7px;color:var(--yellow);text-shadow:var(--glow-y);margin-bottom:3px">
+        return `<div class="narrative-repo-block">
+          <div class="narrative-repo-name">
             <a href="${esc(r.url)}" target="_blank" style="color:inherit">${esc(r.owner)}/${esc(r.repo)}</a>
           </div>
-          <div style="font-size:8px;line-height:1.9;color:var(--text)">${esc(r.summary)}</div>
+          <div class="narrative-summary">${esc(r.summary)}</div>
           ${commitList}
         </div>`;
       }).join(`<div style="height:1px;background:var(--border);margin:8px 0"></div>`);
@@ -1261,6 +1592,7 @@ function buildDigest(data) {
 
 // ── Visual Timeline (canvas) ─────────────────────────────────────────────────
 function buildVisualTimeline(repos) {
+  window._timelineRepos = repos;
   const canvas      = document.getElementById("visual-timeline-canvas");
   const labelCanvas = document.getElementById("visual-timeline-labels");
   const tooltip     = document.getElementById("visual-timeline-tooltip");
@@ -1305,19 +1637,34 @@ function buildVisualTimeline(repos) {
   labelCanvas.height = H;
   labelCanvas.style.height = H + "px";
 
-  // Retro colors
-  const C = {
-    bg:       "#001200",
-    surface:  "#001a00",
-    border:   "#00aa00",
-    text:     "#00ff41",
-    muted:    "#007700",
-    yellow:   "#ffff00",
-    orange:   "#ff8800",
-    accent:   "#00ff41",
-    teal:     "#00ffff",
-    red:      "#ff2222",
-    purple:   "#ff00ff",
+  const isClean = document.documentElement.classList.contains('theme-clean');
+  const canvasFont = isClean
+    ? { sm: "11px 'Open Sans', sans-serif", xs: "11px 'Open Sans', sans-serif" }
+    : { sm: "9px 'Press Start 2P', monospace", xs: "7px 'Press Start 2P', monospace" };
+  const C = isClean ? {
+    bg:      "#ffffff",
+    surface: "#f7f4f4",
+    border:  "#d6dadc",
+    text:    "#1c1717",
+    muted:   "#6b6361",
+    yellow:  "#b45309",
+    orange:  "#c2410c",
+    accent:  "#a60a0a",
+    teal:    "#0e7490",
+    red:     "#a60a0a",
+    purple:  "#6b21a8",
+  } : {
+    bg:      "#001200",
+    surface: "#001a00",
+    border:  "#00aa00",
+    text:    "#00ff41",
+    muted:   "#007700",
+    yellow:  "#ffff00",
+    orange:  "#ff8800",
+    accent:  "#00ff41",
+    teal:    "#00ffff",
+    red:     "#ff2222",
+    purple:  "#ff00ff",
   };
 
   // ── Label canvas (fixed, not scrolled) ──────────────────────────────────────
@@ -1335,7 +1682,7 @@ function buildVisualTimeline(repos) {
   const dateToX = d => Math.floor((d - minDate) / 86400000) * DAY_PX;
 
   // Year axis
-  ctx.font = "9px 'Press Start 2P', monospace";
+  ctx.font = canvasFont.sm;
   for (let y = minDate.getFullYear(); y <= now.getFullYear() + 1; y++) {
     const x = dateToX(new Date(y, 0, 1));
     if (x >= 0 && x < W) {
@@ -1352,17 +1699,25 @@ function buildVisualTimeline(repos) {
     }
   }
 
-  // Month ticks
+  // Month lines + labels
+  const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  ctx.font = canvasFont.xs;
   for (let y = minDate.getFullYear(); y <= now.getFullYear() + 1; y++) {
     for (let m = 1; m < 12; m++) {
       const x = dateToX(new Date(y, m, 1));
       if (x >= 0 && x < W) {
-        ctx.strokeStyle = C.border + "22";
+        // Dotted vertical line full height
+        ctx.strokeStyle = C.border + "44";
         ctx.lineWidth = 1;
+        ctx.setLineDash([2, 4]);
         ctx.beginPath();
-        ctx.moveTo(x, HEADER_H - 4);
-        ctx.lineTo(x, HEADER_H);
+        ctx.moveTo(x, HEADER_H);
+        ctx.lineTo(x, H - MARGIN_B);
         ctx.stroke();
+        ctx.setLineDash([]);
+        // Month label
+        ctx.fillStyle = C.muted;
+        ctx.fillText(MON[m], x + 2, 28);
       }
     }
   }
@@ -1378,7 +1733,7 @@ function buildVisualTimeline(repos) {
   ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = C.yellow;
-  ctx.font = "9px 'Press Start 2P', monospace";
+  ctx.font = canvasFont.sm;
   ctx.fillText("NOW", todayX - 18, 20);
 
   // Hotspot registry for tooltip (x coords relative to scrolling canvas)
@@ -1390,17 +1745,19 @@ function buildVisualTimeline(repos) {
     const barH = 16;
 
     // Row background alternating — both canvases
-    const rowBg = i % 2 === 0 ? "#001400" : "#001800";
+    const rowBg = isClean
+      ? (i % 2 === 0 ? "#ffffff" : "#f7f4f4")
+      : (i % 2 === 0 ? "#001400" : "#001800");
     ctx.fillStyle  = rowBg;
     ctx.fillRect(0, rowY, W, ROW_H);
     lctx.fillStyle = rowBg;
     lctx.fillRect(0, rowY, LABEL_W, ROW_H);
 
     // Labels — drawn on the fixed label canvas
-    lctx.font      = "9px 'Press Start 2P', monospace";
+    lctx.font      = canvasFont.sm;
     lctx.fillStyle = C.yellow;
     lctx.fillText(r.repo.slice(0, 13), 4, rowY + 16);
-    lctx.font      = "7px 'Press Start 2P', monospace";
+    lctx.font      = canvasFont.xs;
     lctx.fillStyle = C.muted;
     lctx.fillText(r.owner.slice(0, 13), 4, rowY + 30);
 
@@ -1442,7 +1799,7 @@ function buildVisualTimeline(repos) {
 
     // Baseline rail from creation to today
     const railStartX = r.created_at ? dateToX(new Date(r.created_at)) : 0;
-    ctx.strokeStyle = "#004400";
+    ctx.strokeStyle = isClean ? "#d6dadc" : "#004400";
     ctx.lineWidth   = 2;
     ctx.setLineDash([4, 6]);
     ctx.beginPath();
@@ -1469,7 +1826,7 @@ function buildVisualTimeline(repos) {
           label: `${r.repo}\nWeek of ${new Date(w.week*1000).toISOString().slice(0,10)}\n${w.total} commits` });
       });
     } else {
-      ctx.font      = "7px 'Press Start 2P', monospace";
+      ctx.font      = canvasFont.xs;
       ctx.fillStyle = C.muted;
       ctx.fillText("dormant", todayX - 52, barY + barH - 4);
     }
@@ -1487,7 +1844,7 @@ function buildVisualTimeline(repos) {
       ctx.closePath();
       ctx.fill();
       ctx.shadowBlur = 0;
-      ctx.font      = "7px 'Press Start 2P', monospace";
+      ctx.font      = canvasFont.xs;
       ctx.fillStyle = C.yellow;
       ctx.fillText(rel.tag.slice(0, 8), rx - 12, barY - 4);
       hotspots.push({ x: rx - 8, y: barY - 10, w: 16, h: 20,
@@ -1516,7 +1873,7 @@ function buildVisualTimeline(repos) {
       ctx.beginPath();
       ctx.arc(endX, lineY, 3, 0, Math.PI * 2);
       ctx.fill();
-      ctx.font      = "7px 'Press Start 2P', monospace";
+      ctx.font      = canvasFont.xs;
       ctx.fillStyle = bColor;
       ctx.fillText(b.name.slice(0, 12), endX + 3, lineY - 2);
       hotspots.push({ x: startX, y: lineY - 3, w: endX - startX + 6, h: 8,
@@ -1589,7 +1946,18 @@ function buildTimeline(repos) {
 
 function renderTimeline(typeFilter) {
   const items = typeFilter === "all" ? allTimelineItems : allTimelineItems.filter(c => c.type === typeFilter);
-  document.getElementById("timeline").innerHTML = items.slice(0,60).map(c => `
+  const visible = items.slice(0, 60);
+  const MON_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  let lastMonthKey = null;
+  const parts = [];
+  for (const c of visible) {
+    const d = new Date(c.date);
+    const mk = isNaN(d) ? null : `${d.getFullYear()}-${d.getMonth()}`;
+    if (mk && mk !== lastMonthKey) {
+      lastMonthKey = mk;
+      parts.push(`<div class="tl-month-sep"><span>${MON_NAMES[d.getMonth()]} ${d.getFullYear()}</span></div>`);
+    }
+    parts.push(`
     <div class="tl-item">
       <div class="tl-dot ${c.type}"></div>
       <div class="tl-body">
@@ -1604,7 +1972,9 @@ function renderTimeline(typeFilter) {
           &bull; ${esc(c.date)}
         </div>
       </div>
-    </div>`).join("") || `<div class="empty" style="padding:20px">No commits of this type found.</div>`;
+    </div>`);
+  }
+  document.getElementById("timeline").innerHTML = parts.join("") || `<div class="empty" style="padding:20px">No commits of this type found.</div>`;
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────
