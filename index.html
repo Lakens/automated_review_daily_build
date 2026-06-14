@@ -169,7 +169,7 @@
       border-bottom: 3px solid var(--border);
       padding: 0 24px;
       display: flex; gap: 0;
-      position: sticky; top: 64px; z-index: 190;
+      position: sticky; top: var(--header-h, 64px); z-index: 190;
       box-shadow: 0 2px 12px #00ff4122;
     }
     .page-tab {
@@ -1024,9 +1024,20 @@ function applyTheme(retro) {
 
 function toggleTheme(retro) {
   applyTheme(retro);
-  // Redraw canvas timeline with new theme colors
   if (window._timelineRepos) buildVisualTimeline(window._timelineRepos);
+  // Header may have changed height after theme switch (font size differs)
+  requestAnimationFrame(syncHeaderHeight);
 }
+
+function syncHeaderHeight() {
+  const h = document.querySelector('header');
+  if (h) document.documentElement.style.setProperty('--header-h', h.offsetHeight + 'px');
+}
+window.addEventListener('resize', syncHeaderHeight);
+// Run after fonts/layout settle
+document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(syncHeaderHeight));
+// Also run immediately (script may execute after DOMContentLoaded)
+requestAnimationFrame(syncHeaderHeight);
 
 // On load: default is clean
 (function() {
