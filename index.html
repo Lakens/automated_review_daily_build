@@ -8,6 +8,7 @@
   <style>
     /* ── RETRO THEME (default) ── */
     :root {
+      scroll-padding-top: var(--sticky-h, 104px);
       --bg: #000800;
       --surface: #001200;
       --surface2: #001a00;
@@ -191,6 +192,7 @@
     /* ── Layout ── */
     .container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
     @media (max-width: 700px) { .container { padding: 12px 16px; } }
+    .section-title, h2, h3 { scroll-margin-top: var(--sticky-h, 104px); }
 
     /* ── Stat bar ── */
     .stat-bar {
@@ -1028,8 +1030,13 @@ function toggleTheme(retro) {
 }
 
 function syncHeaderHeight() {
-  const h = document.querySelector('header');
-  if (h) document.documentElement.style.setProperty('--header-h', h.offsetHeight + 'px');
+  const hdr = document.querySelector('header');
+  const tabs = document.querySelector('.page-tabs');
+  const hh = hdr ? hdr.offsetHeight : 64;
+  const th = tabs ? tabs.offsetHeight : 40;
+  const root = document.documentElement;
+  root.style.setProperty('--header-h', hh + 'px');
+  root.style.setProperty('--sticky-h', (hh + th) + 'px');
 }
 window.addEventListener('resize', syncHeaderHeight);
 // Re-measure after web fonts load (Google Fonts can change layout)
