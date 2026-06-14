@@ -1019,13 +1019,12 @@ function applyTheme(retro) {
   }
   if (cb) cb.checked = retro;
   localStorage.setItem('wib-theme', retro ? 'retro' : 'clean');
+  requestAnimationFrame(() => requestAnimationFrame(syncHeaderHeight));
 }
 
 function toggleTheme(retro) {
   applyTheme(retro);
   if (window._timelineRepos) buildVisualTimeline(window._timelineRepos);
-  // Header may have changed height after theme switch (font size differs)
-  requestAnimationFrame(syncHeaderHeight);
 }
 
 function syncHeaderHeight() {
@@ -1033,10 +1032,8 @@ function syncHeaderHeight() {
   if (h) document.documentElement.style.setProperty('--header-h', h.offsetHeight + 'px');
 }
 window.addEventListener('resize', syncHeaderHeight);
-// Run after fonts/layout settle
-document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(syncHeaderHeight));
-// Also run immediately (script may execute after DOMContentLoaded)
-requestAnimationFrame(syncHeaderHeight);
+// Re-measure after web fonts load (Google Fonts can change layout)
+document.fonts.ready.then(syncHeaderHeight);
 
 // On load: default is clean
 (function() {
