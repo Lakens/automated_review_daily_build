@@ -1006,6 +1006,19 @@ def generate_rss(results, digest, generated_at, output_path):
     print(f"Wrote RSS feed to {output_path} ({len(items)} items)")
 
 
+def load_previous_activity(output_dir):
+    """Load the previously generated activity.json, return dict keyed by owner/repo."""
+    path = output_dir / "activity.json"
+    if not path.exists():
+        return {}
+    try:
+        with open(path) as f:
+            data = json.load(f)
+        return {f"{r['owner']}/{r['repo']}": r for r in data.get("repos", [])}
+    except Exception:
+        return {}
+
+
 def main():
     repos_path  = Path(__file__).parent.parent / "repos.json"
     output_dir  = Path(__file__).parent.parent / "data"
@@ -1017,20 +1030,48 @@ def main():
     repos_list = [(r["owner"], r["repo"]) for r in repos]
     all_logins_seen = set()
 
+    previous = load_previous_activity(output_dir)
+
     print("Fetching repo data...")
     results = []
     for r in repos:
         data = process_repo(r["owner"], r["repo"], r.get("description", ""), all_logins_seen, repos_list)
         if data:
+            # Reuse cached Groq summary if pushed_at hasn't changed since last run
+            key = f"{r['owner']}/{r['repo']}"
+            prev = previous.get(key)
+            if prev and data["pushed_at"] == prev.get("pushed_at") and prev.get("summary"):
+                print(f"    [{key}] no new pushes — reusing cached summary")
+                data["summary"] = prev["summary"]
             results.append(data)
         time.sleep(1)
 
     print("Building people index...")
     people = build_people_index(results, all_logins_seen, repos_list)
 
+    # Only call Gemini if at least one repo has changed since last run
+    any_changed = any(
+        f"{r['owner']}/{r['repo']}" not in previous
+        or r["pushed_at"] != previous[f"{r['owner']}/{r['repo']}"].get("pushed_at")
+        for r in results
+    )
+
     print("Generating Gemini cross-repo narrative...")
     repo_summaries = [(f"{r['owner']}/{r['repo']}", r["summary"]) for r in results if r["summary"]]
-    narrative = gemini_narrative(repo_summaries)
+    if any_changed:
+        narrative = gemini_narrative(repo_summaries)
+    else:
+        prev_narrative = ""
+        out_path_prev = output_dir / "activity.json"
+        if out_path_prev.exists():
+            try:
+                with open(out_path_prev) as f:
+                    prev_data = json.load(f)
+                prev_narrative = prev_data.get("digest", {}).get("narrative", "")
+            except Exception:
+                pass
+        print("    No repos changed — reusing cached Gemini narrative")
+        narrative = prev_narrative
 
     print("Building weekly digest...")
     digest = build_weekly_digest(results, narrative)
