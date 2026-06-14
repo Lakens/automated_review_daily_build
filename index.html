@@ -783,6 +783,7 @@
     html.theme-clean .person-scopus .sn { text-shadow: none; }
     html.theme-clean .contrib-bar-fill { box-shadow: none; }
     html.theme-clean footer { box-shadow: none; }
+    html.theme-clean .retro-music-credit { display: none; }
 
     /* ── RETRO SLIDER in header ── */
     .retro-toggle-wrap {
@@ -983,10 +984,12 @@
   <a href="https://github.com/Lakens/automated_review_daily_build" target="_blank">GITHUB</a> &bull;
   <a href="feed.xml">RSS FEED</a> &bull;
   &copy; <script>document.write(new Date().getFullYear())</script> DANIEL LAKENS
+  <span class="retro-music-credit"> &bull; MUSIC: &ldquo;DEUS EX TEMPUS&rdquo; BY <a href="https://open.spotify.com/artist/3AjWA7sRmeZSKqr7PoKL6k/discography" target="_blank">TREVOR LENTZ</a> (CC BY)</span>
 </footer>
 
 <script>
 // ── Theme ────────────────────────────────────────────────────────────────────
+let _retroAudio = null;
 function applyTheme(retro) {
   const html = document.documentElement;
   const cb = document.getElementById('retro-checkbox');
@@ -994,9 +997,16 @@ function applyTheme(retro) {
   if (retro) {
     html.classList.remove('theme-clean');
     if (title) title.innerHTML = '&gt; WHAT IS <span>BEING BUILT</span> <span style="animation:blink 1s step-end infinite">_</span>';
+    if (!_retroAudio) {
+      _retroAudio = new Audio('Deus Ex Tempus.ogg');
+      _retroAudio.loop = true;
+      _retroAudio.volume = 0.4;
+    }
+    _retroAudio.play().catch(() => {});
   } else {
     html.classList.add('theme-clean');
     if (title) title.innerHTML = 'What Is <span>Being Built</span>';
+    if (_retroAudio) { _retroAudio.pause(); _retroAudio.currentTime = 0; }
   }
   if (cb) cb.checked = retro;
   localStorage.setItem('wib-theme', retro ? 'retro' : 'clean');
