@@ -1293,8 +1293,8 @@ function buildVisualTimeline(repos) {
   minDate = new Date(minDate.getFullYear(), 0, 1);
 
   const totalDays = Math.ceil((now - minDate) / 86400000) + 30;
-  const DAY_PX    = 3;   // pixels per day
-  const ROW_H     = 68;  // height per repo row (extra for branch lines)
+  const DAY_PX    = 4;   // pixels per day
+  const ROW_H     = 84;  // height per repo row (extra for branch lines)
   const LABEL_W   = 130; // left label column (separate canvas)
   const HEADER_H  = 32;  // top axis height
   const MARGIN_B  = 12;
@@ -1342,7 +1342,7 @@ function buildVisualTimeline(repos) {
   const dateToX = d => Math.floor((d - minDate) / 86400000) * DAY_PX;
 
   // Year axis
-  ctx.font = "7px 'Press Start 2P', monospace";
+  ctx.font = "9px 'Press Start 2P', monospace";
   for (let y = minDate.getFullYear(); y <= now.getFullYear() + 1; y++) {
     const x = dateToX(new Date(y, 0, 1));
     if (x >= 0 && x < W) {
@@ -1385,7 +1385,7 @@ function buildVisualTimeline(repos) {
   ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = C.yellow;
-  ctx.font = "7px 'Press Start 2P', monospace";
+  ctx.font = "9px 'Press Start 2P', monospace";
   ctx.fillText("NOW", todayX - 18, 20);
 
   // Hotspot registry for tooltip (x coords relative to scrolling canvas)
@@ -1404,12 +1404,12 @@ function buildVisualTimeline(repos) {
     lctx.fillRect(0, rowY, LABEL_W, ROW_H);
 
     // Labels — drawn on the fixed label canvas
-    lctx.font      = "7px 'Press Start 2P', monospace";
+    lctx.font      = "9px 'Press Start 2P', monospace";
     lctx.fillStyle = C.yellow;
-    lctx.fillText(r.repo.slice(0, 13), 4, rowY + 14);
-    lctx.font      = "6px 'Press Start 2P', monospace";
+    lctx.fillText(r.repo.slice(0, 13), 4, rowY + 16);
+    lctx.font      = "7px 'Press Start 2P', monospace";
     lctx.fillStyle = C.muted;
-    lctx.fillText(r.owner.slice(0, 13), 4, rowY + 26);
+    lctx.fillText(r.owner.slice(0, 13), 4, rowY + 30);
 
     // Row separator on both canvases
     lctx.strokeStyle = C.border + "44";
@@ -1476,7 +1476,7 @@ function buildVisualTimeline(repos) {
           label: `${r.repo}\nWeek of ${new Date(w.week*1000).toISOString().slice(0,10)}\n${w.total} commits` });
       });
     } else {
-      ctx.font      = "5px 'Press Start 2P', monospace";
+      ctx.font      = "7px 'Press Start 2P', monospace";
       ctx.fillStyle = C.muted;
       ctx.fillText("dormant", todayX - 52, barY + barH - 4);
     }
@@ -1494,7 +1494,7 @@ function buildVisualTimeline(repos) {
       ctx.closePath();
       ctx.fill();
       ctx.shadowBlur = 0;
-      ctx.font      = "5px 'Press Start 2P', monospace";
+      ctx.font      = "7px 'Press Start 2P', monospace";
       ctx.fillStyle = C.yellow;
       ctx.fillText(rel.tag.slice(0, 8), rx - 12, barY - 4);
       hotspots.push({ x: rx - 8, y: barY - 10, w: 16, h: 20,
@@ -1523,7 +1523,7 @@ function buildVisualTimeline(repos) {
       ctx.beginPath();
       ctx.arc(endX, lineY, 3, 0, Math.PI * 2);
       ctx.fill();
-      ctx.font      = "5px 'Press Start 2P', monospace";
+      ctx.font      = "7px 'Press Start 2P', monospace";
       ctx.fillStyle = bColor;
       ctx.fillText(b.name.slice(0, 12), endX + 3, lineY - 2);
       hotspots.push({ x: startX, y: lineY - 3, w: endX - startX + 6, h: 8,
@@ -1552,7 +1552,19 @@ function buildVisualTimeline(repos) {
   canvas.addEventListener("mouseleave", () => { tooltip.style.display = "none"; });
 
   // Scroll to the right end (today) by default
-  requestAnimationFrame(() => requestAnimationFrame(() => { scrollWrap.scrollLeft = W; }));
+  // Scroll to today: defer until the tab is visible so layout is complete
+  function scrollTimelineToEnd() {
+    scrollWrap.scrollLeft = scrollWrap.scrollWidth;
+  }
+  // If timeline tab is already active, scroll now; otherwise scroll when it becomes active
+  if (document.getElementById("page-timeline").classList.contains("active")) {
+    requestAnimationFrame(() => requestAnimationFrame(scrollTimelineToEnd));
+  }
+  document.querySelectorAll(".page-tab").forEach(btn => {
+    if (btn.textContent.toLowerCase().includes("time")) {
+      btn.addEventListener("click", () => requestAnimationFrame(() => requestAnimationFrame(scrollTimelineToEnd)));
+    }
+  });
 }
 
 // ── Build Timeline ───────────────────────────────────────────────────────────
