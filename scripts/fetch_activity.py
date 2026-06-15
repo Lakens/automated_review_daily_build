@@ -1098,31 +1098,30 @@ def main():
     ]
     any_changed = bool(changed_repos)
 
-    # Generate per-repo summaries scoped to commits since the last post timestamp.
-    # For unchanged repos, reuse the cached summary from previous activity.json.
-    last_post_time = posts[0]["generated_at"] if posts and not posts[0].get("_sentinel") else None
+    # Build a lookup of the last-seen pushed_at per repo from previous posts,
+    # so we can scope each summary to only commits since that point.
+    # Use previous activity.json as the reference (it always reflects the last run).
     print("Generating per-repo summaries...")
     for r in results:
         key = f"{r['owner']}/{r['repo']}"
         if r in changed_repos:
-            # Only summarize commits that are new since the last post
-            if last_post_time:
-                last_post_date = last_post_time[:10]  # YYYY-MM-DD
-                new_commits = [c for c in (r.get("recent_commits") or []) if c["date"] >= last_post_date]
-            else:
-                new_commits = r.get("recent_commits") or []
-            if new_commits:
-                commit_lines = [
-                    f"[{c['date']}]{' ['+c['branch']+']' if c.get('branch') else ''} {c['author']}: {c['message']}"
-                    for c in new_commits
-                ]
-                print(f"    [{key}] summarizing {len(new_commits)} new commit(s)...")
-                r["summary"] = summarize_commits_groq(key, commit_lines)
-            else:
-                r["summary"] = previous.get(key, {}).get("summary", "")
+            # Scope commits to those newer than what was last seen for this repo.
+            # Use the previous pushed_at as a date floor.
+            prev_pushed = (previous.get(key) or {}).get("pushed_at", "")
+            prev_date = prev_pushed[:10] if prev_pushed else ""  # YYYY-MM-DD
+            all_commits = r.get("recent_commits") or []
+            new_commits = [c for c in all_commits if c["date"] > prev_date] if prev_date else all_commits
+            if not new_commits:
+                new_commits = all_commits[:5]  # fallback: at least summarize the most recent ones
+            commit_lines = [
+                f"[{c['date']}]{' ['+c['branch']+']' if c.get('branch') else ''} {c['author']}: {c['message']}"
+                for c in new_commits
+            ]
+            print(f"    [{key}] summarizing {len(new_commits)} new commit(s) since {prev_date or 'beginning'}...")
+            r["summary"] = summarize_commits_groq(key, commit_lines)
         else:
             # Reuse cached summary — nothing changed
-            r["summary"] = previous.get(key, {}).get("summary", "")
+            r["summary"] = (previous.get(key) or {}).get("summary", "")
             if r["summary"]:
                 print(f"    [{key}] no change — reusing cached summary")
 
