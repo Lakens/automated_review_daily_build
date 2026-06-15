@@ -1083,6 +1083,13 @@ def main():
     previous = load_previous_activity(output_dir)
     posts = load_posts(output_dir)
 
+    # Build lookup of pushed_at values from the last post, to detect what's new since then
+    last_post_pushed = {}
+    if posts:
+        for r in posts[0].get("repos", []):
+            key = f"{r['owner']}/{r['repo']}"
+            last_post_pushed[key] = r.get("pushed_at", "")
+
     print("Fetching repo data...")
     results = []
     for r in repos:
@@ -1100,26 +1107,30 @@ def main():
     print("Building people index...")
     people = build_people_index(results, all_logins_seen, repos_list)
 
-    # Determine which repos changed since last run (new pushes or newly tracked)
+    # Determine which repos changed since the LAST POST (not last activity.json run).
+    # This correctly catches repos whose pushed_at was already cached in activity.json
+    # but hadn't yet appeared in a post.
     changed_repos = [
         r for r in results
-        if f"{r['owner']}/{r['repo']}" not in previous
-        or r["pushed_at"] != previous[f"{r['owner']}/{r['repo']}"].get("pushed_at")
+        if r.get("pushed_at") and (
+            f"{r['owner']}/{r['repo']}" not in last_post_pushed
+            or r["pushed_at"] != last_post_pushed[f"{r['owner']}/{r['repo']}"]
+        )
     ]
     any_changed = bool(changed_repos)
 
     print("Generating Gemini cross-repo narrative...")
     if any_changed:
-        # Narrative scoped to only repos that changed this run
+        # Narrative scoped to only repos that changed since the last post
         changed_summaries = [
             (f"{r['owner']}/{r['repo']}", r["summary"])
             for r in changed_repos if r.get("summary")
         ]
         narrative = gemini_narrative(changed_summaries)
-        print(f"    {len(changed_repos)} repo(s) changed — new post generated")
+        print(f"    {len(changed_repos)} repo(s) changed since last post — new post generated")
     else:
         narrative = ""
-        print("    No repos changed — skipping post")
+        print("    No repos changed since last post — skipping post")
 
     # Append new post only when something changed
     generated_at = datetime.now(timezone.utc).isoformat()
