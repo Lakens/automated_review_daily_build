@@ -1108,18 +1108,18 @@ function buildOverview(data) {
 
   // Stat bar
   const stats = [
-    { n: agg.total_repos,        l: "Tracked Repos" },
-    { n: agg.active_repos_7d,    l: "Active This Week" },
-    { n: agg.total_commits_1d,   l: "Commits Today" },
-    { n: agg.total_commits_30d,  l: "Commits (30d)" },
-    { n: agg.unique_authors_30d, l: "Active Authors (30d)" },
-    { n: agg.total_open_prs,     l: "Open PRs" },
-    { n: agg.total_open_issues,  l: "Open Issues" },
-    { n: agg.total_stars,        l: "Total Stars" },
-    { n: agg.total_contributors, l: "Contributors" },
+    { n: agg.total_repos,        l: "Tracked Repos",        page: "repos" },
+    { n: agg.active_repos_7d,    l: "Active This Week",     page: "repos" },
+    { n: agg.total_commits_1d,   l: "Commits Today",        page: "timeline" },
+    { n: agg.total_commits_30d,  l: "Commits (30d)",        page: "timeline" },
+    { n: agg.unique_authors_30d, l: "Active Authors (30d)", page: "people" },
+    { n: agg.total_open_prs,     l: "Open PRs",             page: "repos" },
+    { n: agg.total_open_issues,  l: "Open Issues",          page: "repos" },
+    { n: agg.total_stars,        l: "Total Stars",          page: "repos" },
+    { n: agg.total_contributors, l: "Contributors",         page: "people" },
   ];
   document.getElementById("stat-bar").innerHTML = stats.map(s =>
-    `<div class="stat-card"><span class="n">${s.n}</span><span class="l">${s.l}</span></div>`
+    `<div class="stat-card" onclick="showPage('${s.page}')" style="cursor:pointer"><span class="n">${s.n}</span><span class="l">${s.l}</span></div>`
   ).join("");
 
   // Highlights
@@ -1140,8 +1140,10 @@ function buildOverview(data) {
     document.getElementById("narrative-label").textContent = "Gemini AI · Cross-repo digest";
     document.getElementById("narrative-text").innerHTML = `<p>${esc(d.narrative)}</p>`;
   } else {
-    // Fall back to per-repo Groq summaries
-    const summaries = (data.repos || []).filter(r => r.summary && !r.summary.startsWith("Placeholder") && (r.commits_30d || 0) > 0);
+    // Fall back to per-repo Groq summaries, most recently active first
+    const summaries = (data.repos || [])
+      .filter(r => r.summary && !r.summary.startsWith("Placeholder") && (r.commits_30d || 0) > 0)
+      .sort((a, b) => (b.commits_1d - a.commits_1d) || (b.commits_7d - a.commits_7d) || (b.commits_30d - a.commits_30d));
     if (summaries.length) {
       document.getElementById("narrative-label").textContent = "Groq AI · Recent activity per repo";
       document.getElementById("narrative-text").innerHTML = summaries.map(r => {
