@@ -1070,12 +1070,20 @@ def main():
     previous = load_previous_activity(output_dir)
     posts = load_posts(output_dir)
 
-    # Build lookup of pushed_at values from the last post, to detect what's new since then
+    # Build lookup of pushed_at values from the last post that has real content,
+    # to detect what's new since then. Skip posts with no summaries (failed/empty runs).
     last_post_pushed = {}
-    if posts:
-        for r in posts[0].get("repos", []):
-            key = f"{r['owner']}/{r['repo']}"
-            last_post_pushed[key] = r.get("pushed_at", "")
+    for post in posts:
+        if post.get("_sentinel"):
+            continue
+        repos_in_post = post.get("repos", [])
+        # A valid post has at least one repo with a non-empty summary
+        if any(r.get("summary") for r in repos_in_post):
+            for r in repos_in_post:
+                key = f"{r['owner']}/{r['repo']}"
+                if r.get("pushed_at"):
+                    last_post_pushed[key] = r["pushed_at"]
+            break  # found the last good post
 
     print("Fetching repo data...")
     results = []
