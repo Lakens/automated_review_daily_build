@@ -600,6 +600,7 @@ def build_post(generated_at, changed_repos, narrative):
             {
                 "sha": c["sha"],
                 "message": c["message"],
+                "body": c.get("body", ""),
                 "author": c["author"],
                 "date": c["date"],
                 "url": c["url"],
@@ -690,17 +691,20 @@ def process_repo(owner, repo, description, all_logins_seen, repos_list):
 
     # Recent commits sorted newest-first (across all branches)
     commits_30d_sorted = sorted(commits_30d, key=parse_dt, reverse=True)
-    recent_commits_raw = commits_30d_sorted[:20]
+    recent_commits_raw = commits_30d_sorted[:30]
 
     # Classify commits
     recent_commits = []
-    for c in recent_commits_raw[:15]:
-        msg = c.get("commit", {}).get("message", "").split("\n")[0]
+    for c in recent_commits_raw:
+        full_msg = c.get("commit", {}).get("message", "")
+        msg = full_msg.split("\n")[0]
+        body = full_msg.partition("\n\n")[2].strip()
         sha = c.get("sha", "")[:7]
         ctype = classify_commit_type(msg)
         entry = {
             "sha": sha,
             "message": msg,
+            "body": body,
             "author": c.get("commit", {}).get("author", {}).get("name", ""),
             "author_login": (c.get("author") or {}).get("login", ""),
             "date": c.get("commit", {}).get("author", {}).get("date", "")[:10],
@@ -898,11 +902,12 @@ def build_weekly_digest(repos_data, narrative_text):
     highlights = []
     for r in repos_data:
         for c in r.get("recent_commits", []):
-            if c["date"] >= week_start and c["type"] in ("feat", "fix"):
+            if c["date"] >= week_start:
                 highlights.append({
                     "repo": r["repo"],
                     "owner": r["owner"],
                     "message": c["message"],
+                    "body": c.get("body", ""),
                     "type": c["type"],
                     "author": c["author"],
                     "date": c["date"],
@@ -916,7 +921,7 @@ def build_weekly_digest(repos_data, narrative_text):
         "dormant_revived": [{"owner": r["owner"], "repo": r["repo"]} for r in dormant_revived],
         "new_releases": [{"owner": r["owner"], "repo": r["repo"], "tag": r["releases"][0]["tag"]} for r in new_releases],
         "most_active": [{"owner": r["owner"], "repo": r["repo"], "commits": r["commits_7d"]} for r in most_active[:5]],
-        "highlights": highlights[:20],
+        "highlights": highlights[:50],
         "narrative": narrative_text,
     }
 

@@ -1178,7 +1178,9 @@ function renderPost(post) {
           `<li><code style="color:var(--accent)">${esc(c.sha)}</code>`
           + (c.branch ? ` <span style="color:var(--border)">[${esc(c.branch)}]</span>` : "")
           + ` <a href="${esc(c.url)}" target="_blank" style="color:var(--text)">${esc(c.message)}</a>`
-          + ` <span style="color:var(--muted)">— ${esc(c.author)}</span></li>`
+          + ` <span style="color:var(--muted)">— ${esc(c.author)}</span>`
+          + (c.body ? `<div style="margin:2px 0 4px 0;color:var(--muted);font-size:0.9em;line-height:1.5">${esc(c.body)}</div>` : "")
+          + `</li>`
         ).join("")}</ul>`
       : "";
     return `<div class="feed-repo-block">
@@ -1240,16 +1242,16 @@ function buildOverview(data, posts) {
   buildFeed(posts, data);
 
   // Week table
-  const highlights = (d.highlights||[]).slice(0, 30);
+  const highlights = (d.highlights||[]).slice(0, 50);
   const weekTable = document.getElementById("week-table");
   if (!highlights.length) {
-    weekTable.innerHTML = `<tr><td colspan="4" style="padding:12px;color:var(--muted);font-style:italic">No feature or fix commits this week.</td></tr>`;
+    weekTable.innerHTML = `<tr><td colspan="4" style="padding:12px;color:var(--muted);font-style:italic">No commits this week.</td></tr>`;
   } else {
     weekTable.innerHTML = highlights.map(h => `
       <tr>
         <td style="width:90px;padding:7px 12px;color:var(--muted);font-size:11px">${esc(h.date)}</td>
         <td style="width:120px;padding:7px 6px"><a href="https://github.com/${esc(h.owner)}/${esc(h.repo)}" style="color:var(--accent);font-size:12px;font-weight:600">${esc(h.repo)}</a></td>
-        <td style="padding:7px 6px">${typeBadge(h.type)}<span style="font-size:13px">${esc(h.message)}</span></td>
+        <td style="padding:7px 6px">${typeBadge(h.type)}<span style="font-size:13px">${esc(h.message)}</span>${h.body ? `<div style="margin-top:2px;color:var(--muted);font-size:11px;line-height:1.5">${esc(h.body)}</div>` : ""}</td>
         <td style="width:100px;padding:7px 12px;color:var(--muted);font-size:11px;text-align:right">${esc(h.author)}</td>
       </tr>
     `).join("");
@@ -1642,7 +1644,7 @@ function buildDigest(data) {
           <td style="width:82px;padding:6px 10px;color:var(--muted);font-size:11px;white-space:nowrap">${esc(c.date)}</td>
           <td style="width:110px;padding:6px 6px;white-space:nowrap"><a href="${esc(c.repoUrl)}" style="color:var(--accent);font-size:12px;font-weight:600">${esc(c.repoName)}</a></td>
           <td style="width:70px;padding:6px 4px">${typeBadge(c.type || "other")}</td>
-          <td style="padding:6px 6px;font-size:13px"><a href="${esc(c.url)}" target="_blank" style="color:var(--text)">${esc(c.message)}</a></td>
+          <td style="padding:6px 6px;font-size:13px"><a href="${esc(c.url)}" target="_blank" style="color:var(--text)">${esc(c.message)}</a>${c.body ? `<div style="margin-top:2px;color:var(--muted);font-size:11px;line-height:1.5">${esc(c.body)}</div>` : ""}</td>
           <td style="width:110px;padding:6px 10px;color:var(--muted);font-size:11px;text-align:right;white-space:nowrap">${esc(c.author)}</td>
         </tr>`).join("")}
       </table>`
