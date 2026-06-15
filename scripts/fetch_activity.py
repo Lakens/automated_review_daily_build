@@ -1127,7 +1127,7 @@ def main():
             prev_pushed = (previous.get(key) or {}).get("pushed_at", "")
             prev_date = prev_pushed[:10] if prev_pushed else ""  # YYYY-MM-DD
             all_commits = r.get("recent_commits") or []
-            new_commits = [c for c in all_commits if c["date"] > prev_date] if prev_date else all_commits
+            new_commits = [c for c in all_commits if c["date"] >= prev_date] if prev_date else all_commits
             if not new_commits:
                 # No commits in window — reuse cached summary rather than calling Groq
                 r["summary"] = (previous.get(key) or {}).get("summary", "")
