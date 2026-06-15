@@ -757,9 +757,8 @@ def process_repo(owner, repo, description, all_logins_seen, repos_list):
     if r_meta.get("title"):
         scopus_citations = scopus_cited_by_count(r_meta["title"])
 
-    # AI summary (Groq) — only for repos with recent commits
-    commit_lines = [commit_to_text(c) for c in commits_30d]
-    summary = summarize_commits_groq(f"{owner}/{repo}", commit_lines) if commit_lines else ""
+    # Summary is generated in main() after determining what changed since last post
+    summary = ""
 
     pushed_at = info.get("pushed_at", "")
     last_push_days = None
@@ -1083,25 +1082,13 @@ def main():
     for r in repos:
         data = process_repo(r["owner"], r["repo"], r.get("description", ""), all_logins_seen, repos_list)
         if data:
-            # Reuse cached Groq summary only if the newest commit SHA is unchanged.
-            # pushed_at can be stale (e.g. branch push that predates the cached summary),
-            # so we key on the actual latest commit SHA across all branches instead.
-            key = f"{r['owner']}/{r['repo']}"
-            prev = previous.get(key)
-            commit_fingerprint = ",".join(c.get("sha","") for c in (data.get("recent_commits") or []))
-            prev_fingerprint   = ",".join(c.get("sha","") for c in (prev.get("recent_commits") or [])) if prev else ""
-            if prev and commit_fingerprint and commit_fingerprint == prev_fingerprint and prev.get("summary"):
-                print(f"    [{key}] no new commits — reusing cached summary")
-                data["summary"] = prev["summary"]
             results.append(data)
         time.sleep(1)
 
     print("Building people index...")
     people = build_people_index(results, all_logins_seen, repos_list)
 
-    # Determine which repos changed since the LAST POST (not last activity.json run).
-    # This correctly catches repos whose pushed_at was already cached in activity.json
-    # but hadn't yet appeared in a post.
+    # Determine which repos changed since the last post
     changed_repos = [
         r for r in results
         if r.get("pushed_at") and (
@@ -1111,9 +1098,36 @@ def main():
     ]
     any_changed = bool(changed_repos)
 
+    # Generate per-repo summaries scoped to commits since the last post timestamp.
+    # For unchanged repos, reuse the cached summary from previous activity.json.
+    last_post_time = posts[0]["generated_at"] if posts and not posts[0].get("_sentinel") else None
+    print("Generating per-repo summaries...")
+    for r in results:
+        key = f"{r['owner']}/{r['repo']}"
+        if r in changed_repos:
+            # Only summarize commits that are new since the last post
+            if last_post_time:
+                last_post_date = last_post_time[:10]  # YYYY-MM-DD
+                new_commits = [c for c in (r.get("recent_commits") or []) if c["date"] >= last_post_date]
+            else:
+                new_commits = r.get("recent_commits") or []
+            if new_commits:
+                commit_lines = [
+                    f"[{c['date']}]{' ['+c['branch']+']' if c.get('branch') else ''} {c['author']}: {c['message']}"
+                    for c in new_commits
+                ]
+                print(f"    [{key}] summarizing {len(new_commits)} new commit(s)...")
+                r["summary"] = summarize_commits_groq(key, commit_lines)
+            else:
+                r["summary"] = previous.get(key, {}).get("summary", "")
+        else:
+            # Reuse cached summary — nothing changed
+            r["summary"] = previous.get(key, {}).get("summary", "")
+            if r["summary"]:
+                print(f"    [{key}] no change — reusing cached summary")
+
     print("Generating cross-repo narrative...")
     if any_changed:
-        # Narrative scoped to only repos that changed since the last post
         changed_summaries = [
             (f"{r['owner']}/{r['repo']}", r["summary"])
             for r in changed_repos if r.get("summary")
