@@ -508,11 +508,18 @@ def summarize_commits_groq(repo_name, commit_lines):
         return "No recent commits to summarize."
     text = "\n".join(commit_lines[:40])
     return groq_chat(
-        f"Summarize the recent development activity for the GitHub repository '{repo_name}' "
-        f"based on these commit messages. Each line shows [date][branch] author: message. "
-        f"Write 2-4 sentences. Name specific branches, features, or modules mentioned in the commits. "
-        f"Be concrete — mention what was actually added or fixed, not just 'improvements were made'.\n\nCommits:\n{text}",
-        max_tokens=300,
+        f"You are summarizing what specifically happened in the '{repo_name}' GitHub repository "
+        f"based on the commit messages below. These are ALL the commits since the last update — "
+        f"summarize exactly this work, nothing else.\n\n"
+        f"Rules:\n"
+        f"- Name every branch that was worked on\n"
+        f"- Describe the specific features, fixes, or modules that were added or changed\n"
+        f"- Quote or closely paraphrase the commit messages — do not generalize\n"
+        f"- Do NOT say 'improvements were made' or 'updates were implemented' — say what exactly changed\n"
+        f"- Write 3-6 sentences, one per major area of work\n"
+        f"- If only one commit exists, describe it in detail\n\n"
+        f"Commits:\n{text}",
+        max_tokens=500,
     ) or "Summary unavailable."
 
 
@@ -586,7 +593,9 @@ def save_posts(output_dir, posts, max_posts=90):
 def build_post(generated_at, changed_repos, narrative):
     """Build a single feed post for repos that changed in this run."""
     repo_blocks = []
-    for r in sorted(changed_repos, key=lambda x: (-(x.get("commits_1d") or 0), -(x.get("commits_7d") or 0))):
+    for r in sorted(changed_repos, key=lambda x: -(len(x.get("_new_commits") or x.get("recent_commits") or []))):
+        # Use _new_commits (scoped to since last post) if available, else fall back to recent_commits
+        new_commits = r.get("_new_commits") or r.get("recent_commits") or []
         commits = [
             {
                 "sha": c["sha"],
@@ -597,14 +606,14 @@ def build_post(generated_at, changed_repos, narrative):
                 "type": c["type"],
                 "branch": c.get("branch", ""),
             }
-            for c in (r.get("recent_commits") or [])[:10]
+            for c in new_commits
         ]
         repo_blocks.append({
             "owner": r["owner"],
             "repo": r["repo"],
             "url": r["url"],
             "summary": r.get("summary", ""),
-            "commits_since_last": r.get("commits_1d", 0),
+            "commits_since_last": len(new_commits),
             "pushed_at": r.get("pushed_at", ""),
             "recent_commits": commits,
         })
@@ -1122,8 +1131,10 @@ def main():
             if not new_commits:
                 # No commits in window — reuse cached summary rather than calling Groq
                 r["summary"] = (previous.get(key) or {}).get("summary", "")
+                r["_new_commits"] = []
                 print(f"    [{key}] pushed_at changed but no new commits — reusing cached summary")
             else:
+                r["_new_commits"] = new_commits
                 commit_lines = [
                     f"[{c['date']}]{' ['+c['branch']+']' if c.get('branch') else ''} {c['author']}: {c['message']}"
                     for c in new_commits
