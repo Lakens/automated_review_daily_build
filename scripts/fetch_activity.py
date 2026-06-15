@@ -1147,25 +1147,26 @@ def main():
             if r["summary"]:
                 print(f"    [{key}] no change — reusing cached summary")
 
+    # Only repos with actual new commits get a post
+    repos_with_new_commits = [r for r in changed_repos if r.get("_new_commits")]
     print("Generating cross-repo narrative...")
-    if any_changed:
+    if repos_with_new_commits:
         changed_summaries = [
             (f"{r['owner']}/{r['repo']}", r["summary"])
-            for r in changed_repos if r.get("summary")
+            for r in repos_with_new_commits if r.get("summary")
         ]
         narrative = groq_narrative(changed_summaries)
-        print(f"    {len(changed_repos)} repo(s) changed since last post — new post generated")
+        print(f"    {len(repos_with_new_commits)} repo(s) with new commits — new post generated")
     else:
         narrative = ""
-        print("    No repos changed since last post — skipping post")
+        print("    No repos with new commits since last post — skipping post")
 
-    # Append new post only when something changed
     generated_at = datetime.now(timezone.utc).isoformat()
-    if any_changed:
-        post = build_post(generated_at, changed_repos, narrative)
+    if repos_with_new_commits:
+        post = build_post(generated_at, repos_with_new_commits, narrative)
         posts.insert(0, post)
         save_posts(output_dir, posts)
-        print(f"    Appended post to posts.json ({len(posts)} total)")
+        print(f"    Appended post with {len(repos_with_new_commits)} repo(s) to posts.json ({len(posts)} total)")
 
     # For digest/weekly view, use latest narrative (first post's narrative)
     latest_narrative = posts[0]["narrative"] if posts else ""
