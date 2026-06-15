@@ -1120,13 +1120,16 @@ def main():
             all_commits = r.get("recent_commits") or []
             new_commits = [c for c in all_commits if c["date"] > prev_date] if prev_date else all_commits
             if not new_commits:
-                new_commits = all_commits[:5]  # fallback: at least summarize the most recent ones
-            commit_lines = [
-                f"[{c['date']}]{' ['+c['branch']+']' if c.get('branch') else ''} {c['author']}: {c['message']}"
-                for c in new_commits
-            ]
-            print(f"    [{key}] summarizing {len(new_commits)} new commit(s) since {prev_date or 'beginning'}...")
-            r["summary"] = summarize_commits_groq(key, commit_lines)
+                # No commits in window — reuse cached summary rather than calling Groq
+                r["summary"] = (previous.get(key) or {}).get("summary", "")
+                print(f"    [{key}] pushed_at changed but no new commits — reusing cached summary")
+            else:
+                commit_lines = [
+                    f"[{c['date']}]{' ['+c['branch']+']' if c.get('branch') else ''} {c['author']}: {c['message']}"
+                    for c in new_commits
+                ]
+                print(f"    [{key}] summarizing {len(new_commits)} new commit(s) since {prev_date or 'beginning'}...")
+                r["summary"] = summarize_commits_groq(key, commit_lines)
         else:
             # Reuse cached summary — nothing changed
             r["summary"] = (previous.get(key) or {}).get("summary", "")
