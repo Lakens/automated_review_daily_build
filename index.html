@@ -958,6 +958,9 @@
   <!-- ── DIGEST ── -->
   <div class="page" id="page-digest">
     <div class="container">
+      <div class="sec">All Commits (30d)</div>
+      <div id="all-commits-section"></div>
+
       <div class="sec">Weekly Digest</div>
       <div class="digest-grid" id="digest-grid"></div>
 
@@ -1624,6 +1627,26 @@ function buildDigest(data) {
      </div>`,
   ];
   document.getElementById("digest-grid").innerHTML = cards.join("");
+
+  // All commits log
+  const allCommits = [];
+  repos.forEach(r => {
+    (r.recent_commits || []).forEach(c => {
+      allCommits.push({ ...c, repoName: r.repo, repoOwner: r.owner, repoUrl: r.url });
+    });
+  });
+  allCommits.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+  document.getElementById("all-commits-section").innerHTML = allCommits.length
+    ? `<table class="digest-table" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);border-collapse:separate;border-spacing:0;overflow:hidden">
+        ${allCommits.map(c => `<tr>
+          <td style="width:82px;padding:6px 10px;color:var(--muted);font-size:11px;white-space:nowrap">${esc(c.date)}</td>
+          <td style="width:110px;padding:6px 6px;white-space:nowrap"><a href="${esc(c.repoUrl)}" style="color:var(--accent);font-size:12px;font-weight:600">${esc(c.repoName)}</a></td>
+          <td style="width:70px;padding:6px 4px">${typeBadge(c.type || "other")}</td>
+          <td style="padding:6px 6px;font-size:13px"><a href="${esc(c.url)}" target="_blank" style="color:var(--text)">${esc(c.message)}</a></td>
+          <td style="width:110px;padding:6px 10px;color:var(--muted);font-size:11px;text-align:right;white-space:nowrap">${esc(c.author)}</td>
+        </tr>`).join("")}
+      </table>`
+    : `<div style="padding:12px;color:var(--muted);font-style:italic">No commits found.</div>`;
 
   // Dependencies
   const allDeps = {};
