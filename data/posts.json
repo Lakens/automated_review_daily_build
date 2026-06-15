@@ -1,5 +1,291 @@
 [
   {
+    "generated_at": "2026-06-15T21:16:33.199792+00:00",
+    "narrative": "Our community has seen significant progress across multiple projects recently. Notably, the `scienceverse/metacheck` project has been actively updated, with merges from the `dev` branch to the `main` branch, including the addition of a Zenodo citation. Meanwhile, `giladfeldman/docpluck` has released version \"v2.4.90\", featuring a new \"per-band region-aware two-column re-extraction\" feature, and `giladfeldman/escicheck` has been synced with the latest versions of effectcheck. Additionally, `Davidvandijcke/coarse` has added a CodeQL analysis workflow configuration, and `JamieCummins/regcheck` has improved report viewing and added quality of life features. These updates demonstrate the connections and collaborations within our community, with projects like `shaheedazaad/auto-zcurve` also making strides, revising validation notes and including citations to further enhance research tools. Overall, it's an exciting time for our community, with many projects pushing forward and building upon each other's progress.",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Work was done on the 'main' branch. The documentation was updated to include \"cycle-2 learnings\" and a \"word-preservation-guard-is-the-safety\" as part of \"RC-1 Step 2\". A feature was added for \"per-band region-aware two-column re-extraction\" in version \"v2.4.90\", referred to as \"ship-dark\". The documentation was also updated to reflect the \"handoff\" of \"RC-1 Step 2 first cut shipped\" and to correct the \"handoff deploy-state row\", as well as to include \"cycle-1 B7\" learnings and lessons. A fix was implemented to \"recover dropped-minus coefficients from the layout channel\" in version \"v2.4.89\", and the documentation was updated to \"sync iterate spine to I1-I12\" and to \"harden deploy preflight\". Additionally, a test was added to \"assert audit input PDF byte-equal to pinned feed\" as part of \"R-0003\".",
+        "commits_since_last": 8,
+        "pushed_at": "2026-06-15T18:53:51Z",
+        "recent_commits": [
+          {
+            "sha": "818c3d0",
+            "message": "docs(iterate): cycle-2 learnings \u2014 RC-1 Step 2 + word-preservation-guard-is-the-safety",
+            "body": "Project lessons.md + per-skill LEARNINGS.md: the per-band column re-extraction\npattern (extract_page_text_banded), the word-preservation-guard-as-safety\nlesson, the 3 segmentation hazards, and the resume-time concurrency hazard.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/818c3d0657fdbd74357a60739bd7aebd2fb4f881",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "da6c90f",
+            "message": "docs(iterate): handoff \u2014 RC-1 Step 2 first cut shipped (v2.4.90, ship-dark)",
+            "body": "Records cycle-2 state: RC-1 banded re-extraction committed 1325d14 + tagged\nv2.4.90 locally (deploy HELD, batched with B7 v2.4.89). AI-verified ON_BETTER on\nchan_feldman + chandrashekar. Run stays OPEN/PARTIAL: cycle-2 iterate-gate FAIL\n(tables + RC-1 refinements + full canary coverage open). Precise remaining\npunch-list in the spec's \"Step 2 \u2014 remaining work\".\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/da6c90f67045d593e0363116df74515e97919531",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "1325d14",
+            "message": "feat(v2.4.90): RC-1 Step 2 -- per-band region-aware two-column re-extraction (ship-dark)",
+            "body": "The dominant defect on two-column APA papers: pdftotext serializes a page's\ncolumns interleaved, scrambling Method/Results/Discussion order and splitting\nparagraphs. The Step-1 whole-page corrector (v2.4.82) cannot reach these pages\n-- its bilateral y-row gate and full-height gutter strip both reject any page\ncarrying a full-width band (table row / banner / wide title) crossing the column\ncentre, which is exactly the failing pages (TRIAGE 2026-06-15: GENERAL=1 was\nbyte-near-identical on these papers).\n\nStep 2 (extract_page_text_banded, docpluck/extract_columns.py) segments a\nflagged page into horizontal y-BANDS: a band whose central gutter strip is\nglyph-free is two-column prose -> re-extracted left-then-right; a full-width band\n(table / banner / title) is kept as-is. Bands reassemble top-to-bottom at\nglyph-free cut lines (vertically-overlapping bands merge to full-width so a tall\ntitle glyph is never bisected). Applied ONLY as a fallback inside\nsplice_column_corrected_pages when the whole-page path returns \"\", under the SAME\nunconditional word-preservation guard -- a band crop that drops/fabricates a word\nis rejected and the page kept as-is, so the flag can only ADD a pure reorder,\nnever ship corruption.\n\nGated behind DOCPLUCK_COLUMN_CORRECT_BANDED (default OFF, ship-dark): flag OFF is\nbyte-identical to v2.4.89. No NORMALIZATION_VERSION change (default path\nunchanged; the flag acts upstream of normalize).\n\nValidation (2026-06-15): corpus word-preservation scan (71 flagged pages, 4\npapers) -- every accepted page is a pure reorder; the 6 residual band-cut clips\nare all guard-rejected (no corruption). Production smoke flag-ON corrects ~44\npages across 5 papers, all word-safe; flag-OFF byte-identical. AI-verify vs\narticle-finder reading golds (Sonnet subagents) on chan_feldman_2025_cogemo +\nchandrashekar_2023_mp: both ON_BETTER -- Procedure/Manipulations ordering and the\nPower-analysis paragraph split fixed (chan); `## Results` heading restored and\ncolumn-token orphans suppressed (chandrashekar); 0 text-loss/hallucination/\nregression vs flag OFF. Touched-path suite 302 passed; 26-paper baseline 26/26\n(flag OFF).\n\nNew regression tests/test_rc1_banded_column_real_pdf.py (synthetic-layout\ngeometry units + real-PDF word-preservation + ship-dark-default). Remaining\nStep-2 refinements (band-cut clips, per-row both-sides under-detection,\ntitle+sidebar pages) documented in docs/superpowers/specs/2026-06-08-rc1-region-\naware-column-architecture.md for the eventual default-flip.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/1325d149e824c00bd5b18b57615dc2d570c22117",
+            "type": "feat",
+            "branch": "main"
+          },
+          {
+            "sha": "5782c6c",
+            "message": "docs(iterate): correct handoff deploy-state row \u2014 main push HELD (local only)",
+            "body": "Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/5782c6ceb0f111562b07cd383ecfba0b0d7b05f3",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "dca0e32",
+            "message": "docs(iterate): cycle-1 B7 (v2.4.89) learnings + lessons + resume handoff + TRIAGE",
+            "body": "- LEARNINGS: B7 cycle journal (layout-channel recovery has a pixel-only floor;\n  section path omits layout= by design; y-overlap not round(top); xdist silent-\n  buffering on Windows; Camelot non-determinism).\n- _project/lessons: dropped-glyph recovery splits layout-recoverable vs pixel-only\n  (probe per-instance); dedicated dropped_minus_layout param plumbing gotcha.\n- HANDOFF: supersedes the citationguard-written stub; B7 shipped, run OPEN/PARTIAL,\n  RC-1 (approved) + B1 (needs scope nod) + metadata punch-list; deploy HELD.\n- TRIAGE_2026-06-15: the HEAD v2.4.88 corpus assessment this run started from.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/dca0e32e70e3d848dddb1b3df6fdb416b41284fd",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "44f4ccd",
+            "message": "fix(v2.4.89): B7 W0h -- recover dropped-minus coefficients from the layout channel",
+            "body": "The no-CI residual W0g cannot reach: a body-prose coefficient with only a t/p\nvalue (b = -.022, t(87) = .17) where pdftotext drops the U+2212 glyph entirely\non tight-kerned PDFs that draw the minus in a dedicated symbol font. The dropped\nminus survives in the layout channel (pdfplumber) as an unmapped (cid:N) glyph\nin the `<stat> = <minus><coef>` operator slot; recover_dropped_minus_via_layout\n(W0h) re-inserts it.\n\n- normalize.py: W0h + _layout_negative_coefficients (y-overlap line clustering,\n  =-anchored coef slot, flips only layout-proven negatives, count-limited).\n  NORMALIZATION_VERSION 1.9.34 -> 1.9.35.\n- Threaded a DEDICATED `dropped_minus_layout` param (render -> extract_sections\n  -> normalize_text) so F0 stays off in the text-channel-only section path.\n- ar_apa_j_jesp_2009_12_011: recovers b = -.022 / -.88 / -.428; leaves +.48.\n  Surgical blast radius (only ar_apa flips; 4 other canary papers byte-identical).\n\nDocumented limitation: ar_apa b = -.245 is painted pixels (absent from pdftotext\nAND pdfplumber chars/lines/rects/curves AND pdfminer raw layer) -> OCR-only, left\nuntouched rather than guessed. See TODO.md R5 Path 1.\n\nTests: tests/test_dropped_minus_layout_recovery_real_pdf.py (4 unit + 1 real-PDF).\nFull suite 1968 passed / 27 skipped / 1 xfailed. AI-verify: all 5 ar_apa beta\nsigns correct.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/44f4ccd2b0b52e84e19e8e9acbd3a4d18c44f032",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "2cc32d9",
+            "message": "docs(skills): sync iterate spine to I1-I12 + extract parallelization ref; harden deploy preflight",
+            "body": "- docpluck-iterate/SKILL.md: update spine rule table I1-I7 -> I1-I12 (gate-was-called,\n  locator-via-article-finder, artifact-existence, gold-sha-matches-cache, lesson-readback)\n  to match _shared/iterate-loop/core.md; extract the Subagent-parallelization operational\n  detail (safety checklist, where-to-parallelize table, fan-out patterns, anti-patterns)\n  into references/subagent-parallelization.md to keep SKILL.md under the size guideline.\n- docpluck-deploy/SKILL.md: renumber preflight checks (dup \"4\" -> sequential 5/6/7/8);\n  prefer explicit `vercel rollback <deployment-url>` over ambiguous bare `vercel rollback`.\n\nNo methodology/behavior change -- doc-sync + refactor only.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/2cc32d9b20f5c0de9c571512757100e4a9ebab2d",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "548d6df",
+            "message": "test(canary): assert audit input PDF byte-equal to pinned feed (R-0003)",
+            "body": "Cross-project lesson transfer (CitationGuard => docpluck): the verification\nsubstrate must be byte-equal to the production input feed before scoring. A\nCitationGuard run once scored its tool output against raw PyMuPDF for a whole\nrun, producing a misleading score.\n\ndocpluck already scores render-vs-AI-gold (never a deterministic extractor --\nCLAUDE.md hard rule), so the residual gap that lesson maps to here is INPUT\nprovenance: a render of a drifted PDF scored against a gold made from the\noriginal is the same \"wrong substrate\" bug class. If the cached PDF for a DOI\never drifts (re-download, re-encode, a stray Dropbox conflicted-copy), the\ncanary would silently score a render of a different input than the gold.\n\n- tools/canary_provenance.py: load_expected_sha() + check_provenance() helpers\n- canary.json: pin expected_pdf_sha for all 5 onboarded canary papers\n- render_for_audit.py: --expected-sha (falls back to the canary pin); abort with\n  exit 4 BEFORE rendering on mismatch; record expected_pdf_sha + provenance_ok\n  in the per-render manifest. Un-pinned keys are a no-op (purely additive guard).\n- tests/test_canary_provenance.py: 10 tests (helper units, 5 byte-equality\n  integration vs the real cached PDFs, render-guard exit-4)\n\nGate: 10/10 new tests pass; full library suite 1710 passed / 0 failed (no\nregression); live render smoke auto-loads the pin, matches, renders, exit 0.\nThe Sonnet canary itself is not runnable in this env (ai-gold get --view reading\nerrors + claude -p nesting hang); provenance is a pre-render guard that does not\nchange render output, so pytest is the precise gate.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/548d6df2b6a7c13ae0d5ddc782c4ffb5f102b951",
+            "type": "test",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "The `main` branch was updated with a merge from the `dev` branch via pull request #312. Work was done on the `dev` branch to add a \"zenodo citation\", as stated in the commit message. The `dev` branch also received an update to \"apps and docs\", according to the commit message. Additionally, the `dev` branch was updated with a merge from the `main` branch via pull request #310, and then merged into the `main` branch. The `main` branch was also updated with a merge from the `dev` branch via pull request #311.",
+        "commits_since_last": 6,
+        "pushed_at": "2026-06-15T19:49:06Z",
+        "recent_commits": [
+          {
+            "sha": "a7dea29",
+            "message": "Merge pull request #312 from scienceverse/dev",
+            "body": "zenodo citation",
+            "author": "Lisa DeBruine",
+            "date": "2026-06-15",
+            "url": "https://github.com/scienceverse/metacheck/commit/a7dea2924205c9b383247721e19ffc2b519c4745",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "f09fb47",
+            "message": "zenodo citation",
+            "body": "",
+            "author": "Lisa DeBruine",
+            "date": "2026-06-15",
+            "url": "https://github.com/scienceverse/metacheck/commit/f09fb470a40383d11fbc745f740428c424be093a",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "00eaa3b",
+            "message": "Merge pull request #311 from scienceverse/dev",
+            "body": "Dev",
+            "author": "Lisa DeBruine",
+            "date": "2026-06-15",
+            "url": "https://github.com/scienceverse/metacheck/commit/00eaa3b8c275d014a437668fa84549b2932a74fd",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "767da17",
+            "message": "update apps and docs",
+            "body": "",
+            "author": "Lisa DeBruine",
+            "date": "2026-06-15",
+            "url": "https://github.com/scienceverse/metacheck/commit/767da1739e42c1f94b86f12508c471fe91850f56",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "9d012e7",
+            "message": "Merge pull request #310 from nielsvanberkel/main",
+            "body": "Replace devtools::install_github with pak::pkg_install",
+            "author": "Lisa DeBruine",
+            "date": "2026-06-15",
+            "url": "https://github.com/scienceverse/metacheck/commit/9d012e7f070a33915e0855514a6dc89d0b0e8d5c",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "8a605a3",
+            "message": "Merge branch 'dev' into main",
+            "body": "",
+            "author": "Lisa DeBruine",
+            "date": "2026-06-15",
+            "url": "https://github.com/scienceverse/metacheck/commit/8a605a392dcfc57fc2f3248acfbaee041530b69e",
+            "type": "other",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "Work was done on the 'main' branch, where Gilad Feldman synced the repository from 'escicheckapp' at various commits, specifically 'e060e98' for effectcheck v0.6.2, '5093197' for effectcheck v0.6.1, and '1ebe05f' for effectcheck v0.5.18. A temporary branch 'sync/20260525-150441-b801333' was also used by github-actions[bot] to sync from 'escicheckapp@b801333' for effectcheck v0.6.2. The commit messages indicate that these syncs were done to update the repository to match the specified versions of effectcheck. The sync operations brought the repository up to date with the corresponding versions of effectcheck, as noted in the commit messages, such as \"sync from escicheckapp@e060e98 (effectcheck v0.6.2)\". These changes were made in a series of commits on the same day, May 25, 2026.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-05-25T15:14:17Z",
+        "recent_commits": [
+          {
+            "sha": "1f1a89a",
+            "message": "sync from escicheckapp@e060e98 (effectcheck v0.6.2) (#16)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-05-25",
+            "url": "https://github.com/giladfeldman/escicheck/commit/1f1a89aef499e3e3b879c639286dd57fb3146309",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "f7e25f6",
+            "message": "sync from escicheckapp@b801333 (effectcheck v0.6.2)",
+            "body": "",
+            "author": "github-actions[bot]",
+            "date": "2026-05-25",
+            "url": "https://github.com/giladfeldman/escicheck/commit/f7e25f63402b6d450309b7d9b948ad64ece4b17a",
+            "type": "chore",
+            "branch": "sync/20260525-150441-b801333"
+          },
+          {
+            "sha": "d0db89d",
+            "message": "sync from escicheckapp@5093197 (effectcheck v0.6.1) (#14)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-05-25",
+            "url": "https://github.com/giladfeldman/escicheck/commit/d0db89d4557b43c7479d7f457bc1c5b1c86f7ae1",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "a44f236",
+            "message": "sync from escicheckapp@1ebe05f (effectcheck v0.5.18) (#13)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-05-25",
+            "url": "https://github.com/giladfeldman/escicheck/commit/a44f236b1fd55574fea33994c45df24a41a53661",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "JamieCummins",
+        "repo": "regcheck",
+        "url": "https://github.com/JamieCummins/regcheck",
+        "summary": "The staging branch was the focus of the recent work, with the first commit updating the model requirements. As stated in the commit message, the model requirements were specifically \"update[d]\" by Jamie Cummins. In the second commit on the staging branch, report viewing was \"improve[d]\" and quality of life (QOL) features were added. The commit messages do not provide further details on the specific changes made to the model requirements or the QOL features. The staging branch is the only branch that was worked on in these commits. The changes made by Jamie Cummins were limited to these two updates on the staging branch.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-06-15T13:02:52Z",
+        "recent_commits": [
+          {
+            "sha": "9074b4b",
+            "message": "update model reqs",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-06-15",
+            "url": "https://github.com/JamieCummins/regcheck/commit/9074b4bf653c5bf2d6e0e913c352cb8c16618f93",
+            "type": "other",
+            "branch": "staging"
+          },
+          {
+            "sha": "76b8a02",
+            "message": "improve report viewing + qol features",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-06-15",
+            "url": "https://github.com/JamieCummins/regcheck/commit/76b8a02ac8cf2ac2d588e3a05be854902086a685",
+            "type": "feat",
+            "branch": "staging"
+          }
+        ]
+      },
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "The `dev` branch was worked on, where a CodeQL analysis workflow configuration was added, as stated in the commit message \"Add CodeQL analysis workflow configuration\". \nThe CodeQL analysis workflow configuration addition is the sole change made in this set of commits. \nNo other branches were modified in this update. \nNo new features or modules, other than the CodeQL configuration, were added in this set of commits. \nThe commit message explicitly mentions the addition of the CodeQL analysis workflow configuration, which is the only modification made. \nThe `dev` branch now includes this new configuration for CodeQL analysis workflow.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-14T03:40:29Z",
+        "recent_commits": [
+          {
+            "sha": "5e0c89a",
+            "message": "Add CodeQL analysis workflow configuration",
+            "body": "",
+            "author": "David Van Dijcke",
+            "date": "2026-06-14",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/5e0c89a059b599336e620c420764447c7297e9d5",
+            "type": "feat",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "The `main` branch was worked on, where the validation note was revised and a citation was included, as stated in the commit message \"Revise validation note and include citation\". \nNo other branches were modified in this set of commits.\nThe revision of the validation note and addition of a citation are the specific changes made in this commit.\nThe commit message does not mention any other changes or additions to the repository.\nThere are no other commits to describe beyond this single revision to the validation note on the `main` branch.\nThe work was limited to this one change by Shaheed Azaad on the `main` branch.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-14T14:44:45Z",
+        "recent_commits": [
+          {
+            "sha": "3fce87a",
+            "message": "Revise validation note and include citation",
+            "body": "Updated validation note and added preprint citation.",
+            "author": "Shaheed Azaad",
+            "date": "2026-06-14",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-06-15T12:36:21.871700+00:00",
     "narrative": "Our open-source research community has seen significant progress across multiple projects. Notably, the 'metacheck' and 'regcheck' projects have made substantial updates, with 'metacheck' replacing `devtools::install_github` with `pak::pkg_install` and 'regcheck' enhancing its report viewing experience and UI flow. Meanwhile, 'docpluck' has released version 2.4.88, addressing various issues and improving its functionality. It's exciting to see these projects intersect, such as the \"working version of Regcheck\" committed to 'metacheck', highlighting the connections between our community's efforts. Overall, these updates demonstrate the community's dedication to improving research tools and we look forward to seeing the continued impact of these projects.",
     "repos": [
