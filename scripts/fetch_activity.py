@@ -509,8 +509,9 @@ def summarize_commits_groq(repo_name, commit_lines):
     text = "\n".join(commit_lines[:40])
     return groq_chat(
         f"Summarize the recent development activity for the GitHub repository '{repo_name}' "
-        f"based on these commit messages. Write 2-4 sentences describing what has been worked on, "
-        f"what changed, and the overall direction of development. Be concrete and specific.\n\nCommits:\n{text}",
+        f"based on these commit messages. Each line shows [date][branch] author: message. "
+        f"Write 2-4 sentences. Name specific branches, features, or modules mentioned in the commits. "
+        f"Be concrete — mention what was actually added or fixed, not just 'improvements were made'.\n\nCommits:\n{text}",
         max_tokens=300,
     ) or "Summary unavailable."
 
@@ -616,10 +617,12 @@ def build_post(generated_at, changed_repos, narrative):
 
 # ── Main processing ───────────────────────────────────────────────────────────
 def commit_to_text(commit):
-    msg = commit.get("commit", {}).get("message", "").split("\n")[0]
-    date = commit.get("commit", {}).get("author", {}).get("date", "")[:10]
+    msg    = commit.get("commit", {}).get("message", "").split("\n")[0]
+    date   = commit.get("commit", {}).get("author", {}).get("date", "")[:10]
     author = commit.get("commit", {}).get("author", {}).get("name", "unknown")
-    return f"[{date}] {author}: {msg}"
+    branch = commit.get("_branch", "")
+    branch_str = f" [{branch}]" if branch else ""
+    return f"[{date}]{branch_str} {author}: {msg}"
 
 
 def is_dormant_revived(commits_30d, pushed_at):
