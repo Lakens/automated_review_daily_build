@@ -1095,11 +1095,15 @@ def main():
     for r in repos:
         data = process_repo(r["owner"], r["repo"], r.get("description", ""), all_logins_seen, repos_list)
         if data:
-            # Reuse cached Groq summary if pushed_at hasn't changed since last run
+            # Reuse cached Groq summary only if the newest commit SHA is unchanged.
+            # pushed_at can be stale (e.g. branch push that predates the cached summary),
+            # so we key on the actual latest commit SHA across all branches instead.
             key = f"{r['owner']}/{r['repo']}"
             prev = previous.get(key)
-            if prev and data["pushed_at"] == prev.get("pushed_at") and prev.get("summary"):
-                print(f"    [{key}] no new pushes — reusing cached summary")
+            latest_sha = (data.get("recent_commits") or [{}])[0].get("sha", "")
+            prev_sha   = (prev.get("recent_commits") or [{}])[0].get("sha", "") if prev else ""
+            if prev and latest_sha and latest_sha == prev_sha and prev.get("summary"):
+                print(f"    [{key}] no new commits — reusing cached summary")
                 data["summary"] = prev["summary"]
             results.append(data)
         time.sleep(1)
