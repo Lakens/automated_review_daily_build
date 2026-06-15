@@ -579,6 +579,56 @@ def gemini_narrative(all_repo_summaries):
         return ""
 
 
+# ── Posts feed ────────────────────────────────────────────────────────────────
+def load_posts(output_dir):
+    path = output_dir / "posts.json"
+    if not path.exists():
+        return []
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+
+def save_posts(output_dir, posts, max_posts=90):
+    path = output_dir / "posts.json"
+    with open(path, "w") as f:
+        json.dump(posts[:max_posts], f, indent=2)
+
+
+def build_post(generated_at, changed_repos, narrative):
+    """Build a single feed post for repos that changed in this run."""
+    repo_blocks = []
+    for r in sorted(changed_repos, key=lambda x: (-(x.get("commits_1d") or 0), -(x.get("commits_7d") or 0))):
+        commits = [
+            {
+                "sha": c["sha"],
+                "message": c["message"],
+                "author": c["author"],
+                "date": c["date"],
+                "url": c["url"],
+                "type": c["type"],
+                "branch": c.get("branch", ""),
+            }
+            for c in (r.get("recent_commits") or [])[:10]
+        ]
+        repo_blocks.append({
+            "owner": r["owner"],
+            "repo": r["repo"],
+            "url": r["url"],
+            "summary": r.get("summary", ""),
+            "commits_since_last": r.get("commits_1d", 0),
+            "pushed_at": r.get("pushed_at", ""),
+            "recent_commits": commits,
+        })
+    return {
+        "generated_at": generated_at,
+        "narrative": narrative,
+        "repos": repo_blocks,
+    }
+
+
 # ── Main processing ───────────────────────────────────────────────────────────
 def commit_to_text(commit):
     msg = commit.get("commit", {}).get("message", "").split("\n")[0]
@@ -1031,6 +1081,7 @@ def main():
     all_logins_seen = set()
 
     previous = load_previous_activity(output_dir)
+    posts = load_posts(output_dir)
 
     print("Fetching repo data...")
     results = []
@@ -1049,32 +1100,40 @@ def main():
     print("Building people index...")
     people = build_people_index(results, all_logins_seen, repos_list)
 
-    # Only call Gemini if at least one repo has changed since last run
-    any_changed = any(
-        f"{r['owner']}/{r['repo']}" not in previous
+    # Determine which repos changed since last run (new pushes or newly tracked)
+    changed_repos = [
+        r for r in results
+        if f"{r['owner']}/{r['repo']}" not in previous
         or r["pushed_at"] != previous[f"{r['owner']}/{r['repo']}"].get("pushed_at")
-        for r in results
-    )
+    ]
+    any_changed = bool(changed_repos)
 
     print("Generating Gemini cross-repo narrative...")
-    repo_summaries = [(f"{r['owner']}/{r['repo']}", r["summary"]) for r in results if r["summary"]]
     if any_changed:
-        narrative = gemini_narrative(repo_summaries)
+        # Narrative scoped to only repos that changed this run
+        changed_summaries = [
+            (f"{r['owner']}/{r['repo']}", r["summary"])
+            for r in changed_repos if r.get("summary")
+        ]
+        narrative = gemini_narrative(changed_summaries)
+        print(f"    {len(changed_repos)} repo(s) changed — new post generated")
     else:
-        prev_narrative = ""
-        out_path_prev = output_dir / "activity.json"
-        if out_path_prev.exists():
-            try:
-                with open(out_path_prev) as f:
-                    prev_data = json.load(f)
-                prev_narrative = prev_data.get("digest", {}).get("narrative", "")
-            except Exception:
-                pass
-        print("    No repos changed — reusing cached Gemini narrative")
-        narrative = prev_narrative
+        narrative = ""
+        print("    No repos changed — skipping post")
+
+    # Append new post only when something changed
+    generated_at = datetime.now(timezone.utc).isoformat()
+    if any_changed:
+        post = build_post(generated_at, changed_repos, narrative)
+        posts.insert(0, post)
+        save_posts(output_dir, posts)
+        print(f"    Appended post to posts.json ({len(posts)} total)")
+
+    # For digest/weekly view, use latest narrative (first post's narrative)
+    latest_narrative = posts[0]["narrative"] if posts else ""
 
     print("Building weekly digest...")
-    digest = build_weekly_digest(results, narrative)
+    digest = build_weekly_digest(results, latest_narrative)
 
     # Compute aggregate stats
     all_authors = set()

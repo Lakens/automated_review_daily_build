@@ -249,6 +249,28 @@
     .narrative-summary { font-size: 8px; line-height: 1.9; color: var(--text); }
     .narrative-commits { margin: 6px 0 0 0; padding-left: 14px; font-size: 7px; color: var(--muted); line-height: 2; }
 
+    /* ── Activity feed ── */
+    .feed-post {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--purple);
+      padding: 14px 18px;
+      margin-bottom: 12px;
+    }
+    .feed-post-header {
+      display: flex; align-items: baseline; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .feed-post-time { font-size: 8px; color: var(--purple); text-transform: uppercase; letter-spacing: .1em; }
+    .feed-post-label { font-size: 7px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+    .feed-post-narrative { font-size: 9px; line-height: 2; color: var(--text); margin-bottom: 10px; }
+    .feed-post-repos { border-top: 1px solid var(--border); padding-top: 10px; }
+    .feed-repo-block { margin-bottom: 8px; }
+    .feed-repo-name { font-size: 7px; color: var(--yellow); text-shadow: var(--glow-y); margin-bottom: 3px; font-weight: 700; }
+    .feed-repo-summary { font-size: 8px; line-height: 1.9; color: var(--text); }
+    .feed-repo-commits { margin: 4px 0 0 0; padding-left: 14px; font-size: 7px; color: var(--muted); line-height: 2; }
+    .feed-separator { height: 1px; background: var(--border); margin: 6px 0; }
+
     .digest-table { width: 100%; border-collapse: collapse; }
     .digest-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
     .digest-table tr:last-child td { border-bottom: none; }
@@ -697,6 +719,19 @@
     html.theme-clean .narrative-summary { font-size: 15px; line-height: 1.75; color: #1c1717; }
     html.theme-clean .narrative-commits { font-size: 13px; line-height: 1.7; color: #6b6361; }
 
+    html.theme-clean .feed-post {
+      border: 1px solid #d6dadc; border-left: 3px solid #a60a0a;
+      border-radius: var(--r); background: #fffafa;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    }
+    html.theme-clean .feed-post-time { font-family: "Montserrat", sans-serif; font-size: 11px; color: #a60a0a; font-weight: 600; }
+    html.theme-clean .feed-post-label { font-size: 11px; color: #8a8280; }
+    html.theme-clean .feed-post-narrative { font-size: 15px; line-height: 1.75; color: #1c1717; }
+    html.theme-clean .feed-repo-name { font-family: "Montserrat", sans-serif; font-size: 13px; color: #a60a0a; text-shadow: none; }
+    html.theme-clean .feed-repo-summary { font-size: 15px; line-height: 1.75; color: #1c1717; }
+    html.theme-clean .feed-repo-commits { font-size: 13px; line-height: 1.7; color: #6b6361; }
+    html.theme-clean .feed-separator { background: #d6dadc; }
+
     html.theme-clean .rcard {
       border: 1px solid var(--border); border-radius: var(--r);
       box-shadow: 0 1px 4px rgba(0,0,0,.05);
@@ -884,11 +919,8 @@
       <div class="sec">Highlights</div>
       <div class="chips" id="highlights"></div>
 
-      <div class="sec">Community Narrative</div>
-      <div class="narrative-box" id="narrative-box">
-        <div class="ai-label" id="narrative-label">Gemini AI · Cross-repo digest</div>
-        <div id="narrative-text"></div>
-      </div>
+      <div class="sec">Activity Feed</div>
+      <div id="feed-container"></div>
 
       <div class="sec">This Week's Activity</div>
       <table class="digest-table" id="week-table" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);border-collapse:separate;border-spacing:0;overflow:hidden"></table>
@@ -1101,8 +1133,74 @@ function switchCardTab(prefix, idx) {
 }
 window.switchCardTab = switchCardTab;
 
+// ── Activity feed ────────────────────────────────────────────────────────────
+function buildFeed(posts, data) {
+  const container = document.getElementById("feed-container");
+
+  if (!posts || !posts.length) {
+    // Fallback: synthesise a single post from current activity.json data
+    const active = (data.repos || [])
+      .filter(r => r.summary && (r.commits_30d || 0) > 0)
+      .sort((a, b) => (b.commits_1d - a.commits_1d) || (b.commits_7d - a.commits_7d) || (b.commits_30d - a.commits_30d));
+    const narrative = (data.digest || {}).narrative || "";
+    const syntheticPost = {
+      generated_at: data.generated_at,
+      narrative,
+      repos: active.map(r => ({
+        owner: r.owner, repo: r.repo, url: r.url,
+        summary: r.summary, recent_commits: r.recent_commits || [],
+      })),
+    };
+    container.innerHTML = renderPost(syntheticPost);
+    return;
+  }
+
+  container.innerHTML = posts.map(renderPost).join("");
+}
+
+function renderPost(post) {
+  const ts = post.generated_at ? new Date(post.generated_at) : null;
+  const timeStr = ts
+    ? `${rel(post.generated_at)} &middot; ${ts.toLocaleDateString(undefined, {weekday:"short", month:"short", day:"numeric"})} ${ts.toLocaleTimeString(undefined, {hour:"2-digit", minute:"2-digit"})}`
+    : "Unknown time";
+
+  const narrativeHtml = post.narrative
+    ? `<div class="feed-post-narrative">${esc(post.narrative)}</div>`
+    : "";
+
+  const reposHtml = (post.repos || []).map((r, i, arr) => {
+    const commits = (r.recent_commits || []).slice(0, 8);
+    const commitList = commits.length
+      ? `<ul class="feed-repo-commits">${commits.map(c =>
+          `<li><code style="color:var(--accent)">${esc(c.sha)}</code>`
+          + (c.branch ? ` <span style="color:var(--border)">[${esc(c.branch)}]</span>` : "")
+          + ` <a href="${esc(c.url)}" target="_blank" style="color:var(--text)">${esc(c.message)}</a>`
+          + ` <span style="color:var(--muted)">— ${esc(c.author)}</span></li>`
+        ).join("")}</ul>`
+      : "";
+    return `<div class="feed-repo-block">
+      <div class="feed-repo-name"><a href="${esc(r.url)}" target="_blank" style="color:inherit">${esc(r.owner)}/${esc(r.repo)}</a></div>
+      ${r.summary ? `<div class="feed-repo-summary">${esc(r.summary)}</div>` : ""}
+      ${commitList}
+    </div>${i < arr.length - 1 ? '<div class="feed-separator"></div>' : ""}`;
+  }).join("");
+
+  const reposSection = reposHtml
+    ? `<div class="feed-post-repos">${reposHtml}</div>`
+    : "";
+
+  return `<div class="feed-post">
+    <div class="feed-post-header">
+      <span class="feed-post-time">${timeStr}</span>
+      <span class="feed-post-label">Gemini AI &middot; Cross-repo digest</span>
+    </div>
+    ${narrativeHtml}
+    ${reposSection}
+  </div>`;
+}
+
 // ── Build Overview ───────────────────────────────────────────────────────────
-function buildOverview(data) {
+function buildOverview(data, posts) {
   const agg = data.aggregate;
   const d   = data.digest;
 
@@ -1135,42 +1233,8 @@ function buildOverview(data) {
   if (!chips.length) chips.push(`<span class="chip none">No notable activity in the last 24 hours</span>`);
   document.getElementById("highlights").innerHTML = chips.join("");
 
-  // Narrative
-  if (d.narrative) {
-    document.getElementById("narrative-label").textContent = "Gemini AI · Cross-repo digest";
-    document.getElementById("narrative-text").innerHTML = `<p>${esc(d.narrative)}</p>`;
-  } else {
-    // Fall back to per-repo Groq summaries, most recently active first
-    const summaries = (data.repos || [])
-      .filter(r => r.summary && !r.summary.startsWith("Placeholder") && (r.commits_30d || 0) > 0)
-      .sort((a, b) => (b.commits_1d - a.commits_1d) || (b.commits_7d - a.commits_7d) || (b.commits_30d - a.commits_30d));
-    if (summaries.length) {
-      document.getElementById("narrative-label").textContent = "Groq AI · Recent activity per repo";
-      document.getElementById("narrative-text").innerHTML = summaries.map(r => {
-        const recentCommits = (r.recent_commits || []).slice(0, 10);
-        const commitList = recentCommits.length
-          ? `<ul class="narrative-commits">${
-              recentCommits.map(c =>
-                `<li><code style="color:var(--accent)">${esc(c.sha)}</code> `
-                + (c.branch ? `<span style="color:var(--border)">[${esc(c.branch)}]</span> ` : "")
-                + `<a href="${esc(c.url)}" target="_blank" style="color:var(--text)">${esc(c.message)}</a>`
-                + ` <span style="color:var(--muted)">— ${esc(c.author)}</span></li>`
-              ).join("")
-            }</ul>`
-          : "";
-        return `<div class="narrative-repo-block">
-          <div class="narrative-repo-name">
-            <a href="${esc(r.url)}" target="_blank" style="color:inherit">${esc(r.owner)}/${esc(r.repo)}</a>
-          </div>
-          <div class="narrative-summary">${esc(r.summary)}</div>
-          ${commitList}
-        </div>`;
-      }).join(`<div style="height:1px;background:var(--border);margin:8px 0"></div>`);
-    } else {
-      document.getElementById("narrative-label").textContent = "AI narrative";
-      document.getElementById("narrative-text").innerHTML = `<p style="color:var(--muted)">Trigger the GitHub Actions workflow to generate summaries.</p>`;
-    }
-  }
+  // Activity feed
+  buildFeed(posts, data);
 
   // Week table
   const highlights = (d.highlights||[]).slice(0, 30);
@@ -2015,7 +2079,7 @@ function renderTimeline(typeFilter) {
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 async function init() {
-  let data;
+  let data, posts = [];
   try {
     const r = await fetch("data/activity.json?t=" + Date.now());
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -2028,6 +2092,11 @@ async function init() {
     return;
   }
 
+  try {
+    const rp = await fetch("data/posts.json?t=" + Date.now());
+    if (rp.ok) posts = await rp.json();
+  } catch (e) { /* posts.json not yet generated — graceful fallback */ }
+
   document.getElementById("loading").style.display = "none";
   document.getElementById("app").style.display = "block";
 
@@ -2036,7 +2105,7 @@ async function init() {
     ? `Updated ${rel(genAt.toISOString())} · ${genAt.toLocaleDateString()}`
     : "Update time unknown";
 
-  buildOverview(data);
+  buildOverview(data, posts);
   buildRepos(data.repos||[]);
   buildPeople(data.people||[]);
   buildDigest(data);
