@@ -4,7 +4,7 @@
 APIs used:
   - GitHub REST API    (repo info, commits, PRs, issues, contributors, diffs)
   - Groq API           (per-repo commit summaries, weekly digest intro)
-  - Gemini API         (cross-repo narrative digest)
+  - Groq API           (cross-repo narrative digest)
   - Scopus API         (citation counts for authors by ORCID or name)
   - GitHub raw files   (R DESCRIPTION, CITATION, README parsing)
 """
@@ -22,7 +22,6 @@ import requests
 # ── Credentials ──────────────────────────────────────────────────────────────
 GITHUB_TOKEN    = os.environ.get("GITHUB_TOKEN", "")
 GROQ_API_KEY    = os.environ.get("GROQ_API_KEY", "")
-GEMINI_API_KEY  = os.environ.get("GEMINI_API_KEY", "")
 SCOPUS_API_KEY  = os.environ.get("SCOPUS_API_KEY", "")
 
 GITHUB_HEADERS = {
@@ -551,32 +550,18 @@ def classify_commit_type(message):
     return "other"
 
 
-# ── Gemini ────────────────────────────────────────────────────────────────────
-def gemini_narrative(all_repo_summaries):
-    """Generate a cross-repo narrative digest using Gemini."""
-    if not GEMINI_API_KEY or not all_repo_summaries:
+def groq_narrative(all_repo_summaries):
+    """Generate a cross-repo narrative digest using Groq."""
+    if not all_repo_summaries:
         return ""
     text = "\n\n".join(f"**{name}**: {summary}" for name, summary in all_repo_summaries)
-    try:
-        r = requests.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}",
-            json={
-                "contents": [{"parts": [{"text":
-                    f"You are a science communication assistant. Based on the following summaries of "
-                    f"recent activity across multiple open-source research tools, write a short "
-                    f"(4-6 sentence) community newsletter paragraph. Highlight connections between "
-                    f"projects, celebrate progress, and note anything noteworthy.\n\n{text}"
-                }]}],
-                "generationConfig": {"maxOutputTokens": 400, "temperature": 0.5},
-            },
-            timeout=30,
-        )
-        r.raise_for_status()
-        parts = r.json().get("candidates", [{}])[0].get("content", {}).get("parts", [{}])
-        return parts[0].get("text", "").strip()
-    except Exception as e:
-        print(f"    Gemini error: {e}", file=sys.stderr)
-        return ""
+    return groq_chat(
+        f"You are a science communication assistant. Based on the following summaries of "
+        f"recent activity across multiple open-source research tools, write a short "
+        f"(4-6 sentence) community newsletter paragraph. Highlight connections between "
+        f"projects, celebrate progress, and note anything noteworthy.\n\n{text}",
+        max_tokens=400,
+    )
 
 
 # ── Posts feed ────────────────────────────────────────────────────────────────
@@ -888,7 +873,7 @@ def build_people_index(repos_data, all_logins_seen, repos_list):
     return sorted_people
 
 
-def build_weekly_digest(repos_data, gemini_narrative_text):
+def build_weekly_digest(repos_data, narrative_text):
     """Assemble structured weekly digest."""
     now = datetime.now(timezone.utc)
     week_start = (now - timedelta(days=7)).strftime("%Y-%m-%d")
@@ -921,7 +906,7 @@ def build_weekly_digest(repos_data, gemini_narrative_text):
         "new_releases": [{"owner": r["owner"], "repo": r["repo"], "tag": r["releases"][0]["tag"]} for r in new_releases],
         "most_active": [{"owner": r["owner"], "repo": r["repo"], "commits": r["commits_7d"]} for r in most_active[:5]],
         "highlights": highlights[:20],
-        "narrative": gemini_narrative_text,
+        "narrative": narrative_text,
     }
 
 
@@ -1123,14 +1108,14 @@ def main():
     ]
     any_changed = bool(changed_repos)
 
-    print("Generating Gemini cross-repo narrative...")
+    print("Generating cross-repo narrative...")
     if any_changed:
         # Narrative scoped to only repos that changed since the last post
         changed_summaries = [
             (f"{r['owner']}/{r['repo']}", r["summary"])
             for r in changed_repos if r.get("summary")
         ]
-        narrative = gemini_narrative(changed_summaries)
+        narrative = groq_narrative(changed_summaries)
         print(f"    {len(changed_repos)} repo(s) changed since last post — new post generated")
     else:
         narrative = ""
