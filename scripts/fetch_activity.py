@@ -1085,9 +1085,9 @@ def main():
             # so we key on the actual latest commit SHA across all branches instead.
             key = f"{r['owner']}/{r['repo']}"
             prev = previous.get(key)
-            latest_sha = (data.get("recent_commits") or [{}])[0].get("sha", "")
-            prev_sha   = (prev.get("recent_commits") or [{}])[0].get("sha", "") if prev else ""
-            if prev and latest_sha and latest_sha == prev_sha and prev.get("summary"):
+            commit_fingerprint = ",".join(c.get("sha","") for c in (data.get("recent_commits") or []))
+            prev_fingerprint   = ",".join(c.get("sha","") for c in (prev.get("recent_commits") or [])) if prev else ""
+            if prev and commit_fingerprint and commit_fingerprint == prev_fingerprint and prev.get("summary"):
                 print(f"    [{key}] no new commits — reusing cached summary")
                 data["summary"] = prev["summary"]
             results.append(data)
