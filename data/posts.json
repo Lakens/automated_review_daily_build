@@ -1,5 +1,131 @@
 [
   {
+    "generated_at": "2026-06-16T05:16:48.640608+00:00",
+    "narrative": "The open-source research community has seen exciting progress recently, with notable updates in the **giladfeldman/docpluck** project. The latest version, 2.4.90, introduces a significant new feature: \"per-band region-aware two-column re-extraction\", which demonstrates the project's ongoing commitment to innovation. This update is particularly noteworthy as it builds upon previous fixes, such as the recovery of dropped-minus coefficients from the layout channel in version 2.4.89. The project's dedication to thorough documentation is also commendable, with multiple updates providing valuable insights into the development process. As the community continues to collaborate and share knowledge, we can expect to see even more impressive advancements in the future. By connecting projects like **giladfeldman/docpluck** with other open-source research tools, we can unlock new possibilities for scientific discovery and progress.",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "The main branch was the only branch worked on, with various commits adding and modifying features, fixes, and documentation. A new feature was added, \"per-band region-aware two-column re-extraction\" as part of version 2.4.90, with the commit message stating \"RC-1 Step 2 -- per-band region-aware two-column re-extraction (ship-dark)\". The documentation was updated multiple times, including adding \"handoff \u2014 RC-1 Step 2 first cut shipped (v2.4.90, ship-dark)\" and \"cycle-2 learnings \u2014 RC-1 Step 2 + word-preservation-guard-is-the-safety\", as well as \"cycle-1 B7 (v2.4.89) learnings + lessons + resume handoff + TRIAGE\". A fix was also implemented to \"recover dropped-minus coefficients from the layout channel\" in version 2.4.89, and a test was added to \"assert audit input PDF byte-equal to pinned feed (R-0003)\". Additionally, the code was refactored to \"remove orphaned duplicate band re-extractor\" in the extract_columns function.",
+        "commits_since_last": 11,
+        "pushed_at": "2026-06-16T02:53:16Z",
+        "recent_commits": [
+          {
+            "sha": "4c55d6e",
+            "message": "docs(iterate): 2026-06-16 resume handoff + concurrency-collision lesson",
+            "body": "- New consolidated resume handoff (HANDOFF_2026-06-16_docpluck-iterate-resume.md):\n  v2.4.90 live + coherent (tag=prod=origin pin); collision cleanup recorded\n  (orphan removed in 436fc5a); run OPEN/PARTIAL with cycle-2 gate FAIL (I2/I3/I10)\n  and the forward punch-list (RC-1 refinements \u2192 flip default, full canary\n  AI-verify coverage, table-structuring, B1 needs scope nod, canary case-norm fix).\n  Notes the stale local PDFextractor checkout (v2.4.85, cosmetic).\n- _project/lessons.md: \"On resume, git status BEFORE editing source\" \u2014 concurrent\n  sessions sharing a working tree; first-committer sweeps the other's uncommitted\n  work into its release; surface collisions rather than racing.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-16",
+            "url": "https://github.com/giladfeldman/docpluck/commit/4c55d6ef7d39831110a82b5d8501a0dce8256c70",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "436fc5a",
+            "message": "refactor(extract_columns): remove orphaned duplicate band re-extractor",
+            "body": "A concurrent docpluck-iterate session and this one independently implemented\nRC-1 Step 2. The other session's `extract_page_text_banded` (+ splice/extract.py\nwiring + DOCPLUCK_COLUMN_CORRECT_BANDED flag) is the canonical wired\nimplementation, shipped as v2.4.90. This session's parallel\n`extract_page_text_bands` (+ `_min_crossing_gutter` / `_row_is_two_column` /\n`_segment_into_bands` / `_GUTTER_STRIP_HALF`) was uncommitted at the time and got\nswept into the v2.4.90 release commit (1325d14) by the other session's `git add`\nas orphaned, never-called dead code.\n\nRemoved the entire orphaned block (~190 lines). Inert: distinct names (no\nshadowing), referenced only within its own block, ZERO callers (the splice calls\n`extract_page_text_banded`). Behaviour-identical removal.\n\nNo version bump / re-tag / redeploy: pure no-op cleanup. The active path is\nbyte-identical; the inert duplicate remains in the already-tagged v2.4.90 / prod\n(harmless, uncalled) and rides out with the next tagged release.\n\nSKIP_CANARY=1 justified (per memory feedback_canary_gate_nondeterministic): the\nremoved functions have ZERO callers, so every rendered output is byte-identical\nby construction -- a stronger guarantee than a render-diff. No render.py change.\nVerified: AST + import OK; 69 column-path tests + full suite (1978 passed, 27\nskipped, 1 xfailed) green before the overnight Dropbox re-sync reverted the file.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-16",
+            "url": "https://github.com/giladfeldman/docpluck/commit/436fc5a515891488e6c52920876537ae38cd1ddf",
+            "type": "refactor",
+            "branch": "main"
+          },
+          {
+            "sha": "f7c3729",
+            "message": "docs(handoff): RC-1 Step 2 continuation handoff (post-deploy) + canary case-norm todo",
+            "body": "v2.4.90 (B7 + RC-1 Step2 ship-dark) deployed + verified in prod. New-session\nhandoff with the full remaining punch-list (RC-1 refinements -> default-flip,\nfull canary AI-verify coverage, table-structuring, B1 scope, canary case-norm\nfalse-positive fix). TODO: fix canary finding-key case-norm so release tags\nstop needing SKIP_CANARY.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/f7c3729f42bc878d5f456203206df3c028d2d782",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "818c3d0",
+            "message": "docs(iterate): cycle-2 learnings \u2014 RC-1 Step 2 + word-preservation-guard-is-the-safety",
+            "body": "Project lessons.md + per-skill LEARNINGS.md: the per-band column re-extraction\npattern (extract_page_text_banded), the word-preservation-guard-as-safety\nlesson, the 3 segmentation hazards, and the resume-time concurrency hazard.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/818c3d0657fdbd74357a60739bd7aebd2fb4f881",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "da6c90f",
+            "message": "docs(iterate): handoff \u2014 RC-1 Step 2 first cut shipped (v2.4.90, ship-dark)",
+            "body": "Records cycle-2 state: RC-1 banded re-extraction committed 1325d14 + tagged\nv2.4.90 locally (deploy HELD, batched with B7 v2.4.89). AI-verified ON_BETTER on\nchan_feldman + chandrashekar. Run stays OPEN/PARTIAL: cycle-2 iterate-gate FAIL\n(tables + RC-1 refinements + full canary coverage open). Precise remaining\npunch-list in the spec's \"Step 2 \u2014 remaining work\".\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/da6c90f67045d593e0363116df74515e97919531",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "1325d14",
+            "message": "feat(v2.4.90): RC-1 Step 2 -- per-band region-aware two-column re-extraction (ship-dark)",
+            "body": "The dominant defect on two-column APA papers: pdftotext serializes a page's\ncolumns interleaved, scrambling Method/Results/Discussion order and splitting\nparagraphs. The Step-1 whole-page corrector (v2.4.82) cannot reach these pages\n-- its bilateral y-row gate and full-height gutter strip both reject any page\ncarrying a full-width band (table row / banner / wide title) crossing the column\ncentre, which is exactly the failing pages (TRIAGE 2026-06-15: GENERAL=1 was\nbyte-near-identical on these papers).\n\nStep 2 (extract_page_text_banded, docpluck/extract_columns.py) segments a\nflagged page into horizontal y-BANDS: a band whose central gutter strip is\nglyph-free is two-column prose -> re-extracted left-then-right; a full-width band\n(table / banner / title) is kept as-is. Bands reassemble top-to-bottom at\nglyph-free cut lines (vertically-overlapping bands merge to full-width so a tall\ntitle glyph is never bisected). Applied ONLY as a fallback inside\nsplice_column_corrected_pages when the whole-page path returns \"\", under the SAME\nunconditional word-preservation guard -- a band crop that drops/fabricates a word\nis rejected and the page kept as-is, so the flag can only ADD a pure reorder,\nnever ship corruption.\n\nGated behind DOCPLUCK_COLUMN_CORRECT_BANDED (default OFF, ship-dark): flag OFF is\nbyte-identical to v2.4.89. No NORMALIZATION_VERSION change (default path\nunchanged; the flag acts upstream of normalize).\n\nValidation (2026-06-15): corpus word-preservation scan (71 flagged pages, 4\npapers) -- every accepted page is a pure reorder; the 6 residual band-cut clips\nare all guard-rejected (no corruption). Production smoke flag-ON corrects ~44\npages across 5 papers, all word-safe; flag-OFF byte-identical. AI-verify vs\narticle-finder reading golds (Sonnet subagents) on chan_feldman_2025_cogemo +\nchandrashekar_2023_mp: both ON_BETTER -- Procedure/Manipulations ordering and the\nPower-analysis paragraph split fixed (chan); `## Results` heading restored and\ncolumn-token orphans suppressed (chandrashekar); 0 text-loss/hallucination/\nregression vs flag OFF. Touched-path suite 302 passed; 26-paper baseline 26/26\n(flag OFF).\n\nNew regression tests/test_rc1_banded_column_real_pdf.py (synthetic-layout\ngeometry units + real-PDF word-preservation + ship-dark-default). Remaining\nStep-2 refinements (band-cut clips, per-row both-sides under-detection,\ntitle+sidebar pages) documented in docs/superpowers/specs/2026-06-08-rc1-region-\naware-column-architecture.md for the eventual default-flip.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/1325d149e824c00bd5b18b57615dc2d570c22117",
+            "type": "feat",
+            "branch": "main"
+          },
+          {
+            "sha": "5782c6c",
+            "message": "docs(iterate): correct handoff deploy-state row \u2014 main push HELD (local only)",
+            "body": "Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/5782c6ceb0f111562b07cd383ecfba0b0d7b05f3",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "dca0e32",
+            "message": "docs(iterate): cycle-1 B7 (v2.4.89) learnings + lessons + resume handoff + TRIAGE",
+            "body": "- LEARNINGS: B7 cycle journal (layout-channel recovery has a pixel-only floor;\n  section path omits layout= by design; y-overlap not round(top); xdist silent-\n  buffering on Windows; Camelot non-determinism).\n- _project/lessons: dropped-glyph recovery splits layout-recoverable vs pixel-only\n  (probe per-instance); dedicated dropped_minus_layout param plumbing gotcha.\n- HANDOFF: supersedes the citationguard-written stub; B7 shipped, run OPEN/PARTIAL,\n  RC-1 (approved) + B1 (needs scope nod) + metadata punch-list; deploy HELD.\n- TRIAGE_2026-06-15: the HEAD v2.4.88 corpus assessment this run started from.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/dca0e32e70e3d848dddb1b3df6fdb416b41284fd",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "44f4ccd",
+            "message": "fix(v2.4.89): B7 W0h -- recover dropped-minus coefficients from the layout channel",
+            "body": "The no-CI residual W0g cannot reach: a body-prose coefficient with only a t/p\nvalue (b = -.022, t(87) = .17) where pdftotext drops the U+2212 glyph entirely\non tight-kerned PDFs that draw the minus in a dedicated symbol font. The dropped\nminus survives in the layout channel (pdfplumber) as an unmapped (cid:N) glyph\nin the `<stat> = <minus><coef>` operator slot; recover_dropped_minus_via_layout\n(W0h) re-inserts it.\n\n- normalize.py: W0h + _layout_negative_coefficients (y-overlap line clustering,\n  =-anchored coef slot, flips only layout-proven negatives, count-limited).\n  NORMALIZATION_VERSION 1.9.34 -> 1.9.35.\n- Threaded a DEDICATED `dropped_minus_layout` param (render -> extract_sections\n  -> normalize_text) so F0 stays off in the text-channel-only section path.\n- ar_apa_j_jesp_2009_12_011: recovers b = -.022 / -.88 / -.428; leaves +.48.\n  Surgical blast radius (only ar_apa flips; 4 other canary papers byte-identical).\n\nDocumented limitation: ar_apa b = -.245 is painted pixels (absent from pdftotext\nAND pdfplumber chars/lines/rects/curves AND pdfminer raw layer) -> OCR-only, left\nuntouched rather than guessed. See TODO.md R5 Path 1.\n\nTests: tests/test_dropped_minus_layout_recovery_real_pdf.py (4 unit + 1 real-PDF).\nFull suite 1968 passed / 27 skipped / 1 xfailed. AI-verify: all 5 ar_apa beta\nsigns correct.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/44f4ccd2b0b52e84e19e8e9acbd3a4d18c44f032",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "2cc32d9",
+            "message": "docs(skills): sync iterate spine to I1-I12 + extract parallelization ref; harden deploy preflight",
+            "body": "- docpluck-iterate/SKILL.md: update spine rule table I1-I7 -> I1-I12 (gate-was-called,\n  locator-via-article-finder, artifact-existence, gold-sha-matches-cache, lesson-readback)\n  to match _shared/iterate-loop/core.md; extract the Subagent-parallelization operational\n  detail (safety checklist, where-to-parallelize table, fan-out patterns, anti-patterns)\n  into references/subagent-parallelization.md to keep SKILL.md under the size guideline.\n- docpluck-deploy/SKILL.md: renumber preflight checks (dup \"4\" -> sequential 5/6/7/8);\n  prefer explicit `vercel rollback <deployment-url>` over ambiguous bare `vercel rollback`.\n\nNo methodology/behavior change -- doc-sync + refactor only.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/2cc32d9b20f5c0de9c571512757100e4a9ebab2d",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "548d6df",
+            "message": "test(canary): assert audit input PDF byte-equal to pinned feed (R-0003)",
+            "body": "Cross-project lesson transfer (CitationGuard => docpluck): the verification\nsubstrate must be byte-equal to the production input feed before scoring. A\nCitationGuard run once scored its tool output against raw PyMuPDF for a whole\nrun, producing a misleading score.\n\ndocpluck already scores render-vs-AI-gold (never a deterministic extractor --\nCLAUDE.md hard rule), so the residual gap that lesson maps to here is INPUT\nprovenance: a render of a drifted PDF scored against a gold made from the\noriginal is the same \"wrong substrate\" bug class. If the cached PDF for a DOI\never drifts (re-download, re-encode, a stray Dropbox conflicted-copy), the\ncanary would silently score a render of a different input than the gold.\n\n- tools/canary_provenance.py: load_expected_sha() + check_provenance() helpers\n- canary.json: pin expected_pdf_sha for all 5 onboarded canary papers\n- render_for_audit.py: --expected-sha (falls back to the canary pin); abort with\n  exit 4 BEFORE rendering on mismatch; record expected_pdf_sha + provenance_ok\n  in the per-render manifest. Un-pinned keys are a no-op (purely additive guard).\n- tests/test_canary_provenance.py: 10 tests (helper units, 5 byte-equality\n  integration vs the real cached PDFs, render-guard exit-4)\n\nGate: 10/10 new tests pass; full library suite 1710 passed / 0 failed (no\nregression); live render smoke auto-loads the pin, matches, renders, exit 0.\nThe Sonnet canary itself is not runnable in this env (ai-gold get --view reading\nerrors + claude -p nesting hang); provenance is a pre-render guard that does not\nchange render output, so pytest is the precise gate.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/548d6df2b6a7c13ae0d5ddc782c4ffb5f102b951",
+            "type": "test",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-06-15T21:16:33.199792+00:00",
     "narrative": "Our community has seen significant progress across multiple projects recently. Notably, the `scienceverse/metacheck` project has been actively updated, with merges from the `dev` branch to the `main` branch, including the addition of a Zenodo citation. Meanwhile, `giladfeldman/docpluck` has released version \"v2.4.90\", featuring a new \"per-band region-aware two-column re-extraction\" feature, and `giladfeldman/escicheck` has been synced with the latest versions of effectcheck. Additionally, `Davidvandijcke/coarse` has added a CodeQL analysis workflow configuration, and `JamieCummins/regcheck` has improved report viewing and added quality of life features. These updates demonstrate the connections and collaborations within our community, with projects like `shaheedazaad/auto-zcurve` also making strides, revising validation notes and including citations to further enhance research tools. Overall, it's an exciting time for our community, with many projects pushing forward and building upon each other's progress.",
     "repos": [
