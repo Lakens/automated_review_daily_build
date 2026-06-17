@@ -35,7 +35,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git stash --include-untracked
           git pull --rebase origin main
+          git stash list | grep -q . && git stash pop || true
           git add data/activity.json
           [ -f data/posts.json ] && git add data/posts.json || true
           [ -f feed.xml ] && git add feed.xml || true
