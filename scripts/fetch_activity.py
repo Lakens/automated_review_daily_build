@@ -999,12 +999,14 @@ def generate_rss(results, digest, generated_at, output_path):
                 f"<p><strong>{r['commits_1d']} commit(s) today:</strong></p>"
                 f"<ul>{commits_html}</ul>"
             )
-        if r.get("releases") and r["releases"][0].get("date") == today:
-            rel = r["releases"][0]
+        new_release = (
+            r["releases"][0] if r.get("releases") and r["releases"][0].get("date") == today else None
+        )
+        if new_release:
             events.append(
-                f"<p>New release: <a href='{xml_escape(rel['url'])}'>"
-                f"{xml_escape(rel['tag'])}</a>"
-                + (f" — {xml_escape(rel['name'])}" if rel.get("name") else "")
+                f"<p>New release: <a href='{xml_escape(new_release['url'])}'>"
+                f"{xml_escape(new_release['tag'])}</a>"
+                + (f" — {xml_escape(new_release['name'])}" if new_release.get("name") else "")
                 + "</p>"
             )
         if r.get("dormant_revived"):
@@ -1022,9 +1024,14 @@ def generate_rss(results, digest, generated_at, output_path):
             + "\n".join(events)
             + (f"<p><a href='{xml_escape(r['url'])}/commits'>View all commits &rarr;</a></p>")
         )
+        if r["commits_1d"] > 0:
+            title = f"{r['repo']}: {r['commits_1d']} commit{'s' if r['commits_1d'] != 1 else ''} today"
+        elif new_release:
+            title = f"{r['repo']}: new release {new_release['tag']}"
+        else:
+            title = f"{r['repo']}: activity update"
         items.append({
-            "title": f"{r['repo']}: {r['commits_1d']} commit{'s' if r['commits_1d'] != 1 else ''} today"
-                     if r["commits_1d"] > 0 else f"{r['repo']}: new release {r['releases'][0]['tag']}",
+            "title": title,
             "link": r["url"],
             "guid": f"{SITE_URL}/repo/{r['owner']}/{r['repo']}/{today}",
             "pubDate": rfc822(r.get("pushed_at") or generated_at),
