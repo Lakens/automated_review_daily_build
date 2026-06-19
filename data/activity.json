@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-19T12:46:52.880579+00:00",
+  "generated_at": "2026-06-19T16:00:30.630077+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -113,15 +113,15 @@
         }
       ],
       "commits_30d": 144,
-      "commits_7d": 23,
+      "commits_7d": 22,
       "commits_1d": 4,
       "commits_90d": 198,
       "authors_30d": [
-        "Lakens",
-        "Daniel Lakens",
         "nielsvanberkel",
+        "Daniel Lakens",
+        "Raphael Merz",
         "Lisa DeBruine",
-        "Raphael Merz"
+        "Lakens"
       ],
       "type_breakdown": {
         "fix": 30,
@@ -609,7 +609,7 @@
         },
         {
           "week": 1776038400,
-          "total": 4
+          "total": 6
         },
         {
           "week": 1776643200,
@@ -617,7 +617,7 @@
         },
         {
           "week": 1777248000,
-          "total": 9
+          "total": 7
         },
         {
           "week": 1777852800,
@@ -625,27 +625,27 @@
         },
         {
           "week": 1778457600,
-          "total": 10
+          "total": 14
         },
         {
           "week": 1779062400,
-          "total": 13
+          "total": 11
         },
         {
           "week": 1779667200,
-          "total": 48
-        },
-        {
-          "week": 1780272000,
           "total": 47
         },
         {
+          "week": 1780272000,
+          "total": 46
+        },
+        {
           "week": 1780876800,
-          "total": 22
+          "total": 23
         },
         {
           "week": 1781481600,
-          "total": 23
+          "total": 22
         }
       ],
       "code_frequency": [],
@@ -799,7 +799,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in the 'scienceverse/metacheck' repository adds functions to load paper databases from 'scienceverse/papers', specifically exporting `papers_available`, `papers_load`, `papers_metadata`, and `papers_remove` functions, and modifying existing files to support this new functionality."
+          "diff_summary": "This commit in 'scienceverse/metacheck' adds new functions to load paper databases from 'scienceverse/papers', including `papers_available`, `papers_load`, `papers_metadata`, and `papers_remove`, which are exported and made available for use."
         },
         {
           "sha": "25c15a6",
@@ -1149,142 +1149,6 @@
           "branch": "dev",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "b7afa6a",
-          "message": "add functions to load paper databases from scienceverse/papers",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-06-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/b7afa6ab20252896d0ce149fcf39a78e0498f4f5",
-          "type": "feat",
-          "branch": "papers_databases",
-          "diff": {
-            "additions": 1565,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -30,7 +30,7 @@ Authors@R: c(\n            comment = c(ORCID = \"0000-0003-2121-5177\")),\n   person(  given = \"Daniel\",\n            family = \"Lakens\",\n-           role = c(\"aut\", \"cre\"),\n+           role = c(\"aut\"),\n            email = \"lakens@gmail.com\",\n            comment = c(ORCID = \"0000-0002-0247-239X\")))\n Description: A modular, extendable system for checking research outputs for best practices using text search, R code, and/or (optional) LLM queries."
-              },
-              {
-                "filename": "NAMESPACE",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 0,
-                "patch": "@@ -123,6 +123,10 @@ export(paper_table)\n export(paper_validate)\n export(paper_write)\n export(paperlist)\n+export(papers_available)\n+export(papers_load)\n+export(papers_metadata)\n+export(papers_remove)\n export(path_sanitize)\n export(pb)\n export(plural)"
-              },
-              {
-                "filename": "R/import-grobid.R",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 0,
-                "patch": "@@ -116,6 +116,8 @@ convert_grobid <- function(file_path, save_path = \".\",\n       consolidateFunders = as.character(consolidate_funders),\n       includeRawCitations = \"1\"\n     ) |>\n+    httr2::req_timeout(180) |>\n+    httr2::req_options(connecttimeout = 10, ssl_options = 2) |>\n     httr2::req_error(is_error = \\(resp) FALSE) |>\n     httr2::req_perform()\n \n@@ -247,6 +249,8 @@ grobid_to_bibr <- function(xml_path,\n     {\n       httr2::request(api_url) |>\n         httr2::req_url_path(\"/api/isalive\") "
-              },
-              {
-                "filename": "docs/reference/dot-papers_release_assets.html",
-                "status": "added",
-                "additions": 87,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,87 @@\n+<!DOCTYPE html>\n+<!-- Generated by pkgdown: do not edit by hand --><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\"><title>Fetch all RDS release assets from a GitHub repo \u2014 .papers_release_assets \u2022 metacheck</title><!-- favicons --><link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" h"
-              },
-              {
-                "filename": "docs/reference/papers_available.html",
-                "status": "added",
-                "additions": 98,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,98 @@\n+<!DOCTYPE html>\n+<!-- Generated by pkgdown: do not edit by hand --><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\"><title>List available paper corpora \u2014 papers_available \u2022 metacheck</title><!-- favicons --><link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href=\"../favicon-96x96.png"
-              },
-              {
-                "filename": "docs/reference/papers_load.html",
-                "status": "added",
-                "additions": 130,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,130 @@\n+<!DOCTYPE html>\n+<!-- Generated by pkgdown: do not edit by hand --><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\"><title>Load a paper corpus \u2014 papers_load \u2022 metacheck</title><!-- favicons --><link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href=\"../favicon-96x96.png\"><link rel=\""
-              },
-              {
-                "filename": "docs/reference/papers_metadata.html",
-                "status": "added",
-                "additions": 113,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,113 @@\n+<!DOCTYPE html>\n+<!-- Generated by pkgdown: do not edit by hand --><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\"><title>Get a paper corpus's Dublin Core metadata \u2014 papers_metadata \u2022 metacheck</title><!-- favicons --><link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href=\"../favi"
-              },
-              {
-                "filename": "docs/reference/papers_remove.html",
-                "status": "added",
-                "additions": 92,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,92 @@\n+<!DOCTYPE html>\n+<!-- Generated by pkgdown: do not edit by hand --><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\"><title>Remove a cached paper corpus \u2014 papers_remove \u2022 metacheck</title><!-- favicons --><link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href=\"../favicon-96x96.png\"><"
-              }
-            ]
-          },
-          "diff_summary": "This commit in the 'scienceverse/metacheck' repository adds functions to load paper databases from 'scienceverse/papers', specifically exporting `papers_available`, `papers_load`, `papers_metadata`, and `papers_remove` functions, and modifying existing files to support this new functionality."
-        },
-        {
-          "sha": "25c15a6",
-          "message": "update metacheck page to fix #314",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-06-18",
-          "url": "https://github.com/scienceverse/metacheck/commit/25c15a6493f40d44ad665527540e9571b503ebfb",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "73736b0",
-          "message": "Fix create_report_app() to report_app() in Get Started vignette",
-          "body": "",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-06-18",
-          "url": "https://github.com/scienceverse/metacheck/commit/73736b057100ad8e739a925c21eb9d69a6682751",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "00d7953",
-          "message": "add ethics_check + bug fix",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-06-18",
-          "url": "https://github.com/scienceverse/metacheck/commit/00d7953444b0e95cacce40d8b92ffd7496eb6792",
-          "type": "fix",
-          "branch": "ethics_check",
-          "diff": {}
-        },
-        {
-          "sha": "2b8a367",
-          "message": "Revert \"fix app instruction #314\"",
-          "body": "This reverts commit 1d3719b2c1c3c3489da49713fa8daf6d95b95cbe.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-06-18",
-          "url": "https://github.com/scienceverse/metacheck/commit/2b8a36743cbb252c32c63e4ff881cbd38734f392",
-          "type": "fix",
-          "branch": "new_modules",
-          "diff": {}
-        },
-        {
-          "sha": "1d3719b",
-          "message": "fix app instruction #314",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-06-18",
-          "url": "https://github.com/scienceverse/metacheck/commit/1d3719b2c1c3c3489da49713fa8daf6d95b95cbe",
-          "type": "fix",
-          "branch": "new_modules",
-          "diff": {}
-        }
       ]
     },
     {
@@ -1313,7 +1177,7 @@
       ],
       "pushed_at": "2026-03-10T14:25:41Z",
       "created_at": "2012-03-26",
-      "last_push_days": 100,
+      "last_push_days": 101,
       "default_branch": "master",
       "license": "",
       "branches": [
@@ -1854,7 +1718,56 @@
           "html_url": "https://github.com/krz"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1774742400,
+          "total": 0
+        },
+        {
+          "week": 1775347200,
+          "total": 0
+        },
+        {
+          "week": 1775952000,
+          "total": 0
+        },
+        {
+          "week": 1776556800,
+          "total": 0
+        },
+        {
+          "week": 1777161600,
+          "total": 0
+        },
+        {
+          "week": 1777766400,
+          "total": 0
+        },
+        {
+          "week": 1778371200,
+          "total": 0
+        },
+        {
+          "week": 1778976000,
+          "total": 0
+        },
+        {
+          "week": 1779580800,
+          "total": 0
+        },
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [
         {
@@ -2535,7 +2448,56 @@
           "html_url": "https://github.com/martonaronvarga"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1774742400,
+          "total": 0
+        },
+        {
+          "week": 1775347200,
+          "total": 0
+        },
+        {
+          "week": 1775952000,
+          "total": 0
+        },
+        {
+          "week": 1776556800,
+          "total": 0
+        },
+        {
+          "week": 1777161600,
+          "total": 0
+        },
+        {
+          "week": 1777766400,
+          "total": 0
+        },
+        {
+          "week": 1778371200,
+          "total": 0
+        },
+        {
+          "week": 1778976000,
+          "total": 0
+        },
+        {
+          "week": 1779580800,
+          "total": 0
+        },
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [
         {
@@ -3320,7 +3282,7 @@
       "topics": [],
       "pushed_at": "2026-04-30T14:46:09Z",
       "created_at": "2019-03-14",
-      "last_push_days": 49,
+      "last_push_days": 50,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -4244,7 +4206,56 @@
           "html_url": "https://github.com/yihui"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1774742400,
+          "total": 0
+        },
+        {
+          "week": 1775347200,
+          "total": 0
+        },
+        {
+          "week": 1775952000,
+          "total": 0
+        },
+        {
+          "week": 1776556800,
+          "total": 0
+        },
+        {
+          "week": 1777161600,
+          "total": 0
+        },
+        {
+          "week": 1777766400,
+          "total": 0
+        },
+        {
+          "week": 1778371200,
+          "total": 0
+        },
+        {
+          "week": 1778976000,
+          "total": 0
+        },
+        {
+          "week": 1779580800,
+          "total": 0
+        },
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [
         {
@@ -4339,11 +4350,11 @@
       "subscribers_count": 0,
       "language": "Python",
       "languages_breakdown": {
-        "Python": 1758783,
+        "Python": 1786249,
         "PowerShell": 1799
       },
       "topics": [],
-      "pushed_at": "2026-06-18T14:06:22Z",
+      "pushed_at": "2026-06-19T14:56:59Z",
       "created_at": "2026-04-06",
       "last_push_days": 0,
       "default_branch": "main",
@@ -4363,31 +4374,31 @@
         },
         {
           "name": "main",
-          "last_commit": "2026-06-18"
+          "last_commit": "2026-06-19"
         }
       ],
       "branch_activity": [
         {
           "name": "chore/docs-domain-cutover",
           "last_commit": "2026-05-23",
-          "commits_30d": 27
+          "commits_30d": 25
         },
         {
           "name": "main",
-          "last_commit": "2026-06-18",
-          "commits_30d": 63
+          "last_commit": "2026-06-19",
+          "commits_30d": 64
         }
       ],
-      "commits_30d": 90,
-      "commits_7d": 29,
-      "commits_1d": 2,
-      "commits_90d": 386,
+      "commits_30d": 89,
+      "commits_7d": 30,
+      "commits_1d": 1,
+      "commits_90d": 387,
       "authors_30d": [
         "Gilad Feldman"
       ],
       "type_breakdown": {
-        "feat": 19,
-        "other": 35,
+        "feat": 20,
+        "other": 33,
         "fix": 21,
         "chore": 9,
         "refactor": 3,
@@ -4395,7 +4406,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was the focus of the recent work, with multiple commits made to it. The commit \"docs(iterate): 2026-06-18 run handoff (v2.4.92 shipped, caption-guard reverted, paused at architectural boundary)\" indicates that a handoff was run, version 2.4.92 was shipped, the caption guard was reverted, and work was paused at an architectural boundary. Another commit on the `main` branch, \"docs(iterate): cycle 2 (v2.4.92 affiliation guard) + cycle 3 (caption-follows REVERTED) journal\", added documentation for cycle 2, which includes the affiliation guard for version 2.4.92, and cycle 3, where the caption-follows feature was reverted. A feature commit \"feat(render): never promote affiliation lines to subsection headings (v2.4.92)\" changed the rendering to never promote affiliation lines to subsection headings, specifically for version 2.4.92.",
+      "summary": "The `main` branch was the focus of the recent work, with several commits made to it. The commit on June 19 added features to tables, specifically \"HTTP-flatten enabling quality fixes + cross-flavor capture\" as part of version 2.4.94, described as \"feat(tables): REQUEST_10\". On June 18, documentation updates were made, including a \"2026-06-18 run handoff\" where \"v2.4.92 shipped, caption-guard reverted, paused at architectural boundary\". Additionally, earlier on June 18, another documentation update, \"docs(iterate): cycle 2\" and \"cycle 3\" were made, which included a \"caption-follows REVERTED\" journal entry. The render feature was also modified to \"never promote affiliation lines to subsection headings\" as part of version 2.4.92.",
       "prs": [
         {
           "number": 1,
@@ -4421,7 +4432,7 @@
       "contributors": [
         {
           "login": "giladfeldman",
-          "contributions": 378,
+          "contributions": 379,
           "avatar_url": "https://avatars.githubusercontent.com/u/22305310?v=4",
           "html_url": "https://github.com/giladfeldman"
         }
@@ -4449,19 +4460,19 @@
         },
         {
           "week": 1777852800,
-          "total": 93
+          "total": 99
         },
         {
           "week": 1778457600,
-          "total": 126
+          "total": 120
         },
         {
           "week": 1779062400,
-          "total": 77
+          "total": 80
         },
         {
           "week": 1779667200,
-          "total": 25
+          "total": 22
         },
         {
           "week": 1780272000,
@@ -4473,7 +4484,7 @@
         },
         {
           "week": 1781481600,
-          "total": 29
+          "total": 30
         }
       ],
       "code_frequency": [],
@@ -4488,6 +4499,80 @@
       "scopus_citations": null,
       "recent_commits": [
         {
+          "sha": "1158b1b",
+          "message": "feat(tables): REQUEST_10 \u2014 HTTP-flatten enabling quality fixes + cross-flavor capture (v2.4.94)",
+          "body": "ESCImate REQUEST_10. Two tiers, both general (keyed on structural signatures),\nzero baseline regressions.\n\nTier-1 (flatten quality, CHANGELOG v2.4.93):\n- combined est_ci columns (\"Risk diff. (95% CI)\") parse estimate + interval\n- dash-sign CI disambiguation via monotonicity + estimate-in-interval invariants\n- parallel ITT/PP group rows (one FlattenedRow per row x arm)\n\nTier-2 (table capture, v2.4.94, TABLE_EXTRACTION_VERSION 2.3.0):\n- _augment_lattice_with_stream_rows: recover rows a lattice extraction\n  vertically truncated, by appending the same-page same-col stream rows that\n  fall below the lattice bbox (gated: equal-col-count + bbox overlap + extends-below)\n- numeric/parenthetical continuation merge in _merge_continuation_rows rejoins\n  stream's stacked value/parenthetical cells\n\nRoot cause (corrected after grounding in raw per-flavor Camelot output): not\norphaned-label synthesis \u2014 stream captured every row but lost headers + split\ncells; lattice had headers but only ruled-box rows; page-selection discarded\nthe fuller stream table. See LESSONS L-009.\n\nPROSECCO Table 2 (10.1371/journal.pmed.1004323) now flattens R1-R6 sign-correct.\nVerification: full suite 2051 passed, 26/26 render verifier, service 167 passed,\n9 new unit tests; zero regressions.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-06-19",
+          "url": "https://github.com/giladfeldman/docpluck/commit/1158b1bf63e75f1c6bb201142ebc136ba46b70d3",
+          "type": "feat",
+          "branch": "main",
+          "diff": {
+            "additions": 1180,
+            "deletions": 19,
+            "files": [
+              {
+                "filename": "CHANGELOG.md",
+                "status": "modified",
+                "additions": 29,
+                "deletions": 0,
+                "patch": "@@ -1,5 +1,34 @@\n # Changelog\n \n+## [2.4.94] \u2014 2026-06-19\n+\n+**Cross-flavor lattice-augmentation \u2014 recover table rows a lattice extraction vertically truncated (REQUEST_10 Tier-2).** `TABLE_EXTRACTION_VERSION` \u2192 `2.3.0`; no `NORMALIZATION_VERSION` / `SECTIONING_VERSION` change.\n+\n+Grounded in PROSECCO Table 2 (`10.1371/journal.pmed.1004323`). **Root cause (corrected after investigation):** the rows were not dropped by Camelot or by orphaned labels (the original Tier-2 hypothesis). Camelot **stre"
+              },
+              {
+                "filename": "LESSONS.md",
+                "status": "modified",
+                "additions": 22,
+                "deletions": 0,
+                "patch": "@@ -252,6 +252,28 @@ CHANGELOG 2026-06-13 (v2.4.88).\n \n ---\n \n+## L-009 \u2014 A library feature is not \"delivered\" to a consumer until it is reachable over the surface they actually call; and table-FLATTEN quality is bounded by table-CAPTURE\n+\n+### The recurring mistake\n+\n+Two mistakes, both surfaced 2026-06-18 by ESCImate `REQUEST_10`:\n+\n+1. **\"Built \u2260 reachable.\"** docpluck shipped `flatten_tables_for_paper` / `extract_pdf_structured` / `extract_sections` in v2.2.0 *for* the stat-verification cons"
+              },
+              {
+                "filename": "REPLY_FROM_DOCPLUCK_v2.4.93.md",
+                "status": "added",
+                "additions": 75,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,75 @@\n+# Reply from Docpluck \u2014 REQUEST_10 (Table-flatten / structured-tables / sections over HTTP)\n+\n+**To:** ESCImate (escimate.app) / effectcheck R package team\n+**From:** Docpluck v2.4.93\n+**Date:** 2026-06-18\n+**Re:** [REQUEST_10_TABLE_FLATTEN_HTTP_EXPOSURE.md](REQUEST_10_TABLE_FLATTEN_HTTP_EXPOSURE.md) \u2014 also closes [REQUESTS_FROM_ESCIMATE.md](REQUESTS_FROM_ESCIMATE.md) Request 4.\n+\n+## TL;DR\n+\n+**Shipped the full surface (modes A + B + sections) behind opt-in, default-OFF params"
+              },
+              {
+                "filename": "REPLY_FROM_DOCPLUCK_v2.4.94.md",
+                "status": "added",
+                "additions": 49,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,49 @@\n+# Reply from Docpluck \u2014 v2.4.94 (REQUEST_10 Tier-2 gap CLOSED)\n+\n+**To:** ESCImate (escimate.app) / effectcheck R package team\n+**From:** Docpluck v2.4.94\n+**Date:** 2026-06-19\n+**Re:** Follow-up to [REPLY_FROM_DOCPLUCK_v2.4.93.md](REPLY_FROM_DOCPLUCK_v2.4.93.md) \u2014 the PROSECCO R2/R3/R5/R6 gap is now fixed.\n+\n+## TL;DR\n+\n+In v2.4.93 I reported acceptance #1 as **PARTIAL**: PROSECCO Table 2 surfaced R1 + R4, but R2/R3/R5/R6 were blocked at the table-**capture** layer. **That gap"
+              },
+              {
+                "filename": "REQUEST_10_TABLE_FLATTEN_HTTP_EXPOSURE.md",
+                "status": "added",
+                "additions": 252,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,252 @@\n+> **STATUS 2026-06-18 \u2014 SHIPPED (PARTIAL) in docpluck v2.4.93.** Full surface\n+> (`?flatten_tables_inline` / `?structured` / `?sections`, all default-OFF) is live\n+> on `POST /api/extract`, plus the dash-sign CI fix. See\n+> [`REPLY_FROM_DOCPLUCK_v2.4.93.md`](REPLY_FROM_DOCPLUCK_v2.4.93.md). Acceptance #1\n+> is **PARTIAL**: R1 + R4 surface sign-correct; **R2/R3/R5/R6 are blocked at the\n+> Camelot capture layer** (orphaned row-labels), queued as a Tier-2 table-extraction\n+> fix "
+              },
+              {
+                "filename": "REQUEST_10_TIER2_ORPHANED_LABEL_ROW_RECOVERY.md",
+                "status": "added",
+                "additions": 90,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,90 @@\n+# Tier-2 \u2014 Camelot orphaned-label / multi-block table row recovery (successor to REQUEST_10)\n+\n+**Status:** \u2705 SHIPPED in docpluck **v2.4.94** (2026-06-19). The fix was NOT the\n+orphaned-label synthesis this doc originally specced \u2014 see the corrected root\n+cause below. Delivered as a cross-flavor lattice-augmentation + numeric-\n+continuation merge; PROSECCO Table 2 now flattens R1\u2013R6 sign-correct. See\n+CHANGELOG v2.4.94 + `LESSONS.md` L-009.\n+**Owner:** docpluck table-extraction"
+              },
+              {
+                "filename": "docpluck/__init__.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -78,7 +78,7 @@\n from .extract_structured import TABLE_EXTRACTION_VERSION, StructuredResult, extract_pdf_structured\n from .render import render_pdf_to_markdown\n \n-__version__ = \"2.4.92\"\n+__version__ = \"2.4.94\"\n __author__ = \"Gilad Feldman\"\n __license__ = \"MIT\"\n "
+              },
+              {
+                "filename": "docpluck/extract_structured.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -37,7 +37,7 @@\n from .telemetry import record_fallback\n \n \n-TABLE_EXTRACTION_VERSION = \"2.2.0\"  # v2.2.0: EC-T1 docpluck.tables.flatten \u2014 per-row FlattenedRow records (sentence + structured fields) for downstream stat-verification consumers (effectcheck/escimate/scimeto) + opt-in inline \"rendered as text\" block below each <table> via render_pdf_to_markdown(flatten_tables_inline=True). v2.1.5: cell-cleaning recovers CMEX10 extensible-bracket PUA glyphs (U+F8EE-F8FB). v2.1.4: cell-cleaning reco"
+              }
+            ]
+          },
+          "diff_summary": "This commit, version 2.4.94, introduces quality fixes and cross-flavor capture for HTTP-flatten enabling, specifically addressing REQUEST_10 by improving table extraction and lattice augmentation to recover vertically truncated table rows."
+        },
+        {
           "sha": "2fd8711",
           "message": "docs(iterate): 2026-06-18 run handoff (v2.4.92 shipped, caption-guard reverted, paused at architectural boundary)",
           "body": "Run OPEN/PARTIAL. Cycle 2 shipped v2.4.92 affiliation-heading guard (live).\nCycle 3 caption-follows guard reverted (full-corpus gate caught FP regression).\nRemaining queue is architectural (table-extraction bbox decision + RC-1),\npaused by user direction. Records the canary-audit phase_5d clobber trap and\nthe bounded-sample-false-confidence lesson.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
@@ -4497,20 +4582,7 @@
           "url": "https://github.com/giladfeldman/docpluck/commit/2fd871149f25babe48762db030e02fbe5b66797e",
           "type": "fix",
           "branch": "main",
-          "diff": {
-            "additions": 137,
-            "deletions": 0,
-            "files": [
-              {
-                "filename": "docs/HANDOFF_2026-06-18_iterate_v2492_affiliation_caption-revert.md",
-                "status": "added",
-                "additions": 137,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,137 @@\n+# HANDOFF \u2014 docpluck-iterate (2026-06-18, v2.4.92 shipped; caption-guard reverted)\n+\n+> **Supersedes** `HANDOFF_2026-06-17_iterate_v2491_shipped.md` for forward work. This session\n+> resumed that queue, **shipped the affiliation-heading guard as v2.4.92** (the safest open item),\n+> **attempted and cleanly REVERTED a caption-follows guard** (cycle 3, no release \u2014 the full-corpus\n+> regression gate caught a false-positive regression), and **re-scoped the cell-label class into th"
-              }
-            ]
-          },
-          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository updates the documentation by adding a new handoff file, `HANDOFF_2026-06-18_iterate_v2492_affiliation_caption-revert.md`, which supersedes the previous handoff file and reflects the current state of the project after shipping version 2.4.92 and reverting the caption-guard feature."
+          "diff": {}
         },
         {
           "sha": "c671929",
@@ -4847,16 +4919,116 @@
           "type": "fix",
           "branch": "main",
           "diff": {}
-        },
+        }
+      ],
+      "_new_commits": [
         {
-          "sha": "b552181",
-          "message": "ci: apt-get update before poppler install (fix stale-list 404 flake)",
-          "body": "The Tests workflow's sudo apt-get install -y poppler-utils step 404'd on the\nv2.4.84 push: the runner image's apt lists pinned poppler 24.02.0-1ubuntu9.8,\nwhich the Azure mirror had superseded, so the old .deb was gone. Add\n\u0007pt-get update first to refresh to the current version. Infra-only; no\nlibrary/test change.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "sha": "1158b1b",
+          "message": "feat(tables): REQUEST_10 \u2014 HTTP-flatten enabling quality fixes + cross-flavor capture (v2.4.94)",
+          "body": "ESCImate REQUEST_10. Two tiers, both general (keyed on structural signatures),\nzero baseline regressions.\n\nTier-1 (flatten quality, CHANGELOG v2.4.93):\n- combined est_ci columns (\"Risk diff. (95% CI)\") parse estimate + interval\n- dash-sign CI disambiguation via monotonicity + estimate-in-interval invariants\n- parallel ITT/PP group rows (one FlattenedRow per row x arm)\n\nTier-2 (table capture, v2.4.94, TABLE_EXTRACTION_VERSION 2.3.0):\n- _augment_lattice_with_stream_rows: recover rows a lattice extraction\n  vertically truncated, by appending the same-page same-col stream rows that\n  fall below the lattice bbox (gated: equal-col-count + bbox overlap + extends-below)\n- numeric/parenthetical continuation merge in _merge_continuation_rows rejoins\n  stream's stacked value/parenthetical cells\n\nRoot cause (corrected after grounding in raw per-flavor Camelot output): not\norphaned-label synthesis \u2014 stream captured every row but lost headers + split\ncells; lattice had headers but only ruled-box rows; page-selection discarded\nthe fuller stream table. See LESSONS L-009.\n\nPROSECCO Table 2 (10.1371/journal.pmed.1004323) now flattens R1-R6 sign-correct.\nVerification: full suite 2051 passed, 26/26 render verifier, service 167 passed,\n9 new unit tests; zero regressions.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
           "author": "Gilad Feldman",
           "author_login": "giladfeldman",
-          "date": "2026-06-12",
-          "url": "https://github.com/giladfeldman/docpluck/commit/b5521812de90775b13cafab708f500b666d996d9",
+          "date": "2026-06-19",
+          "url": "https://github.com/giladfeldman/docpluck/commit/1158b1bf63e75f1c6bb201142ebc136ba46b70d3",
+          "type": "feat",
+          "branch": "main",
+          "diff": {
+            "additions": 1180,
+            "deletions": 19,
+            "files": [
+              {
+                "filename": "CHANGELOG.md",
+                "status": "modified",
+                "additions": 29,
+                "deletions": 0,
+                "patch": "@@ -1,5 +1,34 @@\n # Changelog\n \n+## [2.4.94] \u2014 2026-06-19\n+\n+**Cross-flavor lattice-augmentation \u2014 recover table rows a lattice extraction vertically truncated (REQUEST_10 Tier-2).** `TABLE_EXTRACTION_VERSION` \u2192 `2.3.0`; no `NORMALIZATION_VERSION` / `SECTIONING_VERSION` change.\n+\n+Grounded in PROSECCO Table 2 (`10.1371/journal.pmed.1004323`). **Root cause (corrected after investigation):** the rows were not dropped by Camelot or by orphaned labels (the original Tier-2 hypothesis). Camelot **stre"
+              },
+              {
+                "filename": "LESSONS.md",
+                "status": "modified",
+                "additions": 22,
+                "deletions": 0,
+                "patch": "@@ -252,6 +252,28 @@ CHANGELOG 2026-06-13 (v2.4.88).\n \n ---\n \n+## L-009 \u2014 A library feature is not \"delivered\" to a consumer until it is reachable over the surface they actually call; and table-FLATTEN quality is bounded by table-CAPTURE\n+\n+### The recurring mistake\n+\n+Two mistakes, both surfaced 2026-06-18 by ESCImate `REQUEST_10`:\n+\n+1. **\"Built \u2260 reachable.\"** docpluck shipped `flatten_tables_for_paper` / `extract_pdf_structured` / `extract_sections` in v2.2.0 *for* the stat-verification cons"
+              },
+              {
+                "filename": "REPLY_FROM_DOCPLUCK_v2.4.93.md",
+                "status": "added",
+                "additions": 75,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,75 @@\n+# Reply from Docpluck \u2014 REQUEST_10 (Table-flatten / structured-tables / sections over HTTP)\n+\n+**To:** ESCImate (escimate.app) / effectcheck R package team\n+**From:** Docpluck v2.4.93\n+**Date:** 2026-06-18\n+**Re:** [REQUEST_10_TABLE_FLATTEN_HTTP_EXPOSURE.md](REQUEST_10_TABLE_FLATTEN_HTTP_EXPOSURE.md) \u2014 also closes [REQUESTS_FROM_ESCIMATE.md](REQUESTS_FROM_ESCIMATE.md) Request 4.\n+\n+## TL;DR\n+\n+**Shipped the full surface (modes A + B + sections) behind opt-in, default-OFF params"
+              },
+              {
+                "filename": "REPLY_FROM_DOCPLUCK_v2.4.94.md",
+                "status": "added",
+                "additions": 49,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,49 @@\n+# Reply from Docpluck \u2014 v2.4.94 (REQUEST_10 Tier-2 gap CLOSED)\n+\n+**To:** ESCImate (escimate.app) / effectcheck R package team\n+**From:** Docpluck v2.4.94\n+**Date:** 2026-06-19\n+**Re:** Follow-up to [REPLY_FROM_DOCPLUCK_v2.4.93.md](REPLY_FROM_DOCPLUCK_v2.4.93.md) \u2014 the PROSECCO R2/R3/R5/R6 gap is now fixed.\n+\n+## TL;DR\n+\n+In v2.4.93 I reported acceptance #1 as **PARTIAL**: PROSECCO Table 2 surfaced R1 + R4, but R2/R3/R5/R6 were blocked at the table-**capture** layer. **That gap"
+              },
+              {
+                "filename": "REQUEST_10_TABLE_FLATTEN_HTTP_EXPOSURE.md",
+                "status": "added",
+                "additions": 252,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,252 @@\n+> **STATUS 2026-06-18 \u2014 SHIPPED (PARTIAL) in docpluck v2.4.93.** Full surface\n+> (`?flatten_tables_inline` / `?structured` / `?sections`, all default-OFF) is live\n+> on `POST /api/extract`, plus the dash-sign CI fix. See\n+> [`REPLY_FROM_DOCPLUCK_v2.4.93.md`](REPLY_FROM_DOCPLUCK_v2.4.93.md). Acceptance #1\n+> is **PARTIAL**: R1 + R4 surface sign-correct; **R2/R3/R5/R6 are blocked at the\n+> Camelot capture layer** (orphaned row-labels), queued as a Tier-2 table-extraction\n+> fix "
+              },
+              {
+                "filename": "REQUEST_10_TIER2_ORPHANED_LABEL_ROW_RECOVERY.md",
+                "status": "added",
+                "additions": 90,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,90 @@\n+# Tier-2 \u2014 Camelot orphaned-label / multi-block table row recovery (successor to REQUEST_10)\n+\n+**Status:** \u2705 SHIPPED in docpluck **v2.4.94** (2026-06-19). The fix was NOT the\n+orphaned-label synthesis this doc originally specced \u2014 see the corrected root\n+cause below. Delivered as a cross-flavor lattice-augmentation + numeric-\n+continuation merge; PROSECCO Table 2 now flattens R1\u2013R6 sign-correct. See\n+CHANGELOG v2.4.94 + `LESSONS.md` L-009.\n+**Owner:** docpluck table-extraction"
+              },
+              {
+                "filename": "docpluck/__init__.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -78,7 +78,7 @@\n from .extract_structured import TABLE_EXTRACTION_VERSION, StructuredResult, extract_pdf_structured\n from .render import render_pdf_to_markdown\n \n-__version__ = \"2.4.92\"\n+__version__ = \"2.4.94\"\n __author__ = \"Gilad Feldman\"\n __license__ = \"MIT\"\n "
+              },
+              {
+                "filename": "docpluck/extract_structured.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -37,7 +37,7 @@\n from .telemetry import record_fallback\n \n \n-TABLE_EXTRACTION_VERSION = \"2.2.0\"  # v2.2.0: EC-T1 docpluck.tables.flatten \u2014 per-row FlattenedRow records (sentence + structured fields) for downstream stat-verification consumers (effectcheck/escimate/scimeto) + opt-in inline \"rendered as text\" block below each <table> via render_pdf_to_markdown(flatten_tables_inline=True). v2.1.5: cell-cleaning recovers CMEX10 extensible-bracket PUA glyphs (U+F8EE-F8FB). v2.1.4: cell-cleaning reco"
+              }
+            ]
+          },
+          "diff_summary": "This commit, version 2.4.94, introduces quality fixes and cross-flavor capture for HTTP-flatten enabling, specifically addressing REQUEST_10 by improving table extraction and lattice augmentation to recover vertically truncated table rows."
+        },
+        {
+          "sha": "2fd8711",
+          "message": "docs(iterate): 2026-06-18 run handoff (v2.4.92 shipped, caption-guard reverted, paused at architectural boundary)",
+          "body": "Run OPEN/PARTIAL. Cycle 2 shipped v2.4.92 affiliation-heading guard (live).\nCycle 3 caption-follows guard reverted (full-corpus gate caught FP regression).\nRemaining queue is architectural (table-extraction bbox decision + RC-1),\npaused by user direction. Records the canary-audit phase_5d clobber trap and\nthe bounded-sample-false-confidence lesson.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-06-18",
+          "url": "https://github.com/giladfeldman/docpluck/commit/2fd871149f25babe48762db030e02fbe5b66797e",
           "type": "fix",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "c671929",
+          "message": "docs(iterate): cycle 2 (v2.4.92 affiliation guard) + cycle 3 (caption-follows REVERTED) journal",
+          "body": "Cycle 2 \u2014 shipped v2.4.92 affiliation-heading guard (separate commit cf420ca).\nCycle 3 \u2014 caption-follows guard attempted then REVERTED (no release): the full\n48-paper corpus regression diff demoted 4 legitimate headings-before-tables\n(xiao, amd_2, sci_rep_1, ieee), so the guard was rejected and the tree restored\nto v2.4.92 HEAD.\n\nTwo durable process lessons recorded (LEARNINGS.md + _project/lessons.md):\n1. A render-pass guard sees the PROMOTER-INPUT text, not the final .md \u2014 line\n   adjacency differs (captions/tables are spliced later). Instrument the actual\n   function input; never infer the trigger from finished output.\n2. A bounded sample gives false confidence \u2014 always run the guard-live-vs-\n   bypassed render-diff over the WHOLE corpus before trusting a heading-\n   promotion change (rule 19). The FP pattern lives in the long tail.\n\nAlso documents the canary-audit-clobbers-phase_5d_runs trap (cycle 2).\nNo code change in this commit.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-06-18",
+          "url": "https://github.com/giladfeldman/docpluck/commit/c671929e7a76d219f6a953bdb976612b5797c8f7",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "cf420ca",
+          "message": "feat(render): never promote affiliation lines to subsection headings (v2.4.92)",
+          "body": "G5d affiliation-heading guard. When column-interleave serialises a two-column\ntitle block out of order, an affiliation line can land past the H1->first-`##`\nmasthead zone that `_strip_frontmatter_masthead_block` cleans. On canary\n`chandrashekar_2023_mp`, \"Department of Philosophy, Lake Forest College\" is\ndropped right after `## Abstract`; the masthead strip can no longer reach it,\nand its short Title-Case shape then matched the subsection-heading promoter and\nbecame a hallucinated `### Department of Philosophy, Lake Forest College`,\ncorrupting the Abstract's section structure.\n\nFix (general, keyed on a STRUCTURAL SIGNATURE -- affiliation grammar, never\npaper identity): `_promote_isolated_titlecase_subsection_headings` consults a\nnew `_looks_like_affiliation_line` and refuses to promote any unit-phrase-head\n(\"Department/School/Faculty/Division/Institute/Centre/Center/Laboratory/College/\nUniversity of <Cap>\") or institution-terminated (\"X University/College/Institute/\nHospital/Polytechnic\") line. The line stays body text (a strict improvement over\na fake heading; affiliation text preserved, never dropped). Guard runs before\nthe chain-promotion bypass so it holds on every path.\n\nVerification:\n- 47-gold / 2226-real-heading FP scan: zero legitimate headings rejected.\n- Deterministic corpus render-diff (guard-live vs guard-bypassed) over canary +\n  12-paper cross-publisher sample: ONLY chandrashekar changed (the one target\n  heading); all other papers byte-identical.\n- Full suite 2027 passed; 227 render/heading cluster; 23 new affiliation-guard\n  tests (real-PDF invariant + affiliation grammar contract).\n- AI-verify vs article-finder reading gold: FIX-CORRECT, no new text-loss /\n  hallucination.\n\nchandrashekar remains FAIL overall on PRE-EXISTING Table 7-10 header-shell\ncollapse and two pre-existing table-cell-label heading promotions\n(\"IV2: No-default\", \"Participation rate\") -- both queued as separate cycles;\nthis release does not touch them.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-06-18",
+          "url": "https://github.com/giladfeldman/docpluck/commit/cf420cade9f354b167b3146dd11150cef98a85ad",
+          "type": "feat",
           "branch": "main",
           "diff": {}
         }
@@ -4880,7 +5052,7 @@
       "topics": [],
       "pushed_at": "2025-11-13T15:11:14Z",
       "created_at": "2023-09-13",
-      "last_push_days": 217,
+      "last_push_days": 218,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -4952,7 +5124,56 @@
           "html_url": "https://github.com/ontogenerator"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1774742400,
+          "total": 0
+        },
+        {
+          "week": 1775347200,
+          "total": 0
+        },
+        {
+          "week": 1775952000,
+          "total": 0
+        },
+        {
+          "week": 1776556800,
+          "total": 0
+        },
+        {
+          "week": 1777161600,
+          "total": 0
+        },
+        {
+          "week": 1777766400,
+          "total": 0
+        },
+        {
+          "week": 1778371200,
+          "total": 0
+        },
+        {
+          "week": 1778976000,
+          "total": 0
+        },
+        {
+          "week": 1779580800,
+          "total": 0
+        },
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [
         {
@@ -5034,7 +5255,7 @@
       "topics": [],
       "pushed_at": "2025-10-06T14:57:42Z",
       "created_at": "2024-12-05",
-      "last_push_days": 255,
+      "last_push_days": 256,
       "default_branch": "master",
       "license": "GPL-3.0",
       "branches": [
@@ -5073,7 +5294,56 @@
           "html_url": "https://github.com/ontogenerator"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1774742400,
+          "total": 0
+        },
+        {
+          "week": 1775347200,
+          "total": 0
+        },
+        {
+          "week": 1775952000,
+          "total": 0
+        },
+        {
+          "week": 1776556800,
+          "total": 0
+        },
+        {
+          "week": 1777161600,
+          "total": 0
+        },
+        {
+          "week": 1777766400,
+          "total": 0
+        },
+        {
+          "week": 1778371200,
+          "total": 0
+        },
+        {
+          "week": 1778976000,
+          "total": 0
+        },
+        {
+          "week": 1779580800,
+          "total": 0
+        },
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -5422,11 +5692,11 @@
       "commits_1d": 15,
       "commits_90d": 370,
       "authors_30d": [
-        "Davidvandijcke",
-        "Federico Belotti",
+        "Lukas Wallrich",
         "David Van Dijcke",
         "Ciamac Moallemi",
-        "Lukas Wallrich"
+        "Davidvandijcke",
+        "Federico Belotti"
       ],
       "type_breakdown": {
         "chore": 10,
@@ -5437,7 +5707,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "Work was done on the `main`, `dev`, `feat/i18n-setup-compare`, `feat/i18n-status-review-pages`, `feat/237-lang-eval`, `feat/nl-flemish`, `feat/229-i18n-labels`, `feat/231-site-i18n`, and `feat/226-i18n-deenglish` branches. The `dev` branch had a fix for internationalization, specifically to \"localize confirmation email + review page follows review language\" as stated in the commit message. The `dev` branch also had a fix to \"enable RLS on schema_migrations bookkeeping table\". Additionally, the `feat/i18n-setup-compare` branch added a feature for internationalization, which included localizing setup and compare pages to follow the site language, as described in the commit message \"feat(i18n): localize setup + compare pages; follow site language\". The `dev` branch also included a new feature to add \"GLM 5.2 to the model picker\" and had a \"chore(release): v1.8.0\" commit, indicating the preparation of a new release.",
+      "summary": "Work was done on the 'main' and 'dev' branches. On the 'dev' branch, the confirmation email and review page were localized to follow the review language, as stated in the commit message \"fix(i18n): localize confirmation email + review page follows review language (#244)\". The 'dev' branch also had a fix for deployment, specifically enabling RLS on the schema_migrations bookkeeping table, as per the commit \"fix(deploy): enable RLS on schema_migrations bookkeeping table (#243)\". Additionally, the 'dev' branch was updated by merging the 'origin/main' into 'sync/reconcile-v1.8.0' and merging the 'release/v1.8.0' pull request. The 'main' branch was updated by merging the 'dev' branch via pull request #245.",
       "prs": [
         {
           "number": 245,
@@ -5928,11 +6198,11 @@
         },
         {
           "week": 1775433600,
-          "total": 7
+          "total": 9
         },
         {
           "week": 1776038400,
-          "total": 282
+          "total": 280
         },
         {
           "week": 1776643200,
@@ -6090,7 +6360,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in the 'Davidvandijcke/coarse' repository merges changes from the 'dev' branch, which includes localizing the submit-time confirmation email, locking an internal bookkeeping table from the PostgREST/anon API, and other related updates to various files such as database migrations and test scripts."
+          "diff_summary": "This commit in the 'Davidvandijcke/coarse' repository merges changes from the 'dev' branch, which includes localizing the submit-time confirmation email, locking an internal bookkeeping table from the PostgREST/anon API, and other related updates to the database schema and migration scripts."
         },
         {
           "sha": "49a72b3",
@@ -6440,6 +6710,130 @@
           "branch": "feat/219-i18n-schema-contract",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "05aad76",
+          "message": "Merge pull request #245 from Davidvandijcke/dev",
+          "body": "Deploy: i18n email/review-link fixes + schema_migrations RLS",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-06-19",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/05aad76150809bbf76d3ae1c97238fc4653ecee0",
+          "type": "other",
+          "branch": "main",
+          "diff": {
+            "additions": 270,
+            "deletions": 9,
+            "files": [
+              {
+                "filename": "CHANGELOG.md",
+                "status": "modified",
+                "additions": 8,
+                "deletions": 0,
+                "patch": "@@ -2,6 +2,14 @@\n \n ## Unreleased\n \n+### Fixed\n+\n+- **The submit-time \"your paper is being reviewed\" confirmation email is now localized.** It was hardcoded English even when the submitter chose another site language (e.g. Dutch). The copy is now localized to the chosen `site_language` (the only language reliably known at submit time) via a new `web/src/lib/confirmationEmail.ts`, covering all 12 locales with English fallback; terminology matches the already-localized completion email. `{title}`/"
+              },
+              {
+                "filename": "deploy/bootstrap_schema_migrations.sql",
+                "status": "modified",
+                "additions": 6,
+                "deletions": 0,
+                "patch": "@@ -19,6 +19,12 @@ create table if not exists schema_migrations (\n   applied_at timestamptz not null default now()\n );\n \n+-- Lock this internal bookkeeping table from the PostgREST/anon API (Supabase\n+-- Security Advisor flags public tables without RLS). Only the service-role\n+-- migration path writes it, and the service role bypasses RLS, so no policies\n+-- are needed. Idempotent.\n+alter table schema_migrations enable row level security;\n+\n insert into schema_migrations (name) values\n   ('migra"
+              },
+              {
+                "filename": "scripts/apply_migrations.sh",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 0,
+                "patch": "@@ -30,6 +30,9 @@ create table if not exists schema_migrations (\n   name text primary key,\n   applied_at timestamptz not null default now()\n );\n+-- Lock the bookkeeping table from the PostgREST/anon API; the service role\n+-- (this connection) bypasses RLS, so migrations still work. Idempotent.\n+alter table schema_migrations enable row level security;\n \"\n \n APPLIED=\"$(psql_exec -c 'select name from schema_migrations')\""
+              },
+              {
+                "filename": "tests/test_web_confirmation_email.py",
+                "status": "added",
+                "additions": 44,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,44 @@\n+\"\"\"Completeness guard for the localized submit-time confirmation email.\n+\n+No JS test runner, so read the TS source verbatim (like test_web_site_i18n.py).\n+TypeScript's ``Record<string, ConfirmationEmailCopy>`` already enforces that every\n+locale entry has all keys at build time, but it does NOT catch a *missing locale*\n+(``confirmationEmailCopy`` silently falls back to English) or a translation that\n+dropped a ``{title}`` / ``{model}`` placeholder the submit route substitutes."
+              },
+              {
+                "filename": "web/src/app/api/submit/route.ts",
+                "status": "modified",
+                "additions": 15,
+                "deletions": 5,
+                "patch": "@@ -9,6 +9,7 @@ import { buildReviewKey, buildReviewUrl } from \"@/lib/reviewAccess\";\n import { isEmailCapacityReached } from \"@/lib/emailCapacity\";\n import { consumeReviewHandoffSecret } from \"@/lib/routeHandoffAuth\";\n import { sendReviewEmail } from \"@/lib/email\";\n+import { confirmationEmailCopy } from \"@/lib/confirmationEmail\";\n import {\n   buildModalWebhookHostSuffix,\n   getModalWebhookConfig,\n@@ -413,15 +414,24 @@ export async function POST(request: NextRequest) {\n   // fixed in the wrapper,"
+              },
+              {
+                "filename": "web/src/app/review/[id]/ReviewPageClient.tsx",
+                "status": "modified",
+                "additions": 18,
+                "deletions": 2,
+                "patch": "@@ -7,7 +7,7 @@ import { PageMarks } from \"@/components/charcoal\";\n import { parseReview } from \"@/lib/parseReview\";\n import ReviewDisplay from \"@/components/ReviewDisplay\";\n import { REVIEW_RETURN_TOKEN_KEY } from \"@/lib/useOpenRouterKey\";\n-import { SiteLanguageProvider, useSiteLanguageContext } from \"@/lib/i18n\";\n+import { SiteLanguageProvider, useSiteLanguageContext, coerceSiteLocale } from \"@/lib/i18n\";\n \n export default function ReviewPageClient({ id }: { id: string }) {\n   // The site-lang"
+              },
+              {
+                "filename": "web/src/lib/confirmationEmail.ts",
+                "status": "added",
+                "additions": 138,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,138 @@\n+// Localized copy for the submit-time \"your paper is being reviewed\" email.\n+//\n+// Keyed on the submitter's site_language \u2014 the only language reliably known at\n+// submit time (review_language may be empty = \"follow the detected paper\n+// language\", which the worker only resolves later). English fallback for an\n+// unknown/empty code.\n+//\n+// The sibling \"your review is ready\" completion email is localized server-side\n+// in the worker (src/coarse/review_labels.py `_EMAIL`). "
+              },
+              {
+                "filename": "web/src/lib/i18n.ts",
+                "status": "modified",
+                "additions": 38,
+                "deletions": 2,
+                "patch": "@@ -18,6 +18,7 @@ import {\n   useCallback,\n   useContext,\n   useEffect,\n+  useRef,\n   useState,\n   type ReactNode,\n } from \"react\";\n@@ -88,6 +89,22 @@ export function messagesFor(locale: SiteLocale): Messages {\n   return CATALOGS[locale] ?? en;\n }\n \n+/**\n+ * Map a stored/BCP-47 language code to a supported site locale, or null.\n+ * Accepts exact catalog codes (\"nl\", \"zh-Hant\") and falls back to the base\n+ * language for region/script variants (\"pt-BR\" \u2192 \"pt\", bare \"zh\" \u2192 \"zh-Hans\").\n+ * Used to "
+              }
+            ]
+          },
+          "diff_summary": "This commit in the 'Davidvandijcke/coarse' repository merges changes from the 'dev' branch, which includes localizing the submit-time confirmation email, locking an internal bookkeeping table from the PostgREST/anon API, and other related updates to the database schema and migration scripts."
+        },
+        {
+          "sha": "49a72b3",
+          "message": "Merge remote-tracking branch 'origin/main' into sync/reconcile-v1.8.0",
+          "body": "",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-06-19",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/49a72b334ae057967158c127ff5b0d6460e9db53",
+          "type": "chore",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
+          "sha": "2e86c5f",
+          "message": "fix(i18n): localize confirmation email + review page follows review language (#244)",
+          "body": "Two multilingual fast-follows reported after the v1.8.0 launch:\n\n1. The submit-time \"your paper is being reviewed\" confirmation email was\n   hardcoded English. Localize it to the chosen site_language (the only\n   language known at submit time) via web/src/lib/confirmationEmail.ts (12\n   locales, English fallback; terminology matches the completion email).\n   Placeholders substituted with a function replacer so a filename with\n   \"$&\" can't corrupt output.\n\n2. A review opened from its email link showed English chrome on another\n   device (no localStorage). The review page now applies the review's\n   stored language once it loads, via a non-persisting applyInitialLocale\n   on the site-language hook (an explicit user switch still wins; the\n   global preference is never overwritten). New coerceSiteLocale helper.\n\nWeb-only \u2014 no src/coarse change, no PyPI impact. Coverage in\ntests/test_web_confirmation_email.py.\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-06-19",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/2e86c5f7446678648e5fc24155b0d5efa2182e1f",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
+          "sha": "907c629",
+          "message": "Merge pull request #242 from Davidvandijcke/release/v1.8.0",
+          "body": "Release v1.8.0 \u2014 multilingual support",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-06-19",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/907c629369a8cf5b776dc1d23c618d2907de6d5b",
+          "type": "chore",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
+          "sha": "f54b584",
+          "message": "fix(deploy): enable RLS on schema_migrations bookkeeping table (#243)",
+          "body": "Supabase Security Advisor flagged public.schema_migrations as exposed to\nPostgREST without row-level security. It is internal migration bookkeeping\nwritten only by the service-role path (apply_migrations.sh / SQL editor),\nwhich bypasses RLS, so enabling RLS with no policies locks it from the\nanon/authenticated API while migrations keep working \u2014 matching the\nproject's other internal tables. Added at both creation sites (idempotent),\nso re-running either secures an existing project.\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-06-19",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/f54b584010588c553b39279418f82175dabd20b2",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {}
+        }
       ]
     },
     {
@@ -6462,7 +6856,7 @@
         "Procfile": 223
       },
       "topics": [],
-      "pushed_at": "2026-06-19T08:27:14Z",
+      "pushed_at": "2026-06-19T15:57:10Z",
       "created_at": "2026-01-19",
       "last_push_days": 0,
       "default_branch": "main",
@@ -6498,26 +6892,26 @@
         {
           "name": "staging",
           "last_commit": "2026-06-19",
-          "commits_30d": 54
+          "commits_30d": 56
         }
       ],
-      "commits_30d": 58,
-      "commits_7d": 33,
+      "commits_30d": 60,
+      "commits_7d": 35,
       "commits_1d": 7,
-      "commits_90d": 71,
+      "commits_90d": 73,
       "authors_30d": [
         "Jamie Cummins"
       ],
       "type_breakdown": {
-        "other": 33,
+        "other": 34,
         "feat": 14,
-        "fix": 8,
+        "fix": 9,
         "chore": 2,
         "test": 1
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "Work was done on the 'staging' branch, where logging was improved. \nThe error message was also improved on the 'staging' branch. \nOn the 'staging' branch, several fixes were applied, including fixing the \"osf bug\" and the \"oss bug\", as well as patching the \"oss SDK handler\". \nAdditionally, on the 'staging' branch, the code was modified to \"remove groq endpoints\", \"harden json handling\", and \"use more efficient storage\". \nThe 'staging' branch also saw a fix for the \"osf bug\" and the \"oss bug\" in separate commits, along with the other changes.",
+      "summary": "The staging branch was the focus of the recent work, with a push for redeploy being made. As part of the efforts on the staging branch, the developer was \"hunting down osf bug\", indicating that bug fixing was a key area of focus. Additionally, the staging branch saw changes to enhance visibility, with logging being specifically \"improve[d]\". The staging branch was also updated in preparation for a redeploy, as evidenced by the \"push for redeploy\" commit. The commits suggest that the developer was actively addressing issues and refining the application's behavior on the staging branch.",
       "prs": [
         {
           "number": 1,
@@ -6604,7 +6998,7 @@
         },
         {
           "week": 1781481600,
-          "total": 33
+          "total": 35
         }
       ],
       "code_frequency": [],
@@ -6635,6 +7029,43 @@
       "scopus_citations": null,
       "recent_commits": [
         {
+          "sha": "89a1470",
+          "message": "push for redeploy",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-06-19",
+          "url": "https://github.com/JamieCummins/regcheck/commit/89a1470d568d169a987a6f0b5b481c97dff0c78d",
+          "type": "other",
+          "branch": "staging",
+          "diff": {
+            "additions": 1,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "backend/main.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -25,7 +25,7 @@\n # Single source of truth for static-asset cache-busting. Bump this on any\n # CSS/JS change so browsers refetch; it is exposed to every template as the\n # `static_version` global (templates reference it as `?v={{ static_version }}`).\n-STATIC_VERSION = \"20260618-drop-groq\"\n+STATIC_VERSION = \"20260619-osf-diag\"\n \n \n def create_app() -> FastAPI:"
+              }
+            ]
+          },
+          "diff_summary": "This commit in 'JamieCummins/regcheck' updates the `static_version` global in the `backend/main.py` file, likely to force browsers to refetch updated CSS/JS assets by bumping the cache-busting version."
+        },
+        {
+          "sha": "baebc81",
+          "message": "hunting down osf bug",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-06-19",
+          "url": "https://github.com/JamieCummins/regcheck/commit/baebc81111799441bb5a1543c113aad2e954b906",
+          "type": "fix",
+          "branch": "staging",
+          "diff": {}
+        },
+        {
           "sha": "2f5eaaa",
           "message": "improve logging",
           "body": "",
@@ -6644,20 +7075,7 @@
           "url": "https://github.com/JamieCummins/regcheck/commit/2f5eaaaf649628ce734526fd89be638f1bc3330d",
           "type": "other",
           "branch": "staging",
-          "diff": {
-            "additions": 17,
-            "deletions": 0,
-            "files": [
-              {
-                "filename": "backend/worker.py",
-                "status": "modified",
-                "additions": 17,
-                "deletions": 0,
-                "patch": "@@ -194,6 +194,23 @@ async def _runner() -> None:\n                 prereg_path, prereg_ext = await asyncio.to_thread(\n                     fetch_osf_preregistration, osf_url, dest_dir=settings.upload_dir\n                 )\n+            paper_path_g = job.get(\"paper_path\", \"\") or \"\"\n+            # Log the resolved inputs so a read/parse failure can be traced to the\n+            # exact file + extension (esp. for OSF, where the prereg is fetched here).\n+            logger.info(\n+                \"g"
-              }
-            ]
-          },
-          "diff_summary": "This commit, 'improve logging', in the 'JamieCummins/regcheck' repository modifies the `backend/worker.py` file by adding 17 new lines of code to enhance the logging functionality within the `_runner` function."
+          "diff": {}
         },
         {
           "sha": "7fb80fe",
@@ -6982,33 +7400,46 @@
           "type": "other",
           "branch": "staging",
           "diff": {}
-        },
-        {
-          "sha": "9240258",
-          "message": "improve aesthetics, report navigation",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-06-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/9240258463f78d9a651d020e222dfa9a15308b19",
-          "type": "other",
-          "branch": "staging",
-          "diff": {}
-        },
-        {
-          "sha": "395a038",
-          "message": "improve report naming",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-06-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/395a03866eb7247e58cb80e4e914662a66254f8e",
-          "type": "other",
-          "branch": "staging",
-          "diff": {}
         }
       ],
       "_new_commits": [
+        {
+          "sha": "89a1470",
+          "message": "push for redeploy",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-06-19",
+          "url": "https://github.com/JamieCummins/regcheck/commit/89a1470d568d169a987a6f0b5b481c97dff0c78d",
+          "type": "other",
+          "branch": "staging",
+          "diff": {
+            "additions": 1,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "backend/main.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -25,7 +25,7 @@\n # Single source of truth for static-asset cache-busting. Bump this on any\n # CSS/JS change so browsers refetch; it is exposed to every template as the\n # `static_version` global (templates reference it as `?v={{ static_version }}`).\n-STATIC_VERSION = \"20260618-drop-groq\"\n+STATIC_VERSION = \"20260619-osf-diag\"\n \n \n def create_app() -> FastAPI:"
+              }
+            ]
+          },
+          "diff_summary": "This commit in 'JamieCummins/regcheck' updates the `static_version` global in the `backend/main.py` file, likely to force browsers to refetch updated CSS/JS assets by bumping the cache-busting version."
+        },
+        {
+          "sha": "baebc81",
+          "message": "hunting down osf bug",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-06-19",
+          "url": "https://github.com/JamieCummins/regcheck/commit/baebc81111799441bb5a1543c113aad2e954b906",
+          "type": "fix",
+          "branch": "staging",
+          "diff": {}
+        },
         {
           "sha": "2f5eaaa",
           "message": "improve logging",
@@ -7017,103 +7448,6 @@
           "author_login": "JamieCummins",
           "date": "2026-06-19",
           "url": "https://github.com/JamieCummins/regcheck/commit/2f5eaaaf649628ce734526fd89be638f1bc3330d",
-          "type": "other",
-          "branch": "staging",
-          "diff": {
-            "additions": 17,
-            "deletions": 0,
-            "files": [
-              {
-                "filename": "backend/worker.py",
-                "status": "modified",
-                "additions": 17,
-                "deletions": 0,
-                "patch": "@@ -194,6 +194,23 @@ async def _runner() -> None:\n                 prereg_path, prereg_ext = await asyncio.to_thread(\n                     fetch_osf_preregistration, osf_url, dest_dir=settings.upload_dir\n                 )\n+            paper_path_g = job.get(\"paper_path\", \"\") or \"\"\n+            # Log the resolved inputs so a read/parse failure can be traced to the\n+            # exact file + extension (esp. for OSF, where the prereg is fetched here).\n+            logger.info(\n+                \"g"
-              }
-            ]
-          },
-          "diff_summary": "This commit, 'improve logging', in the 'JamieCummins/regcheck' repository modifies the `backend/worker.py` file by adding 17 new lines of code to enhance the logging functionality within the `_runner` function."
-        },
-        {
-          "sha": "7fb80fe",
-          "message": "improve error message",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-06-18",
-          "url": "https://github.com/JamieCummins/regcheck/commit/7fb80fe15f11983d0adc12fed987f141b5d2bd07",
-          "type": "fix",
-          "branch": "staging",
-          "diff": {}
-        },
-        {
-          "sha": "a2f7302",
-          "message": "fix osf bug",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-06-18",
-          "url": "https://github.com/JamieCummins/regcheck/commit/a2f730267e58903d65f45e731671bc394554f81e",
-          "type": "fix",
-          "branch": "staging",
-          "diff": {}
-        },
-        {
-          "sha": "d2089d5",
-          "message": "remove groq endpoints",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-06-18",
-          "url": "https://github.com/JamieCummins/regcheck/commit/d2089d5f9f45f5b08532a7f215e5018f832c666a",
-          "type": "other",
-          "branch": "staging",
-          "diff": {}
-        },
-        {
-          "sha": "51b9ba6",
-          "message": "harden json handling",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-06-18",
-          "url": "https://github.com/JamieCummins/regcheck/commit/51b9ba60b814a7cdb63962d7c8751d5ddd867e60",
-          "type": "other",
-          "branch": "staging",
-          "diff": {}
-        },
-        {
-          "sha": "6cdde08",
-          "message": "fix oss bug",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-06-18",
-          "url": "https://github.com/JamieCummins/regcheck/commit/6cdde08045145796a86a64950581fc9037f3a379",
-          "type": "fix",
-          "branch": "staging",
-          "diff": {}
-        },
-        {
-          "sha": "1fd2de7",
-          "message": "use more efficient storage",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-06-18",
-          "url": "https://github.com/JamieCummins/regcheck/commit/1fd2de77ddff1f16c26f25ae434f2e5bd692596b",
-          "type": "chore",
-          "branch": "staging",
-          "diff": {}
-        },
-        {
-          "sha": "4b7a527",
-          "message": "patch oss SDK handler",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-06-18",
-          "url": "https://github.com/JamieCummins/regcheck/commit/4b7a5270472a3f07f21473a7fc89011b4f113f27",
           "type": "other",
           "branch": "staging",
           "diff": {}
@@ -7155,7 +7489,7 @@
         {
           "name": "main",
           "last_commit": "2026-06-18",
-          "commits_30d": 7
+          "commits_30d": 6
         },
         {
           "name": "sync/20260525-150441-b801333",
@@ -7163,7 +7497,7 @@
           "commits_30d": 1
         }
       ],
-      "commits_30d": 8,
+      "commits_30d": 7,
       "commits_7d": 1,
       "commits_1d": 0,
       "commits_90d": 42,
@@ -7172,7 +7506,7 @@
         "Gilad Feldman"
       ],
       "type_breakdown": {
-        "chore": 8
+        "chore": 7
       },
       "dormant_revived": false,
       "is_archived": false,
@@ -7471,11 +7805,11 @@
         },
         {
           "week": 1779062400,
-          "total": 4
+          "total": 6
         },
         {
           "week": 1779667200,
-          "total": 6
+          "total": 4
         },
         {
           "week": 1780272000,
@@ -7600,7 +7934,7 @@
               }
             ]
           },
-          "diff_summary": "This commit, 'sync from escicheckapp@f52d7ce (effectcheck v0.6.3) (#17)', updates the 'effectcheck' package to version 0.6.3, incorporating fixes from a recent audit, including changes to clinical trial N calculation, and modifies several files, including DESCRIPTION, NEWS.md, R/check.R, R/parse.R,"
+          "diff_summary": "This commit, 'sync from escicheckapp@f52d7ce (effectcheck v0.6.3) (#17)', updates the 'effectcheck' package to version 0.6.3, incorporating fixes from a recent audit, including a change to how clinical trial sample sizes are calculated, and updates the package's documentation and news files accordingly."
         },
         {
           "sha": "1f1a89a",
@@ -7673,94 +8007,6 @@
           "type": "chore",
           "branch": "main",
           "diff": {}
-        },
-        {
-          "sha": "7f365d7",
-          "message": "sync from escicheckapp@643e05d (effectcheck v0.5.11) (#10)",
-          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-05-20",
-          "url": "https://github.com/giladfeldman/escicheck/commit/7f365d7da049e20d88f64e8d9014111a8257acb2",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "4be3331",
-          "message": "sync from escicheckapp@f52d7ce (effectcheck v0.6.3) (#17)",
-          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-06-18",
-          "url": "https://github.com/giladfeldman/escicheck/commit/4be3331a5853fba113ae9587c78890ab3de4528c",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 682,
-            "deletions": 43,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,7 +1,7 @@\n Package: effectcheck\n Type: Package\n Title: Statistical Consistency Checker for Published Research Results\n-Version: 0.6.2\n+Version: 0.6.3\n Authors@R: c(person(given = \"Gilad\", family = \"Feldman\", role = c(\"aut\", \"cre\"),\n     email = \"giladfel@gmail.com\", comment = c(ORCID = \"0000-0003-2812-6599\")))\n Description: A conservative, assumption-aware statistical consistency checker"
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 71,
-                "deletions": 0,
-                "patch": "@@ -1,3 +1,74 @@\n+# effectcheck 0.6.3\n+\n+Three fixes from the 2026-06-16 escicheck-iterate canary audit\n+(`docs/TRIAGE_iterate_2026-06-16.md`):\n+\n+- **Clinical-trial N now sums the per-arm totals (E1).** For\n+  `test_type %in% {RR, rdpct}`, when both per-arm totals are parsed, `N` is\n+  their sum (`N_source = \"arm_totals_sum\"`) instead of a single arm picked up\n+  from `global_text`/`extended_context` \u2014 e.g. an RR with arms 106 + 101 now\n+  reports `N = 207`, not 106. `parse.R`'s `pat_two_props_"
-              },
-              {
-                "filename": "R/check.R",
-                "status": "modified",
-                "additions": 98,
-                "deletions": 0,
-                "patch": "@@ -567,6 +567,7 @@ compute_and_compare_one <- function(row,\n       ci_level_mismatch   = NA_character_,\n       ci_clipped_to_bound = NA_character_,\n       ci_symmetry_class   = NA_character_,\n+      sign_ci_violation   = NA,\n       effect_reported_decimals = NA_integer_,\n       ciL_reported_decimals    = NA_integer_,\n       ciU_reported_decimals    = NA_integer_,\n@@ -2799,6 +2800,15 @@ compute_and_compare_one <- function(row,\n     N1 <- if (\"arm1_total\"  %in% names(row)) row$arm1_total[1]  else"
-              },
-              {
-                "filename": "R/parse.R",
-                "status": "modified",
-                "additions": 171,
-                "deletions": 42,
-                "patch": "@@ -725,7 +725,10 @@ parse_text <- function(text, context_window_size = 2) {\n   #   subscripts -- treated identically here, all chi-square distributed under\n   #   homogeneity null with the reported df). The \"_<letter>\" subscript is\n   #   optional; the df may be in [brackets] or (parens) with optional spaces.\n-  pat_cochran_q <- \"\\\\bQ(?:_[A-Za-z])?\\\\s*[\\\\[(]\\\\s*(\\\\d+(?:\\\\.\\\\d+)?)\\\\s*[\\\\])]\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n+  # v0.6.3 (E5): the subscript underscore is ALSO optional -- PDF text extra"
-              },
-              {
-                "filename": "man/check_text.Rd",
-                "status": "modified",
-                "additions": 8,
-                "deletions": 0,
-                "patch": "@@ -104,6 +104,14 @@ to programmatically split the two semantics without parsing English.}\n the reported ES. A cross-family fallback row will name a variant\n from a different family than the reported ES type (e.g.\n \\code{matched_variant=\"eta\"} when \\code{effect_reported_name=\"d\"}).}\n+\\item{\\code{sign_ci_violation}}{Logical (since v0.6.3, R-0007). TRUE when\n+a sign-bearing reported estimate (d, g, dz, dav, drm, r, beta,\n+partial_r) lies OUTSIDE its reported CI but its sign-flip lies inside\n+-- th"
-              },
-              {
-                "filename": "tests/testthat/test-v063-ci-token-recovery.R",
-                "status": "added",
-                "additions": 78,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,78 @@\n+# v0.6.3 R-0007: dropped-minus sign-error detector (FLAG ONLY).\n+#\n+# The estimate-in-CI invariant: a reported point estimate must lie within its\n+# reported CI. When PDF extraction drops a leading minus, the estimate parses\n+# positive and lands outside its own CI while the sign-flip lands inside. Per\n+# the 2026-06-17 user decision this is FLAG ONLY -- effectcheck sets\n+# `sign_ci_violation` and an uncertainty note but NEVER mutates the parsed value.\n+\n+test_that(\"R-0007 fire"
-              },
-              {
-                "filename": "tests/testthat/test-v063-e1-clinical-trial-N.R",
-                "status": "added",
-                "additions": 82,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,82 @@\n+# v0.6.3 (E1): clinical-trial combined N = sum of per-arm totals.\n+#\n+# Surfaced by the 2026-06-16 escicheck-iterate canary audit of the PROSECCO\n+# trial (10.1371/journal.pmed.1004323). Two coupled defects:\n+#   (1) RR / rdpct rows inherited a SINGLE arm total as N (from\n+#       global_text / extended_context) instead of summing the two arms the\n+#       parser already captured -- e.g. an RR with arms 106 + 101 reported\n+#       N = 106 rather than 207.\n+#   (2) the primary-o"
-              },
-              {
-                "filename": "tests/testthat/test-v063-e2-welch-design.R",
-                "status": "added",
-                "additions": 32,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,32 @@\n+# v0.6.3 (E2): a non-integer df is a definitive Welch / independent-samples\n+# signal, so design_inferred must never be \"paired\" when df1 is fractional\n+# (a paired t has integer df = n - 1). Surfaced by the 2026-06-16 canary audit\n+# of collabra.77859 (Welch rows with df1 = 257.03 tagged design_inferred=paired).\n+\n+test_that(\"v0.6.3: non-integer df with a paired-type effect is NOT tagged paired\", {\n+  txt <- \"Welch's t(257.03) = 6.23, p < .001, (dz = 0.76, 95% CI [0.50, 1.02])"
-              }
-            ]
-          },
-          "diff_summary": "This commit, 'sync from escicheckapp@f52d7ce (effectcheck v0.6.3) (#17)', updates the 'effectcheck' package to version 0.6.3, incorporating fixes from a recent audit, including changes to clinical trial N calculation, and modifies several files, including DESCRIPTION, NEWS.md, R/check.R, R/parse.R,"
         }
       ]
     },
@@ -8051,7 +8297,7 @@
       "topics": [],
       "pushed_at": "2026-06-14T14:44:45Z",
       "created_at": "2026-05-26",
-      "last_push_days": 4,
+      "last_push_days": 5,
       "default_branch": "main",
       "license": "",
       "branches": [
@@ -8213,33 +8459,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "3fce87a",
-          "message": "Revise validation note and include citation",
-          "body": "Updated validation note and added preprint citation.",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-06-14",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 3,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 1,
-                "patch": "@@ -8,7 +8,9 @@ In the below screenshot, I z-curved 45 articles on cognitive dissonance in under\n \n ![](assets/example.svg)\n \n-**Note:** this tool has not yet been peer-reviewed, although a validation study is in the works.\n+**Note:** I have validated statistic extraction as part of a study, which is currently under peer review. The preprint citation is below, and details of the validation are in the supplemental material.\n+\n+Azaad, S. (2026). Empirically derived effect size guidelines for socia"
-              }
-            ]
-          },
-          "diff_summary": "This commit revises the validation note in the README.md file of the 'auto-zcurve' repository, adding a citation and updating the language to reflect the current status of the tool's peer review."
-        }
       ]
     },
     {
@@ -8264,7 +8483,7 @@
       ],
       "pushed_at": "2025-09-10T13:54:44Z",
       "created_at": "2024-05-24",
-      "last_push_days": 281,
+      "last_push_days": 282,
       "default_branch": "main",
       "license": "NOASSERTION",
       "branches": [
@@ -8807,7 +9026,56 @@
           "html_url": "https://github.com/aaronpeikert"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1774742400,
+          "total": 0
+        },
+        {
+          "week": 1775347200,
+          "total": 0
+        },
+        {
+          "week": 1775952000,
+          "total": 0
+        },
+        {
+          "week": 1776556800,
+          "total": 0
+        },
+        {
+          "week": 1777161600,
+          "total": 0
+        },
+        {
+          "week": 1777766400,
+          "total": 0
+        },
+        {
+          "week": 1778371200,
+          "total": 0
+        },
+        {
+          "week": 1778976000,
+          "total": 0
+        },
+        {
+          "week": 1779580800,
+          "total": 0
+        },
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [
         {
@@ -8899,7 +9167,7 @@
       "topics": [],
       "pushed_at": "2026-06-17T14:15:44Z",
       "created_at": "2026-05-04",
-      "last_push_days": 1,
+      "last_push_days": 2,
       "default_branch": "main",
       "license": "MIT",
       "branches": [
@@ -9035,33 +9303,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "71c2a30",
-          "message": "Add Chrome Webstore link for OIF",
-          "body": "Added a link to the OIF Chrome extension in the README.",
-          "author": "giovannacdelsordo",
-          "author_login": "giovannacdelsordo",
-          "date": "2026-06-17",
-          "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
-          "type": "feat",
-          "branch": "main",
-          "diff": {
-            "additions": 3,
-            "deletions": 0,
-            "files": [
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 0,
-                "patch": "@@ -2,6 +2,9 @@\n OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\n OIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailorin"
-              }
-            ]
-          },
-          "diff_summary": "This commit adds a link to the Chrome Webstore for the Output It Forward (OIF) extension in the README.md file, making it easier for users to find and install the extension."
-        }
       ]
     }
   ],
@@ -9091,10 +9332,10 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/22305310?v=4",
       "html_url": "https://github.com/giladfeldman",
       "repos": {
-        "giladfeldman/docpluck": 378,
+        "giladfeldman/docpluck": 379,
         "giladfeldman/escicheck": 74
       },
-      "total_contributions": 452,
+      "total_contributions": 453,
       "name": "Gilad Feldman",
       "bio": null,
       "company": null,
@@ -9655,7 +9896,7 @@
   "digest": {
     "week_start": "2026-06-12",
     "active_repos": 7,
-    "total_commits_7d": 119,
+    "total_commits_7d": 121,
     "dormant_revived": [
       {
         "owner": "giovannacdelsordo",
@@ -9673,7 +9914,7 @@
       {
         "owner": "JamieCummins",
         "repo": "regcheck",
-        "commits": 33
+        "commits": 35
       },
       {
         "owner": "Davidvandijcke",
@@ -9683,12 +9924,12 @@
       {
         "owner": "giladfeldman",
         "repo": "docpluck",
-        "commits": 29
+        "commits": 30
       },
       {
         "owner": "scienceverse",
         "repo": "metacheck",
-        "commits": 23
+        "commits": 22
       },
       {
         "owner": "giladfeldman",
@@ -9704,6 +9945,15 @@
         "body": "",
         "type": "feat",
         "author": "Lakens",
+        "date": "2026-06-19"
+      },
+      {
+        "repo": "docpluck",
+        "owner": "giladfeldman",
+        "message": "feat(tables): REQUEST_10 \u2014 HTTP-flatten enabling quality fixes + cross-flavor capture (v2.4.94)",
+        "body": "ESCImate REQUEST_10. Two tiers, both general (keyed on structural signatures),\nzero baseline regressions.\n\nTier-1 (flatten quality, CHANGELOG v2.4.93):\n- combined est_ci columns (\"Risk diff. (95% CI)\") parse estimate + interval\n- dash-sign CI disambiguation via monotonicity + estimate-in-interval invariants\n- parallel ITT/PP group rows (one FlattenedRow per row x arm)\n\nTier-2 (table capture, v2.4.94, TABLE_EXTRACTION_VERSION 2.3.0):\n- _augment_lattice_with_stream_rows: recover rows a lattice extraction\n  vertically truncated, by appending the same-page same-col stream rows that\n  fall below the lattice bbox (gated: equal-col-count + bbox overlap + extends-below)\n- numeric/parenthetical continuation merge in _merge_continuation_rows rejoins\n  stream's stacked value/parenthetical cells\n\nRoot cause (corrected after grounding in raw per-flavor Camelot output): not\norphaned-label synthesis \u2014 stream captured every row but lost headers + split\ncells; lattice had headers but only ruled-box rows; page-selection discarded\nthe fuller stream table. See LESSONS L-009.\n\nPROSECCO Table 2 (10.1371/journal.pmed.1004323) now flattens R1-R6 sign-correct.\nVerification: full suite 2051 passed, 26/26 render verifier, service 167 passed,\n9 new unit tests; zero regressions.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+        "type": "feat",
+        "author": "Gilad Feldman",
         "date": "2026-06-19"
       },
       {
@@ -9749,6 +9999,24 @@
         "body": "Supabase Security Advisor flagged public.schema_migrations as exposed to\nPostgREST without row-level security. It is internal migration bookkeeping\nwritten only by the service-role path (apply_migrations.sh / SQL editor),\nwhich bypasses RLS, so enabling RLS with no policies locks it from the\nanon/authenticated API while migrations keep working \u2014 matching the\nproject's other internal tables. Added at both creation sites (idempotent),\nso re-running either secures an existing project.\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
         "type": "fix",
         "author": "David Van Dijcke",
+        "date": "2026-06-19"
+      },
+      {
+        "repo": "regcheck",
+        "owner": "JamieCummins",
+        "message": "push for redeploy",
+        "body": "",
+        "type": "other",
+        "author": "Jamie Cummins",
+        "date": "2026-06-19"
+      },
+      {
+        "repo": "regcheck",
+        "owner": "JamieCummins",
+        "message": "hunting down osf bug",
+        "body": "",
+        "type": "fix",
+        "author": "Jamie Cummins",
         "date": "2026-06-19"
       },
       {
@@ -10119,44 +10387,17 @@
         "type": "feat",
         "author": "David Van Dijcke",
         "date": "2026-06-17"
-      },
-      {
-        "repo": "coarse",
-        "owner": "Davidvandijcke",
-        "message": "feat: add OpenRouter Fusion as a displayed model option + fix its dynamic-pricing estimates (#218)",
-        "body": "Adds openrouter/fusion to the landing-page picker (doubled-prefix litellm routing) and generalizes dynamic (-1) pricing handling so estimates never go $0/negative. Pre-selected default unchanged (Opus 4.8).",
-        "type": "fix",
-        "author": "David Van Dijcke",
-        "date": "2026-06-17"
-      },
-      {
-        "repo": "coarse",
-        "owner": "Davidvandijcke",
-        "message": "feat(i18n): localized review output via --language (PR-B1) (#221)",
-        "body": "The review now comes out in a chosen language, end-to-end, on the CLI and\nsubscription-handoff paths.\n\n- prompts.language_directive() (appended via feedback_system_prompt) tells the\n  six feedback agents to write prose in the target language, keep verbatim\n  quotes in the paper's SOURCE language, leave LaTeX alone, and apply the\n  English humanizer/tone rules' intent idiomatically (not the literal word list).\n- `language` threads review_paper() -> review_stages -> overview/completeness/\n  section/cross-section/verify/editorial, mirroring author_notes.\n- --language on `coarse review`, `coarse-review`, `coarse.headless_review`;\n  review_language default in CoarseConfig. Passed as a language NAME (\"French\").\n- Works for litellm and subscription backends. Unset = byte-identical English.\n\nTests: test_prompts (directive + byte-identical guard), test_overview (agent\nforwards language into the system prompt), test_config, plus updated\nagent/pipeline/CLI fakes.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-        "type": "feat",
-        "author": "Davidvandijcke",
-        "date": "2026-06-17"
-      },
-      {
-        "repo": "coarse",
-        "owner": "Davidvandijcke",
-        "message": "feat(i18n): multilingual schema + API contract (PR-A) (#219) (#220)",
-        "body": "First, behavior-neutral step of the multilingual rollout\n(docs/MULTILINGUAL_PLAN.md): add the language contract end-to-end\n(DB -> web routes -> worker) so later PRs can detect paper language and\nlocalize the review. No behavior change -- every field is nullable/optional\nand unset = today's output.\n\n- reviews: + site_language, review_language, paper_language,\n  paper_language_source, text_direction (ltr/rtl check) + indexes; idempotent\n  deploy/migrate_i18n_contract.sql. Reuses result_json (no review_json);\n  taxonomy already existed.\n- LanguageContext (src/coarse/types.py) + TS mirror; review_language defaults\n  empty = \"follow detected paper language\" (resolved in the worker later).\n- submit + mcp-finalize routes accept/normalize/validate language via a shared\n  BCP-47-aware web/src/lib/language.ts (preserves zh-Hant/pt-BR casing); submit\n  forwards review_language/site_language to the Modal worker (ReviewRequest).\n- review/[id] SELECT unions the new columns and keeps result_json.\n- analysis_language intentionally omitted (no consumer under the MVP design).\n\nTests: tests/test_types.py (LanguageContext), tests/test_web_i18n_contract.py.\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
-        "type": "feat",
-        "author": "David Van Dijcke",
-        "date": "2026-06-17"
       }
     ],
-    "narrative": "Our community has seen significant progress across multiple projects recently. The scienceverse/metacheck project has made notable updates, including the addition of functions to load paper databases and a new ethics check feature, while also addressing issue #314. Meanwhile, JamieCummins/regcheck has improved logging and error messages, and applied several fixes, including patches for the \"osf bug\" and \"oss bug\". Additionally, giladfeldman/escicheck has synchronized changes with effectcheck version 0.6.3, and shaheedazaad/auto-zcurve has revised its validation note and added a citation. Furthermore, giovannacdelsordo/output-it-forward has added a convenient Chrome Webstore link for its extension, making it easier for users to access. These updates demonstrate the connections and collaborations within our community, and we celebrate the progress being made across these open-source research tools."
+    "narrative": "Our open-source research community has seen significant progress across multiple projects. Notably, the `giladfeldman/docpluck` project has released version 2.4.94, featuring enhancements to tables, including HTTP-flatten enabling quality fixes. Meanwhile, the `Davidvandijcke/coarse` project has made strides in localization, with the confirmation email and review page now following the review language. The `JamieCummins/regcheck` project has focused on bug fixing and improving visibility through enhanced logging on its staging branch. These efforts demonstrate the connections between our projects, with a shared emphasis on refinement and improvement. As our community continues to grow and collaborate, we celebrate the progress made and look forward to the exciting developments on the horizon."
   },
   "aggregate": {
     "total_repos": 16,
     "total_stars": 665,
     "total_forks": 121,
     "total_commits_30d": 374,
-    "total_commits_7d": 119,
-    "total_commits_1d": 28,
+    "total_commits_7d": 121,
+    "total_commits_1d": 27,
     "active_repos_7d": 7,
     "dormant_revived": 1,
     "total_open_issues": 173,
