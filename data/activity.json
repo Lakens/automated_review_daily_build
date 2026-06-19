@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-19T19:31:56.056025+00:00",
+  "generated_at": "2026-06-19T21:05:46.558263+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -126,11 +126,11 @@
       "commits_1d": 2,
       "commits_90d": 199,
       "authors_30d": [
-        "Raphael Merz",
-        "Daniel Lakens",
-        "nielsvanberkel",
+        "Lakens",
         "Lisa DeBruine",
-        "Lakens"
+        "Daniel Lakens",
+        "Raphael Merz",
+        "nielsvanberkel"
       ],
       "type_breakdown": {
         "fix": 31,
@@ -143,7 +143,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `fix/code-check-paperlist` branch received a fix to address a code_check crash and resolve the issue of missing paper_id on paper lists, as stated in the commit message \"Fix code_check crash and missing paper_id on paper lists\". \nThe `papers_databases` branch was updated with new functions to load paper databases from scienceverse/papers, according to the commit \"add functions to load paper databases from scienceverse/papers\". \nBoth of these changes were made by Lakens, who worked on these two distinct branches to implement the respective fixes and additions. \nThe work on these branches appears to focus on resolving a specific technical issue and enhancing the functionality related to paper databases. \nNo other branches were mentioned in the provided commit messages, indicating that the work was isolated to `fix/code-check-paperlist` and `papers_databases`.",
+      "summary": "The `fix/code-check-paperlist` branch was updated to address a specific issue, where the code_check was crashing and the paper_id was missing on paper lists, as stated in the commit message \"Fix code_check crash and missing paper_id on paper lists\". \nThe `papers_databases` branch saw the addition of new functions, specifically to \"load paper databases from scienceverse/papers\", according to the commit message. \nBoth of these changes were made by Lakens, as indicated by the commit messages. \nThe work was focused on two distinct areas: fixing a crash issue and adding database loading functionality. \nThese changes were made on the same day, June 19, 2026.",
       "prs": [
         {
           "number": 318,
@@ -638,11 +638,11 @@
         },
         {
           "week": 1779062400,
-          "total": 11
+          "total": 13
         },
         {
           "week": 1779667200,
-          "total": 47
+          "total": 45
         },
         {
           "week": 1780272000,
@@ -773,7 +773,7 @@
               }
             ]
           },
-          "diff_summary": "This commit fixes a crash in the `code_check` function and addresses an issue where the `paper_id` was missing from paper lists in the 'scienceverse/metacheck' repository, by modifying the `code_check.R` and `repo_check.R` modules and updating the corresponding test in `test-module-code_check.R`."
+          "diff_summary": "This commit fixes a crash in the `code_check` function and addresses an issue where the `paper_id` was missing from paper lists in the 'scienceverse/metacheck' repository, by modifying the `code_check.R`, `repo_check.R`, and `test-module-code_check.R` files."
         },
         {
           "sha": "b7afa6a",
@@ -1121,6 +1121,59 @@
           "url": "https://github.com/scienceverse/metacheck/commit/fe37300e793e0061eca70d602f167c6ed4bd2545",
           "type": "feat",
           "branch": "dev",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "8cbef44",
+          "message": "Fix code_check crash and missing paper_id on paper lists",
+          "body": "code_check used paper$paper_id and a wrong lang/language column name\nwhen building summary_table, which only worked for a single paper and\ncrashed with \"differing number of rows\" on a paperlist. repo_check's\nfile table never carried paper_id, so code_check had no way to\naggregate per paper. Also ensure parse_error/parse_error_msg always\nexist with consistent types regardless of file language.",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-06-19",
+          "url": "https://github.com/scienceverse/metacheck/commit/8cbef44a1009a7c94cab9f7c9bce2abb7577017e",
+          "type": "fix",
+          "branch": "fix/code-check-paperlist",
+          "diff": {
+            "additions": 26,
+            "deletions": 13,
+            "files": [
+              {
+                "filename": "inst/modules/code_check.R",
+                "status": "modified",
+                "additions": 15,
+                "deletions": 12,
+                "patch": "@@ -43,7 +43,7 @@ code_check <- function(paper, file_limit = 20, local_path = NULL, local_only = F\n   all_files$language <- code_lang(all_files$file_name)\n \n   ## find relevant code files ----\n-  relevant <- all_files$lang %in% c(\"R\", \"SAS\", \"SPSS\", \"Stata\")\n+  relevant <- all_files$language %in% c(\"R\", \"SAS\", \"SPSS\", \"Stata\")\n   code_files <- all_files[relevant, , drop = FALSE]\n \n   summary_code <- sprintf(\n@@ -115,7 +115,9 @@ code_check <- function(paper, file_limit = 20, local_path = NULL, lo"
+              },
+              {
+                "filename": "inst/modules/repo_check.R",
+                "status": "modified",
+                "additions": 10,
+                "deletions": 1,
+                "patch": "@@ -285,7 +285,16 @@ repo_check <- function(paper, local_path = NULL, local_only = FALSE) {\n   }\n   all_files$repo_name <- basename(all_files$repo_url)\n \n-  repos <- dplyr::full_join(repos, all_files, by = \"repo_url\") |>\n+  # attach paper_id so downstream modules (e.g., code_check) know which\n+  # paper each file belongs to, even when a repo is shared across papers\n+  all_files <- dplyr::left_join(\n+    all_files,\n+    repos[, c(\"paper_id\", \"repo_url\")],\n+    by = \"repo_url\",\n+    relationship ="
+              },
+              {
+                "filename": "tests/testthat/test-module-code_check.R",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 0,
+                "patch": "@@ -270,6 +270,7 @@ test_that(\"parse errors\", {\n   mo <- module_run(paper, module, local_path = local_path)\n \n   exp <- data.frame(\n+    paper_id = rep(paper_id(paper), 8),\n     repo_name = rep(\"parse-errors\", 8),\n     repo_url = rep(local_path, 8),\n     file_name = c("
+              }
+            ]
+          },
+          "diff_summary": "This commit fixes a crash in the `code_check` function and addresses an issue where the `paper_id` was missing from paper lists in the 'scienceverse/metacheck' repository, by modifying the `code_check.R`, `repo_check.R`, and `test-module-code_check.R` files."
+        },
+        {
+          "sha": "b7afa6a",
+          "message": "add functions to load paper databases from scienceverse/papers",
+          "body": "",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-06-19",
+          "url": "https://github.com/scienceverse/metacheck/commit/b7afa6ab20252896d0ce149fcf39a78e0498f4f5",
+          "type": "feat",
+          "branch": "papers_databases",
           "diff": {}
         }
       ]
@@ -4380,7 +4433,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was worked on, with a commit that added documentation for the pre-push canary hook timing, specifically noting that it should \"never timeout/kill the push\". \nAnother commit on the `main` branch introduced a feature for tables, referred to as REQUEST_10, which included \"HTTP-flatten enabling quality fixes\" and \"cross-flavor capture\" as part of version 2.4.94. \nThe documentation and table feature commits were the only changes made in this set of updates, both of which were applied to the `main` branch. \nNo other branches were modified in this series of commits. \nThe commits focused on documenting the pre-push hook and enhancing the table feature with quality fixes and capture capabilities.",
+      "summary": "The `main` branch was worked on, where documentation was updated to note that the pre-push canary hook should \"never timeout/kill the push\". \nOn the `main` branch, a feature was added for tables, referred to as REQUEST_10, which includes \"HTTP-flatten enabling quality fixes + cross-flavor capture\" and is associated with version 2.4.94. \nOnly the `main` branch was modified in these commits. \nThe changes made to the `main` branch include both documentation and feature additions. \nNo other branches were worked on in these commits.",
       "prs": [
         {
           "number": 1,
@@ -4438,11 +4491,11 @@
         },
         {
           "week": 1778457600,
-          "total": 123
+          "total": 126
         },
         {
           "week": 1779062400,
-          "total": 76
+          "total": 73
         },
         {
           "week": 1779667200,
@@ -4842,6 +4895,45 @@
           "date": "2026-06-12",
           "url": "https://github.com/giladfeldman/docpluck/commit/1f11c5ff5f79205f8f77d59675e1a88bda8890f5",
           "type": "other",
+          "branch": "main",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "83ab6bf",
+          "message": "docs(deploy): document pre-push canary hook timing \u2014 never timeout/kill the push",
+          "body": "v2.4.94 ship lesson: pushing main/tags runs the FULL 5-paper canary render audit\n(~5-10 min) before transfer. Killing/timeout-wrapping the push aborts the hook so\nnothing lands; `git push | tail` masks it as exit 0. Verify success via git\nls-remote, not exit code; gh auth setup-git for the credential helper.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-06-19",
+          "url": "https://github.com/giladfeldman/docpluck/commit/83ab6bfaa3d1a85684d40c2d13d5d52fc07caea2",
+          "type": "other",
+          "branch": "main",
+          "diff": {
+            "additions": 2,
+            "deletions": 0,
+            "files": [
+              {
+                "filename": ".claude/skills/docpluck-deploy/SKILL.md",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 0,
+                "patch": "@@ -178,6 +178,8 @@ echo \"\u2705 DKIM + SPF + DMARC resolve\"\n \n If the library version changed since the last deploy, the library must be tagged + pushed FIRST so `service/requirements.txt` (now pointing at the new version) can resolve.\n \n+> **The push will appear to hang for several minutes \u2014 that is the pre-push canary hook, NOT auth.** Pushing `main` or a tag runs the FULL 5-paper canary render audit (`[pre-push] running FULL canary audit`, ~5\u201310 min; tag pushes use the strict no-exceptions gate)."
+              }
+            ]
+          },
+          "diff_summary": "This commit updates the documentation for the docpluck deploy skill to reflect that the pre-push canary hook should never timeout or kill the push, as seen in the changes made to the `.claude/skills/docpluck-deploy/SKILL.md` file."
+        },
+        {
+          "sha": "1158b1b",
+          "message": "feat(tables): REQUEST_10 \u2014 HTTP-flatten enabling quality fixes + cross-flavor capture (v2.4.94)",
+          "body": "ESCImate REQUEST_10. Two tiers, both general (keyed on structural signatures),\nzero baseline regressions.\n\nTier-1 (flatten quality, CHANGELOG v2.4.93):\n- combined est_ci columns (\"Risk diff. (95% CI)\") parse estimate + interval\n- dash-sign CI disambiguation via monotonicity + estimate-in-interval invariants\n- parallel ITT/PP group rows (one FlattenedRow per row x arm)\n\nTier-2 (table capture, v2.4.94, TABLE_EXTRACTION_VERSION 2.3.0):\n- _augment_lattice_with_stream_rows: recover rows a lattice extraction\n  vertically truncated, by appending the same-page same-col stream rows that\n  fall below the lattice bbox (gated: equal-col-count + bbox overlap + extends-below)\n- numeric/parenthetical continuation merge in _merge_continuation_rows rejoins\n  stream's stacked value/parenthetical cells\n\nRoot cause (corrected after grounding in raw per-flavor Camelot output): not\norphaned-label synthesis \u2014 stream captured every row but lost headers + split\ncells; lattice had headers but only ruled-box rows; page-selection discarded\nthe fuller stream table. See LESSONS L-009.\n\nPROSECCO Table 2 (10.1371/journal.pmed.1004323) now flattens R1-R6 sign-correct.\nVerification: full suite 2051 passed, 26/26 render verifier, service 167 passed,\n9 new unit tests; zero regressions.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-06-19",
+          "url": "https://github.com/giladfeldman/docpluck/commit/1158b1bf63e75f1c6bb201142ebc136ba46b70d3",
+          "type": "feat",
           "branch": "main",
           "diff": {}
         }
@@ -5505,11 +5597,11 @@
       "commits_1d": 7,
       "commits_90d": 370,
       "authors_30d": [
-        "David Van Dijcke",
         "Lukas Wallrich",
-        "Federico Belotti",
         "Davidvandijcke",
-        "Ciamac Moallemi"
+        "Federico Belotti",
+        "Ciamac Moallemi",
+        "David Van Dijcke"
       ],
       "type_breakdown": {
         "chore": 10,
@@ -6173,7 +6265,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in the 'Davidvandijcke/coarse' repository merges changes from the 'dev' branch, which includes localizing the submit-time confirmation email, locking an internal bookkeeping table from the PostgREST/anon API, and other related updates to the database schema and migration scripts."
+          "diff_summary": "This commit merges changes from the 'dev' branch into the main branch, implementing fixes including localizing the submit-time confirmation email and locking an internal bookkeeping table from the PostgREST/anon API."
         },
         {
           "sha": "49a72b3",
@@ -6523,130 +6615,6 @@
           "branch": "feat/219-i18n-schema-contract",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "05aad76",
-          "message": "Merge pull request #245 from Davidvandijcke/dev",
-          "body": "Deploy: i18n email/review-link fixes + schema_migrations RLS",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-06-19",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/05aad76150809bbf76d3ae1c97238fc4653ecee0",
-          "type": "other",
-          "branch": "main",
-          "diff": {
-            "additions": 270,
-            "deletions": 9,
-            "files": [
-              {
-                "filename": "CHANGELOG.md",
-                "status": "modified",
-                "additions": 8,
-                "deletions": 0,
-                "patch": "@@ -2,6 +2,14 @@\n \n ## Unreleased\n \n+### Fixed\n+\n+- **The submit-time \"your paper is being reviewed\" confirmation email is now localized.** It was hardcoded English even when the submitter chose another site language (e.g. Dutch). The copy is now localized to the chosen `site_language` (the only language reliably known at submit time) via a new `web/src/lib/confirmationEmail.ts`, covering all 12 locales with English fallback; terminology matches the already-localized completion email. `{title}`/"
-              },
-              {
-                "filename": "deploy/bootstrap_schema_migrations.sql",
-                "status": "modified",
-                "additions": 6,
-                "deletions": 0,
-                "patch": "@@ -19,6 +19,12 @@ create table if not exists schema_migrations (\n   applied_at timestamptz not null default now()\n );\n \n+-- Lock this internal bookkeeping table from the PostgREST/anon API (Supabase\n+-- Security Advisor flags public tables without RLS). Only the service-role\n+-- migration path writes it, and the service role bypasses RLS, so no policies\n+-- are needed. Idempotent.\n+alter table schema_migrations enable row level security;\n+\n insert into schema_migrations (name) values\n   ('migra"
-              },
-              {
-                "filename": "scripts/apply_migrations.sh",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 0,
-                "patch": "@@ -30,6 +30,9 @@ create table if not exists schema_migrations (\n   name text primary key,\n   applied_at timestamptz not null default now()\n );\n+-- Lock the bookkeeping table from the PostgREST/anon API; the service role\n+-- (this connection) bypasses RLS, so migrations still work. Idempotent.\n+alter table schema_migrations enable row level security;\n \"\n \n APPLIED=\"$(psql_exec -c 'select name from schema_migrations')\""
-              },
-              {
-                "filename": "tests/test_web_confirmation_email.py",
-                "status": "added",
-                "additions": 44,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,44 @@\n+\"\"\"Completeness guard for the localized submit-time confirmation email.\n+\n+No JS test runner, so read the TS source verbatim (like test_web_site_i18n.py).\n+TypeScript's ``Record<string, ConfirmationEmailCopy>`` already enforces that every\n+locale entry has all keys at build time, but it does NOT catch a *missing locale*\n+(``confirmationEmailCopy`` silently falls back to English) or a translation that\n+dropped a ``{title}`` / ``{model}`` placeholder the submit route substitutes."
-              },
-              {
-                "filename": "web/src/app/api/submit/route.ts",
-                "status": "modified",
-                "additions": 15,
-                "deletions": 5,
-                "patch": "@@ -9,6 +9,7 @@ import { buildReviewKey, buildReviewUrl } from \"@/lib/reviewAccess\";\n import { isEmailCapacityReached } from \"@/lib/emailCapacity\";\n import { consumeReviewHandoffSecret } from \"@/lib/routeHandoffAuth\";\n import { sendReviewEmail } from \"@/lib/email\";\n+import { confirmationEmailCopy } from \"@/lib/confirmationEmail\";\n import {\n   buildModalWebhookHostSuffix,\n   getModalWebhookConfig,\n@@ -413,15 +414,24 @@ export async function POST(request: NextRequest) {\n   // fixed in the wrapper,"
-              },
-              {
-                "filename": "web/src/app/review/[id]/ReviewPageClient.tsx",
-                "status": "modified",
-                "additions": 18,
-                "deletions": 2,
-                "patch": "@@ -7,7 +7,7 @@ import { PageMarks } from \"@/components/charcoal\";\n import { parseReview } from \"@/lib/parseReview\";\n import ReviewDisplay from \"@/components/ReviewDisplay\";\n import { REVIEW_RETURN_TOKEN_KEY } from \"@/lib/useOpenRouterKey\";\n-import { SiteLanguageProvider, useSiteLanguageContext } from \"@/lib/i18n\";\n+import { SiteLanguageProvider, useSiteLanguageContext, coerceSiteLocale } from \"@/lib/i18n\";\n \n export default function ReviewPageClient({ id }: { id: string }) {\n   // The site-lang"
-              },
-              {
-                "filename": "web/src/lib/confirmationEmail.ts",
-                "status": "added",
-                "additions": 138,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,138 @@\n+// Localized copy for the submit-time \"your paper is being reviewed\" email.\n+//\n+// Keyed on the submitter's site_language \u2014 the only language reliably known at\n+// submit time (review_language may be empty = \"follow the detected paper\n+// language\", which the worker only resolves later). English fallback for an\n+// unknown/empty code.\n+//\n+// The sibling \"your review is ready\" completion email is localized server-side\n+// in the worker (src/coarse/review_labels.py `_EMAIL`). "
-              },
-              {
-                "filename": "web/src/lib/i18n.ts",
-                "status": "modified",
-                "additions": 38,
-                "deletions": 2,
-                "patch": "@@ -18,6 +18,7 @@ import {\n   useCallback,\n   useContext,\n   useEffect,\n+  useRef,\n   useState,\n   type ReactNode,\n } from \"react\";\n@@ -88,6 +89,22 @@ export function messagesFor(locale: SiteLocale): Messages {\n   return CATALOGS[locale] ?? en;\n }\n \n+/**\n+ * Map a stored/BCP-47 language code to a supported site locale, or null.\n+ * Accepts exact catalog codes (\"nl\", \"zh-Hant\") and falls back to the base\n+ * language for region/script variants (\"pt-BR\" \u2192 \"pt\", bare \"zh\" \u2192 \"zh-Hans\").\n+ * Used to "
-              }
-            ]
-          },
-          "diff_summary": "This commit in the 'Davidvandijcke/coarse' repository merges changes from the 'dev' branch, which includes localizing the submit-time confirmation email, locking an internal bookkeeping table from the PostgREST/anon API, and other related updates to the database schema and migration scripts."
-        },
-        {
-          "sha": "49a72b3",
-          "message": "Merge remote-tracking branch 'origin/main' into sync/reconcile-v1.8.0",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-06-19",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/49a72b334ae057967158c127ff5b0d6460e9db53",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "2e86c5f",
-          "message": "fix(i18n): localize confirmation email + review page follows review language (#244)",
-          "body": "Two multilingual fast-follows reported after the v1.8.0 launch:\n\n1. The submit-time \"your paper is being reviewed\" confirmation email was\n   hardcoded English. Localize it to the chosen site_language (the only\n   language known at submit time) via web/src/lib/confirmationEmail.ts (12\n   locales, English fallback; terminology matches the completion email).\n   Placeholders substituted with a function replacer so a filename with\n   \"$&\" can't corrupt output.\n\n2. A review opened from its email link showed English chrome on another\n   device (no localStorage). The review page now applies the review's\n   stored language once it loads, via a non-persisting applyInitialLocale\n   on the site-language hook (an explicit user switch still wins; the\n   global preference is never overwritten). New coerceSiteLocale helper.\n\nWeb-only \u2014 no src/coarse change, no PyPI impact. Coverage in\ntests/test_web_confirmation_email.py.\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-06-19",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/2e86c5f7446678648e5fc24155b0d5efa2182e1f",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "907c629",
-          "message": "Merge pull request #242 from Davidvandijcke/release/v1.8.0",
-          "body": "Release v1.8.0 \u2014 multilingual support",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-06-19",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/907c629369a8cf5b776dc1d23c618d2907de6d5b",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "f54b584",
-          "message": "fix(deploy): enable RLS on schema_migrations bookkeeping table (#243)",
-          "body": "Supabase Security Advisor flagged public.schema_migrations as exposed to\nPostgREST without row-level security. It is internal migration bookkeeping\nwritten only by the service-role path (apply_migrations.sh / SQL editor),\nwhich bypasses RLS, so enabling RLS with no policies locks it from the\nanon/authenticated API while migrations keep working \u2014 matching the\nproject's other internal tables. Added at both creation sites (idempotent),\nso re-running either secures an existing project.\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-06-19",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/f54b584010588c553b39279418f82175dabd20b2",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {}
-        }
       ]
     },
     {
@@ -6803,11 +6771,11 @@
         },
         {
           "week": 1780272000,
-          "total": 10
+          "total": 12
         },
         {
           "week": 1780876800,
-          "total": 14
+          "total": 12
         },
         {
           "week": 1781481600,
@@ -7214,57 +7182,6 @@
           "branch": "staging",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "89a1470",
-          "message": "push for redeploy",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-06-19",
-          "url": "https://github.com/JamieCummins/regcheck/commit/89a1470d568d169a987a6f0b5b481c97dff0c78d",
-          "type": "other",
-          "branch": "staging",
-          "diff": {
-            "additions": 1,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "backend/main.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -25,7 +25,7 @@\n # Single source of truth for static-asset cache-busting. Bump this on any\n # CSS/JS change so browsers refetch; it is exposed to every template as the\n # `static_version` global (templates reference it as `?v={{ static_version }}`).\n-STATIC_VERSION = \"20260618-drop-groq\"\n+STATIC_VERSION = \"20260619-osf-diag\"\n \n \n def create_app() -> FastAPI:"
-              }
-            ]
-          },
-          "diff_summary": "This commit in 'JamieCummins/regcheck' updates the `static_version` global in the `backend/main.py` file, likely to force browsers to refetch updated CSS/JS assets by bumping the cache-busting version."
-        },
-        {
-          "sha": "baebc81",
-          "message": "hunting down osf bug",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-06-19",
-          "url": "https://github.com/JamieCummins/regcheck/commit/baebc81111799441bb5a1543c113aad2e954b906",
-          "type": "fix",
-          "branch": "staging",
-          "diff": {}
-        },
-        {
-          "sha": "2f5eaaa",
-          "message": "improve logging",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-06-19",
-          "url": "https://github.com/JamieCummins/regcheck/commit/2f5eaaaf649628ce734526fd89be638f1bc3330d",
-          "type": "other",
-          "branch": "staging",
-          "diff": {}
-        }
       ]
     },
     {
@@ -7315,15 +7232,15 @@
       "commits_1d": 0,
       "commits_90d": 42,
       "authors_30d": [
-        "github-actions[bot]",
-        "Gilad Feldman"
+        "Gilad Feldman",
+        "github-actions[bot]"
       ],
       "type_breakdown": {
         "chore": 7
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was updated with a commit that synced changes from `escicheckapp@f52d7ce`, which corresponds to `effectcheck` version 0.6.3. \nThis commit, as described, is related to issue #17. \nNo other branches were worked on in this set of commits. \nThe commit message specifically mentions syncing with a particular version of `effectcheck`, indicating that the `main` branch now reflects the state of `effectcheck` at version 0.6.3. \nThe changes brought in by this sync are not detailed in the commit message, but they are tied to the `effectcheck` version 0.6.3. \nThis update is the sole change in this set of commits.",
+      "summary": "The `main` branch was updated with a commit that synchronized changes from `escicheckapp@f52d7ce`, which corresponds to `effectcheck` version 0.6.3. \nThis commit, referenced as (#17), brought the `main` branch in line with the specified version of `effectcheck`. \nThe commit message specifically mentions syncing from `escicheckapp@f52d7ce`, indicating that the changes are related to this external reference point. \nNo other branches were mentioned in the provided commit messages, so all changes were confined to the `main` branch. \nThe synchronization was performed by Gilad Feldman on 2026-06-18. \nThe commit is directly tied to `effectcheck` version 0.6.3, as stated in the commit message.",
       "prs": [
         {
           "number": 17,
@@ -7590,11 +7507,11 @@
       "commit_activity": [
         {
           "week": 1774828800,
-          "total": 11
+          "total": 13
         },
         {
           "week": 1775433600,
-          "total": 11
+          "total": 9
         },
         {
           "week": 1776038400,
@@ -7747,7 +7664,7 @@
               }
             ]
           },
-          "diff_summary": "This commit, 'sync from escicheckapp@f52d7ce (effectcheck v0.6.3) (#17)', updates the 'effectcheck' package to version 0.6.3, incorporating fixes from a recent audit, including changes to clinical trial N calculation, and modifies several files, including DESCRIPTION, NEWS.md, R/check.R, R/parse.R,"
+          "diff_summary": "This commit, 'sync from escicheckapp@f52d7ce (effectcheck v0.6.3) (#17)', updates the 'effectcheck' package to version 0.6.3, incorporating three fixes from a recent audit, including a change to how clinical trial sample sizes are calculated, and modifies several files, including DESCRIPTION, NEWS.md, R/check.R,"
         },
         {
           "sha": "1f1a89a",
@@ -7820,6 +7737,82 @@
           "type": "chore",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "4be3331",
+          "message": "sync from escicheckapp@f52d7ce (effectcheck v0.6.3) (#17)",
+          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-06-18",
+          "url": "https://github.com/giladfeldman/escicheck/commit/4be3331a5853fba113ae9587c78890ab3de4528c",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 682,
+            "deletions": 43,
+            "files": [
+              {
+                "filename": "DESCRIPTION",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,7 +1,7 @@\n Package: effectcheck\n Type: Package\n Title: Statistical Consistency Checker for Published Research Results\n-Version: 0.6.2\n+Version: 0.6.3\n Authors@R: c(person(given = \"Gilad\", family = \"Feldman\", role = c(\"aut\", \"cre\"),\n     email = \"giladfel@gmail.com\", comment = c(ORCID = \"0000-0003-2812-6599\")))\n Description: A conservative, assumption-aware statistical consistency checker"
+              },
+              {
+                "filename": "NEWS.md",
+                "status": "modified",
+                "additions": 71,
+                "deletions": 0,
+                "patch": "@@ -1,3 +1,74 @@\n+# effectcheck 0.6.3\n+\n+Three fixes from the 2026-06-16 escicheck-iterate canary audit\n+(`docs/TRIAGE_iterate_2026-06-16.md`):\n+\n+- **Clinical-trial N now sums the per-arm totals (E1).** For\n+  `test_type %in% {RR, rdpct}`, when both per-arm totals are parsed, `N` is\n+  their sum (`N_source = \"arm_totals_sum\"`) instead of a single arm picked up\n+  from `global_text`/`extended_context` \u2014 e.g. an RR with arms 106 + 101 now\n+  reports `N = 207`, not 106. `parse.R`'s `pat_two_props_"
+              },
+              {
+                "filename": "R/check.R",
+                "status": "modified",
+                "additions": 98,
+                "deletions": 0,
+                "patch": "@@ -567,6 +567,7 @@ compute_and_compare_one <- function(row,\n       ci_level_mismatch   = NA_character_,\n       ci_clipped_to_bound = NA_character_,\n       ci_symmetry_class   = NA_character_,\n+      sign_ci_violation   = NA,\n       effect_reported_decimals = NA_integer_,\n       ciL_reported_decimals    = NA_integer_,\n       ciU_reported_decimals    = NA_integer_,\n@@ -2799,6 +2800,15 @@ compute_and_compare_one <- function(row,\n     N1 <- if (\"arm1_total\"  %in% names(row)) row$arm1_total[1]  else"
+              },
+              {
+                "filename": "R/parse.R",
+                "status": "modified",
+                "additions": 171,
+                "deletions": 42,
+                "patch": "@@ -725,7 +725,10 @@ parse_text <- function(text, context_window_size = 2) {\n   #   subscripts -- treated identically here, all chi-square distributed under\n   #   homogeneity null with the reported df). The \"_<letter>\" subscript is\n   #   optional; the df may be in [brackets] or (parens) with optional spaces.\n-  pat_cochran_q <- \"\\\\bQ(?:_[A-Za-z])?\\\\s*[\\\\[(]\\\\s*(\\\\d+(?:\\\\.\\\\d+)?)\\\\s*[\\\\])]\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n+  # v0.6.3 (E5): the subscript underscore is ALSO optional -- PDF text extra"
+              },
+              {
+                "filename": "man/check_text.Rd",
+                "status": "modified",
+                "additions": 8,
+                "deletions": 0,
+                "patch": "@@ -104,6 +104,14 @@ to programmatically split the two semantics without parsing English.}\n the reported ES. A cross-family fallback row will name a variant\n from a different family than the reported ES type (e.g.\n \\code{matched_variant=\"eta\"} when \\code{effect_reported_name=\"d\"}).}\n+\\item{\\code{sign_ci_violation}}{Logical (since v0.6.3, R-0007). TRUE when\n+a sign-bearing reported estimate (d, g, dz, dav, drm, r, beta,\n+partial_r) lies OUTSIDE its reported CI but its sign-flip lies inside\n+-- th"
+              },
+              {
+                "filename": "tests/testthat/test-v063-ci-token-recovery.R",
+                "status": "added",
+                "additions": 78,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,78 @@\n+# v0.6.3 R-0007: dropped-minus sign-error detector (FLAG ONLY).\n+#\n+# The estimate-in-CI invariant: a reported point estimate must lie within its\n+# reported CI. When PDF extraction drops a leading minus, the estimate parses\n+# positive and lands outside its own CI while the sign-flip lands inside. Per\n+# the 2026-06-17 user decision this is FLAG ONLY -- effectcheck sets\n+# `sign_ci_violation` and an uncertainty note but NEVER mutates the parsed value.\n+\n+test_that(\"R-0007 fire"
+              },
+              {
+                "filename": "tests/testthat/test-v063-e1-clinical-trial-N.R",
+                "status": "added",
+                "additions": 82,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,82 @@\n+# v0.6.3 (E1): clinical-trial combined N = sum of per-arm totals.\n+#\n+# Surfaced by the 2026-06-16 escicheck-iterate canary audit of the PROSECCO\n+# trial (10.1371/journal.pmed.1004323). Two coupled defects:\n+#   (1) RR / rdpct rows inherited a SINGLE arm total as N (from\n+#       global_text / extended_context) instead of summing the two arms the\n+#       parser already captured -- e.g. an RR with arms 106 + 101 reported\n+#       N = 106 rather than 207.\n+#   (2) the primary-o"
+              },
+              {
+                "filename": "tests/testthat/test-v063-e2-welch-design.R",
+                "status": "added",
+                "additions": 32,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,32 @@\n+# v0.6.3 (E2): a non-integer df is a definitive Welch / independent-samples\n+# signal, so design_inferred must never be \"paired\" when df1 is fractional\n+# (a paired t has integer df = n - 1). Surfaced by the 2026-06-16 canary audit\n+# of collabra.77859 (Welch rows with df1 = 257.03 tagged design_inferred=paired).\n+\n+test_that(\"v0.6.3: non-integer df with a paired-type effect is NOT tagged paired\", {\n+  txt <- \"Welch's t(257.03) = 6.23, p < .001, (dz = 0.76, 95% CI [0.50, 1.02])"
+              }
+            ]
+          },
+          "diff_summary": "This commit, 'sync from escicheckapp@f52d7ce (effectcheck v0.6.3) (#17)', updates the 'effectcheck' package to version 0.6.3, incorporating three fixes from a recent audit, including a change to how clinical trial sample sizes are calculated, and modifies several files, including DESCRIPTION, NEWS.md, R/check.R,"
         }
       ]
     },
@@ -8140,7 +8133,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was worked on, where the validation note was revised and a citation was included, as stated in the commit message \"Revise validation note and include citation\". \nNo other branches were modified in this set of commits.\nThe revision of the validation note and the addition of a citation are the specific changes made in this commit.\nThere are no new features or modules added in this set of commits, only the revision and citation addition.\nThe commit message explicitly mentions the revision and inclusion of a citation, indicating that these are the key changes.\nThe work was limited to a single commit on the `main` branch.",
+      "summary": "The `main` branch was worked on, where the validation note was revised and a citation was added, as stated in the commit message \"Revise validation note and include citation\".\nNo other branches were modified in this set of commits, indicating that the changes were focused solely on the `main` branch.\nThe revision of the validation note and the inclusion of a citation are the specific changes made in this commit.\nThere are no other features, fixes, or modules added or changed beyond this revision and citation addition.\nThe commit message explicitly mentions the revision and citation, indicating that these were the primary goals of the commit.\nThe work was limited to a single commit on the `main` branch, with no other branches or changes involved.",
       "prs": [],
       "open_prs_count": 0,
       "merged_prs_count": 0,
@@ -8271,6 +8264,33 @@
           "type": "other",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "3fce87a",
+          "message": "Revise validation note and include citation",
+          "body": "Updated validation note and added preprint citation.",
+          "author": "Shaheed Azaad",
+          "author_login": "shaheedazaad",
+          "date": "2026-06-14",
+          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 3,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 1,
+                "patch": "@@ -8,7 +8,9 @@ In the below screenshot, I z-curved 45 articles on cognitive dissonance in under\n \n ![](assets/example.svg)\n \n-**Note:** this tool has not yet been peer-reviewed, although a validation study is in the works.\n+**Note:** I have validated statistic extraction as part of a study, which is currently under peer review. The preprint citation is below, and details of the validation are in the supplemental material.\n+\n+Azaad, S. (2026). Empirically derived effect size guidelines for socia"
+              }
+            ]
+          },
+          "diff_summary": "This commit revises the validation note in the README.md file of the 'auto-zcurve' repository, adding a citation and updating the language to reflect the current status of the tool's peer review."
         }
       ]
     },
@@ -9008,7 +9028,7 @@
       },
       "dormant_revived": true,
       "is_archived": false,
-      "summary": "The `main` branch was updated with a commit that added a Chrome Webstore link for OIF, as stated in the commit message \"Add Chrome Webstore link for OIF\". \nNo other branches were worked on according to the provided commits. \nThe specific change made was the addition of a link, with no other features or fixes mentioned. \nThe commit message does not specify any other modifications or additions beyond the Chrome Webstore link. \nThere are no other commits to describe beyond this single update to the `main` branch.",
+      "summary": "The `main` branch was updated with a new commit that added a Chrome Webstore link for OIF, as stated in the commit message \"Add Chrome Webstore link for OIF\". \nNo other branches were worked on in this set of commits. \nThe commit specifically added a link, with no other changes mentioned. \nThere were no fixes or new modules added in this set of commits, only the addition of the Chrome Webstore link. \nThe work was limited to a single commit on the `main` branch. \nNo other features were changed or added in this update.",
       "prs": [],
       "open_prs_count": 0,
       "merged_prs_count": 0,
@@ -9102,7 +9122,7 @@
               }
             ]
           },
-          "diff_summary": "This commit adds a link to the Chrome Webstore for the Output It Forward (OIF) extension in the README.md file, making it easier for users to find and install the extension."
+          "diff_summary": "This commit adds a link to the Chrome Webstore for the Output It Forward (OIF) extension in the README.md file, making it easier for users to access and install the extension."
         },
         {
           "sha": "aa35045",
@@ -9115,6 +9135,33 @@
           "type": "feat",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "71c2a30",
+          "message": "Add Chrome Webstore link for OIF",
+          "body": "Added a link to the OIF Chrome extension in the README.",
+          "author": "giovannacdelsordo",
+          "author_login": "giovannacdelsordo",
+          "date": "2026-06-17",
+          "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
+          "type": "feat",
+          "branch": "main",
+          "diff": {
+            "additions": 3,
+            "deletions": 0,
+            "files": [
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 0,
+                "patch": "@@ -2,6 +2,9 @@\n OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\n OIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailorin"
+              }
+            ]
+          },
+          "diff_summary": "This commit adds a link to the Chrome Webstore for the Output It Forward (OIF) extension in the README.md file, making it easier for users to access and install the extension."
         }
       ]
     }
@@ -10202,7 +10249,7 @@
         "date": "2026-06-17"
       }
     ],
-    "narrative": "Our open-source research community has seen exciting progress across multiple projects. In the **Davidvandijcke/coarse** project, significant updates were made to the 'dev' branch, including localization of the confirmation email and review page, as well as a crucial fix for deployment. Meanwhile, the **JamieCummins/regcheck** project focused on its 'staging' branch, with efforts to hunt down and resolve a persistent OSF bug, and improvements to logging capabilities. Notably, these projects demonstrate the value of iterative development and collaboration, with **Davidvandijcke/coarse** merging updates from its 'main' branch into the 'dev' branch, showcasing the importance of cross-branch synchronization. Overall, our community is celebrating a week of meaningful contributions and enhancements to our research tools. As these projects continue to evolve, we look forward to seeing the impact of these updates on our shared research goals."
+    "narrative": "Our community has seen a surge of activity across multiple projects, with notable updates in `scienceverse/metacheck`, `giladfeldman/docpluck`, and `giladfeldman/escicheck`. Lakens' recent contributions to `scienceverse/metacheck` have resolved a critical issue with code checks and added new functions for loading paper databases. Meanwhile, `giladfeldman/docpluck` has introduced a new feature for tables, and `giladfeldman/escicheck` has been synchronized with the latest version of `effectcheck`. Additionally, smaller but significant updates have been made to `shaheedazaad/auto-zcurve` and `giovannacdelsordo/output-it-forward`, including revisions to validation notes and the addition of a Chrome Webstore link, respectively. These updates demonstrate the interconnectedness and progress of our open-source research tools, and we celebrate the contributions of our community members in driving these projects forward."
   },
   "aggregate": {
     "total_repos": 16,
