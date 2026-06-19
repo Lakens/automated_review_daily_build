@@ -2,12 +2,20 @@ name: Update Activity Data
 
 on:
   schedule:
-    # Run every 6 hours
-    - cron: "0 */6 * * *"
+    # Run hourly; GitHub Actions schedules are best-effort and can be
+    # delayed several hours under load, so a sparser cron compounds into
+    # multi-hour gaps. The script itself is cheap to no-op (no new
+    # commits => cached summary, no Groq call), so hourly ticks just
+    # tighten the worst-case latency without meaningfully increasing cost.
+    - cron: "0 * * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: "update-activity-data"
+  cancel-in-progress: false
 
 jobs:
   update:
