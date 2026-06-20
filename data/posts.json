@@ -1,5 +1,191 @@
 [
   {
+    "generated_at": "2026-06-20T19:15:14.183634+00:00",
+    "narrative": "Our open-source research community has seen significant progress across multiple projects. The `giladfeldman/docpluck` project has made notable updates to its `main` branch, including feature updates to tables and improvements to documentation, such as recording cross-session skill-file commit coordination. Meanwhile, `Davidvandijcke/coarse` has made strides in localization and deployment fixes, including enabling RLS on the schema_migrations bookkeeping table. Additionally, `JamieCummins/regcheck` has focused on improving the \"qwen\" feature and resolving issues on its `staging` branch. These efforts demonstrate the connections and collaborations within our community, and we celebrate the progress being made across these projects. As our community continues to grow and evolve, we look forward to seeing the impact of these updates and the innovative work being done.",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "The `main` branch was the focus of the recent work, with several commits made to it. The documentation was updated to record the cross-session skill-file commit coordination, as noted in the commit message \"docs(handoff): record the cross-session skill-file commit coordination (now fulfilled in b2c6aa2)\". Prior-session housekeeping was also performed on the `main` branch, including a \"REQUEST_10 customer broadcast, daily-digest cron-retry lesson, deploy smoke-gate fix\", as described in the commit message \"chore(docs+deploy): prior-session housekeeping \u2014 REQUEST_10 customer broadcast, daily-digest cron-retry lesson, deploy smoke-gate fix\". Additionally, two feature updates were made to tables on the `main` branch, including \"REQUEST_11 \u2014 flatten fields for non-clinical result tables (v2.4.95)\" and \"REQUEST_10 \u2014 HTTP-flatten enabling quality fixes + cross-flavor capture (v2.4.94)\". The documentation was also updated to document pre-push canary hook timing, with the note to \"never timeout/kill the push\", as stated in the commit message \"docs(deploy): document pre-push canary hook timing \u2014 never timeout/kill the push\".",
+        "commits_since_last": 5,
+        "pushed_at": "2026-06-20T19:11:13Z",
+        "recent_commits": [
+          {
+            "sha": "370b89c",
+            "message": "docs(handoff): record the cross-session skill-file commit coordination (now fulfilled in b2c6aa2)",
+            "body": "Auto-created handoff from the sibling app-repo session asking this repo to\ncommit the two docpluck skill-file edits (lessons.md cron card + docpluck-deploy\nsmoke-gate fix). Done in b2c6aa2; preserving the coordination record.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/370b89cebb91e84b35404e1d74dfd6f6d17cf1a9",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "b2c6aa2",
+            "message": "chore(docs+deploy): prior-session housekeeping \u2014 REQUEST_10 customer broadcast, daily-digest cron-retry lesson, deploy smoke-gate fix",
+            "body": "Coherent prior-session work that was sitting uncommitted in the tree:\n\n- .claude/skills/_project/lessons.md: cron-retry lesson card (2026-06-20) \u2014\n  docpluckapp daily-digest \"Daily dispatch failed\" was transient Neon\n  (connection recycled on scale-to-zero), not a logic bug; fix is withDbRetry.\n  Includes how-to-detect guidance (query system_logs errorStack first).\n- .claude/skills/docpluck-deploy/SKILL.md: daily-digest smoke-gate refinement \u2014\n  gate on DispatchResult shape (not a non-existent wouldSend field), treat a\n  quiet-window no_issues as PASS, and source CRON_SECRET just-in-time from Vercel.\n- CUSTOMER_UPDATE_2026-06-19_tables_sections_api.md: broadcast to API consumers\n  that tables + sections are now reachable over HTTP (v2.4.93 -> v2.4.94 era).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/b2c6aa2f032ab540069cd56f7d9b57f7f2bea843",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "bce4b7f",
+            "message": "feat(tables): REQUEST_11 \u2014 flatten fields for non-clinical result tables (v2.4.95)",
+            "body": "Populate flattened_rows[].fields for the result-table shapes that still\nreturned {} after v2.4.94 (which solved the clinical PROSECCO table). Two\ncycles, each gated on a structural signature so ordinary tables stay\nbyte-identical:\n\n- Cycle A \u2014 blank-header column-role recovery (_recover_blank_roles): assign a\n  stat role to a header-stripped column from its data-token SHAPE (CI brackets,\n  a df1/df2 pair, an estimate adjacent to a CI, a p-value with a comparison\n  operator) AND the statistic vocabulary recovered from caption/footnote/all\n  header rows \u2014 never bare column position (that would fabricate labels for\n  garbage). New BF01 role. Validity guards drop a recovered value that cannot be\n  real (r outside [-1,1], non-monotone CI, non-integer n, p outside [0,1]).\n  Recovers collabra.77859 Table 5 and collabra.90203 Tables 8/9/10.\n\n- Cycle B \u2014 packed parallel-arm split (_detect_packed_arms / _flatten_packed_arms\n  / _split_value_groups): tables packing k>=2 arms into single cells (an arm\n  label column repeating \"Separate Joint\" with each data cell holding k\n  space-joined values) emit one typed record per arm, tagged group=<arm>.\n  Splits collabra.77859 Table 3 (Separate/Joint) and xiao_2021 Table 7\n  (Regret/Justifiability). Plus two GENERAL L-004 fixes: _parse_number and\n  _parse_ci_cell now fold U+2212 MINUS to ASCII hyphen (negative t/d/CI bounds\n  in Camelot cells were dropped or sign-flipped); _VALUE_GROUP_RE handles\n  bracket-led CI groups.\n\nTABLE_EXTRACTION_VERSION 2.3.0 -> 2.4.0; package version -> 2.4.95.\n\nAcceptance (REQUEST_11 section 3), all met and AI-gold-verified (77859, 90203,\nxiao all PASS): #1 Table 5 + Table 3 arms; #2 Tables 8/9/10 F/p/eta2p/CI/BF01 +\nr/n/CI two-arm; #3 sign-correct CIs + packed cells split; #4 default call\nbyte-identical + PROSECCO unchanged.\n\nVerification: 25 flatten tests (16 new: packed-arm split, value-group splitter,\nsingle-arm non-firing guard, real-PDF Table 3) all pass serially; full library\nsuite green under -n10 (1815 passed, 0 failed) and serially; before/after corpus\ndiff confirms canary structural renders byte-identical and PROSECCO's 6 stat rows\nuntouched. Value-exact real-PDF tests skip under xdist (Camelot is\nnon-deterministic under parallel load; they run in the serial canonical QA).\n\nfields.effect_type (REQUEST_11 section 2.4, explicitly \"not a blocker\") is\ndeferred: emitting it would change PROSECCO's field set, conflicting with\nacceptance #4; offered as an opt-in in the reply.\n\nTwo source-data caveats surfaced (neither a flatten defect, both documented in\nthe reply): collabra.90203 Table 10 \"Joint/No-explicit\" r reads .59 in the PDF\ntext layer (pdftotext and Camelot agree) vs .63 in the AI-visual gold (text-layer\ncorruption, undetectable without OCR); and the collabra.77859 Attractive/Affect\ntable is labelled \"Table 3\" by docpluck and the consumer but \"Table 2\" by the\ngold (pre-existing caption-number binding; values all correct).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/bce4b7fc451ebd74493e212ba5f589d97cd1e737",
+            "type": "feat",
+            "branch": "main"
+          },
+          {
+            "sha": "83ab6bf",
+            "message": "docs(deploy): document pre-push canary hook timing \u2014 never timeout/kill the push",
+            "body": "v2.4.94 ship lesson: pushing main/tags runs the FULL 5-paper canary render audit\n(~5-10 min) before transfer. Killing/timeout-wrapping the push aborts the hook so\nnothing lands; `git push | tail` masks it as exit 0. Verify success via git\nls-remote, not exit code; gh auth setup-git for the credential helper.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-19",
+            "url": "https://github.com/giladfeldman/docpluck/commit/83ab6bfaa3d1a85684d40c2d13d5d52fc07caea2",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "1158b1b",
+            "message": "feat(tables): REQUEST_10 \u2014 HTTP-flatten enabling quality fixes + cross-flavor capture (v2.4.94)",
+            "body": "ESCImate REQUEST_10. Two tiers, both general (keyed on structural signatures),\nzero baseline regressions.\n\nTier-1 (flatten quality, CHANGELOG v2.4.93):\n- combined est_ci columns (\"Risk diff. (95% CI)\") parse estimate + interval\n- dash-sign CI disambiguation via monotonicity + estimate-in-interval invariants\n- parallel ITT/PP group rows (one FlattenedRow per row x arm)\n\nTier-2 (table capture, v2.4.94, TABLE_EXTRACTION_VERSION 2.3.0):\n- _augment_lattice_with_stream_rows: recover rows a lattice extraction\n  vertically truncated, by appending the same-page same-col stream rows that\n  fall below the lattice bbox (gated: equal-col-count + bbox overlap + extends-below)\n- numeric/parenthetical continuation merge in _merge_continuation_rows rejoins\n  stream's stacked value/parenthetical cells\n\nRoot cause (corrected after grounding in raw per-flavor Camelot output): not\norphaned-label synthesis \u2014 stream captured every row but lost headers + split\ncells; lattice had headers but only ruled-box rows; page-selection discarded\nthe fuller stream table. See LESSONS L-009.\n\nPROSECCO Table 2 (10.1371/journal.pmed.1004323) now flattens R1-R6 sign-correct.\nVerification: full suite 2051 passed, 26/26 render verifier, service 167 passed,\n9 new unit tests; zero regressions.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-19",
+            "url": "https://github.com/giladfeldman/docpluck/commit/1158b1bf63e75f1c6bb201142ebc136ba46b70d3",
+            "type": "feat",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "Work was done on the 'main' and 'dev' branches. On the 'dev' branch, the confirmation email and review page were localized to follow the review language, as stated in the commit message \"fix(i18n): localize confirmation email + review page follows review language (#244)\". The 'dev' branch also had a fix for deployment, specifically enabling RLS on the schema_migrations bookkeeping table, as per the commit \"fix(deploy): enable RLS on schema_migrations bookkeeping table (#243)\". Additionally, the 'dev' branch was updated by merging the 'origin/main' into 'sync/reconcile-v1.8.0' and merging pull request #242 from 'Davidvandijcke/release/v1.8.0'. The 'main' branch was updated by merging pull request #245 from 'Davidvandijcke/dev'.",
+        "commits_since_last": 5,
+        "pushed_at": "2026-06-19T03:28:55Z",
+        "recent_commits": [
+          {
+            "sha": "05aad76",
+            "message": "Merge pull request #245 from Davidvandijcke/dev",
+            "body": "Deploy: i18n email/review-link fixes + schema_migrations RLS",
+            "author": "David Van Dijcke",
+            "date": "2026-06-19",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/05aad76150809bbf76d3ae1c97238fc4653ecee0",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "49a72b3",
+            "message": "Merge remote-tracking branch 'origin/main' into sync/reconcile-v1.8.0",
+            "body": "",
+            "author": "Davidvandijcke",
+            "date": "2026-06-19",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/49a72b334ae057967158c127ff5b0d6460e9db53",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "2e86c5f",
+            "message": "fix(i18n): localize confirmation email + review page follows review language (#244)",
+            "body": "Two multilingual fast-follows reported after the v1.8.0 launch:\n\n1. The submit-time \"your paper is being reviewed\" confirmation email was\n   hardcoded English. Localize it to the chosen site_language (the only\n   language known at submit time) via web/src/lib/confirmationEmail.ts (12\n   locales, English fallback; terminology matches the completion email).\n   Placeholders substituted with a function replacer so a filename with\n   \"$&\" can't corrupt output.\n\n2. A review opened from its email link showed English chrome on another\n   device (no localStorage). The review page now applies the review's\n   stored language once it loads, via a non-persisting applyInitialLocale\n   on the site-language hook (an explicit user switch still wins; the\n   global preference is never overwritten). New coerceSiteLocale helper.\n\nWeb-only \u2014 no src/coarse change, no PyPI impact. Coverage in\ntests/test_web_confirmation_email.py.\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "David Van Dijcke",
+            "date": "2026-06-19",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/2e86c5f7446678648e5fc24155b0d5efa2182e1f",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "907c629",
+            "message": "Merge pull request #242 from Davidvandijcke/release/v1.8.0",
+            "body": "Release v1.8.0 \u2014 multilingual support",
+            "author": "David Van Dijcke",
+            "date": "2026-06-19",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/907c629369a8cf5b776dc1d23c618d2907de6d5b",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "f54b584",
+            "message": "fix(deploy): enable RLS on schema_migrations bookkeeping table (#243)",
+            "body": "Supabase Security Advisor flagged public.schema_migrations as exposed to\nPostgREST without row-level security. It is internal migration bookkeeping\nwritten only by the service-role path (apply_migrations.sh / SQL editor),\nwhich bypasses RLS, so enabling RLS with no policies locks it from the\nanon/authenticated API while migrations keep working \u2014 matching the\nproject's other internal tables. Added at both creation sites (idempotent),\nso re-running either secures an existing project.\n\nCo-authored-by: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "David Van Dijcke",
+            "date": "2026-06-19",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/f54b584010588c553b39279418f82175dabd20b2",
+            "type": "fix",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "JamieCummins",
+        "repo": "regcheck",
+        "url": "https://github.com/JamieCummins/regcheck",
+        "summary": "The `staging` branch was the focus of the recent work, where the \"qwen\" feature was improved, as stated in the commit message \"improve qwen\". Additionally, the `staging` branch saw the re-addition of \"qwen!\", as per the commit \"re-add qwen!\". A push for redeploy was also made on the `staging` branch, with the commit message \"push for redeploy\" indicating the intention to redeploy. The `staging` branch also saw efforts to resolve an issue, with the commit \"hunting down osf bug\" suggesting that the developer was actively working to identify and fix an OSF bug. Furthermore, logging was improved on the `staging` branch, with the commit \"improve logging\" indicating enhancements to the logging functionality.",
+        "commits_since_last": 5,
+        "pushed_at": "2026-06-19T21:47:27Z",
+        "recent_commits": [
+          {
+            "sha": "f775856",
+            "message": "improve qwen",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-06-19",
+            "url": "https://github.com/JamieCummins/regcheck/commit/f775856b3d974e48ad3b3dc97eab4016f8f43bc1",
+            "type": "other",
+            "branch": "staging"
+          },
+          {
+            "sha": "724d020",
+            "message": "re-add qwen!",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-06-19",
+            "url": "https://github.com/JamieCummins/regcheck/commit/724d0200a98c44f84101a33cad10f926598ffe8f",
+            "type": "feat",
+            "branch": "staging"
+          },
+          {
+            "sha": "89a1470",
+            "message": "push for redeploy",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-06-19",
+            "url": "https://github.com/JamieCummins/regcheck/commit/89a1470d568d169a987a6f0b5b481c97dff0c78d",
+            "type": "other",
+            "branch": "staging"
+          },
+          {
+            "sha": "baebc81",
+            "message": "hunting down osf bug",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-06-19",
+            "url": "https://github.com/JamieCummins/regcheck/commit/baebc81111799441bb5a1543c113aad2e954b906",
+            "type": "fix",
+            "branch": "staging"
+          },
+          {
+            "sha": "2f5eaaa",
+            "message": "improve logging",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-06-19",
+            "url": "https://github.com/JamieCummins/regcheck/commit/2f5eaaaf649628ce734526fd89be638f1bc3330d",
+            "type": "other",
+            "branch": "staging"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-06-20T17:22:28.795455+00:00",
     "narrative": "Our community has seen significant progress across multiple projects recently. In the **scienceverse/metacheck** repository, Lakens addressed a critical crash issue and added new functionality to load paper databases, enhancing the tool's reliability and capabilities. Meanwhile, **giladfeldman/docpluck** and **giladfeldman/escicheck** have also received updates, with improvements to table features and synchronization with the **escicheckapp** repository, respectively. Notably, these updates demonstrate the interconnectedness of our projects, with **escicheck** now aligned with **effectcheck** version 0.6.3. Additionally, **shaheedazaad/auto-zcurve** and **giovannacdelsordo/output-it-forward** have seen revisions to their validation notes and the addition of a Chrome Webstore link, respectively, showcasing the community's commitment to refinement and accessibility. These advancements highlight the collaborative spirit and dedication to open-source research tools that define our community.",
     "repos": [
