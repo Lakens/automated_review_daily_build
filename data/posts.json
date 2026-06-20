@@ -1,5 +1,131 @@
 [
   {
+    "generated_at": "2026-06-20T08:46:22.579071+00:00",
+    "narrative": "Our community has seen significant progress across multiple projects in recent days. Notably, Lakens made key updates to `scienceverse/metacheck`, stabilizing the code_check and enhancing paper database loading functionality. Meanwhile, Gilad Feldman worked on `giladfeldman/docpluck`, adding a new table feature and documenting pre-push canary hook timing, as well as synchronizing `giladfeldman/escicheck` with the latest `effectcheck` version. Other projects, such as `shaheedazaad/auto-zcurve` and `giovannacdelsordo/output-it-forward`, also saw updates, including revisions to validation notes and the addition of a Chrome Webstore link, respectively. These connections between projects demonstrate the collaborative spirit of our community, and we celebrate the progress being made across the board. With these updates, our tools are becoming more robust and user-friendly, paving the way for future innovations and discoveries.",
+    "repos": [
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "The `fix/code-check-paperlist` branch received a fix to address a code_check crash and resolve the issue of missing paper_id on paper lists, as stated in the commit message \"Fix code_check crash and missing paper_id on paper lists\". \nThe `papers_databases` branch was updated with new functions to load paper databases from scienceverse/papers, according to the commit \"add functions to load paper databases from scienceverse/papers\". \nBoth of these changes were made by Lakens on the same day, June 19, 2026. \nThe `fix/code-check-paperlist` branch now has a more stable code_check, and the `papers_databases` branch has enhanced functionality for loading databases. \nNo other branches were worked on in this set of commits. \nThese two branches are the only ones that have been modified since the last update.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-06-19T16:55:31Z",
+        "recent_commits": [
+          {
+            "sha": "8cbef44",
+            "message": "Fix code_check crash and missing paper_id on paper lists",
+            "body": "code_check used paper$paper_id and a wrong lang/language column name\nwhen building summary_table, which only worked for a single paper and\ncrashed with \"differing number of rows\" on a paperlist. repo_check's\nfile table never carried paper_id, so code_check had no way to\naggregate per paper. Also ensure parse_error/parse_error_msg always\nexist with consistent types regardless of file language.",
+            "author": "Lakens",
+            "date": "2026-06-19",
+            "url": "https://github.com/scienceverse/metacheck/commit/8cbef44a1009a7c94cab9f7c9bce2abb7577017e",
+            "type": "fix",
+            "branch": "fix/code-check-paperlist"
+          },
+          {
+            "sha": "b7afa6a",
+            "message": "add functions to load paper databases from scienceverse/papers",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-06-19",
+            "url": "https://github.com/scienceverse/metacheck/commit/b7afa6ab20252896d0ce149fcf39a78e0498f4f5",
+            "type": "feat",
+            "branch": "papers_databases"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "The `main` branch was worked on, with a focus on documenting the pre-push canary hook timing, as stated in the commit message \"document pre-push canary hook timing \u2014 never timeout/kill the push\". \nThe `main` branch also saw the addition of a feature related to tables, specifically \"REQUEST_10 \u2014 HTTP-flatten enabling quality fixes + cross-flavor capture\" as part of version \"v2.4.94\". \nThe documentation change and the table feature addition were the two main areas of work in the `main` branch. \nOnly the `main` branch was modified in these commits. \nThe table feature addition included \"HTTP-flatten enabling quality fixes\" and \"cross-flavor capture\", as specified in the commit message.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-06-19T16:50:46Z",
+        "recent_commits": [
+          {
+            "sha": "83ab6bf",
+            "message": "docs(deploy): document pre-push canary hook timing \u2014 never timeout/kill the push",
+            "body": "v2.4.94 ship lesson: pushing main/tags runs the FULL 5-paper canary render audit\n(~5-10 min) before transfer. Killing/timeout-wrapping the push aborts the hook so\nnothing lands; `git push | tail` masks it as exit 0. Verify success via git\nls-remote, not exit code; gh auth setup-git for the credential helper.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-19",
+            "url": "https://github.com/giladfeldman/docpluck/commit/83ab6bfaa3d1a85684d40c2d13d5d52fc07caea2",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "1158b1b",
+            "message": "feat(tables): REQUEST_10 \u2014 HTTP-flatten enabling quality fixes + cross-flavor capture (v2.4.94)",
+            "body": "ESCImate REQUEST_10. Two tiers, both general (keyed on structural signatures),\nzero baseline regressions.\n\nTier-1 (flatten quality, CHANGELOG v2.4.93):\n- combined est_ci columns (\"Risk diff. (95% CI)\") parse estimate + interval\n- dash-sign CI disambiguation via monotonicity + estimate-in-interval invariants\n- parallel ITT/PP group rows (one FlattenedRow per row x arm)\n\nTier-2 (table capture, v2.4.94, TABLE_EXTRACTION_VERSION 2.3.0):\n- _augment_lattice_with_stream_rows: recover rows a lattice extraction\n  vertically truncated, by appending the same-page same-col stream rows that\n  fall below the lattice bbox (gated: equal-col-count + bbox overlap + extends-below)\n- numeric/parenthetical continuation merge in _merge_continuation_rows rejoins\n  stream's stacked value/parenthetical cells\n\nRoot cause (corrected after grounding in raw per-flavor Camelot output): not\norphaned-label synthesis \u2014 stream captured every row but lost headers + split\ncells; lattice had headers but only ruled-box rows; page-selection discarded\nthe fuller stream table. See LESSONS L-009.\n\nPROSECCO Table 2 (10.1371/journal.pmed.1004323) now flattens R1-R6 sign-correct.\nVerification: full suite 2051 passed, 26/26 render verifier, service 167 passed,\n9 new unit tests; zero regressions.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-19",
+            "url": "https://github.com/giladfeldman/docpluck/commit/1158b1bf63e75f1c6bb201142ebc136ba46b70d3",
+            "type": "feat",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "The `main` branch was updated with a commit that synchronized changes from the `escicheckapp` repository at commit `f52d7ce`, which corresponds to `effectcheck` version `0.6.3`. \nThis commit, numbered `#17`, brought the `giladfeldman/escicheck` repository in line with the specified version of `effectcheck`. \nThe commit message does not specify particular features or fixes that were added, only that it was a synchronization effort. \nNo other branches were mentioned in the provided commit messages. \nNo new modules or specific code changes were described in the commit message, only the synchronization with `effectcheck` version `0.6.3`. \nThe synchronization commit was authored by Gilad Feldman on June 18, 2026.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-18T05:48:31Z",
+        "recent_commits": [
+          {
+            "sha": "4be3331",
+            "message": "sync from escicheckapp@f52d7ce (effectcheck v0.6.3) (#17)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-18",
+            "url": "https://github.com/giladfeldman/escicheck/commit/4be3331a5853fba113ae9587c78890ab3de4528c",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "The `main` branch was worked on, where the validation note was revised and a citation was included, as stated in the commit message \"Revise validation note and include citation\". \nNo other branches were modified in this set of commits.\nThe specific change made was to the validation note, which was revised, and a citation was added to it.\nThere were no additions or changes to any features, fixes, or modules other than the revision of the validation note.\nThe commit message explicitly mentions the revision of the validation note and the inclusion of a citation, indicating that these were the primary focus of the change.\nThe work was limited to a single commit on the `main` branch, with no other branches or changes affected.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-14T14:44:45Z",
+        "recent_commits": [
+          {
+            "sha": "3fce87a",
+            "message": "Revise validation note and include citation",
+            "body": "Updated validation note and added preprint citation.",
+            "author": "Shaheed Azaad",
+            "date": "2026-06-14",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giovannacdelsordo",
+        "repo": "output-it-forward",
+        "url": "https://github.com/giovannacdelsordo/output-it-forward",
+        "summary": "The `main` branch was updated with a commit that added a Chrome Webstore link for OIF, as stated in the commit message \"Add Chrome Webstore link for OIF\". \nNo other branches were worked on in this set of commits.\nThis specific change involved adding a link, with no other features or fixes mentioned in the provided commit messages.\nThe commit message directly mentions the addition of the Chrome Webstore link, indicating this was the sole purpose of the commit.\nThere are no other changes or additions noted in the given commits beyond this single update to the `main` branch.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-17T14:15:44Z",
+        "recent_commits": [
+          {
+            "sha": "71c2a30",
+            "message": "Add Chrome Webstore link for OIF",
+            "body": "Added a link to the OIF Chrome extension in the README.",
+            "author": "giovannacdelsordo",
+            "date": "2026-06-17",
+            "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
+            "type": "feat",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-06-20T05:08:28.132546+00:00",
     "narrative": "Our open-source research community has seen exciting progress across multiple projects. In the **Davidvandijcke/coarse** project, significant updates were made to the 'dev' branch, including localization of the confirmation email and review page, as well as a fix for deployment. Meanwhile, the **JamieCummins/regcheck** project focused on improving the `qwen` feature and enhancing logging functionality on its `staging` branch. Notably, both projects have been actively addressing issues and deploying updates, demonstrating the community's commitment to collaboration and continuous improvement. The connections between these projects are also worth highlighting, as they both contribute to the broader ecosystem of open-source research tools, ultimately driving progress in the field. Overall, it's been a productive period, and we look forward to seeing the impact of these updates in the days to come.",
     "repos": [
