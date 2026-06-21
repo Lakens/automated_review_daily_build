@@ -3,6 +3,13 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  schedule:
+    # Pushes made with the default GITHUB_TOKEN (e.g. by the Update
+    # Activity Data workflow) do not trigger other workflows' `push`
+    # events, so this schedule is the actual mechanism that republishes
+    # the site after each data update. Runs 15 min after the update
+    # workflow's :00 schedule.
+    - cron: "15 */6 * * *"
   workflow_dispatch:
 
 permissions:

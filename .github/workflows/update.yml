@@ -2,12 +2,10 @@ name: Update Activity Data
 
 on:
   schedule:
-    # Run hourly; GitHub Actions schedules are best-effort and can be
-    # delayed several hours under load, so a sparser cron compounds into
-    # multi-hour gaps. The script itself is cheap to no-op (no new
-    # commits => cached summary, no Groq call), so hourly ticks just
-    # tighten the worst-case latency without meaningfully increasing cost.
-    - cron: "0 * * * *"
+    # Every 6 hours, offset from the Pages deploy schedule below so the
+    # site rebuild (xx:15) always picks up data fetched a few minutes
+    # earlier (xx:00).
+    - cron: "0 */6 * * *"
   workflow_dispatch:
 
 permissions:
