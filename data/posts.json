@@ -1,5 +1,121 @@
 [
   {
+    "generated_at": "2026-06-23T14:45:21.654621+00:00",
+    "narrative": "Our community has seen exciting progress across multiple projects recently. In **scienceverse/metacheck**, Lakens addressed key issues with code checks and paper lists, while also adding new functions to load paper databases from **scienceverse/papers**. Meanwhile, **giladfeldman/docpluck** saw significant updates, including documentation improvements and fixes for table rendering issues. Additionally, **shaheedazaad/auto-zcurve** and **giovannacdelsordo/output-it-forward** both received important updates, with a revised validation note and added citation in the former, and a new Chrome Webstore link in the latter. These connections between projects demonstrate the collaborative spirit of our community, and we celebrate the progress being made to improve our research tools.",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "The `feat/rc-t-table-region-guard` branch was the focus of the recent work, with multiple commits made to it. The documentation was updated with \"RC-T Layer-2 + combined-ship closeout (cycle 2, v2.4.97)\" learnings, as stated in the commit message. Fixes were made to tables, specifically addressing \"DP-2 blank p/df + DP-5 two-header-row recovery/super-header alignment + RC-T Layer-2 raw_text prose-trim/suppress\" issues in version 2.4.97. Additionally, a rendering fix was implemented to \"strip Camelot tables that are absorbed body prose\" in RC-T, as part of version 2.4.96.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-06-22T12:06:22Z",
+        "recent_commits": [
+          {
+            "sha": "3e9cc2c",
+            "message": "docs(learnings): RC-T Layer-2 + combined-ship closeout (cycle 2, v2.4.97)",
+            "body": "LEARNINGS: cycle-2 entry \u2014 RC-T Layer-2 is a second prose-contamination path\n(unstructured raw_text fallback) distinct from cycle-1's structured-<table>\nstrip; FP-safe leading-token discriminator; concurrent-session combine\ndiscipline; AI-verify-on-PARTIAL-corpus (7/7 FAIL \u2260 ship blocker when all\npre-existing/deferred + zero regression proven).\n\n_project/lessons.md: RC-T has TWO independent table-prose channels \u2014 fix both;\ngrep <table> AND unstructured-table blocks after any table-prose fix.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-22",
+            "url": "https://github.com/giladfeldman/docpluck/commit/3e9cc2cab11f70dce44d4b8040176166f9fb819d",
+            "type": "other",
+            "branch": "feat/rc-t-table-region-guard"
+          },
+          {
+            "sha": "813aa4c",
+            "message": "fix(tables): v2.4.97 \u2014 DP-2 blank p/df + DP-5 two-header-row recovery/super-header alignment + RC-T Layer-2 raw_text prose-trim/suppress",
+            "body": "Combined table-fix release from two concurrent sessions (per user direction).\n\nDP-2/DP-5 (flatten / cell_cleaning): type the previously-skipped p and df\ncolumns (collabra.77859 T3 fields gain p+df); stop dropping / mis-binding\ntwo-header-row parallel-arm tables \u2014 recover the first data row and align\ncentered super-headers (collabra.90203 T10 emits all 6 conditions arm-split;\nxiao_2021 T4 Original/Replication arms un-swapped; incidentally recovers\nchan_feldman T8 arm labels, jama_open_2 T3 HR estimates+CIs).\n\nRC-T Layer-2 (extract_structured._extract_table_body_text): the unstructured\nraw_text fallback no longer swallows body prose. (a) Note-anchor \u2014 a table's\n\"Note:\" footnote is its last element, so trim prose bled past it (chan_feldman\nT1/T3, efendic_2022 T5). (b) Degenerate-prose guard \u2014 suppress a fallback that\nSTARTS mid-sentence with a lowercase multi-letter word AND is majority\nsentence-shaped prose, so render emits a clean caption-only table (chan_feldman\nT9 was a verbatim ## Discussion duplicate). FP-safe by construction; real cells\nstart with a header/label/number/single-letter marker, never a wrapped\ncontinuation. Full-corpus 101-PDF guard-diff: grew=0 changed=0 (4 trims + 8\nprose-suppressions only).\n\nTABLE_EXTRACTION_VERSION 2.4.0 -> 2.4.2; no NORMALIZATION/SECTIONING change.\n\nVerification: 2085 pytest passed / 0 failed; per-file table tests green\n(flatten_blank_header 27/27, superheader 7/7, rc_t_layer2 10/10,\nrc_t_degenerate 8/8); 7-canary Sonnet AI-gold verify confirms every touched\ntable is correct (chan T1/T3/T9, maier T10, xiao T4) with no new TEXT-LOSS /\nHALLUCINATION. Remaining canary AI-verify FAILs are pre-existing, user-deferred\narchitectural backlog (RC-T Layer-1 recovery, RC-1 column-interleave) \u2014 NOT\nregressions from this release.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-22",
+            "url": "https://github.com/giladfeldman/docpluck/commit/813aa4cd24c78daf7cd74522d53ee8445081b18d",
+            "type": "fix",
+            "branch": "feat/rc-t-table-region-guard"
+          },
+          {
+            "sha": "84a4d42",
+            "message": "fix(render): RC-T \u2014 strip Camelot tables that are absorbed body prose (v2.4.96)",
+            "body": "_strip_phantom_camelot_tables: add \"the\" to the prose function-word set via a\nSCOPED path (fires only when \"the\" crosses fn 2->3 with verb>=2) gated on a\ncaption-token-overlap title-leak exclusion. Camelot runs free-form (no\ntable_areas) and folds body prose into a <th>; the missing \"the\" let a\nbody-prose header (fn=2) slip under the fn>=3 bar, emitting a garbage prose\n<table>.\n\nNet corpus impact: exactly 2 tables now fail-clean \u2014 maier_2023 Table 7\n(\"Following the analyses conducted in Study 1 of Small\") and chan_feldman\nTable 6 (\"associations between the six measures of interest...\"). amp_1 Table 5\n(its own caption title-leaked over a REAL grid) is spared by the title-leak\ngate; 37 tables already stripped at HEAD are byte-unchanged (scoped path).\nFail-clean: the \"### Table N\" heading + caption remain (table_parity preserved)\nand the stripped prose survives in the body text channel (no TEXT-LOSS).\n\nVerification (on a my-fix-only tree): broad pytest -n10 = 2072 passed / 0\nfailed; full-corpus th-level FP scan over all 152 corpus PDFs = exactly 2\ntables change; 8 new real-PDF regression tests (2 fail-at-HEAD -> pass-after,\nskip-under-xdist per the Camelot-value convention); 7-canary Sonnet AI-verify\nconfirms the fix landed clean with no new TEXT-LOSS / HALLUCINATION.\n\nLean release path: /docpluck-cleanup + /docpluck-review skipped, inline\nhard-rule checklist passed; the 26-paper baseline is superseded by the\nstronger my-fix-only broad-pytest + 152-PDF fp_scan (the working tree carries\nan unrelated concurrent session's flatten changes that must not be tested or\nshipped, so this commit stages ONLY the RC-T fix files).\n\nDeferred (separate cycles, surfaced not dropped): RC-T Layer-1 data recovery;\nRC-T Layer-2 (isolated raw_text fallback prose-swallowing, _extract_table_body_text);\nRC-1 column-interleave; glyph residuals.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-22",
+            "url": "https://github.com/giladfeldman/docpluck/commit/84a4d427268052b58b6a028828c65a28fcd09c70",
+            "type": "fix",
+            "branch": "feat/rc-t-table-region-guard"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "The `fix/code-check-paperlist` branch saw a fix for a code_check crash, with the issue of missing `paper_id` on paper lists also being addressed, as stated in the commit message \"Fix code_check crash and missing paper_id on paper lists\". \nThe `papers_databases` branch had new functions added to load paper databases from `scienceverse/papers`, according to the commit \"add functions to load paper databases from scienceverse/papers\". \nNo other branches were worked on in this set of commits, with these two branches being the focus of the recent changes. \nThe changes were made by Lakens, who authored both commits on the same day, June 19, 2026. \nThese commits demonstrate targeted work on specific issues and functionality related to paper lists and databases. \nThe work was confined to these two areas, with no other parts of the repository modified in these commits.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-06-19T16:55:31Z",
+        "recent_commits": [
+          {
+            "sha": "8cbef44",
+            "message": "Fix code_check crash and missing paper_id on paper lists",
+            "body": "code_check used paper$paper_id and a wrong lang/language column name\nwhen building summary_table, which only worked for a single paper and\ncrashed with \"differing number of rows\" on a paperlist. repo_check's\nfile table never carried paper_id, so code_check had no way to\naggregate per paper. Also ensure parse_error/parse_error_msg always\nexist with consistent types regardless of file language.",
+            "author": "Lakens",
+            "date": "2026-06-19",
+            "url": "https://github.com/scienceverse/metacheck/commit/8cbef44a1009a7c94cab9f7c9bce2abb7577017e",
+            "type": "fix",
+            "branch": "fix/code-check-paperlist"
+          },
+          {
+            "sha": "b7afa6a",
+            "message": "add functions to load paper databases from scienceverse/papers",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-06-19",
+            "url": "https://github.com/scienceverse/metacheck/commit/b7afa6ab20252896d0ce149fcf39a78e0498f4f5",
+            "type": "feat",
+            "branch": "papers_databases"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "The `main` branch was worked on, where the validation note was revised and a citation was added, as stated in the commit message \"Revise validation note and include citation\". \nNo other branches were modified in this set of commits.\nThe revision of the validation note and the inclusion of a citation are the specific changes made in this commit.\nThere are no new features or modules added in this set of commits, only the revision and addition of a citation.\nThe commit message explicitly mentions the revision and inclusion of a citation, indicating that these are the key changes.\nThe work is limited to a single commit on the `main` branch.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-14T14:44:45Z",
+        "recent_commits": [
+          {
+            "sha": "3fce87a",
+            "message": "Revise validation note and include citation",
+            "body": "Updated validation note and added preprint citation.",
+            "author": "Shaheed Azaad",
+            "date": "2026-06-14",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giovannacdelsordo",
+        "repo": "output-it-forward",
+        "url": "https://github.com/giovannacdelsordo/output-it-forward",
+        "summary": "The `main` branch was updated with a commit that added a Chrome Webstore link for OIF, as stated in the commit message \"Add Chrome Webstore link for OIF\". \nNo other branches were worked on in this set of commits.\nThis specific change adds a link to the Chrome Webstore, presumably to make it easier for users to access or install the OIF extension.\nThe commit does not mention any other changes or additions beyond the Chrome Webstore link.\nThere are no other branches or commits to report on in this update.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-17T14:15:44Z",
+        "recent_commits": [
+          {
+            "sha": "71c2a30",
+            "message": "Add Chrome Webstore link for OIF",
+            "body": "Added a link to the OIF Chrome extension in the README.",
+            "author": "giovannacdelsordo",
+            "date": "2026-06-17",
+            "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
+            "type": "feat",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-06-23T09:38:45.246632+00:00",
     "narrative": "Our open-source research community has seen significant progress across multiple projects. Notably, the **Davidvandijcke/coarse** project has made strides in localization and deployment, with the 'dev' branch now featuring a localized confirmation email and review page, as well as a fix for deployment. Meanwhile, **JamieCummins/regcheck** has focused on bug fixes and security hardening on its \"staging\" branch, addressing issues with OSF and mutlistudy. Additionally, **giladfeldman/escicheck** has synced its `main` branch with the latest versions of `effectcheck`, bringing it up to date with versions 0.6.5 and 0.6.4. These updates demonstrate the community's commitment to collaboration and continuous improvement, with projects building upon and informing one another to drive progress in open-source research tools. Overall, it's an exciting time for our community, with many projects making meaningful connections and advancements.",
     "repos": [
