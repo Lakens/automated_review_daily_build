@@ -1,5 +1,131 @@
 [
   {
+    "generated_at": "2026-06-25T14:30:24.854812+00:00",
+    "narrative": "Our community has seen exciting progress across multiple projects. The **giladfeldman/docpluck** and **giladfeldman/escicheck** repositories have both received updates to their 'main' branches, with docpluck adding a new feature for table detection and escicheck syncing with the latest changes from effectcheck versions 0.6.4, 0.6.5, and 0.6.6. Meanwhile, **shaheedazaad/auto-zcurve** has revised its validation note to include a citation, and **giovannacdelsordo/output-it-forward** has added a convenient Chrome Webstore link. These updates demonstrate the connections between our projects, with escicheck's syncs highlighting the importance of collaboration and version control. Overall, it's great to see our community's projects continuing to evolve and improve, with a focus on documentation, validation, and user accessibility.",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Work was done on the 'main' branch, where a feature was added for tables, specifically an \"RC-T char-level column-detection fallback for tight-kerned tables\" as part of version 2.4.98, which is described as the foundation. The documentation was also updated on the 'main' branch, with the addition of \"2026-06-25 run handoff + LEARNINGS + project lessons\", although this is noted as being partial. Additionally, on the 'main' branch, a fix was made to the tooling, which included adding a \"direction-aware check_app_pin_sync note\" and incorporating \"RC-T/RC-1 spec findings\". No other branches were worked on in these commits. The changes are specific to the 'main' branch, with no other branches mentioned.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-06-25T11:21:41Z",
+        "recent_commits": [
+          {
+            "sha": "521089a",
+            "message": "feat(tables): RC-T char-level column-detection fallback for tight-kerned tables (v2.4.98, foundation)",
+            "body": "The layout-channel foundation for RC-T table-data recovery. On tight-kerned PDFs\npdfplumber's word grouper glues a whole numeric row into ONE token (ip_feldman\nTable 10: `.29***\u2212.21***.07`), so whitespace_cells' word-gap column detector finds\nno gaps and returns [] -> the table is lost to a caption-only stub. The chars are\nstill cleanly column-separated by large inter-column gaps; recover from them.\n\n- tables.whitespace.char_whitespace_cells: char-level absolute-x-gap column\n  detector, wired as a fallback inside whitespace_cells that fires ONLY when the\n  word path finds < 2 columns. Votes on column-START edges (a right-aligned\n  numeric table has a variable-width label column -> gap midpoints scatter, but\n  the data columns are left-aligned to fixed x), buckets boundaries within 8pt,\n  and reinserts intra-cell word spacing from glyph geometry. Recovers all 7 of\n  ip_feldman Table 10's regression-coefficient rows matching the AI gold.\n- STRICTLY ADDITIVE: the word path (_find_stable_column_boundaries bucket_pt=0)\n  is restored VERBATIM to its pre-change behavior, so any table that already\n  extracts correctly is byte-unchanged; only a region that yielded NO whitespace\n  grid can now gain one, and only above a 60%-row char-column stability bar.\n- TABLE_EXTRACTION_VERSION 2.4.2 -> 2.4.3; __version__/pyproject 2.4.97 -> 2.4.98.\n  NOT tagged \u2014 this is foundation accumulating on main (like v2.4.96/97 did);\n  the next release carries it.\n\nNOT yet wired to close the T10 canary: T10's caption is MATCHED by the degenerate\nfull-page Camelot table, which is used directly, so the whitespace fallback is\nnever reached for it. Closing it needs an extract_structured.py change (detect a\ndegenerate matched Camelot table -> discard -> re-extract via whitespace_cells on\nthe gutter-band-clipped region + a region prose-trim), which touches the core\nextraction path for all papers and requires the full ~48-paper guard-diff +\n7-canary AI-verify before shipping. Documented in LEARNINGS 2026-06-25 + the RC-T\nspec; queued as the next focused cycle (rule 0e-bis \u2014 surfaced, not dropped).\n\nTests: tests/test_whitespace_char_fallback.py (5 cases incl. real-PDF ip_feldman\nTable 10 = all 7 gold rows recovered; synthetic tight-kerned recovery; word-space\nreinsertion; delegation wiring; single-column-no-fabrication guard). 15/15 pass\non the whitespace/char/caption-table suite (two independent runs); 0 failures\nacross the broad table/render suite; word path proven byte-identical.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-25",
+            "url": "https://github.com/giladfeldman/docpluck/commit/521089a6d37b6f05d2791a6fe0e2d2df1c631ce3",
+            "type": "feat",
+            "branch": "main"
+          },
+          {
+            "sha": "976af30",
+            "message": "docs(iterate): 2026-06-25 run handoff + LEARNINGS + project lessons (PARTIAL)",
+            "body": "Cycle-1 investigation+verification run. Records:\n- Branch reconciliation: main was 4 commits behind its own pushed v2.4.96/97 tags\n  (prod ran v2.4.97 while mainline claimed v2.4.95); FF'd to v2.4.97.\n- RC-T table-data recovery confirmed == the RC-1 banded layout-channel work\n  (architectural, multi-session); 4 canary table/sidebar FAILs remain OPEN.\n- RC-1 banded default-flip ATTEMPTED + REJECTED by 8-canary AI-verify (3\n  ON_REGRESSION the 26/26 word-preservation scan was blind to).\n- 2 project lessons (branch-can-lag-its-own-tags; word-preservation-blind-to-\n  reordering) + cycle LEARNINGS entry. Run verdict PARTIAL; iterate-gate --close\n  correctly blocks on I6 (open canary findings) \u2014 not overridden.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-25",
+            "url": "https://github.com/giladfeldman/docpluck/commit/976af30ad3a88c7222fd273e26e6b5cc1af94a2f",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "59cff5b",
+            "message": "fix(tooling): direction-aware check_app_pin_sync note + RC-T/RC-1 spec findings",
+            "body": "scripts/check_app_pin_sync.py::compare() printed \"working-tree X is ahead of\nlatest tag Y -- UNRELEASED. Tag + push X\" for ANY version != tag, so a checkout\nBEHIND its own latest released tag (a stale 2.4.95 working copy while v2.4.97 is\nthe live release) was wrongly told it was \"ahead\" and advised to tag an OLDER\nversion. That advice is actively harmful and was hit live during this session's\nbranch reconciliation (main was 4 commits behind its own pushed v2.4.96/97 tags).\nMade the note direction-aware via an ordered _vtuple() comparison: ahead ->\nUNRELEASED-tag hint; behind -> loud stale-checkout WARNING; equal -> no note.\nNew tests/test_check_app_pin_sync.py (10 cases) regression-guards the behind-case\n(fails-before / passes-after) + ahead/equal/mismatch/malformed.\n\nDocs (investigation findings for the next session, no library code change):\n- RC-T spec: Layer-1 table-data recovery confirmed == the RC-1 banded layout-\n  channel work (probed 4 angles; ip_feldman T10's 7 rows lost vs gold; x-gutter\n  evidence shows the table IS x-separable but tight-kerned glue + interleave-in-\n  region defeat both Camelot and whitespace_cells). Orphan ### Table N heading is\n  the DELIBERATE v2.4.55 clean-fail, not the fix.\n- RC-1 spec: banded default-flip ATTEMPTED and REJECTED by 8-canary AI-verify\n  (3 ON_REGRESSION: ar_apa furniture-injection + section-inversion, chan_feldman\n  cross-section bleed, maier single-column false-positive). The 26/26 word-\n  preservation scan MISSED all 3 (blind to reordering) -> validates AI-verify-\n  mandatory. Flag stays default-OFF. Precise gap-5/6/7 blockers + a stricter\n  zero-regression re-verify gate recorded for the next session.\n\nNo docpluck/ library code changed -> no version bump (tooling + docs + test).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-25",
+            "url": "https://github.com/giladfeldman/docpluck/commit/59cff5b5c230a3b629fa08125bf1192f82acff42",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "The main branch was the focus of the recent work, with three commits made to it. The most recent commit, made on June 25, \"sync from escicheckapp@f37b5a1 (effectcheck v0.6.6)\" as stated, which suggests that the repository was synchronized with the escicheckapp repository at the specified commit hash, bringing in changes from effectcheck version 0.6.6. On June 21, two commits were made to the main branch, one to \"sync from escicheckapp@bd6f007 (effectcheck v0.6.5)\" and another to \"sync from escicheckapp@dec37b1 (effectcheck v0.6.4)\", indicating that the repository was synchronized with the escicheckapp repository at those specific points, incorporating changes from effectcheck versions 0.6.5 and 0.6.4, respectively. No other branches were worked on during this period, with all changes being made to the main branch.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-06-25T11:39:42Z",
+        "recent_commits": [
+          {
+            "sha": "244b2d8",
+            "message": "sync from escicheckapp@f37b5a1 (effectcheck v0.6.6) (#20)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-25",
+            "url": "https://github.com/giladfeldman/escicheck/commit/244b2d8eb523d917d05d73244f81d964ce603062",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "a588210",
+            "message": "sync from escicheckapp@bd6f007 (effectcheck v0.6.5) (#19)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-21",
+            "url": "https://github.com/giladfeldman/escicheck/commit/a5882108d04b0cfc8b5d61509db101d3078aa8ae",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "1d48c4e",
+            "message": "sync from escicheckapp@dec37b1 (effectcheck v0.6.4) (#18)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-21",
+            "url": "https://github.com/giladfeldman/escicheck/commit/1d48c4e86816b878b9e3a8926835d1fc8ac43d52",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "The `main` branch was worked on, where the validation note was revised and a citation was included, as stated in the commit message \"Revise validation note and include citation\". \nNo other branches were modified in this set of commits.\nThe specific change made was to the validation note, which was revised, and a citation was added to it.\nThere were no additions or changes to any features, fixes, or modules other than the revision of the validation note.\nThe commit message explicitly mentions the revision of the validation note and the inclusion of a citation, indicating that these were the primary focus of the change.\nNo other work was done in this set of commits beyond the revision and addition of the citation in the `main` branch.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-14T14:44:45Z",
+        "recent_commits": [
+          {
+            "sha": "3fce87a",
+            "message": "Revise validation note and include citation",
+            "body": "Updated validation note and added preprint citation.",
+            "author": "Shaheed Azaad",
+            "date": "2026-06-14",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giovannacdelsordo",
+        "repo": "output-it-forward",
+        "url": "https://github.com/giovannacdelsordo/output-it-forward",
+        "summary": "The `main` branch was updated with a commit that added a Chrome Webstore link for OIF, as stated in the commit message \"Add Chrome Webstore link for OIF\". \nNo other branches were worked on in this set of commits. \nThe specific change made was the addition of a link, with no other features or fixes mentioned. \nThere were no changes to existing modules or code outside of this addition. \nThe commit message does not mention any other branches or areas of the repository being modified. \nThe work was limited to a single, straightforward addition to the `main` branch.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-17T14:15:44Z",
+        "recent_commits": [
+          {
+            "sha": "71c2a30",
+            "message": "Add Chrome Webstore link for OIF",
+            "body": "Added a link to the OIF Chrome extension in the README.",
+            "author": "giovannacdelsordo",
+            "date": "2026-06-17",
+            "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
+            "type": "feat",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-06-25T09:01:54.815730+00:00",
     "narrative": "Our community has seen significant progress across multiple projects, with notable updates in **scienceverse/metacheck**, **giladfeldman/docpluck**, and **Davidvandijcke/coarse**. The **scienceverse/metacheck** project has improved its navigation and home page, while also addressing a critical \"coi_check/funding_check cold-start failure\" and merging several pull requests. Meanwhile, **giladfeldman/docpluck** has added important documentation and fixes for tooling and tables, showcasing the project's growth. Additionally, **Davidvandijcke/coarse** has made strides in localization and deployment, with updates to its 'main' and 'dev' branches. These connections demonstrate the collaborative spirit of our community, with projects like **JamieCummins/regcheck** and **giladfeldman/escicheck** also making notable progress, including enhancements to the command-line interface and syncing with external repositories. Overall, it's an exciting time for our community, with many projects pushing forward and building on each other's successes.",
     "repos": [
