@@ -1,5 +1,121 @@
 [
   {
+    "generated_at": "2026-07-02T02:58:30.834462+00:00",
+    "narrative": "Our community has seen exciting progress across multiple projects recently. The `giladfeldman/docpluck` project has released version `v2.4.99`, introducing region-driven table capture and content-plausibility guards, while also fixing stale paths to improve overall functionality. Meanwhile, `giladfeldman/escicheck` has been synced with the latest versions of effectcheck, bringing it up to date with versions `0.6.11` and `0.6.12`. Additionally, `shaheedazaad/auto-zcurve` has revised its validation note and included a citation, and `giovannacdelsordo/output-it-forward` has added a convenient Chrome Webstore link for easy access. These updates demonstrate the connections and collaborations within our community, and we celebrate the ongoing progress and improvements being made across these projects.",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "The `main` branch was the focus of the recent work, where a version bump to `v2.4.99` was made, along with a `CHANGELOG` update, as part of the \"chore(release): v2.4.99 \u2014 region-driven table capture\" commit. The `main` branch also saw a fix to correct \"stale PDFextractor/docpluck paths\" which were updated to point to the \"MetaScienceTools/\" layout, as described in the \"fix(skills): correct stale PDFextractor/docpluck paths to MetaScienceTools/ layout\" commit. Additionally, a new feature was added to the `main` branch, introducing \"region-driven Camelot capture + content-plausibility guards\" for tables, as stated in the \"feat(tables): region-driven Camelot capture + content-plausibility guards (DP-1/DP-2)\" commit. The `main` branch is the only branch that was worked on in these commits.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-06-29T21:15:06Z",
+        "recent_commits": [
+          {
+            "sha": "03e5d55",
+            "message": "chore(release): v2.4.99 \u2014 region-driven table capture (version bump + CHANGELOG)",
+            "body": "Bump __version__ 2.4.98\u21922.4.99, pyproject version, and TABLE_EXTRACTION_VERSION\n2.4.4\u21922.4.5 (region-driven capture is the first capture-path change in the\nv2.4.x table series). CHANGELOG documents the feature, the AI-gold verification\n(101-PDF structured diff 27 changed/0 err + 6-paper canary all FIX/PASS/\nNET-BETTER), and the known pre-existing hard cases (cog_emo T8 under-segmentation,\nchandrashekar 2-col caption interleave, efendic T2 Camelot-invisible, bmc_med_3\nduplicate-fragment pairing \u2014 dedupe + bbox-proximity both tried and reverted as\nnet-harmful).\n\nThe capture-path code itself shipped in the preceding commit (region-driven\nCamelot + content-plausibility guards); this commit is release prep only.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-29",
+            "url": "https://github.com/giladfeldman/docpluck/commit/03e5d55331f3cc1b48c30835d4819ea3124a7100",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "b0fdd5f",
+            "message": "fix(skills): correct stale PDFextractor/docpluck paths to MetaScienceTools/ layout",
+            "body": "docpluck-qa reference files pointed at Vibe/PDFextractor and Vibe/docpluck (pre-move\nlocations). Both now live under Vibe/MetaScienceTools/ per the two-repo architecture.\nAuto-applied by the 2026-06-29 weekly skill-portfolio-review (verified on disk).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-29",
+            "url": "https://github.com/giladfeldman/docpluck/commit/b0fdd5f7cb649a43528b7ed90a2b9562510e4a3b",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "fd072b8",
+            "message": "feat(tables): region-driven Camelot capture + content-plausibility guards (DP-1/DP-2)",
+            "body": "Drive Camelot stream with docpluck's OWN caption-anchored region as\ntable_areas (per caption) so each extraction is that caption's table by\nconstruction \u2014 fixing the stacked-/side-by-side multi-table-per-page class\n(efendic Table 4+5, cog_emo) that blind pages=\"all\" auto-detect + token-overlap\npairing could not separate. Region tables are CANDIDATES, not winners:\n_pick_better_table keeps the structurally-richer of {region, auto-detect} per\ncaption (more columns wins + cell-retention guard), so region-driving can only\nADD coverage (0x0 stub -> real table) or replace an auto table it strictly beats\n\u2014 never collapse a wide table whose region bbox is too narrow (jama_open_1 stays\n43x7). A starved caption (the case region-driving exists for) has no auto\ncandidate, so region wins automatically; no page-multiplicity special-case.\n\nContent-plausibility guards on the region-driven path (keyed on structural\nsignatures, general to any PDF):\n- _cell_is_prose dominance reject: a region that over-captured 2-column body\n  text emits a grid whose cells are sentence fragments (cog_emo Table 3 was a\n  27x4 of the procedure paragraph). Reject when >=1/3 of rows carry a 6+word\n  prose cell -> honest 0x0 stub.\n- _CAPTION_LABEL_RE reject: a cell containing \"Table N.\"/\"Figure N.\" proves the\n  region absorbed an adjacent caption (cog_emo Table 9 pulled in Table 8's tail +\n  its own caption). One occurrence condemns the grid. (Note:/p< NOT rejected \u2014\n  legit footnotes, e.g. cog_emo Table 2's matrix.)\nGuards are region-only: applying them to the auto-detect path wholesale rejected\nlegitimate-but-imperfect tables (cog_emo T5/6/7) \u2014 a net regression.\n\nCaption page-fix (foundational): advance char_start past leading \\n\\n/\\f\nwhitespace so captions after a paragraph break / at a page top get a non-empty\nline_text (required for _bbox_of_caption_line -> region) and correct page\nattribution. Harmless on its own; the old token-overlap pairing it once\nperturbed is now superseded by region-driving + _pick_better_table.\n\nVerification (ground truth = AI multimodal PDF/gold reads per project rule, NOT\npdftotext):\n- Full 101-PDF structured diff vs v2.4.98 baseline: 27 papers changed, 0 errors.\n- AI-gold canary (6 papers): chandrashekar=FIX, ieee_access_4=FIX, efendic page-8\n  split=PASS (strict win, values match gold), bmj_open_1=FIX, ieee_access_7=\n  NET_BETTER, cog_emo=PASS (both prior regressions fixed, no new ones).\n- Full table unit + real-PDF test suite green.\n\nPre-existing issues surfaced for follow-up (not introduced here): cog_emo Table 8\ncontent-mislabel, efendic Table 2 raw_text-fallback / Table 1 row-into-header,\nbmc_med_3 two-fragment pairing, chandrashekar caption cross-column leak, U+2212\n(cid)->2 minus artifact.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-06-29",
+            "url": "https://github.com/giladfeldman/docpluck/commit/fd072b811d96ec46700f6508c855f665fdde9a11",
+            "type": "feat",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "The main branch was the focus of work, with two commits made to it. The first commit, as stated by Gilad Feldman, was to \"sync from escicheckapp@edb3c7b (effectcheck v0.6.12)\" which brought the repository in line with version 0.6.12 of effectcheck. Prior to this, another commit was made to the main branch to \"sync from escicheckapp@928a5bc (effectcheck v0.6.11)\", synchronizing with version 0.6.11 of effectcheck. No other branches were worked on during this time. These commits specifically updated the repository to match the changes in effectcheck versions 0.6.11 and 0.6.12.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-07-01T22:44:24Z",
+        "recent_commits": [
+          {
+            "sha": "e09dbc9",
+            "message": "sync from escicheckapp@edb3c7b (effectcheck v0.6.12) (#25)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-01",
+            "url": "https://github.com/giladfeldman/escicheck/commit/e09dbc9013b04f959bdc6ec6e67496d769d86bd8",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "bedc262",
+            "message": "sync from escicheckapp@928a5bc (effectcheck v0.6.11) (#24)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-01",
+            "url": "https://github.com/giladfeldman/escicheck/commit/bedc262e3c12818e54187fa75ba0804ba95761fc",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "The `main` branch was worked on, where the validation note was revised and a citation was included, as stated in the commit message \"Revise validation note and include citation\". \nNo other branches were modified in this set of commits.\nThe revision of the validation note and the addition of a citation are the specific changes made in this commit.\nThe commit message does not mention any other changes or additions to the repository.\nThe work was limited to a single commit on the `main` branch, with no other branches or modules affected.\nThe commit message provides a clear description of the change, which is the revision of the validation note and the inclusion of a citation.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-14T14:44:45Z",
+        "recent_commits": [
+          {
+            "sha": "3fce87a",
+            "message": "Revise validation note and include citation",
+            "body": "Updated validation note and added preprint citation.",
+            "author": "Shaheed Azaad",
+            "date": "2026-06-14",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giovannacdelsordo",
+        "repo": "output-it-forward",
+        "url": "https://github.com/giovannacdelsordo/output-it-forward",
+        "summary": "The `main` branch was updated with a commit that added a Chrome Webstore link for OIF, as stated in the commit message \"Add Chrome Webstore link for OIF\". \nNo other branches were worked on in this set of commits. \nThis specific change involved adding a link, presumably to make it easier for users to access or install the OIF extension from the Chrome Webstore. \nThe commit does not mention any other changes or additions to the repository. \nThere were no changes to existing features or modules in this set of commits, only the addition of the Chrome Webstore link.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-17T14:15:44Z",
+        "recent_commits": [
+          {
+            "sha": "71c2a30",
+            "message": "Add Chrome Webstore link for OIF",
+            "body": "Added a link to the OIF Chrome extension in the README.",
+            "author": "giovannacdelsordo",
+            "date": "2026-06-17",
+            "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
+            "type": "feat",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-07-01T19:53:00.753200+00:00",
     "narrative": "Our community has seen significant progress across multiple projects recently. In the `scienceverse/metacheck` project, the `ref_update` branch has been the focus of attention, with updates to `ref_accuracy`, `reg_check`, and `ref_consistency`, as well as improvements to error logging. Meanwhile, `Davidvandijcke/coarse` has made strides in localization and deployment fixes, while `JamieCummins/regcheck` has removed the sign-up feature from its `staging` branch. Notably, `giladfeldman/escicheck` has synchronized changes from the `escicheckapp` repository, bringing in updates from `effectcheck` version `0.6.11`. These connections between projects demonstrate the collaborative spirit of our community, and we celebrate the progress being made towards our shared goals. As our projects continue to evolve, we look forward to seeing the impact of these updates and the new developments on the horizon.",
     "repos": [
@@ -15738,55 +15854,6 @@
             "url": "https://github.com/Davidvandijcke/coarse/commit/32ec6e46ed0ddcd64ad71592072f6fccd76c6b2a",
             "type": "fix",
             "branch": "dev",
-            "diff": {}
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-05-26T23:59:00+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "The GitHub repository 'shaheedazaad/auto-zcurve' has seen recent development activity focused on refining its documentation. Specifically, the repository's README file was updated multiple times on May 26, 2026, suggesting improvements to the project's description or usage instructions. More recently, on June 14, 2026, a validation note was revised and a citation was added, indicating an effort to enhance the project's credibility and academic rigor. Overall, the development direction appears to be centered on polishing the project's presentation and legitimacy.",
-        "commits_since_last": 3,
-        "pushed_at": "2026-06-14T14:44:45Z",
-        "recent_commits": [
-          {
-            "sha": "2637db4",
-            "message": "updated readme",
-            "author": "Shaheed Azaad",
-            "author_login": "shaheedazaad",
-            "date": "2026-05-26",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/2637db466fe8517f5985eba5076071cc1274c725",
-            "type": "docs",
-            "branch": "main",
-            "diff": {}
-          },
-          {
-            "sha": "b946cae",
-            "message": "updated readme",
-            "author": "Shaheed Azaad",
-            "author_login": "shaheedazaad",
-            "date": "2026-05-26",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/b946cae621fb2750d604b77bb5921566275de561",
-            "type": "docs",
-            "branch": "main",
-            "diff": {}
-          },
-          {
-            "sha": "7141113",
-            "message": "initial commit",
-            "author": "Shaheed Azaad",
-            "author_login": "shaheedazaad",
-            "date": "2026-05-26",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/7141113b6713e6037577fe136770878a400d381d",
-            "type": "other",
-            "branch": "main",
             "diff": {}
           }
         ]
