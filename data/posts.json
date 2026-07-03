@@ -1,5 +1,141 @@
 [
   {
+    "generated_at": "2026-07-03T09:02:26.422768+00:00",
+    "narrative": "Our community has seen exciting progress across multiple projects recently. In the scienceverse/metacheck project, Lakens has made significant strides in building out the datacheck capability, including the creation of initial modules and refinement of error handling. Meanwhile, giladfeldman/docpluck has released version v2.4.102 with important fixes, including the recovery of \"2-for-minus\" in Camelot HTML table cells and updates to documentation and changelogs. Notably, these projects highlight the importance of robust data handling and documentation, which are also relevant to the JamieCummins/regcheck project, where the removal of the sign-up feature on the staging branch may indicate a shift towards more streamlined user interactions. Overall, our community is celebrating a period of active development and collaboration, with connections between projects underscoring the value of open-source research tools. As we continue to build and refine these tools, we look forward to seeing the impact of this work on the broader research community.",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Work was done on the 'main' branch, where a fix was applied to recover the \"2-for-minus\" in Camelot HTML table cells, specifically in the efendic B-column, and the version was bumped to v2.4.102. \nThe documentation was updated to record a 2026-07-02 /api/extract unhandled-error incident in the lessons section. \nThe documentation was also archived by removing resolved reconciliation handoffs and adding source findings and specifications. \nAdditionally, the CHANGELOG was updated to version v2.4.101 and reconciliation findings were added to the release documentation. \nFixes were applied to tables, including stripping LONG caption-tail prose headers and fixing the efendic T3 running-header and T2-5 caption-tail-prose strip, with a version bump to v2.4.101. \nInitial work-in-progress was done on tables to reconcile concurrent table-capture sessions onto greedy+rescue.",
+        "commits_since_last": 7,
+        "pushed_at": "2026-07-03T08:45:36Z",
+        "recent_commits": [
+          {
+            "sha": "54b7923",
+            "message": "fix(glyph): recover 2-for-minus in Camelot HTML table cells (efendic B-column) + v2.4.102",
+            "body": "W0d recover_minus_via_ci_pairing paired a bracket-less point estimate with the\nCI in its same record and recovered the '2'-for-U+2212 minus by the containment\ninvariant \u2014 but Camelot emits each <td> on its own line, so the SE cell between\nthe B-column estimate and the CI cell pushed the char-gap past the 30-char\nbare-bracket proximity cap. The recovery fired in the DISABLE_CAMELOT\nunstructured-table channel (CI on the same text line) but silently missed every\nnegative B-coefficient in the Camelot HTML-table channel \u2014 the production\ndefault. efendic Tables 2-5: 27 corrupt cells (`20.09` for `-0.09`), a\nsilently-wrong statistic. The existing test passed only because it set\nDOCPLUCK_DISABLE_CAMELOT=1 (a channel blind spot).\n\nFix: inside an HTML <tr> columns pair by table geometry, not prose adjacency, so\na bare bracket now uses the relaxed (labeled) proximity, still guarded by\n_INDEPENDENT_STAT_BETWEEN_RE (rejects pairing across a different estimate's\ncolumn). A prose line (no <td>) keeps the strict 30-char cap. Keyed on <tr>\nstructure, not paper identity -> general. 27->0 corrupt cells; genuine 2.56\n(Direction row, in [2.42,2.69]) preserved by containment; idempotent.\n\nAlso (pre-existing, leave-nothing-behind): the independent-stat guard now runs\nfor EVERY bracket kind, not just labeled. A tight-spaced prose variant\n`M=5.37, SD=2.01, t(1827)=1.83, d=0.09 [-1.86,0.04]` is 25 chars from 2.01 to\nthe bracket (within the cap), so the gap check alone let SD=2.01 wrongly recover\nto -.01; the CI is d's and t/d intervene -> now rejected.\n\nBumps: __version__/pyproject 2.4.102, NORMALIZATION_VERSION 1.9.37.\n\nVerification (ground truth = AI multimodal read via article-finder reading golds,\nnever pdftotext): efendic Camelot-ON 27->0 corrupt B-cells; independent Sonnet\nAI-gold re-verify confirms A1 resolved, B-column exact, 0 new regressions. Full\nminus suite 22 pass (6 new); adversarial over-recovery battery all pass; broad\nnormalize/render/sections/heading 557 pass; flatten 39; RC-T degenerate-table\n(Camelot) 8; deterministic DISABLE_CAMELOT body-text diff of 8 corpus papers = 0\nchanged (surgical).\n\nCycle-1 canary baseline at v2.4.101 was 5/5 FAIL (fresh TRIAGE\ndocs/TRIAGE_2026-07-03_head_v2.4.101_assessment.md). This ships ONE root-cause\nclass (A1); efendic still FAILs on A2 (x-for-3), A3 (SE-spurious-minus), and an\naffiliation leak, queued as next cycles. Standing corpus verdict: FAIL.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/54b7923000a5a3dda820763b46795e88d1dec18a",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "9ca2167",
+            "message": "docs(lessons): record 2026-07-02 /api/extract unhandled-error incident",
+            "body": "Two-part root cause (service blocked its event loop with sync CPU work in\nasync handlers; Next route didn't guard the response-body read) + fixes\n(_offload/run_in_threadpool, classifyTransportError body-read guard,\nwithRouteErrorLogging wrap, uvicorn --timeout-keep-alive) + the pre-existing\ntest-infra gap that hid it (missing anyio/httpx/annotated-doc). Companion to\nthe 2026-06-20 daily-digest system_logs entry.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/9ca2167a54312deaa81adfbd89ff6ca05bf1aa27",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "1a7f8be",
+            "message": "docs: archive source FINDINGS + spec, remove resolved reconciliation handoffs",
+            "body": "The four in-flight table fixes + the reconciliation shipped in v2.4.101. Keep the\ndurable technical write-ups (chandrashekar side-by-side, efendic T2/collabra,\nparallel-session verification, the table-extraction re-architecture spec) that the\nCHANGELOG + memory reference; remove the four HANDOFF_2026-07-01_* docs whose work\nis now complete (bmc_med_3 ship, both reconcile handoffs, R-0040B CI-minus backlog).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/1a7f8bef6215d761aad1e9771429e076942ad800",
+            "type": "test",
+            "branch": "main"
+          },
+          {
+            "sha": "0f5dba9",
+            "message": "docs(release): v2.4.101 CHANGELOG + reconciliation FINDINGS",
+            "body": "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/0f5dba94289d221e7f4995c1b338daf1d90ffbff",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "53fde8d",
+            "message": "fix(tables): strip LONG caption-tail prose header + version bump v2.4.101",
+            "body": "- _is_caption_tail_prose: recognize a long caption-continuation prose fragment\n  (>=8 words, function-word-dense, sentence-ending, no stat) as a leading\n  single-cell row, not just the short <=40-char form. Mirrors the phantom-strip's\n  body-prose-in-<th> detector so the tail is removed UPSTREAM rather than tripping\n  render._strip_phantom_camelot_tables, which drops the ENTIRE table.\n  Fixes jdm_.2023.16 Table 7 (14x10 real grid was vanishing at render because its\n  absorbed caption-tail header row triggered the phantom-strip).\n- window the multi-cell-below context guard (scan next 5 rows, not just the next)\n  so an intervening single-cell super-header row doesn't defeat the strip.\n- version bump: __version__/pyproject 2.4.101, NORMALIZATION_VERSION 1.9.36,\n  TABLE_EXTRACTION_VERSION 2.4.7.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/53fde8d2bd2c2a9e8b23bc11108aed4a09d352cf",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "819902e",
+            "message": "fix(tables): efendic T3 running-header + T2-5 caption-tail-prose strip",
+            "body": "- _RUNNING_HEADER_PATTERNS: add 'Author et al. <page-number>' two-cell running\n  header (efendic T3 row0 'Efendic et al. 1179' \u2014 the FINDINGS-flagged regression)\n- _drop_caption_first_row: strip a leading single-cell caption-continuation PROSE\n  tail ('DV.', 'in Non-Manipulated Attribute as DV.') when it sits directly above\n  a genuine multi-cell header (context-guarded so a bare 'DV.'/'Note.' is only\n  removed in the caption-bleed position). efendic T2-5 now start at the real\n  Predictors header.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/819902e33432a5d171c1d0259e3b6231687bf103",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "c7246f4",
+            "message": "wip(tables): reconcile concurrent table-capture sessions onto greedy+rescue",
+            "body": "Integrates onto v2.4.100 (greedy _find_caption_for_table + _rescue_duplicate_starved_captions):\n- efendic T1 categorical + T2 detect (unified detect.py/whitespace.py)\n- dropped-minus CI-upper recovery (normalize/cell_cleaning/flatten)\n- chandrashekar side-by-side de-interleave (extract_structured/camelot_extract/whitespace)\n- collabra_77859 bare-digit token exclusion (region-driven pins pairing; reading-order sort REJECTED \u2014 regressed chan_feldman T6)\n- cog_emo T8 caption-marker hint (camelot_extract/extract_structured)\n- RR major-section heading promoter (render.py)\n\nGlobal-assignment refactor REJECTED (regressed chan_feldman T6, ~24-paper reshuffle).\nUnit suites green; AI-gold + 101-PDF diff pending.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/c7246f4d7062629136ac8124d9ace4f6e4053692",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "The `data_check` branch was the focus of recent work, where the first version of datacheck modules was added, as stated in the commit message \"first version of datacheck modules\". On this same branch, a fix was made to \"prevent double crossref api\", and an additional change was made to \"log errors\", which enhances the robustness of the code. The `data_check` branch saw these specific changes to its datacheck modules and error handling. The work on the `data_check` branch appears to be foundational, with the initial module creation and subsequent refinement of its functionality. The commits suggest that the developer, Lakens, is building out the datacheck capability with attention to potential issues like API calls and error logging.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-07-03T03:45:00Z",
+        "recent_commits": [
+          {
+            "sha": "bd8c890",
+            "message": "first version of datacheck modules",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-07-03",
+            "url": "https://github.com/scienceverse/metacheck/commit/bd8c890799cdb39c1e9e568c3bc6740935efe17b",
+            "type": "chore",
+            "branch": "data_check"
+          },
+          {
+            "sha": "41a54be",
+            "message": "prevent double crossref api, log errors",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-07-01",
+            "url": "https://github.com/scienceverse/metacheck/commit/41a54be6215bb7a130308eb5e003d1cd71af527f",
+            "type": "fix",
+            "branch": "data_check"
+          }
+        ]
+      },
+      {
+        "owner": "JamieCummins",
+        "repo": "regcheck",
+        "url": "https://github.com/JamieCummins/regcheck",
+        "summary": "The `staging` branch was worked on, where the sign-up feature was removed, as indicated by the commit message \"remove sign-up\". \nNo other branches were modified in this set of commits. \nThe removal of the sign-up feature is the sole change made in this update. \nThere are no additions or changes to any modules or other features in this set of commits. \nThe commit message explicitly states that the sign-up functionality was taken out. \nThe work was done by Jamie Cummins on July 1, 2026.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-07-01T09:17:58Z",
+        "recent_commits": [
+          {
+            "sha": "1f6986b",
+            "message": "remove sign-up",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-07-01",
+            "url": "https://github.com/JamieCummins/regcheck/commit/1f6986bebd85c384b4a9ba906dab056ee71ccea5",
+            "type": "other",
+            "branch": "staging"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-07-03T02:42:19.448542+00:00",
     "narrative": "Our community has seen significant progress across multiple projects recently. Notably, the `giladfeldman/docpluck` project has released version 2.4.101, which includes updated documentation and improvements to table functionality. Meanwhile, `Davidvandijcke/coarse` has made strides in localization and has re-enabled Fable 5 in the model picker. The `giladfeldman/escicheck` project has been synced with the latest versions of `effectcheck`, bringing it up to date with versions 0.6.11 and 0.6.12. Additionally, `shaheedazaad/auto-zcurve` and `giovannacdelsordo/output-it-forward` have both seen updates, with the latter adding a convenient Chrome Webstore link for Output-It-Forward. These connections between projects demonstrate the collaborative spirit of our community, and we celebrate the progress being made across the board.",
     "repos": [
@@ -15995,196 +16131,6 @@
             "url": "https://github.com/JamieCummins/regcheck/commit/bcd1fe94146e782995d1538bf838242366a6ad68",
             "type": "other",
             "branch": "staging",
-            "diff": {}
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-06-11T23:59:00+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "Recent development activity for the 'JamieCummins/regcheck' GitHub repository has focused on enhancing the user interface, improving report functionality, and adding API support. The commits indicate a significant overhaul of the report page, including redesigns, aesthetic updates, and improvements to report navigation, editing, and security. Additionally, the repository has seen updates to the API configuration, the addition of OAuth implementation, and various bug fixes, suggesting a direction towards a more robust, user-friendly, and secure application. Overall, the development activity suggests a major refinement of the repository's core features and user experience.",
-        "commits_since_last": 8,
-        "pushed_at": "2026-06-14T16:07:05Z",
-        "recent_commits": [
-          {
-            "sha": "a14ee5b",
-            "message": "add dimension fixes",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-11",
-            "url": "https://github.com/JamieCummins/regcheck/commit/a14ee5bfb773d14ce83d5e58429450766d8ab7bf",
-            "type": "feat",
-            "branch": "staging",
-            "diff": {}
-          },
-          {
-            "sha": "9d12737",
-            "message": "add more robust quote location",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-11",
-            "url": "https://github.com/JamieCummins/regcheck/commit/9d127370249de4da4ae3cb8c0f0614bb6f0529b9",
-            "type": "feat",
-            "branch": "staging",
-            "diff": {}
-          },
-          {
-            "sha": "3ace417",
-            "message": "merge report formats",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-11",
-            "url": "https://github.com/JamieCummins/regcheck/commit/3ace417f20ee61fb46b61e6c8595ef7a4896f8ff",
-            "type": "other",
-            "branch": "staging",
-            "diff": {}
-          },
-          {
-            "sha": "00cc087",
-            "message": "Revert \"checkpoint: redesign of report page\"",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-11",
-            "url": "https://github.com/JamieCummins/regcheck/commit/00cc087acbf57d70edd69f045f15dde6afed06d4",
-            "type": "fix",
-            "branch": "staging",
-            "diff": {}
-          },
-          {
-            "sha": "c3bf9da",
-            "message": "update of report",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-11",
-            "url": "https://github.com/JamieCummins/regcheck/commit/c3bf9da51d1241ef2a8f42f40fa2971fc183cbb6",
-            "type": "other",
-            "branch": "staging",
-            "diff": {}
-          },
-          {
-            "sha": "dc0a1e6",
-            "message": "checkpoint: redesign of report page",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-11",
-            "url": "https://github.com/JamieCummins/regcheck/commit/dc0a1e6426f72bbfe885dc7d06a17e025cf45d7d",
-            "type": "other",
-            "branch": "staging",
-            "diff": {}
-          },
-          {
-            "sha": "c8cc364",
-            "message": "remove footer + modify aesthetics",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-11",
-            "url": "https://github.com/JamieCummins/regcheck/commit/c8cc364a15fa5186f60e9e950a05286a29e53fbc",
-            "type": "other",
-            "branch": "staging",
-            "diff": {}
-          },
-          {
-            "sha": "2b3fe67",
-            "message": "add panelling variation",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-11",
-            "url": "https://github.com/JamieCummins/regcheck/commit/2b3fe677bd1a3e982bb9396de8472e137fb11214",
-            "type": "feat",
-            "branch": "staging",
-            "diff": {}
-          }
-        ]
-      },
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Recent development activity for the 'scienceverse/metacheck' GitHub repository has focused on bug fixes, code improvements, and feature additions. Specifically, commits have addressed issues with validation, loops, and typos, while also adding new functionality such as a sanitizing step and support for Zenodo repositories. The overall direction of development appears to be refining the codebase, improving its reliability, and expanding its capabilities to better support research projects. Additionally, the removal of open practices and updates to internal functions suggest a shift towards streamlining and optimizing the code.",
-        "commits_since_last": 4,
-        "pushed_at": "2026-06-14T18:18:34Z",
-        "recent_commits": [
-          {
-            "sha": "fe37300",
-            "message": "add email",
-            "author": "Lakens",
-            "author_login": "Lakens",
-            "date": "2026-06-11",
-            "url": "https://github.com/scienceverse/metacheck/commit/fe37300e793e0061eca70d602f167c6ed4bd2545",
-            "type": "feat",
-            "branch": "main",
-            "diff": {}
-          },
-          {
-            "sha": "f0f26ef",
-            "message": "Shiny app updates and related fixes",
-            "author": "Lisa DeBruine",
-            "author_login": "debruine",
-            "date": "2026-06-11",
-            "url": "https://github.com/scienceverse/metacheck/commit/f0f26ef46adf31e590f469e3d653805ce9f73ed4",
-            "type": "other",
-            "branch": "dev",
-            "diff": {}
-          },
-          {
-            "sha": "1c20e09",
-            "message": "Merge pull request #304 from scienceverse/shiny_update",
-            "author": "Lisa DeBruine",
-            "author_login": "debruine",
-            "date": "2026-06-11",
-            "url": "https://github.com/scienceverse/metacheck/commit/1c20e09c16d14f900762e9f2ed660c7ecaa6c87f",
-            "type": "chore",
-            "branch": "dev",
-            "diff": {}
-          },
-          {
-            "sha": "e1cc0d4",
-            "message": "Merge branch 'dev' into shiny_update",
-            "author": "Lisa DeBruine",
-            "author_login": "debruine",
-            "date": "2026-06-11",
-            "url": "https://github.com/scienceverse/metacheck/commit/e1cc0d4e59dd19f8fa7d11da8c26eebea4c77974",
-            "type": "other",
-            "branch": "dev",
-            "diff": {}
-          }
-        ]
-      },
-      {
-        "owner": "Davidvandijcke",
-        "repo": "coarse",
-        "url": "https://github.com/Davidvandijcke/coarse",
-        "summary": "Recent development activity for the GitHub repository 'Davidvandijcke/coarse' has focused on refining the web interface, models, and pipeline functionality. Specifically, updates have included adding new models such as Claude Fable 5, recalibrating cost estimates for reasoning models, and improving the web interface with features like per-comment Discuss chat streaming and defaulting to latest host models. Additionally, several bug fixes have been implemented to address issues with OpenRouter key handling, extraction output, and security vulnerabilities, indicating an overall direction of development towards enhancing user experience, model support, and reliability.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-06-14T03:40:29Z",
-        "recent_commits": [
-          {
-            "sha": "3af872e",
-            "message": "fix(web): stop demanding an OpenRouter key for non-PDF subscription handoffs (#186) (#217)",
-            "author": "David Van Dijcke",
-            "author_login": "Davidvandijcke",
-            "date": "2026-06-11",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/3af872e35b184d6b9f1e24d3e3d25a1faf29ec93",
-            "type": "fix",
-            "branch": "dev",
-            "diff": {}
-          },
-          {
-            "sha": "1d99a5d",
-            "message": "fix(web): stop demanding an OpenRouter key for non-PDF subscription handoffs (#186)",
-            "author": "Davidvandijcke",
-            "author_login": "Davidvandijcke",
-            "date": "2026-06-11",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/1d99a5d3b574a415986c339d421ffb64ac73e7a9",
-            "type": "fix",
-            "branch": "fix/186-handoff-no-key-for-non-pdf",
             "diff": {}
           }
         ]
