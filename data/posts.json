@@ -1,5 +1,311 @@
 [
   {
+    "generated_at": "2026-07-04T02:48:08.247898+00:00",
+    "narrative": "Our community has seen significant progress across multiple projects recently. Notably, the `giladfeldman/docpluck` project has made substantial updates, including fixes to rendering and normalization issues, as well as documentation updates. Meanwhile, the `giladfeldman/escicheck` project has been synchronized with the `escicheckapp` repository, incorporating the latest version of `effectcheck`. Additionally, smaller but important updates have been made to other projects, such as the re-enabling of Fable 5 in the `Davidvandijcke/coarse` model picker and the revision of the validation note in `shaheedazaad/auto-zcurve`. These updates demonstrate the connections and collaborations between our projects, and we celebrate the progress being made to improve our open-source research tools. The addition of a Chrome Webstore link for `giovannacdelsordo/output-it-forward` also highlights the growing accessibility of our tools.",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Work was done on the `main` branch, where a fix was made to strip affiliation remnants orphaned in the Abstract body, as stated in the commit message \"fix(render): strip affiliation remnant orphaned in Abstract body (chandrashekar) + v2.4.115\". \nDocumentation updates were made, including recording the outcome of a triage run, with the commit message noting \"7 fixes v2.4.108\u2192114, efendic 5/10 resolved\". \nMultiple rendering fixes were applied, such as demoting over-promoted Results subsections, stripping Sage volume/issue and copyright glyphs, and rejoining wrapped Results-subsection headings, as seen in commits like \"fix(render): demote over-promoted Results subsection to ### (C3) + v2.4.110\" and \"fix(render): rejoin wrapped Results-subsection headings into one ### (C1) + v2.4.108\". \nNormalization fixes were also made, including recovering specific characters in body prose and table cells, such as \"fix(normalize): recover \u00d7-as-3 in body prose / flattened captions (W0k) + v2.4.112\" and \"fix(glyph): recover \u00d7-as-3 in interaction-term table cells (efendic) + v2.4.103\". \nOther fixes included promoting Sage/APA back-matter headings, dropping Elsevier CrossMark widgets, and stopping dropped-minus recovery sign-flipping in table cells, as described in commits like \"fix(sections): promote Sage/APA back-matter headings via taxonomy + v2.4.105\" and \"fix(glyph): stop dropped-minus recovery sign-flipping SE table cells (efendic) + v2.4.104\".",
+        "commits_since_last": 17,
+        "pushed_at": "2026-07-04T00:26:50Z",
+        "recent_commits": [
+          {
+            "sha": "e140cf1",
+            "message": "fix(render): strip affiliation remnant orphaned in Abstract body (chandrashekar) + v2.4.115",
+            "body": "A canary AI-verify found chandrashekar_2023_mp rendering \"Department of Philosophy,\nLake Forest College\" + \"*Joint first authors\" right after the ## Abstract heading,\nbefore the abstract prose. The paper has 3 author affiliations; the section\npartitioner inserted ## Abstract mid-affiliation-block, so the masthead strip\n(which stops AT ## Abstract) caught the first two but left the third orphaned in\nthe Abstract body, and the >=3-consecutive-line _strip_body_affiliation_block\ncould not reach a single surviving affiliation line.\n\nFix: _strip_abstract_zone_affiliation_remnant removes an affiliation line (+ a\njoint-authors / corresponding-author companion note) that is the FIRST non-blank\ncontent after ## Abstract. A real Abstract always opens with PROSE, so an\naffiliation LINE in that slot is unambiguously a boundary-split front-matter\nremnant -- the structural signature is affiliation-grammar (via the existing\n_is_affiliation_line) at the Abstract-heading boundary, never paper identity. An\nabstract that merely MENTIONS a university mid-sentence is prose, not an\naffiliation line, and is kept.\n\nVerification (AI-gold via article-finder): chandrashekar's ## Abstract now goes\ndirectly to the abstract body; all 3 affiliations are in the front matter (stripped\nby design), none in the Abstract. An abstract-zone FP-scan across the rendered\ncorpus fires ONLY on chandrashekar -- every other paper's abstract is byte-identical.\n4 new tests (incl. real-abstract + university-mention FP guards). Full suite: 1896\npassed, only the 2 documented pre-existing whitespace_cells failures remain.\n\nResolves chandrashekar's METADATA-LEAK (defect #1 of the 2026-07-04 report). Its\nTables 9/10 RC-T data-loss (defects #2/#3) is the architectural cluster --\ndiagnosed with a precise cycle plan in\ndocs/FINDINGS_2026-07-04_chandrashekar_rc_t_tables_9_10.md (the missing piece: wire\ntables/whitespace.py::char_whitespace_cells to REPLACE a degenerate matched Camelot\ntable in extract_structured.py::_pick_better_table). Deferred to a dedicated gated\ncycle (full 48-paper guard-diff + 7-canary AI-verify; do NOT rush at session-tail).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-04",
+            "url": "https://github.com/giladfeldman/docpluck/commit/e140cf159e73370aa9b8db830cb5169ae905e120",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "0007f4f",
+            "message": "docs(triage): record run-2 outcome \u2014 7 fixes v2.4.108\u2192114, efendic 5/10 resolved",
+            "body": "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/0007f4f4f0e838a1bdeac3665c95889c9c2af25c",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "6a613de",
+            "message": "fix(normalize): strip Title-Case surname running header (efendic) + v2.4.114",
+            "body": "The independent Sonnet canary audit found efendic_2022_affect leaking its Sage\nrunning header \"Efendi\u0107 et al.\" at 5 page breaks (the line arrives as\n\"\\fEfendi\u0107 et al.\", splitting a sentence at one). The existing P0r pattern only\nstripped an ALL-CAPS \"SMITH et al.\" header; a Title-Case surname was deliberately\nexcluded because \"Smith et al.\" can be an inline citation.\n\nFix: a P0r pattern that strips a Title-Case (mixed-case, accented) surname +\n\"et al.\" ONLY when it is the COMPLETE line (^...$, after .strip() removes the\nleading form-feed) with NOTHING after \"et al.\" -- an inline citation always\ncarries a \"(YEAR)\" or continues the sentence (\"...by Efendi\u0107 et al., 2022, this\nholds\"; \"Efendi\u0107 et al. (2022) found...\"), never a bare \"Surname et al.\" alone on\nits own line. Surname chars include Latin-1 + Latin Extended-A (\u0107/\u0144/\u00f8/\u0161/\u017e...);\nup to 3 tokens with nobiliary particles (van/der/de/...). NORMALIZATION_VERSION\n-> 1.9.42.\n\nVerification (running headers are an allowed_omissions category): efendic's 5\n\"Efendi\u0107 et al.\" running-header lines are gone and the sentence they split\nreconnects, while all 42 inline \"et al.\" citations (Finucane et al. (2000),\nLerner et al., 2015, ...) are preserved. A 12-case FP battery (6 headers stripped,\n6 inline citations kept) + a corpus scan confirm the pattern only matches\nstandalone running-header lines, never a reference entry or inline citation. 3 new\ntests (13 cases). Full suite: 1892 passed, only the 2 documented pre-existing\nwhitespace_cells failures remain.\n\nThis is the 7th fix of the 2026-07-03/04 run 2 (v2.4.108->114); resolves efendic's\nrunning-header METADATA-LEAK. Remaining efendic findings (two demoted subsection\nheadings, two \u00d7-as-3 residuals) + RC-T + ar_apa figure + whitespace_cells are\nqueued in docs/HANDOFF_2026-07-04_iterate_run2_seven_fixes.md.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/6a613de366bad1344e91ad27ef35a0d16c8b38a2",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "9093da5",
+            "message": "fix(render): strip Sage volume/issue + \u00a9-glyph masthead (efendic) + v2.4.113",
+            "body": "The independent Sonnet canary audit found efendic_2022_affect leaking its full\nSage masthead between the H1 title and ## Abstract:\n  Social Psychological and / Personality Science / 2022, Vol. 13(7) 1173-1184 /\n  \u00d3 The Author(s) 2021 / <author byline>\n_strip_frontmatter_masthead_block fires only with >=2 hard markers in the\nH1->first-## zone, but three Sage shapes were missing from\n_looks_like_masthead_hard_marker:\n  - the journal volume/issue/page line \"2022, Vol. 13(7) 1173-1184\" (the bare\n    NN-NN page-range pattern didn't match the \"<year>, Vol. <v>(<i>)\" prefix);\n  - the copyright line \"\u00d3 The Author(s) 2021\" -- \u00a9 glyph-corrupted to \"\u00d3\";\n  - the author byline with a \"*\" corresponding-author mark + trailing comma.\n\nFix: add _MASTHEAD_VOL_ISSUE_RE; broaden _MASTHEAD_COPYRIGHT_RE to the \u00a9-glyph\nforms (\u00d3/\u00c3/\u00c2 before \"The Author(s) <year>\", plus a bare \"The Author(s) <year>\");\nrelax _MASTHEAD_AUTHOR_SUPERSCRIPT_RE for trailing correspondence marks + comma +\naccented names. Only two markers need to match, so the whole zone (incl. byline)\nis removed. Still gated on the H1->first-## zone with >=2 markers, so contained.\n\nVerification (masthead is an allowed_omissions category, stripped by design):\nefendic renders H1 -> ## Abstract with no masthead furniture between; H1 +\nAbstract intact. A wide top-of-document HEAD-vs-fix diff across ~30 corpus papers\nchanges ONLY efendic (every other top byte-identical). New unit tests assert the\nmarkers fire on the Sage shapes and NOT on body prose with years/numbers\n(\"We ran three studies in 2021 and 2022 with 1184 participants\", \"Table 3.\nRegression coefficients for the 2022 sample\"). Full suite: 1879 passed, only the\n2 documented pre-existing whitespace_cells failures remain.\n\nResolves efendic's METADATA-LEAK masthead finding; its remaining findings\n(running-header \"Efendi\u0107 et al.\" leak, two demoted subsection headings, two\n\u00d7-as-3 residuals) are queued.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/9093da53c320842589435057f20dd905846829b5",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "1d666ae",
+            "message": "fix(normalize): recover \u00d7-as-3 in body prose / flattened captions (W0k) + v2.4.112",
+            "body": "The independent Sonnet canary audit found efendic_2022_affect's interaction terms\nrendering with a corrupted '3' for '\u00d7' in body prose + a flattened italic caption\nrun -- the table-cell-scoped W0i (v2.4.103) never saw these channels (the third\nglyph-fixes-need-all-three-text-channels gap on efendic, after 2-for-minus W0j).\n  \"the three-way interaction (Direction 3 Manipulated Attribute 3 CMA)\"\n  \"*... Direction 3 manipulated attribute PMA 3direction PMA 3 manipulated ...*\"\n\nFix: recover_times_interaction_glyph_in_prose. The '3' is the single most\ndangerous prose glyph, so W0k fires ONLY under a tight signature (ALL hold): line\nhas \"interaction\" OR >=2 `Word 3 Word` pairs; the 3 is not preceded/left-flanked\nby a reference word (Table/Model/Study/Wave/...); the right flank is not a plural\nCOUNT noun (3 studies/3 groups); >=1 flank is Title-Case or an all-caps acronym\n(predictor name Direction/CMA/PMA). A 2-pass relaxation recovers a\nlowercase-lowercase pair inside a line that already resolved a '\u00d7' (a confirmed\ninteraction-term run -- the flattened caption). Wired channel 1 + channel 3.\n\nVerification (AI-gold via article-finder): efendic recovers 13 interaction-term '\u00d7'\nacross the captions + body parenthetical + single Title-Case pairs; idempotent. A\n21-case FP battery (Table 3 / Study 3 / osf.io/pg3ae / \"ran 3 studies with 3\nconditions\" / \"interaction between age and 3 groups\" / \"participants (n=3) in 2\nwaves\" / \"top 3 items on 5 scales\") + a 25-paper wide render scan + the\nwhole-corpus normalize-IDEMPOTENCY gate all clean. The idempotency gate caught a\ncase a single-pass battery missed: a reference word as the pair's LEFT FLANK\n(\"Model 3 Relationship\") -- a later reflow step can move it into a 2-pair line, so\npass-2 fired; fixed by checking the reference-word set against the left flank.\n6 new tests (21 cases). Full suite: 1876 passed, only the 2 documented pre-existing\nwhitespace_cells failures remain.\n\nTwo residual efendic cases queued (harder): a line-WRAPPED interaction term and\nthe 2x2x3 design-notation shape. See\ndocs/FINDINGS_2026-07-03_efendic_glyph_in_prose_channel.md.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/1d666ae5b832e8675d28b8e1ab84ec21dd01fa4f",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "f9da0e7",
+            "message": "fix(render): demote abstract-zone Key-Points finding sentence to body (D3) + v2.4.111",
+            "body": "Fixes a PRE-EXISTING failure (test_d3_abstract_zone_no_intermediate_h2, red at\nHEAD, not introduced by any recent change -- surfaced when this run's full pytest\nran the whole suite). jama_open_1 rendered \"## TRE was more effective for weight\nloss\" -- a Key-Points FINDING that column-interleaved into the abstract and got\npromoted to ##, leaving a stray h2 between ## Abstract and ## Introduction.\n_demote_abstract_zone_inline_labels only demoted an explicit allowlist of\nstructured-abstract LABELS (IMPORTANCE/RESULTS/...), so a finding SENTENCE slipped.\n\nFix: _is_abstract_finding_sentence. In the abstract zone only, a ## whose text is\na full CLAUSE with a finite VERB (was/reduced/showed/did/...) is demoted to body.\nThe finite-verb requirement is the discriminator: it demotes \"TRE WAS more\neffective for weight loss\" but keeps a noun-phrase heading like \"Effects of Diet\non Body Weight\" / \"Comparison of TRE and CR\" (lowercase prepositions only, no\nverb) -- the exact FP class an \"any lowercase word\" test would have hit. Scoped to\nbetween ## Abstract and the next body-section h2, so blast radius is tiny.\n\nVerification: jama_open_1's finding renders as body; ## Introduction is now the\nfirst h2 after ## Abstract. All 5 test_jama_open_cluster checks pass (D3 was the\nonly red one). Abstract-zone FP-scan across the rendered corpus demotes ONLY the\njama_open_1 target. 3 new unit-contract tests lock the finding-vs-noun-phrase\ndiscrimination. Full suite: 1855 passed; pre-existing failures down from 3 to 2\n(only the whitespace_cells 0-cell regression remains -- diagnosed + queued as its\nown investigation: _region_for_caption returns a prose-contaminated region, either\na region-detect regression or a stale test expectation).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/f9da0e79e14f94da5615dd49aeddc9bd04608be3",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "f15566c",
+            "message": "fix(render): demote over-promoted Results subsection to ### (C3) + v2.4.110",
+            "body": "The 2026-07-03 canary AI-verify found ip_feldman_2025_pspb rendering\n\"## Prevalence Estimates Associations with WellBeing (Replication)\" as a\ntop-level ## when the gold has it as a ### Results subsection, sibling to\n\"### Prevalence Estimate Errors\" and \"### Intensity Estimate Errors\". It is 7\nwords -- above the <=6-word ### promoter -- so the 5-12-word ## major-section\npromoter grabbed it one level too high.\n\nFix: _demote_parallel_prefix_subsection_headings demotes a ## back to ### ONLY\nwhen a ### heading earlier in the same section (not crossing a different ##\nbody-section boundary) shares a >=2-word stemmed prefix AND then diverges. Keyed\non PARALLEL PREFIX STRUCTURE, not \"nearest ## parent is Results\" -- the latter\nwould wrongly demote the \"## Discussion\" that also has Results as its nearest ##\nabove; Discussion shares no prefix with any ### sibling so it is never touched. A\ndivergence guard stops a ### that is identical to / a pure prefix of the ## title\n(a duplicate-heading artifact) from demoting the gold-correct ## (collabra.90203\nrenders both the correct \"## Extension: Perceived Impact of Donation\" and a\nspurious \"### Extension:...\" duplicate; the ## is left alone).\n\nVerification (AI-gold via article-finder): ip_feldman's subsection now renders ###\nmatching gold; its ### siblings and the following ## Discussion unchanged. With\nthis, ip_feldman's ENTIRE heading cluster matches gold (C1 fixed 5 wrapped\nheadings v2.4.108, C3 fixes the 1 over-promotion) -- only Table 10 (RC-T) remains.\nFP-validated across ~35 rendered corpus papers (20 canary/broad-read + 15 fresh\npsychology): the ONLY demotion is the ip_feldman target; collabra's duplicate ##\ncorrectly preserved. HEAD-vs-fix diff: only ip_feldman changes (17 byte-identical).\n5 new tests fail at HEAD, pass with fix. Full suite: 1851 passed, only the 3\ndocumented pre-existing failures remain (jama D3 + whitespace_cells x2 -- NOT this\nchange). WellBeing->Well-Being hyphen in this heading is OCR-tier won't-fix.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/f15566c2b1f9a8818f53fe15d8c5083ea41375c4",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "848151e",
+            "message": "fix(normalize): recover 2-for-minus in body PROSE (W0j) + v2.4.109",
+            "body": "An independent Sonnet canary AI-verify found efendic_2022_affect still FAIL: the\nA1/A2 table-cell glyph fixes (v2.4.102/103) recovered 2-for-minus and x-as-3\nINSIDE <td> cells only, leaving the body-prose channel corrupt\n(glyph-fixes-need-all-three-text-channels). Two prose shapes carry a 2-for-minus\nglyph with NO bracket CI, so W0b/W0d (which pair a value against its CI) could not\nreach them:\n  - contrast-coding notes: \"direction: 20.5 = low, + 0.5 = high\"  (should be -0.5)\n  - change M-statistics:   \"Mchange = 20.14\"  (should be -0.14)\n\nFix: recover_prose_two_for_minus, keyed on two tight structural signatures, NOT\nmagnitude:\n  - coding note fires ONLY when the \"+ X.X = <word>\" contrast twin is on the same\n    line (a +-k contrast code names both signs; a bare \"20.5 = X\" is left alone).\n  - M-statistic fires ONLY when the M carries a difference-type subscript\n    (change/diff/difference/posterior/delta/gain/shift) -- a corrupted \"-0.14\" and\n    a genuine mean age \"20.14\" have identical digits, so a bare M / Mage is NEVER\n    flipped.\nWired into channel 1 (normalize_text, W0j after W0d) AND channel 3\n(render post-process) per the 3-channel glyph discipline. NORMALIZATION_VERSION\n-> 1.9.40.\n\nVerification (AI-gold via article-finder): efendic's 3 coding notes + 3 Mchange\nstats now render with a minus matching gold; 0 residual corruption; idempotent\nacross 18 papers. FP-validated: a 6-case battery (mean age M=20.14, 20.5% women,\n\"1 = control, 2 = treatment\", genuine M=2.84) changes nothing; a HEAD-vs-fix diff\nacross 18 rendered corpus papers changes ONLY efendic (17 byte-identical). 5 new\ntests fail at HEAD, pass with fix. Full suite: 1848 passed, only the 3 documented\npre-existing failures remain (jama D3 abstract-zone + whitespace_cells x2 -- NOT\nintroduced by this change).\n\nThe remaining efendic findings (x-as-3 in prose/caption -- harder, needs\nTitle-Case-flank signature; Sage masthead + running-header leak; two demoted\nsubsection headings) are queued in docs/FINDINGS_2026-07-03_efendic_glyph_in_prose_channel.md.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/848151ecf60a92cbefcb5da830bf12cd943ab4c2",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "0d34a26",
+            "message": "fix(render): rejoin wrapped Results-subsection headings into one ### (C1) + v2.4.108",
+            "body": "ip_feldman_2025_pspb column-wrapped FIVE long Results/Discussion-subsection\nheadings across 2-3 physical lines with no blank between head/tail/body. The\ndownstream promoters mangled the same paper three ways: the <=6-word ### promoter\nfired on the head alone and stranded the wrapped tail in body; the 5-12-word ##\nmajor promoter grabbed a stranded tail as its own over-promoted heading; or the\nwhole title fell to body. Gold has each as ONE ### heading.\n\nFix: _rejoin_wrapped_subsection_heading runs FIRST among the isolated-heading\npromoters, rejoins the wrap into one line, and emits it already promoted to ###.\nStrict structural signature (no paper identity): paragraph-isolated Title-Case\nhead at a clean sentence boundary, GLUED to 1-2 heading-ish tail lines, over\ngenuine body prose; head must hang (continuation word / possessive / colon-title)\nor tail ends in a balanced (qualifier); head substantial (colon or >=3 words) so a\n2-word figure-diagram node-label pair (\"Support for\"+\"Leader\") is never merged;\nnot figure-caption-adjacent; joined title <=115 chars / <=14 words.\n\nVerification (AI-gold via article-finder, never pdftotext): all 5 ip_feldman\nwrapped headings now single ### matching gold; independent Sonnet canary verify\nconfirms the wrapped-heading class is resolved. Generalizes: also reunites\ncollabra.90203 \"Associations between Aggregated Feelings and Hypothetical\nDonations\" (gold-confirmed) and psych-sci \"Contextual Confidence and Postdecision\nProcessing\" (both were plain body = SECTION-BOUNDARY defect). 16-paper FP scan =\n0 prose-merges; 18-paper HEAD-vs-fix content-loss scan = 0 words lost, only the 3\npapers with genuine wrapped headings changed (other 15 byte-identical). 5 new\ntests fail at HEAD, pass with fix.\n\nAlso fixes test-consistency debt from the v2.4.105 SECTIONING_VERSION 1.2.2->1.2.3\nbump (left red until this run's full-suite run surfaced it): 2 stale unit\nassertions + 3 golden snapshots expected 1.2.2; the CLI test now asserts against\nthe imported SECTIONING_VERSION so it won't go stale on future bumps; goldens\nregenerated (version field only, no content drift). No library code changed for\nthat part.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/0d34a262120fe774bef3cfd0c36d0e5e74459da5",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "216eb10",
+            "message": "docs(handoff): 2026-07-03 iterate run \u2014 efendic RESOLVED, 7 fixes shipped, PARTIAL",
+            "body": "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/216eb1022c704a465d12d364b9062a6dfaa32fa6",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "ff3a223",
+            "message": "docs(triage): record 2026-07-03 run outcome \u2014 efendic RESOLVED, ip_feldman C3 deferred",
+            "body": "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/ff3a223f6ee550996c07ba896fe43570f9c560ca",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "c44d203",
+            "message": "fix(render): strip body author-affiliation footnote block (efendic) + v2.4.107",
+            "body": "The cycle-1 canary AI-verify found efendic_2022_affect leaking its author\naffiliation + corresponding-author block into the MIDDLE of an Introduction\nparagraph. The block is a page-1 bottom footnote that pdftotext serialised in\nreading order, splitting a sentence:\n  \"\u2026can be far easier--more\" | <Maastricht University \u2026 Contributed equally,\n   joint first authors \u2026 Gilad Feldman, \u2026 Pok Fo Lam Road \u2026> |\n  \"efficient--than weighing\u2026\"\nThe front-matter masthead strip only covers the H1->first-## zone, so this\nbody-position block was missed.\n\nFix: _strip_body_affiliation_block removes a RUN of >=3 consecutive\naffiliation-shaped lines beginning after the front-matter, reconnecting the\nsplit paragraph. Block-level and strict, so a lone body university mention is\nnever touched.\n\nCRITICAL guard found via a logged corpus content-loss scan: the first cut passed\nall unit FP tests AND 387 render/masthead/sections tests, but a scan that LOGS\nthe exact lines each paper strips revealed it was removing REFERENCE-LIST blocks\non 5 of 6 firing papers (a bibliography is a run of \"Author, X. Y. (YEAR). \u2026\nUniversity Press \u2026\" lines that superficially match affiliation grammar). Fixed\nwith a citation-line guard (parenthesised publication year OR author-initials\nopener). Re-scan: 1/20 papers stripped, both genuine affiliation blocks \u2014 the\nfix even GENERALIZES to jesp.2012.11.004's affiliation leak. Added a\ntest_leaves_reference_list_block regression.\n\nBump: __version__/pyproject 2.4.107 (render-level change).\n\nVerification (ground truth = AI multimodal read via article-finder reading golds,\nnever pdftotext): efendic \u2014 the affiliation block is gone from the Introduction\nand the split sentence reconnects; the legitimate author-bio university mention\nlater in the paper is preserved. Independent Sonnet AI-gold re-verify: efendic\nnow PASS (full-document scan found NO remaining glyph, \u00d7, SE-sign, table, heading,\nor metadata-leak defect). 387 + 136 render/masthead/reference tests pass (incl. 5\nnew affiliation tests); logged corpus content-loss scan (20 papers) confirms the\nstrip removes only affiliation footnotes, never body content.\n\nMilestone: efendic is the run's first fully-resolved canary \u2014 its glyph cluster\n(A1 2-for-minus, A2 \u00d7-for-3, A3 SE-sign) plus this affiliation leak are all fixed.\nRemaining canary defects live on other papers (ip_feldman C1/C3 + Table 10;\nplos_med/chandrashekar RC-T table-loss; ar_apa figure-leak + OCR-tier .245).\nStanding corpus verdict: FAIL.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/c44d203caf236a4c2562332f57a6da0c106208be",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "8cad252",
+            "message": "fix(title): drop Elsevier CrossMark \"T\" widget from the H1 title + v2.4.106",
+            "body": "A cycle-5 broad-read found multiple Elsevier / ScienceDirect (JESP) papers\nrendering a stray uppercase \"T\" INSIDE the H1 title:\n  \"Choosing persuasion targets: How expectations of qualitative change T\n   increase advocacy intentions\"\n  \"Children's and adults' understanding of punishment and the criminal\n   justice T system\"\n\nRoot cause: the CrossMark \"Check for updates\" widget renders as a lone\n\"T\"-shaped glyph positioned in the title y-band (right edge, in a slightly\nsmaller font \u2014 height 10.0 vs the title's 13.4), so _compute_layout_title picks\nit up as a same-y-band title word and merges it mid-run between the two wrapped\ntitle lines.\n\nFix: _compute_layout_title drops a bare single-character \"T\" title word. A real\ntitle never contains a standalone uppercase \"T\" as its own word, so this is safe\nand general \u2014 it corrects every Elsevier / ScienceDirect paper carrying the\nCrossMark widget, not just the two the broad-read happened to sample.\n\nBump: __version__/pyproject 2.4.106 (render-level change; no NORMALIZATION /\nSECTIONING version change).\n\nVerification (ground truth = AI multimodal read via article-finder reading golds,\nnever pdftotext): both JESP titles render clean (\"\u2026qualitative change increase\nadvocacy intentions\", \"\u2026criminal justice system\"); the canary titles (ip_feldman,\nefendic, chandrashekar) are unaffected. 320 render + title + masthead +\nnormalization tests pass (incl. 2 new real-PDF CrossMark tests); a corpus title\nscan across 16 Elsevier/Sage papers = 0 titles with a stray \" T \" (only the\nCrossMark artifact removed, no real content lost).\n\nThis ships a corpus-wide Elsevier title fix (E1). It targets non-canary papers;\nthe canary corpus is still 5/5 FAIL (efendic affiliation-leak, ip_feldman\nC1/C3/Table10, plos_med/chandrashekar RC-T table-loss, ar_apa figure-leak),\nqueued. Standing verdict: FAIL.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/8cad252be0f7bbf7a1f6e3118a4003ee9357d7e1",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "34585f5",
+            "message": "fix(sections): promote Sage/APA back-matter headings via taxonomy + v2.4.105",
+            "body": "The cycle-1 canary AI-verify found ip_feldman_2025_pspb rendering three\nback-matter section headings as plain body text while their siblings\n(Acknowledgments, Author Contributions, Funding) rendered as ##:\n\"Authorship Declaration\", \"Declaration of Conflicting Interests\", \"ORCID iDs\".\n\nRoot cause: in Sage PSPB back-matter typography these three immediately precede\ntheir paragraph with NO blank line, so only canonical-heading recognition (not\nthe line-isolated fallback, which needs the heading alone on its line) can\npromote them \u2014 and these exact wordings were missing from\ndocpluck/sections/taxonomy.py (lookup_canonical_label returned None for all\nthree). Because the heading-detection alternation is built directly from the\ntaxonomy dict, the fix is a one-point addition:\n  - \"declaration of conflicting interests\"/\"...interest\" -> conflict_of_interest\n    (the Sage wording, distinct from the \"declaration of competing interest\"\n    already covered)\n  - \"authorship declaration\"/\"authorship statement\" -> author_contributions\n  - \"orcid ids\" -> author_note\n\nOnly the PLURAL \"orcid ids\" heading form is canonical: a bare/singular/inline\n\"ORCID:\" is deliberately excluded so a line-leading identifier (\"ORCID: 0000-\u2026\")\nis never false-promoted, and the inline \"(ORCID: \u2026)\" mentions inside the\nAcknowledgments paragraph stay body text.\n\nBumps: __version__/pyproject 2.4.105, SECTIONING_VERSION 1.2.3.\n\nVerification (ground truth = AI multimodal read via article-finder reading golds,\nnever pdftotext): ip_feldman render \u2014 all three headings now ## ; inline\nAcknowledgments ORCID identifier preserved as body. Independent Sonnet AI-gold\nre-verify: C2 resolved, no collateral regression outside back-matter, siblings\nintact. 359 sections + heading + taxonomy tests pass (incl. 3 new taxonomy\ntests + 2 real-PDF ip_feldman tests). Adversarial FP battery: 4 body sentences\ncontaining the phrases mid-sentence -> 0 canonical-heading promotions\n(lookup requires an exact normalized match, so a long body sentence never\nnormalizes to the short heading string \u2014 inherently FP-safe).\n\nThis ships ONE root-cause class (C2 back-matter demotion); ip_feldman still FAILs\non C1 (wrapped-heading split), C3 (Prevalence heading over-promoted + WellBeing\nhyphen drop), and Table 10 empty, queued as next cycles. Standing verdict: FAIL.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/34585f5a087997b940f4b244eb539c5a156ccc64",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "4c0c3e9",
+            "message": "fix(glyph): stop dropped-minus recovery sign-flipping SE table cells (efendic) + v2.4.104",
+            "body": "The third efendic_2022_affect defect from the cycle-1 canary sweep: every\nregression table's standard-error (SE) column rendered some values negative\n(Intercept SE = 0.06 -> -0.06), impossible because a standard error is\nnon-negative.\n\nRoot cause (reproduce-before-fix corrected a wrong first hypothesis). The guess\nwas W0d over-recovering a corrupt 2X.XX SE cell; instrumenting the actual render\npath disproved it \u2014 the SE cell arrives genuinely 0.06, W0d leaves it, and the\nminus is added later by recover_dropped_minus_via_ci_pairing (the DROPPED-minus\nrecovery). In the \"B | SE | CI\" row the CI describes the B estimate; once B is\nrecovered to -0.09, the recovery finds the SE 0.06 (whose negation -0.06 fits\nB's CI [-0.21, 0.04] while 0.06 does not) and flips it. But the SE legitimately\nfalls outside the estimate's CI \u2014 it is a different column from the estimate the\nCI pairs with.\n\nFix (A3 guard): in a <td> row, do not flip a bare-positive token when a\nsigned-negative number (the already-recovered estimate) precedes it \u2014 that\nearlier negative is the CI's estimate, so this token is a later variance column\n(SE/SD), non-negative, and must not be flipped. Scoped to <td> rows via the\nB->SE->CI column-order invariant; a prose line keeps the original behavior so a\ngenuinely-first dropped-minus estimate still recovers (ar_apa body betas\nbyte-identical). The guard only ever BLOCKS a flip (strictly more conservative),\nso it cannot introduce a new sign error.\n\nBumps: __version__/pyproject 2.4.104, NORMALIZATION_VERSION 1.9.39.\n\nVerification (ground truth = AI multimodal read via article-finder reading golds,\nnever pdftotext): efendic Camelot-ON \u2014 every SE value renders positive (Intercept\n0.06/0.10/0.15 matching gold); genuine negative B-coefficients + \u00d7 interaction\nterms (A2) unchanged; independent Sonnet AI-gold re-verify: A3 resolved, 0 new\nregressions, affiliation-leak now the ONLY remaining efendic defect. 109\ndropped-minus + minus-recovery + idempotence tests pass (incl 4 new A3 tests); 335\nbroad render/sections/normalization pass; a corpus diff of old-vs-new recovery\nover 14 papers' table rows = 0 rows changed (guard blocks only SE over-recoveries).\n\nMilestone: efendic's GLYPH cluster (A1 2-for-minus, A2 \u00d7-for-3, A3 SE-sign) is\ncomplete. Only the mid-Introduction affiliation leak (a METADATA-LEAK, different\nlayer) remains. Standing corpus verdict: FAIL.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/4c0c3e901ed707269c0d08c9436d9bb0cdef5347",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "4e5c3ff",
+            "message": "fix(glyph): recover \u00d7-as-3 in interaction-term table cells (efendic) + v2.4.103",
+            "body": "The cycle-1 AI-gold canary re-verify surfaced a second glyph corruption on\nefendic_2022_affect: the multiplication sign \u00d7 (interaction operator) decodes as\nthe literal digit 3 in every predictor name across regression Tables 2-5 \u2014\n\"Direction \u00d7 manipulated attribute\" reads \"Direction 3 manipulated attribute\",\n\"Pleasure \u00d7 Arousal \u00d7 CMA\" reads \"Pleasure 3 Arousal 3 CMA\". Same broken-ToUnicode\nAdvPS\u2026 subset font that maps U+2212 minus to '2' (v2.4.102) and '<' to '\\' (v2.4.39).\n\nrecover_times_interaction_glyph (W0i) is TABLE-CELL SCOPED \u2014 wired only into\ncell_cleaning._html_escape, NEVER normalize_text or the render post-process \u2014\nbecause a bare '3' between letters is ambiguous in prose (\"Table 3 summarizes\",\n\"osf.io/pg3ae\") but unambiguous in a Camelot predictor cell. Guards: a reference\nword before the 3 (Model/Study/Wave/\u2026) keeps a genuine ordinal; the cell must\ncarry a \u22653-letter word; recovery reaches across a wrap break (<br>/merge\nplaceholder) so a 3-way interaction wrapped mid-cell recovers both operators.\n\nCRITICAL guard added after a canary-coverage catch: the first cut converted\nmaier_2023_collabra's hypothesis labels H3a/H3b -> \"H \u00d7 a\"/\"H \u00d7 b\" (a false\npositive a 12/18-paper random FP scan had missed). iterate-gate.sh --cycle 2\nFAILED on I2 (canary-coverage), forcing a maier render that surfaced it. Fix:\nrequire whitespace (or a wrap-break) on at least one side of the 3 \u2014 interaction\nterms have a space; glued single-letter labels (H3a, M3, x3y) do not, so they are\nexcluded. Lesson recorded: a sampled corpus scan is necessary but NOT sufficient;\nthe fixed canary roster is the backstop (project lesson + LEARNINGS).\n\nBumps: __version__/pyproject 2.4.103, NORMALIZATION_VERSION 1.9.38.\n\nVerification (ground truth = AI multimodal read via article-finder reading golds,\nnever pdftotext): efendic Camelot-ON 22->0 corrupt interaction cells (16 \u00d7\nrecovered); genuine Table 3 / Figure 3 refs preserved; maier H3a/H3b + genuine\nfactorial \"\u00d7 3 (\" notation untouched; fixed-3 (ip_feldman/plos_med/chandrashekar)\nBYTE-IDENTICAL to their pre-A2 renders; independent Sonnet AI-gold re-verify: A2\nresolved, 0 new regressions, B-column minus (A1) still correct. Whole-corpus FP\nscan ~27,000 Camelot cells across ~30 papers (two seeds) = 0 cells changed. A2\nunit + real-PDF suite 12 pass; broad render/sections/normalization 385 pass.\n\nThis ships ONE root-cause class (A2); efendic still FAILs on A3 (SE-column\nspurious minus) + an affiliation leak, queued as next cycles. Standing corpus\nverdict: FAIL.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/4e5c3ff065a7143c30f0dfb9dbc57bc6a97ba5fe",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "54b7923",
+            "message": "fix(glyph): recover 2-for-minus in Camelot HTML table cells (efendic B-column) + v2.4.102",
+            "body": "W0d recover_minus_via_ci_pairing paired a bracket-less point estimate with the\nCI in its same record and recovered the '2'-for-U+2212 minus by the containment\ninvariant \u2014 but Camelot emits each <td> on its own line, so the SE cell between\nthe B-column estimate and the CI cell pushed the char-gap past the 30-char\nbare-bracket proximity cap. The recovery fired in the DISABLE_CAMELOT\nunstructured-table channel (CI on the same text line) but silently missed every\nnegative B-coefficient in the Camelot HTML-table channel \u2014 the production\ndefault. efendic Tables 2-5: 27 corrupt cells (`20.09` for `-0.09`), a\nsilently-wrong statistic. The existing test passed only because it set\nDOCPLUCK_DISABLE_CAMELOT=1 (a channel blind spot).\n\nFix: inside an HTML <tr> columns pair by table geometry, not prose adjacency, so\na bare bracket now uses the relaxed (labeled) proximity, still guarded by\n_INDEPENDENT_STAT_BETWEEN_RE (rejects pairing across a different estimate's\ncolumn). A prose line (no <td>) keeps the strict 30-char cap. Keyed on <tr>\nstructure, not paper identity -> general. 27->0 corrupt cells; genuine 2.56\n(Direction row, in [2.42,2.69]) preserved by containment; idempotent.\n\nAlso (pre-existing, leave-nothing-behind): the independent-stat guard now runs\nfor EVERY bracket kind, not just labeled. A tight-spaced prose variant\n`M=5.37, SD=2.01, t(1827)=1.83, d=0.09 [-1.86,0.04]` is 25 chars from 2.01 to\nthe bracket (within the cap), so the gap check alone let SD=2.01 wrongly recover\nto -.01; the CI is d's and t/d intervene -> now rejected.\n\nBumps: __version__/pyproject 2.4.102, NORMALIZATION_VERSION 1.9.37.\n\nVerification (ground truth = AI multimodal read via article-finder reading golds,\nnever pdftotext): efendic Camelot-ON 27->0 corrupt B-cells; independent Sonnet\nAI-gold re-verify confirms A1 resolved, B-column exact, 0 new regressions. Full\nminus suite 22 pass (6 new); adversarial over-recovery battery all pass; broad\nnormalize/render/sections/heading 557 pass; flatten 39; RC-T degenerate-table\n(Camelot) 8; deterministic DISABLE_CAMELOT body-text diff of 8 corpus papers = 0\nchanged (surgical).\n\nCycle-1 canary baseline at v2.4.101 was 5/5 FAIL (fresh TRIAGE\ndocs/TRIAGE_2026-07-03_head_v2.4.101_assessment.md). This ships ONE root-cause\nclass (A1); efendic still FAILs on A2 (x-for-3), A3 (SE-spurious-minus), and an\naffiliation leak, queued as next cycles. Standing corpus verdict: FAIL.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/docpluck/commit/54b7923000a5a3dda820763b46795e88d1dec18a",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "MicheleNuijten",
+        "repo": "statcheck",
+        "url": "https://github.com/MicheleNuijten/statcheck",
+        "summary": "The `feature-non-apa-newer` branch was worked on, where a merge was performed from the same branch of the `https://github.com/MicheleNuijten/statcheck` repository. \nIn the `feature-non-apa-newer` branch, \"admin updates\" were made, as per the commit message. \nNo other branches were modified in this set of commits. \nThe merge commit combined changes from the remote `feature-non-apa-newer` branch into the local version. \nThe nature of the \"admin updates\" is not specified beyond the commit message.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-07-03T11:37:30Z",
+        "recent_commits": [
+          {
+            "sha": "50ab5e6",
+            "message": "Merge branch 'feature-non-apa-newer' of https://github.com/MicheleNuijten/statcheck into feature-non-apa-newer",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-07-03",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/50ab5e66a0f32d77c9becef0c4bba3d638ec8019",
+            "type": "feat",
+            "branch": "feature-non-apa-newer"
+          },
+          {
+            "sha": "ffba7eb",
+            "message": "admin updates",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-07-03",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/ffba7eb5b198605087b94718ce5e98ed6871d458",
+            "type": "other",
+            "branch": "feature-non-apa-newer"
+          }
+        ]
+      },
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "Work was done on the 'dev' and 'main' branches. On both branches, the \"fix(web): re-enable Fable 5 in the model picker\" change was made, which re-enables Fable 5 in the model picker. This specific fix suggests that Fable 5 was previously disabled, and this change restores its functionality. The fact that this change was applied to both the 'dev' and 'main' branches indicates that it was considered important enough to be applied to the main branch directly, in addition to the development branch. The re-enabling of Fable 5 in the model picker is the sole focus of these commits.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-07-02T20:22:59Z",
+        "recent_commits": [
+          {
+            "sha": "d93b6f8",
+            "message": "fix(web): re-enable Fable 5 in the model picker",
+            "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Davidvandijcke",
+            "date": "2026-07-02",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/d93b6f8ce532991eb16a11928710e553c7f384c2",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "d6df84a",
+            "message": "fix(web): re-enable Fable 5 in the model picker",
+            "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Davidvandijcke",
+            "date": "2026-07-02",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/d6df84ab3c3abc476d1c7e9a9f42c2a6073b7480",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "The `main` branch was updated with a commit that synchronizes it with the `escicheckapp` repository at version `ec9eb9f`, which corresponds to `effectcheck` version `0.6.13`, as stated in the commit message \"sync from escicheckapp@ec9eb9f (effectcheck v0.6.13)\".\nThis commit is associated with issue `#26`.\nNo other branches were worked on in this set of commits.\nThe specific change is a synchronization with a specific version of `effectcheck`, which is now at version `0.6.13` in the `main` branch.\nThe commit message does not specify what changes were made in `effectcheck` version `0.6.13`, only that the `main` branch now matches this version.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-07-03T09:15:19Z",
+        "recent_commits": [
+          {
+            "sha": "7ec3c89",
+            "message": "sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/escicheck/commit/7ec3c89a5291a35f690b0b4962daa5ea32abfc73",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "The `main` branch was worked on, where the validation note was revised and a citation was included, as stated in the commit message \"Revise validation note and include citation\". \nNo other branches were modified in this set of commits.\nThe revision of the validation note and addition of a citation are the specific changes made in this commit.\nThe commit message does not mention any other changes or additions to the repository.\nThe work was limited to a single commit on the `main` branch, with no other branches or modules affected.\nThe commit provides a clear and specific description of the changes made, with no other changes or updates mentioned.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-14T14:44:45Z",
+        "recent_commits": [
+          {
+            "sha": "3fce87a",
+            "message": "Revise validation note and include citation",
+            "body": "Updated validation note and added preprint citation.",
+            "author": "Shaheed Azaad",
+            "date": "2026-06-14",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giovannacdelsordo",
+        "repo": "output-it-forward",
+        "url": "https://github.com/giovannacdelsordo/output-it-forward",
+        "summary": "The `main` branch was updated with a commit that added a Chrome Webstore link for OIF, as stated in the commit message \"Add Chrome Webstore link for OIF\". \nNo other branches were worked on in this set of commits.\nThis specific change involved adding a link, with no other features or fixes mentioned in the provided commit messages.\nThe commit message directly mentions the addition of the Chrome Webstore link, indicating this was the sole purpose of the commit.\nThere are no other branches or changes to report based on the given information.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-17T14:15:44Z",
+        "recent_commits": [
+          {
+            "sha": "71c2a30",
+            "message": "Add Chrome Webstore link for OIF",
+            "body": "Added a link to the OIF Chrome extension in the README.",
+            "author": "giovannacdelsordo",
+            "date": "2026-06-17",
+            "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
+            "type": "feat",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-07-03T19:27:43.669187+00:00",
     "narrative": "Our community has seen significant progress across multiple projects recently. In the scienceverse/metacheck project, Lakens has made foundational additions to the `data_check` branch, laying the groundwork for new datacheck modules. Meanwhile, the giladfeldman/docpluck project has resolved several issues, including the \"efendic\" problem, and shipped 7 fixes, while also improving rendering and fixing issues with titles, sections, and glyphs. Interestingly, the removal of the sign-up feature in the JamieCummins/regcheck project on the `staging` branch may indicate a shift in focus towards existing users. These updates demonstrate the connections and collaborations within our community, and we celebrate the progress being made across these open-source research tools. As these projects continue to evolve, we look forward to seeing how they will intersect and support one another in the future.",
     "repos": [
@@ -15951,269 +16257,5 @@
       }
     ],
     "_sentinel": true
-  },
-  {
-    "generated_at": "2026-06-14T23:59:00+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "Recent development activity for the 'JamieCummins/regcheck' GitHub repository has focused on enhancing the user interface, improving report functionality, and adding API support. The commits indicate a significant overhaul of the report page, including redesigns, aesthetic updates, and improvements to report navigation, editing, and security. Additionally, the repository has seen updates to the API configuration, the addition of OAuth implementation, and various bug fixes, suggesting a direction towards a more robust, user-friendly, and secure application. Overall, the development activity suggests a major refinement of the repository's core features and user experience.",
-        "commits_since_last": 6,
-        "pushed_at": "2026-06-14T16:07:05Z",
-        "recent_commits": [
-          {
-            "sha": "a90ee3f",
-            "message": "improve report UI flow + UX",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-14",
-            "url": "https://github.com/JamieCummins/regcheck/commit/a90ee3fb65dbe9b3b262b8365bbb3d80ca9ac3b1",
-            "type": "other",
-            "branch": "staging",
-            "diff": {
-              "additions": 79,
-              "deletions": 49,
-              "files": [
-                {
-                  "filename": "static/css/report.css",
-                  "status": "modified",
-                  "additions": 18,
-                  "deletions": 0,
-                  "patch": "@@ -813,6 +813,24 @@ body.is-col-resizing * {\n .evidence-card--reg:hover { background: var(--report-reg-bg-hover); border-color: rgba(123, 160, 220, 0.55); }\n .evidence-card--ppr:hover { background: var(--report-paper-bg-hover); border-color: rgba(244, 222, 120, 0.55); }\n \n+/* Clickable quote references inside the deviation text (PREREG_/PAPER_). */\n+.quote-ref {\n+    border: 1px solid transparent;\n+    background: var(--report-reg-bg);\n+    color: var(--report-reg-ink);\n+    font-family: var(--"
-                },
-                {
-                  "filename": "static/js/report.js",
-                  "status": "modified",
-                  "additions": 41,
-                  "deletions": 29,
-                  "patch": "@@ -309,7 +309,7 @@\n \n         renderDimensionList();\n         renderDimensionDetail();\n-        renderQuotesPane();\n+        renderSummariesPane();\n         if (inDocuments) renderDocumentsView();\n \n         if (!state.decisionResizersDone && els.viewDecision) {\n@@ -377,19 +377,38 @@\n                 <div class=\"verdict-banner__head\">\n                     <span class=\"verdict-banner__label\">${info.label}</span>\n                 </div>\n-                <p class=\"verdict-banner__body\">${escapeHtm"
-                },
-                {
-                  "filename": "templates/api.html",
-                  "status": "modified",
-                  "additions": 1,
-                  "deletions": 1,
-                  "patch": "@@ -1,7 +1,7 @@\n <!doctype html>\n <html lang=\"en\" data-bs-theme=\"dark\">\n <head>\n-    {% set static_version = '20260614-share3' %}\n+    {% set static_version = '20260614-share4' %}\n     <meta charset=\"utf-8\">\n     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n     {% include '_partials/head_assets.html' %}"
-                },
-                {
-                  "filename": "templates/contact.html",
-                  "status": "modified",
-                  "additions": 1,
-                  "deletions": 1,
-                  "patch": "@@ -1,7 +1,7 @@\n <!doctype html>\n <html lang=\"en\" data-bs-theme=\"dark\">\n <head>\n-    {% set static_version = '20260614-share3' %}\n+    {% set static_version = '20260614-share4' %}\n     <meta charset=\"utf-8\">\n     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n     {% include '_partials/head_assets.html' %}"
-                },
-                {
-                  "filename": "templates/dashboard.html",
-                  "status": "modified",
-                  "additions": 1,
-                  "deletions": 1,
-                  "patch": "@@ -1,7 +1,7 @@\n <!doctype html>\n <html lang=\"en\" data-bs-theme=\"dark\">\n <head>\n-    {% set static_version = '20260614-share3' %}\n+    {% set static_version = '20260614-share4' %}\n     <meta charset=\"utf-8\">\n     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n     {% include '_partials/head_assets.html' %}"
-                },
-                {
-                  "filename": "templates/demo.html",
-                  "status": "modified",
-                  "additions": 3,
-                  "deletions": 3,
-                  "patch": "@@ -1,7 +1,7 @@\n <!DOCTYPE html>\n <html lang=\"en\" data-bs-theme=\"dark\">\n <head>\n-    {% set static_version = '20260614-share3' %}\n+    {% set static_version = '20260614-share4' %}\n     {% include '_partials/head_assets.html' %}\n     <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n     <meta name=\"description\" content=\"RegCheck is an AI tool to compare preregistrations with papers instantly.\"/>\n@@ -20,7 +20,7 @@\n                 <div class=\"report-topbar__lead\">\n            "
-                },
-                {
-                  "filename": "templates/faq.html",
-                  "status": "modified",
-                  "additions": 1,
-                  "deletions": 1,
-                  "patch": "@@ -1,7 +1,7 @@\n <!doctype html>\n <html lang=\"en\" data-bs-theme=\"dark\">\n <head>\n-    {% set static_version = '20260614-share3' %}\n+    {% set static_version = '20260614-share4' %}\n     <meta charset=\"utf-8\">\n     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n     {% include '_partials/head_assets.html' %}"
-                },
-                {
-                  "filename": "templates/general_preregistration.html",
-                  "status": "modified",
-                  "additions": 1,
-                  "deletions": 1,
-                  "patch": "@@ -1,7 +1,7 @@\n <!doctype html>\n <html lang=\"en\" class=\"h-100\" data-bs-theme=\"dark\">\n <head>\n-    {% set static_version = '20260614-share3' %}\n+    {% set static_version = '20260614-share4' %}\n     <meta charset=\"utf-8\">\n     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n     {% include '_partials/head_assets.html' %}"
-                }
-              ]
-            },
-            "diff_summary": "This commit, 'improve report UI flow + UX', in the 'JamieCummins/regcheck' repository, updates the report user interface and user experience by modifying CSS styles, JavaScript functionality, and HTML templates, specifically changing the quotes pane to a summaries pane and updating static version references."
-          },
-          {
-            "sha": "9240258",
-            "message": "improve aesthetics, report navigation",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-14",
-            "url": "https://github.com/JamieCummins/regcheck/commit/9240258463f78d9a651d020e222dfa9a15308b19",
-            "type": "other",
-            "branch": "staging",
-            "diff": {}
-          },
-          {
-            "sha": "395a038",
-            "message": "improve report naming",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-14",
-            "url": "https://github.com/JamieCummins/regcheck/commit/395a03866eb7247e58cb80e4e914662a66254f8e",
-            "type": "other",
-            "branch": "staging",
-            "diff": {}
-          },
-          {
-            "sha": "bf01cf6",
-            "message": "improve security and sharing of reports",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-14",
-            "url": "https://github.com/JamieCummins/regcheck/commit/bf01cf691c90ba5a257efc83e1afa2c229c48e97",
-            "type": "other",
-            "branch": "staging",
-            "diff": {}
-          },
-          {
-            "sha": "608907d",
-            "message": "add profile memory + report editing",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-14",
-            "url": "https://github.com/JamieCummins/regcheck/commit/608907d806d4973c5ea2ce160c4dd7ed4ec9fc30",
-            "type": "feat",
-            "branch": "staging",
-            "diff": {}
-          },
-          {
-            "sha": "670547e",
-            "message": "first pass at oauth implementation",
-            "author": "Jamie Cummins",
-            "author_login": "JamieCummins",
-            "date": "2026-06-14",
-            "url": "https://github.com/JamieCummins/regcheck/commit/670547ef518a5c4cffbe76fc1b852bed738066be",
-            "type": "feat",
-            "branch": "staging",
-            "diff": {}
-          }
-        ]
-      },
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Recent development activity for the 'scienceverse/metacheck' GitHub repository has focused on bug fixes, code improvements, and feature additions. Specifically, commits have addressed issues with validation, loops, and typos, while also adding new functionality such as a sanitizing step and support for Zenodo repositories. The overall direction of development appears to be refining the codebase, improving its reliability, and expanding its capabilities to better support research projects. Additionally, the removal of open practices and updates to internal functions suggest a shift towards streamlining and optimizing the code.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-06-14T18:18:34Z",
-        "recent_commits": [
-          {
-            "sha": "9ef4d94",
-            "message": "name fix",
-            "author": "Lakens",
-            "author_login": "Lakens",
-            "date": "2026-06-14",
-            "url": "https://github.com/scienceverse/metacheck/commit/9ef4d945b82fb1fa18d744984f241f28ce9f7698",
-            "type": "fix",
-            "branch": "prereg_regcheck",
-            "diff": {
-              "additions": 4,
-              "deletions": 4,
-              "files": [
-                {
-                  "filename": "inst/modules/reg_check.R",
-                  "status": "modified",
-                  "additions": 1,
-                  "deletions": 1,
-                  "patch": "@@ -215,7 +215,7 @@ reg_check <- function(paper,\n \n   ## guidance ----\n   guidance <- c(\n-    \"RegCheck was developed by Jamie Cummins (<https://github.com/JamieCummins/regcheck>); the local Ollama server bundled in metacheck is inspired by the Ollama integration work of Matilda Gustafsson (<https://github.com/Matilda03>).\",\n+    \"RegCheck was developed by Jamie Cummins (<https://github.com/JamieCummins/regcheck>); the local Ollama server bundled in metacheck is inspired by the Ollama integratio"
-                },
-                {
-                  "filename": "vignettes/regcheck.Rmd",
-                  "status": "modified",
-                  "additions": 3,
-                  "deletions": 3,
-                  "patch": "@@ -176,7 +176,7 @@ without fetching it twice.\n \n The same comparison can run entirely on your own machine. Metacheck bundles\n a minimal local RegCheck server (inspired by the Ollama integration work by\n-[Matilda Gustafsson](https://github.com/Matilda03)) together with\n+[Matilda Fogato](https://github.com/Matilda03/regcheck-fork)) together with\n [Ollama](https://ollama.com). No text leaves your machine, which makes it\n suitable for confidential work and GDPR-sensitive contexts.\n \n@@ -225,7 +225,"
-                }
-              ]
-            },
-            "diff_summary": "This commit, 'name fix', in the 'scienceverse/metacheck' repository updates the attribution text in the `reg_check.R` file and the `regcheck.Rmd` vignette to correct the name \"Ollama\" to its proper spelling or context."
-          },
-          {
-            "sha": "2b0b4e4",
-            "message": "working version of Regcheck",
-            "author": "Lakens",
-            "author_login": "Lakens",
-            "date": "2026-06-14",
-            "url": "https://github.com/scienceverse/metacheck/commit/2b0b4e41c7350914a4e9a424bbd82f20f69f638b",
-            "type": "chore",
-            "branch": "prereg_regcheck",
-            "diff": {}
-          }
-        ]
-      },
-      {
-        "owner": "Davidvandijcke",
-        "repo": "coarse",
-        "url": "https://github.com/Davidvandijcke/coarse",
-        "summary": "Recent development activity for the GitHub repository 'Davidvandijcke/coarse' has focused on refining the web interface, models, and pipeline functionality. Specifically, updates have included adding new models such as Claude Fable 5, recalibrating cost estimates for reasoning models, and improving the web interface with features like per-comment Discuss chat streaming and defaulting to latest host models. Additionally, several bug fixes have been implemented to address issues with OpenRouter key handling, extraction output, and security vulnerabilities, indicating an overall direction of development towards enhancing user experience, model support, and reliability.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-06-14T03:40:29Z",
-        "recent_commits": [
-          {
-            "sha": "5e0c89a",
-            "message": "Add CodeQL analysis workflow configuration",
-            "author": "David Van Dijcke",
-            "author_login": "Davidvandijcke",
-            "date": "2026-06-14",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/5e0c89a059b599336e620c420764447c7297e9d5",
-            "type": "feat",
-            "branch": "dev",
-            "diff": {
-              "additions": 103,
-              "deletions": 0,
-              "files": [
-                {
-                  "filename": ".github/workflows/codeql.yml",
-                  "status": "added",
-                  "additions": 103,
-                  "deletions": 0,
-                  "patch": "@@ -0,0 +1,103 @@\n+# For most projects, this workflow file will not need changing; you simply need\n+# to commit it to your repository.\n+#\n+# You may wish to alter this file to override the set of languages analyzed,\n+# or to provide custom queries or build logic.\n+#\n+# ******** NOTE ********\n+# We have attempted to detect the languages in your repository. Please check\n+# the `language` matrix defined below to confirm you have the correct set of\n+# supported CodeQL languages.\n+#\n+name: \"CodeQL Ad"
-                }
-              ]
-            },
-            "diff_summary": "This commit adds a CodeQL analysis workflow configuration to the repository by creating a new file `.github/workflows/codeql.yml`, which sets up a workflow for code analysis using CodeQL."
-          }
-        ]
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "The GitHub repository 'shaheedazaad/auto-zcurve' has seen recent development activity focused on refining its documentation. Specifically, the repository's README file was updated multiple times on May 26, 2026, suggesting improvements to the project's description or usage instructions. More recently, on June 14, 2026, a validation note was revised and a citation was added, indicating an effort to enhance the project's credibility and academic rigor. Overall, the development direction appears to be centered on polishing the project's presentation and legitimacy.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-06-14T14:44:45Z",
-        "recent_commits": [
-          {
-            "sha": "3fce87a",
-            "message": "Revise validation note and include citation",
-            "author": "Shaheed Azaad",
-            "author_login": "shaheedazaad",
-            "date": "2026-06-14",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
-            "type": "chore",
-            "branch": "main",
-            "diff": {
-              "additions": 3,
-              "deletions": 1,
-              "files": [
-                {
-                  "filename": "README.md",
-                  "status": "modified",
-                  "additions": 3,
-                  "deletions": 1,
-                  "patch": "@@ -8,7 +8,9 @@ In the below screenshot, I z-curved 45 articles on cognitive dissonance in under\n \n ![](assets/example.svg)\n \n-**Note:** this tool has not yet been peer-reviewed, although a validation study is in the works.\n+**Note:** I have validated statistic extraction as part of a study, which is currently under peer review. The preprint citation is below, and details of the validation are in the supplemental material.\n+\n+Azaad, S. (2026). Empirically derived effect size guidelines for socia"
-                }
-              ]
-            },
-            "diff_summary": "This commit revises the validation note in the README.md file of the 'auto-zcurve' repository to include a citation, updating the text to reflect the current status of the tool's peer review."
-          }
-        ]
-      }
-    ]
   }
 ]
