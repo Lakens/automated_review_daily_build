@@ -1,5 +1,101 @@
 [
   {
+    "generated_at": "2026-07-04T08:44:05.742743+00:00",
+    "narrative": "Our open-source research community has seen exciting progress across multiple projects. In the scienceverse/metacheck project, Lakens made foundational additions to the `data_check` branch, laying the groundwork for further development of datacheck modules. Meanwhile, giladfeldman/docpluck saw significant updates to its 'main' branch, including documentation triage, residual fixes, and improvements to the render function. Notably, the removal of the sign-up feature in JamieCummins/regcheck suggests a potential shift in focus or approach. As our projects continue to evolve, we celebrate the connections and collaborations that drive our community forward, and we look forward to seeing how these developments intersect and inform one another in the future. With these updates, our community is poised for continued growth and innovation.",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Work was done on the 'main' branch, where documentation triage was performed, recording the run-3 outcome, resolving W0l \u00d7-as-3 residuals, and rescoping efendic headings to B6. \nAdditionally on the 'main' branch, a fix was made to recover 2 residual \u00d7-as-3 prose shapes that W0k can't reach, related to efendic, as part of version 2.4.116. \nThe 'main' branch also saw a fix to the render function, specifically stripping an affiliation remnant that was orphaned in the Abstract body, related to chandrashekar, as part of version 2.4.115. \nNo other branches were worked on, with all changes occurring on the 'main' branch. \nThe commits addressed specific issues, including resolving residuals, recovering prose shapes, and stripping orphaned affiliation remnants. \nOnly the 'main' branch was modified in these commits.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-07-04T08:04:33Z",
+        "recent_commits": [
+          {
+            "sha": "56f60b5",
+            "message": "docs(triage): record run-3 outcome \u2014 W0l \u00d7-as-3 residuals resolved (v2.4.116); efendic headings rescoped to B6",
+            "body": "- TRIAGE run-3 section: W0l shipped (both efendic \u00d7-as-3 residuals RESOLVED,\n  Sonnet-verified, 101-PDF FP scan clean); efendic 2 demoted subsection headings\n  RESCOPED from \"heading-promoter\" to B6 column-interleave (root-cause reproduction).\n- NEW FINDINGS doc: efendic Design/Procedure/Measures + Analysis Strategy headings\n  are spatially orphaned from their bodies by two-column pdftotext serialization \u2014\n  a heading-promotion hack would emit heading-with-no-body. Deferred to the B6\n  architectural cluster (same as the chandrashekar canary).\n- Also logged: NEW efendic Table 4/5 mid-sentence splice (RC-T family); ar_apa gold\n  misread (\"yet feel\" vs correct \"not yell\" docpluck renders) \u2014 flag gold for regen.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-04",
+            "url": "https://github.com/giladfeldman/docpluck/commit/56f60b5f3f3f74a00ef98c3783f76abfad37da07",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "a4f8796",
+            "message": "fix(glyph): recover 2 residual \u00d7-as-3 prose shapes W0k can't reach (efendic) + v2.4.116",
+            "body": "W0l \u2014 the two \u00d7-as-3 glyph residuals the single-line W0k word-pair regex\nstructurally cannot reach (both silently render `3` where a scientist should\nread `\u00d7`), documented in docs/FINDINGS_2026-07-03_efendic_glyph_in_prose_channel.md:\n\n(A) recover_times_design_notation \u2014 factorial-design notation `<digit>(\u2026) 3\n    <digit>(\u2026)`: \"2 (Between-subject factor--Direction: \u2026) 3 2 (\u2026) 3 3\n    (Within-subject factor--\u2026) mixed-subject design\" \u2192 each `) 3 <digit> (`\n    boundary's `3` is a corrupted `\u00d7` (trailing digit is the real factor SIZE).\n    Fires ONLY when tied to a genuine factor parenthetical: an adjacent\n    parenthetical names a factor type, OR both sides are factor-size parens\n    closed by a factorial/design tail. A range recode `(min 1) 3 2 (max 5)`,\n    a formula `f(x) 3 2 (y)`, `(from level 3) 3 2 (see note)` are left alone.\n\n(B) recover_times_wrapped_interaction \u2014 a line ending `<Pred> 3` whose next\n    line starts with a predictor word, inside an \"interaction\" context:\n    \"(Direction 3\\nManipulated Attribute \u00d7 CMA)\" \u2192 \"Direction \u00d7 Manipulated\u2026\".\n    Reference-word tail guard (FIGURE 3 / Table 3 / Model 3) \u2014 the wide FP\n    scan caught amj_1 `FIGURE 3\\nRegression\u2026` + jamison `Table 3\\nMain-effects\n    and interactions.` wrongly joined; guard added + regression-tested.\n\nNORMALIZATION_VERSION 1.9.42 \u2192 1.9.43. Wired channel 1 (normalize_text) AND\nchannel 3 (render post-process) per glyph-fixes-need-all-three-text-channels.\n\nVerification (ground truth = AI multimodal reading golds via article-finder):\n- Independent Sonnet canary audit CONFIRMS both efendic glyph fixes correct\n  (design `\u00d7 2 \u00d7 3`, interaction `Direction \u00d7 Manipulated Attribute \u00d7 CMA`),\n  no \u00d7-as-3 / minus-as-2 corruption anywhere else in efendic.\n- Wide 101-PDF raw-text FP scan CLEAN (0 non-target FPs; efendic recovered).\n- 26-paper baseline 26/26 PASS. Normalize idempotency corpus PASS.\n- 42 W0k/W0l tests + real-PDF end-to-end (fails at HEAD v2.4.115, passes here).\n\nResolves efendic's two \u00d7-as-3 residuals. Remaining efendic findings (2 demoted\nsubsection headings; a NEW Table 4/5 mid-sentence splice) are queued; RC-T\ntable-data-loss on ip_feldman/plos_med/chandrashekar remains architectural.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-04",
+            "url": "https://github.com/giladfeldman/docpluck/commit/a4f879628fb2752952871e95a61f8df0181a5742",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "e140cf1",
+            "message": "fix(render): strip affiliation remnant orphaned in Abstract body (chandrashekar) + v2.4.115",
+            "body": "A canary AI-verify found chandrashekar_2023_mp rendering \"Department of Philosophy,\nLake Forest College\" + \"*Joint first authors\" right after the ## Abstract heading,\nbefore the abstract prose. The paper has 3 author affiliations; the section\npartitioner inserted ## Abstract mid-affiliation-block, so the masthead strip\n(which stops AT ## Abstract) caught the first two but left the third orphaned in\nthe Abstract body, and the >=3-consecutive-line _strip_body_affiliation_block\ncould not reach a single surviving affiliation line.\n\nFix: _strip_abstract_zone_affiliation_remnant removes an affiliation line (+ a\njoint-authors / corresponding-author companion note) that is the FIRST non-blank\ncontent after ## Abstract. A real Abstract always opens with PROSE, so an\naffiliation LINE in that slot is unambiguously a boundary-split front-matter\nremnant -- the structural signature is affiliation-grammar (via the existing\n_is_affiliation_line) at the Abstract-heading boundary, never paper identity. An\nabstract that merely MENTIONS a university mid-sentence is prose, not an\naffiliation line, and is kept.\n\nVerification (AI-gold via article-finder): chandrashekar's ## Abstract now goes\ndirectly to the abstract body; all 3 affiliations are in the front matter (stripped\nby design), none in the Abstract. An abstract-zone FP-scan across the rendered\ncorpus fires ONLY on chandrashekar -- every other paper's abstract is byte-identical.\n4 new tests (incl. real-abstract + university-mention FP guards). Full suite: 1896\npassed, only the 2 documented pre-existing whitespace_cells failures remain.\n\nResolves chandrashekar's METADATA-LEAK (defect #1 of the 2026-07-04 report). Its\nTables 9/10 RC-T data-loss (defects #2/#3) is the architectural cluster --\ndiagnosed with a precise cycle plan in\ndocs/FINDINGS_2026-07-04_chandrashekar_rc_t_tables_9_10.md (the missing piece: wire\ntables/whitespace.py::char_whitespace_cells to REPLACE a degenerate matched Camelot\ntable in extract_structured.py::_pick_better_table). Deferred to a dedicated gated\ncycle (full 48-paper guard-diff + 7-canary AI-verify; do NOT rush at session-tail).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-04",
+            "url": "https://github.com/giladfeldman/docpluck/commit/e140cf159e73370aa9b8db830cb5169ae905e120",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "The `data_check` branch was the focus of the recent work, with additions made by Lakens. As stated, \"additions\" were made, but the specifics of these additions are not detailed in the commit message. A \"first version of datacheck modules\" was also created on the `data_check` branch, marking the initial implementation of these modules. The `data_check` branch is where all the changes took place, with no other branches mentioned in the commits. The work appears to be foundational, setting the stage for further development of the datacheck modules.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-07-03T18:41:22Z",
+        "recent_commits": [
+          {
+            "sha": "342b25c",
+            "message": "additions",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-07-03",
+            "url": "https://github.com/scienceverse/metacheck/commit/342b25ced869558575dcef6ebd04687c9fde9e68",
+            "type": "other",
+            "branch": "data_check"
+          },
+          {
+            "sha": "bd8c890",
+            "message": "first version of datacheck modules",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-07-03",
+            "url": "https://github.com/scienceverse/metacheck/commit/bd8c890799cdb39c1e9e568c3bc6740935efe17b",
+            "type": "chore",
+            "branch": "data_check"
+          }
+        ]
+      },
+      {
+        "owner": "JamieCummins",
+        "repo": "regcheck",
+        "url": "https://github.com/JamieCummins/regcheck",
+        "summary": "The `staging` branch was worked on, where the sign-up feature was removed, as indicated by the commit message \"remove sign-up\". \nNo other branches had commits in this update period. \nThe removal of the sign-up feature is the only change mentioned in the provided commit messages. \nThere are no additions or changes to any modules or other features mentioned. \nThe commit message does not specify why the sign-up feature was removed. \nThe work was done by Jamie Cummins.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-07-01T09:17:58Z",
+        "recent_commits": [
+          {
+            "sha": "1f6986b",
+            "message": "remove sign-up",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-07-01",
+            "url": "https://github.com/JamieCummins/regcheck/commit/1f6986bebd85c384b4a9ba906dab056ee71ccea5",
+            "type": "other",
+            "branch": "staging"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-07-04T02:48:08.247898+00:00",
     "narrative": "Our community has seen significant progress across multiple projects recently. Notably, the `giladfeldman/docpluck` project has made substantial updates, including fixes to rendering and normalization issues, as well as documentation updates. Meanwhile, the `giladfeldman/escicheck` project has been synchronized with the `escicheckapp` repository, incorporating the latest version of `effectcheck`. Additionally, smaller but important updates have been made to other projects, such as the re-enabling of Fable 5 in the `Davidvandijcke/coarse` model picker and the revision of the validation note in `shaheedazaad/auto-zcurve`. These updates demonstrate the connections and collaborations between our projects, and we celebrate the progress being made to improve our open-source research tools. The addition of a Chrome Webstore link for `giovannacdelsordo/output-it-forward` also highlights the growing accessibility of our tools.",
     "repos": [
@@ -16124,138 +16220,5 @@
         ]
       }
     ]
-  },
-  {
-    "generated_at": "2026-06-15T05:04:44.999680+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "",
-        "recent_commits": []
-      },
-      {
-        "owner": "MicheleNuijten",
-        "repo": "statcheck",
-        "url": "https://github.com/MicheleNuijten/statcheck",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "2026-03-10T14:25:41Z",
-        "recent_commits": []
-      },
-      {
-        "owner": "marton-balazs-kovacs",
-        "repo": "tenzing",
-        "url": "https://github.com/marton-balazs-kovacs/tenzing",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "2026-03-03T10:54:18Z",
-        "recent_commits": []
-      },
-      {
-        "owner": "lhdjung",
-        "repo": "scrutiny",
-        "url": "https://github.com/lhdjung/scrutiny",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "2026-05-05T18:18:15Z",
-        "recent_commits": []
-      },
-      {
-        "owner": "quest-bih",
-        "repo": "oddpub",
-        "url": "https://github.com/quest-bih/oddpub",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "2026-04-30T14:46:09Z",
-        "recent_commits": []
-      },
-      {
-        "owner": "cjvanlissa",
-        "repo": "worcs",
-        "url": "https://github.com/cjvanlissa/worcs",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "2026-03-27T12:37:34Z",
-        "recent_commits": []
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "docpluck",
-        "url": "https://github.com/giladfeldman/docpluck",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "2026-06-13T17:18:11Z",
-        "recent_commits": []
-      },
-      {
-        "owner": "quest-bih",
-        "repo": "ContriBOT",
-        "url": "https://github.com/quest-bih/ContriBOT",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "2025-11-13T15:11:14Z",
-        "recent_commits": []
-      },
-      {
-        "owner": "quest-bih",
-        "repo": "rtransparent",
-        "url": "https://github.com/quest-bih/rtransparent",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "2025-10-06T14:57:42Z",
-        "recent_commits": []
-      },
-      {
-        "owner": "Davidvandijcke",
-        "repo": "coarse",
-        "url": "https://github.com/Davidvandijcke/coarse",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "2026-06-14T03:40:29Z",
-        "recent_commits": []
-      },
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "2026-06-14T16:07:05Z",
-        "recent_commits": []
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "escicheck",
-        "url": "https://github.com/giladfeldman/escicheck",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "2026-05-25T15:14:17Z",
-        "recent_commits": []
-      },
-      {
-        "owner": "ingmarboeschen",
-        "repo": "JATSdecoder",
-        "url": "https://github.com/ingmarboeschen/JATSdecoder",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "2026-04-10T12:11:57Z",
-        "recent_commits": []
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "",
-        "commits_since_last": 0,
-        "pushed_at": "2026-06-14T14:44:45Z",
-        "recent_commits": []
-      }
-    ],
-    "_sentinel": true
   }
 ]
