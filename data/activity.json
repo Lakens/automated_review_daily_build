@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-04T08:44:05.762894+00:00",
+  "generated_at": "2026-07-04T13:28:27.024901+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -32,7 +32,7 @@
       "topics": [
         "metascience"
       ],
-      "pushed_at": "2026-07-03T18:41:22Z",
+      "pushed_at": "2026-07-04T12:10:11Z",
       "created_at": "2025-02-04",
       "last_push_days": 0,
       "default_branch": "main",
@@ -40,7 +40,7 @@
       "branches": [
         {
           "name": "data_check",
-          "last_commit": "2026-07-03"
+          "last_commit": "2026-07-04"
         },
         {
           "name": "dev_report_project",
@@ -74,8 +74,8 @@
       "branch_activity": [
         {
           "name": "data_check",
-          "last_commit": "2026-07-03",
-          "commits_30d": 67
+          "last_commit": "2026-07-04",
+          "commits_30d": 68
         },
         {
           "name": "main",
@@ -88,18 +88,18 @@
           "commits_30d": 4
         }
       ],
-      "commits_30d": 78,
-      "commits_7d": 4,
-      "commits_1d": 1,
-      "commits_90d": 195,
+      "commits_30d": 79,
+      "commits_7d": 5,
+      "commits_1d": 2,
+      "commits_90d": 196,
       "authors_30d": [
-        "Lisa DeBruine",
         "Daniel Lakens",
+        "nielsvanberkel",
         "Lakens",
-        "nielsvanberkel"
+        "Lisa DeBruine"
       ],
       "type_breakdown": {
-        "other": 25,
+        "other": 26,
         "chore": 19,
         "fix": 16,
         "feat": 11,
@@ -109,7 +109,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `data_check` branch was the focus of the recent work, with additions made by Lakens. As stated, \"additions\" were made, but the specifics of these additions are not detailed in the commit message. A \"first version of datacheck modules\" was also created on the `data_check` branch, marking the initial implementation of these modules. The `data_check` branch is where all the changes took place, with no other branches mentioned in the commits. The work appears to be foundational, setting the stage for further development of the datacheck modules.",
+      "summary": "Work was done on the `data_check` branch, where the first version of datacheck modules was added. The next day, additions were made to the `data_check` branch, although the specifics of these additions are not detailed. On July 4, 2026, transparent resource caps, LLM/download controls, data-manifest, and archive tooling were added to the `data_check` branch, as stated in the commit message. The `data_check` branch saw the most significant changes with the introduction of these features. The commits suggest a progression from initial module creation to adding more substantial features like resource caps and tooling. Overall, the `data_check` branch was the sole focus of these commits.",
       "prs": [
         {
           "number": 328,
@@ -593,15 +593,15 @@
         },
         {
           "week": 1779062400,
-          "total": 21
+          "total": 28
         },
         {
           "week": 1779667200,
-          "total": 38
+          "total": 37
         },
         {
           "week": 1780272000,
-          "total": 46
+          "total": 40
         },
         {
           "week": 1780876800,
@@ -617,10 +617,71 @@
         },
         {
           "week": 1782691200,
-          "total": 4
+          "total": 5
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1775952000,
+          "additions": 612194,
+          "deletions": -358
+        },
+        {
+          "week": 1776556800,
+          "additions": 238911,
+          "deletions": -10339
+        },
+        {
+          "week": 1777161600,
+          "additions": 318,
+          "deletions": -134
+        },
+        {
+          "week": 1777766400,
+          "additions": 2730833,
+          "deletions": -5
+        },
+        {
+          "week": 1778371200,
+          "additions": 3901785,
+          "deletions": -2151340
+        },
+        {
+          "week": 1778976000,
+          "additions": 16503,
+          "deletions": -741
+        },
+        {
+          "week": 1779580800,
+          "additions": 1740252,
+          "deletions": -187144
+        },
+        {
+          "week": 1780185600,
+          "additions": 287600,
+          "deletions": -205927
+        },
+        {
+          "week": 1780790400,
+          "additions": 1715267,
+          "deletions": -266311
+        },
+        {
+          "week": 1781395200,
+          "additions": 102161,
+          "deletions": -105469
+        },
+        {
+          "week": 1782000000,
+          "additions": 656,
+          "deletions": -1003
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.1.0",
@@ -659,6 +720,80 @@
       "scopus_citations": null,
       "recent_commits": [
         {
+          "sha": "c42ecbf",
+          "message": "Transparent resource caps, LLM/download controls, data-manifest + archive tooling",
+          "body": "Replace silent truncation across the data pipeline with an upfront,\nall-or-nothing \"cannot complete as configured\" gate that always names the\nparameter and the value needed to proceed. Add interactive/auto cap prompts,\na per-paper file manifest, an OSF listing efficiency fix, and two crash fixes.\n\nCaps & transparency\n- New shared message builders cap_gate_size / cap_gate_count / cap_gate_unknown\n  (R/report-helpers.R): a cap that would prevent fully completing a unit of work\n  refuses that repository/codebook and reports the offending files/sizes, the\n  parameter, and the lift-to value \u2014 no partial processing.\n- download_repo_files (R/repo-download.R): upfront per-repo size gate; resolve\n  NA-sized files via a HEAD Content-Length probe before downloading (fixes the\n  bug where unsized files bypassed both caps); refuse repos with undeterminable\n  sizes; defaults raised to max_file_size = 100 MB, max_download_size = 500 MB;\n  \"omitted\" attribute replaced by \"gated\".\n- data_check / code_check: file_limit is now an upfront per-repo gate (skip the\n  whole repo, name file_limit + the true count) instead of a silent slice_head;\n  same size-cap defaults; docs updated.\n- codebook_check: codebook_max_calls param; codebook-parse and scale-ID tiers\n  gate upfront instead of truncating silently; llm_max_calls() error now states\n  the value to set.\n- data_validate: max_facets promoted to an argument with a transparent\n  \"showing N of M\" note (display cap, not a resource refusal).\n\nInteractive cap control\n- New auto() accessor + metacheck.auto option (default !interactive()) and\n  cap_prompt() (R/cap-prompt.R): when interactive and not auto, a cap pauses and\n  shows the offending files + sizes, letting the user skip or raise the limit;\n  under auto() or a non-interactive session it reports inline and skips without\n  blocking. Cap messages are emitted inline as they happen (not batched at the\n  end of a loop). Wired through the download, file_limit, and codebook LLM caps.\n\nDownload modes & manifest\n- data_check gains download = \"data\" (default; readable files only) / \"all\"\n  (every repo file, for building a data archive) / \"none\"; TRUE/FALSE accepted\n  as synonyms.\n- data_check gains manifest = <path>: writes a per-paper JSON manifest (every\n  file with URL, size, type, download status, and skip reason). NA-sized wanted\n  files are HEAD-probed so sizes are complete for choosing an archive size\n  ceiling. An empty manifest is written for papers with no accessible repository.\n- convert_psychds: the opaque \"N file(s) skipped (no local copy)\" message now\n  says how many of how many, why (not downloaded), a breakdown by file type, and\n  how to include them (download = \"all\"); genuine copy failures are reported\n  separately.\n\nOSF efficiency\n- osf_get_all_pages requests page[size]=100 (was the API default of 10),\n  reducing listing calls up to ~10x and preventing OSF rate-limiting. Test\n  fixtures resolved via an httptest2 redactor that strips the param on mock\n  lookup.\n\nCrash fixes\n- data_analysis_unit: guard an all-NA identifier column (0/0 -> NaN in an if()).\n- repo_check: guard NA file sizes in the human-readable size column\n  (format.object_size errored on NA).\n\nProgress bars\n- llm() takes a phase label shown (with the model) in the progress bar, so LLM\n  passes are identifiable; report_module_run attributes elapsed time to the\n  running module instead of the next one.\n\nAlso: removed the col_type-only backward-compat path in convert_psychds() and\nits test; added regression tests for the crash fixes, the cap gates, the\nmanifest, and the codebook LLM gate. Rewrote _stuff/run_openmind.R as a two-pass\n(manifest sweep -> build) archive script.",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-07-04",
+          "url": "https://github.com/scienceverse/metacheck/commit/c42ecbf3c1232c30ed995398f1e4f1afa911b3b8",
+          "type": "other",
+          "branch": "data_check",
+          "diff": {
+            "additions": 1515,
+            "deletions": 235,
+            "files": [
+              {
+                "filename": "NAMESPACE",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 0,
+                "patch": "@@ -43,6 +43,10 @@ export(accuracy)\n export(add_bib_match)\n export(aspredicted_info)\n export(aspredicted_links)\n+export(auto)\n+export(cap_gate_count)\n+export(cap_gate_size)\n+export(cap_gate_unknown)\n export(causal_relations)\n export(check_orcid)\n export(code_abs_path)"
+              },
+              {
+                "filename": "R/archive-osf.R",
+                "status": "modified",
+                "additions": 14,
+                "deletions": 1,
+                "patch": "@@ -340,6 +340,19 @@ osf_type <- function(guid) {\n }\n \n \n+# The OSF actually allows us to return 10 times more results than we thought.\n+# This is an important change to prevent API blocks by the OSF.\n+#\n+# Ask OSF for the largest page it allows (100 items) instead of the default 10,\n+# so listing a repository takes ~10x fewer sequential API calls. Only added when\n+# the URL doesn't already carry a page[size], and left off the `next` links OSF\n+# returns (those already encode the page size).\n+.o"
+              },
+              {
+                "filename": "R/cap-prompt.R",
+                "status": "added",
+                "additions": 119,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,119 @@\n+# Interactive cap prompts. When a resource cap (download size, file_limit,\n+# codebook LLM calls) would refuse a unit of work, `cap_prompt()` \u2014 by default,\n+# in an interactive session \u2014 shows the offending files/counts and lets the user\n+# accept the default (skip) or raise the limit for that unit. Under `auto(TRUE)`\n+# or a non-interactive session (e.g. Rscript overnight) it never blocks: it emits\n+# the message inline and takes the default action (skip).\n+\n+#' Automatic (no"
+              },
+              {
+                "filename": "R/data_check_helpers.R",
+                "status": "modified",
+                "additions": 103,
+                "deletions": 4,
+                "patch": "@@ -184,6 +184,101 @@ data_is_manifest <- function(df, repo_files, threshold = 0.8, min_exts = 2L) {\n # classifier in data_check so batch size is tuned in one place.\n .data_check_llm_batch <- 50L\n \n+# Write a per-paper file manifest (JSON) recording every repository file and\n+# whether it was downloaded \u2014 the provenance needed to audit a corpus or rebuild\n+# a data archive without re-querying every repo. `files` is data_check's finalised\n+# `all_files`; `want` is the logical vector of files this"
+              },
+              {
+                "filename": "R/llm.R",
+                "status": "modified",
+                "additions": 11,
+                "deletions": 3,
+                "patch": "@@ -20,6 +20,7 @@\n #' @param text_col The name of the text column if text is a data frame\n #' @param model the LLM model name (see `llm_model_list()`) in the format \"provider\" or \"provider/model\"\n #' @param params a named list to pass to `ellmer::params()`\n+#' @param phase optional label naming the calling step (e.g. \"Identifying scales\") shown in the progress bar so a slow LLM pass is identifiable; the model name is appended automatically\n #'\n #' @return a data frame of results\n #'\n@@ -41,7 +42"
+              },
+              {
+                "filename": "R/psychds-convert.R",
+                "status": "modified",
+                "additions": 45,
+                "deletions": 36,
+                "patch": "@@ -29,38 +29,16 @@\n                   all.x = TRUE, suffixes = c(\"\", \".lbl\"))\n   }\n \n-  # Drop columns with no measured content (empty). Support both the facet schema\n-  # (representation/quality/measurement_level/concept/unit) and, for an older\n-  # data_check table, a legacy `col_type` column mapped onto the facets.\n-  qual <- if (\"quality\" %in% names(cols)) tolower(cols$quality %||% \"\") else\n-    ifelse(tolower(cols$col_type %||% \"\") == \"empty\", \"empty\", \"ok\")\n+  # Drop columns with no measu"
+              },
+              {
+                "filename": "R/repo-download.R",
+                "status": "modified",
+                "additions": 114,
+                "deletions": 48,
+                "patch": "@@ -31,34 +31,73 @@\n   file.path(.repo_cache_subdir(repo_url), rel)\n }\n \n+# Resolve a remote file's size (bytes) from its Content-Length header via a\n+# lightweight HEAD request. Used to turn a missing manifest size into a real\n+# size *before* downloading, so an unsized 5 GB file is caught by the gate. NA\n+# on any error or when the header is absent (chunked/dynamic responses).\n+.remote_size <- function(url) {\n+  tryCatch({\n+    req <- httr2::request(url) |>\n+      httr2::req_method(\"HEAD\") |>\n"
+              },
+              {
+                "filename": "R/report-helpers.R",
+                "status": "modified",
+                "additions": 115,
+                "deletions": 0,
+                "patch": "@@ -189,6 +189,121 @@ plural <- function(n, singular = \"\", plural = \"s\") {\n }\n \n \n+# Format a number for a cap message: whole numbers plainly (no scientific\n+# notation, even for large MB values like 31908), fractional numbers to one\n+# decimal (34.4). Never uses exponent form, which reads badly for file sizes.\n+.cap_num <- function(x) {\n+  if (is.na(x)) return(\"unknown\")\n+  if (!is.finite(x)) return(\"Inf\")\n+  if (isTRUE(all.equal(x, round(x))))\n+    format(round(x), trim = TRUE, scientific = FA"
+              }
+            ]
+          },
+          "diff_summary": "This commit in 'scienceverse/metacheck' introduces transparent resource caps, adds controls for Large Language Model (LLM) downloads, and implements data-manifest and archive tooling, including interactive prompts to manage resource caps and prevent API blocks."
+        },
+        {
           "sha": "342b25c",
           "message": "additions",
           "body": "",
@@ -668,69 +803,7 @@
           "url": "https://github.com/scienceverse/metacheck/commit/342b25ced869558575dcef6ebd04687c9fde9e68",
           "type": "other",
           "branch": "data_check",
-          "diff": {
-            "additions": 2708,
-            "deletions": 98,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -39,6 +39,7 @@ Encoding: UTF-8\n Roxygen: list(markdown = TRUE)\n Suggests:\n     ggplot2,\n+    careless,\n     codebook,\n     devtools,\n     httptest2,"
-              },
-              {
-                "filename": "NAMESPACE",
-                "status": "modified",
-                "additions": 6,
-                "deletions": 0,
-                "patch": "@@ -63,8 +63,11 @@ export(convert_psychds)\n export(credit_roles)\n export(crossref_doi)\n export(crossref_query)\n+export(data_analysis_unit)\n export(data_check_case_issues)\n export(data_check_constant)\n+export(data_check_demographic)\n+export(data_check_is_qualtrics)\n export(data_check_miscoded_missing)\n export(data_check_numeric_in_text)\n export(data_check_outliers)\n@@ -75,12 +78,15 @@ export(data_check_pii_values)\n export(data_check_sparse_levels)\n export(data_check_whitespace)\n export(data_class"
-              },
-              {
-                "filename": "R/codebook-convert.R",
-                "status": "modified",
-                "additions": 78,
-                "deletions": 6,
-                "patch": "@@ -21,7 +21,8 @@\n   # Attach labels by source_file + column_name when available.\n   if (!is.null(labels) && nrow(labels) > 0 &&\n       all(c(\"source_file\", \"column_name\") %in% names(labels))) {\n-    keep <- c(\"source_file\", \"column_name\", \"label\", \"label_status\")\n+    keep <- c(\"source_file\", \"column_name\", \"label\", \"label_status\",\n+              \"scale\", \"scale_confidence\")\n     labels <- labels[, intersect(keep, names(labels)), drop = FALSE]\n     cols <- merge(cols, labels, by = c(\"source_fil"
-              },
-              {
-                "filename": "R/data_check_helpers.R",
-                "status": "modified",
-                "additions": 960,
-                "deletions": 14,
-                "patch": "@@ -435,6 +435,11 @@ data_read_head <- function(path, n_rows = 5) {\n         }\n         if (!hdr && !is.null(df) && ncol(df) > 0)\n           names(df) <- paste0(\"col_\", seq_len(ncol(df)))\n+        # Qualtrics \"use choice text\" exports carry extra header rows (question\n+        # text, ImportId JSON) as the first data rows, which force every column\n+        # to character. Strip them and re-type so the rest of data_check works.\n+        if (!is.null(df) && data_check_is_qualtrics(df))\n+          "
-              },
-              {
-                "filename": "R/llm.R",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 2,
-                "patch": "@@ -74,8 +74,10 @@ llm <- function(text, system_prompt,\n   # ollama checks ----\n   use_ollama_native <- FALSE\n   if (grepl(\"^ollama\", model)) {\n-    # ollama's /v1/ endpoint ignores think=FALSE; native /api/chat honours it\n-    use_ollama_native <- !isTRUE(params$think) %% !structured\n+    # ollama's /v1/ endpoint ignores think=FALSE; native /api/chat honours it.\n+    # Use the native path only for unstructured calls that are not \"thinking\";\n+    # structured output goes through the /v1/ endpoin"
-              },
-              {
-                "filename": "R/psychds-convert.R",
-                "status": "modified",
-                "additions": 93,
-                "deletions": 16,
-                "patch": "@@ -4,13 +4,12 @@\n # 3_psychds_convert.R, but driven by metacheck's data_check / codebook_check\n # outputs and the paper object (no GROBID XML / CrossRef enrichment).\n \n-# Column types that receive a numeric statistics block in variableMeasured.\n-.psychds_numeric_types <- c(\"continuous\", \"continuous_comma_decimal\",\n-                            \"continuous_outliers_excluded\")\n-# Column types that receive a valuePattern in variableMeasured.\n-.psychds_categorical_types <- c(\"categorical\", \"binary\","
-              },
-              {
-                "filename": "inst/modules/codebook_check.R",
-                "status": "modified",
-                "additions": 297,
-                "deletions": 0,
-                "patch": "@@ -20,6 +20,16 @@\n #' `match_column_labels()`, using normalised-name matching with experiment-group\n #' scoping, haven-label priority, and rule-based label-equivalence merging.\n #'\n+#' Beyond the variable label, the module harvests the DDI-style per-variable\n+#' properties a source supplies: the **value labels / code list** (the\n+#' 1=\"Strongly disagree\"\u20265=\"Strongly agree\" mapping \u2014 from SPSS/Stata value\n+#' labels and from a codebook \"values\"/\"coding\" column), the **missing-value\n+#' scheme** "
-              },
-              {
-                "filename": "inst/modules/data_check.R",
-                "status": "modified",
-                "additions": 176,
-                "deletions": 60,
-                "patch": "@@ -13,10 +13,21 @@\n #' names matching README / codebook patterns win first, then an extension\n #' crosswalk, then format-locked extension overrides. For every file classified\n #' as tabular `data` that is available locally, the module reads the file head,\n-#' assigns a column type to each column with `data_col_type()` (all-NA \u2192 empty,\n-#' ID name \u2192 id, 1 unique \u2192 constant, 2 unique \u2192 binary, date-parseable \u2192 date,\n-#' long strings \u2192 text, numeric \u2192 continuous, comma-decimal \u2192 continuous\n-#' var"
-              }
-            ]
-          },
-          "diff_summary": "This commit, titled 'additions', updates the 'scienceverse/metacheck' repository by adding the 'careless' package as a suggested dependency, exporting new functions such as 'data_analysis_unit', and modifying the code in 'codebook-convert.R' and other files to enhance data checking and conversion capabilities."
+          "diff": {}
         },
         {
           "sha": "bd8c890",
@@ -1067,21 +1140,83 @@
           "type": "other",
           "branch": "data_check",
           "diff": {}
-        },
-        {
-          "sha": "9d012e7",
-          "message": "Merge pull request #310 from nielsvanberkel/main",
-          "body": "Replace devtools::install_github with pak::pkg_install",
-          "author": "Lisa DeBruine",
-          "author_login": "debruine",
-          "date": "2026-06-15",
-          "url": "https://github.com/scienceverse/metacheck/commit/9d012e7f070a33915e0855514a6dc89d0b0e8d5c",
-          "type": "other",
-          "branch": "data_check",
-          "diff": {}
         }
       ],
       "_new_commits": [
+        {
+          "sha": "c42ecbf",
+          "message": "Transparent resource caps, LLM/download controls, data-manifest + archive tooling",
+          "body": "Replace silent truncation across the data pipeline with an upfront,\nall-or-nothing \"cannot complete as configured\" gate that always names the\nparameter and the value needed to proceed. Add interactive/auto cap prompts,\na per-paper file manifest, an OSF listing efficiency fix, and two crash fixes.\n\nCaps & transparency\n- New shared message builders cap_gate_size / cap_gate_count / cap_gate_unknown\n  (R/report-helpers.R): a cap that would prevent fully completing a unit of work\n  refuses that repository/codebook and reports the offending files/sizes, the\n  parameter, and the lift-to value \u2014 no partial processing.\n- download_repo_files (R/repo-download.R): upfront per-repo size gate; resolve\n  NA-sized files via a HEAD Content-Length probe before downloading (fixes the\n  bug where unsized files bypassed both caps); refuse repos with undeterminable\n  sizes; defaults raised to max_file_size = 100 MB, max_download_size = 500 MB;\n  \"omitted\" attribute replaced by \"gated\".\n- data_check / code_check: file_limit is now an upfront per-repo gate (skip the\n  whole repo, name file_limit + the true count) instead of a silent slice_head;\n  same size-cap defaults; docs updated.\n- codebook_check: codebook_max_calls param; codebook-parse and scale-ID tiers\n  gate upfront instead of truncating silently; llm_max_calls() error now states\n  the value to set.\n- data_validate: max_facets promoted to an argument with a transparent\n  \"showing N of M\" note (display cap, not a resource refusal).\n\nInteractive cap control\n- New auto() accessor + metacheck.auto option (default !interactive()) and\n  cap_prompt() (R/cap-prompt.R): when interactive and not auto, a cap pauses and\n  shows the offending files + sizes, letting the user skip or raise the limit;\n  under auto() or a non-interactive session it reports inline and skips without\n  blocking. Cap messages are emitted inline as they happen (not batched at the\n  end of a loop). Wired through the download, file_limit, and codebook LLM caps.\n\nDownload modes & manifest\n- data_check gains download = \"data\" (default; readable files only) / \"all\"\n  (every repo file, for building a data archive) / \"none\"; TRUE/FALSE accepted\n  as synonyms.\n- data_check gains manifest = <path>: writes a per-paper JSON manifest (every\n  file with URL, size, type, download status, and skip reason). NA-sized wanted\n  files are HEAD-probed so sizes are complete for choosing an archive size\n  ceiling. An empty manifest is written for papers with no accessible repository.\n- convert_psychds: the opaque \"N file(s) skipped (no local copy)\" message now\n  says how many of how many, why (not downloaded), a breakdown by file type, and\n  how to include them (download = \"all\"); genuine copy failures are reported\n  separately.\n\nOSF efficiency\n- osf_get_all_pages requests page[size]=100 (was the API default of 10),\n  reducing listing calls up to ~10x and preventing OSF rate-limiting. Test\n  fixtures resolved via an httptest2 redactor that strips the param on mock\n  lookup.\n\nCrash fixes\n- data_analysis_unit: guard an all-NA identifier column (0/0 -> NaN in an if()).\n- repo_check: guard NA file sizes in the human-readable size column\n  (format.object_size errored on NA).\n\nProgress bars\n- llm() takes a phase label shown (with the model) in the progress bar, so LLM\n  passes are identifiable; report_module_run attributes elapsed time to the\n  running module instead of the next one.\n\nAlso: removed the col_type-only backward-compat path in convert_psychds() and\nits test; added regression tests for the crash fixes, the cap gates, the\nmanifest, and the codebook LLM gate. Rewrote _stuff/run_openmind.R as a two-pass\n(manifest sweep -> build) archive script.",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-07-04",
+          "url": "https://github.com/scienceverse/metacheck/commit/c42ecbf3c1232c30ed995398f1e4f1afa911b3b8",
+          "type": "other",
+          "branch": "data_check",
+          "diff": {
+            "additions": 1515,
+            "deletions": 235,
+            "files": [
+              {
+                "filename": "NAMESPACE",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 0,
+                "patch": "@@ -43,6 +43,10 @@ export(accuracy)\n export(add_bib_match)\n export(aspredicted_info)\n export(aspredicted_links)\n+export(auto)\n+export(cap_gate_count)\n+export(cap_gate_size)\n+export(cap_gate_unknown)\n export(causal_relations)\n export(check_orcid)\n export(code_abs_path)"
+              },
+              {
+                "filename": "R/archive-osf.R",
+                "status": "modified",
+                "additions": 14,
+                "deletions": 1,
+                "patch": "@@ -340,6 +340,19 @@ osf_type <- function(guid) {\n }\n \n \n+# The OSF actually allows us to return 10 times more results than we thought.\n+# This is an important change to prevent API blocks by the OSF.\n+#\n+# Ask OSF for the largest page it allows (100 items) instead of the default 10,\n+# so listing a repository takes ~10x fewer sequential API calls. Only added when\n+# the URL doesn't already carry a page[size], and left off the `next` links OSF\n+# returns (those already encode the page size).\n+.o"
+              },
+              {
+                "filename": "R/cap-prompt.R",
+                "status": "added",
+                "additions": 119,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,119 @@\n+# Interactive cap prompts. When a resource cap (download size, file_limit,\n+# codebook LLM calls) would refuse a unit of work, `cap_prompt()` \u2014 by default,\n+# in an interactive session \u2014 shows the offending files/counts and lets the user\n+# accept the default (skip) or raise the limit for that unit. Under `auto(TRUE)`\n+# or a non-interactive session (e.g. Rscript overnight) it never blocks: it emits\n+# the message inline and takes the default action (skip).\n+\n+#' Automatic (no"
+              },
+              {
+                "filename": "R/data_check_helpers.R",
+                "status": "modified",
+                "additions": 103,
+                "deletions": 4,
+                "patch": "@@ -184,6 +184,101 @@ data_is_manifest <- function(df, repo_files, threshold = 0.8, min_exts = 2L) {\n # classifier in data_check so batch size is tuned in one place.\n .data_check_llm_batch <- 50L\n \n+# Write a per-paper file manifest (JSON) recording every repository file and\n+# whether it was downloaded \u2014 the provenance needed to audit a corpus or rebuild\n+# a data archive without re-querying every repo. `files` is data_check's finalised\n+# `all_files`; `want` is the logical vector of files this"
+              },
+              {
+                "filename": "R/llm.R",
+                "status": "modified",
+                "additions": 11,
+                "deletions": 3,
+                "patch": "@@ -20,6 +20,7 @@\n #' @param text_col The name of the text column if text is a data frame\n #' @param model the LLM model name (see `llm_model_list()`) in the format \"provider\" or \"provider/model\"\n #' @param params a named list to pass to `ellmer::params()`\n+#' @param phase optional label naming the calling step (e.g. \"Identifying scales\") shown in the progress bar so a slow LLM pass is identifiable; the model name is appended automatically\n #'\n #' @return a data frame of results\n #'\n@@ -41,7 +42"
+              },
+              {
+                "filename": "R/psychds-convert.R",
+                "status": "modified",
+                "additions": 45,
+                "deletions": 36,
+                "patch": "@@ -29,38 +29,16 @@\n                   all.x = TRUE, suffixes = c(\"\", \".lbl\"))\n   }\n \n-  # Drop columns with no measured content (empty). Support both the facet schema\n-  # (representation/quality/measurement_level/concept/unit) and, for an older\n-  # data_check table, a legacy `col_type` column mapped onto the facets.\n-  qual <- if (\"quality\" %in% names(cols)) tolower(cols$quality %||% \"\") else\n-    ifelse(tolower(cols$col_type %||% \"\") == \"empty\", \"empty\", \"ok\")\n+  # Drop columns with no measu"
+              },
+              {
+                "filename": "R/repo-download.R",
+                "status": "modified",
+                "additions": 114,
+                "deletions": 48,
+                "patch": "@@ -31,34 +31,73 @@\n   file.path(.repo_cache_subdir(repo_url), rel)\n }\n \n+# Resolve a remote file's size (bytes) from its Content-Length header via a\n+# lightweight HEAD request. Used to turn a missing manifest size into a real\n+# size *before* downloading, so an unsized 5 GB file is caught by the gate. NA\n+# on any error or when the header is absent (chunked/dynamic responses).\n+.remote_size <- function(url) {\n+  tryCatch({\n+    req <- httr2::request(url) |>\n+      httr2::req_method(\"HEAD\") |>\n"
+              },
+              {
+                "filename": "R/report-helpers.R",
+                "status": "modified",
+                "additions": 115,
+                "deletions": 0,
+                "patch": "@@ -189,6 +189,121 @@ plural <- function(n, singular = \"\", plural = \"s\") {\n }\n \n \n+# Format a number for a cap message: whole numbers plainly (no scientific\n+# notation, even for large MB values like 31908), fractional numbers to one\n+# decimal (34.4). Never uses exponent form, which reads badly for file sizes.\n+.cap_num <- function(x) {\n+  if (is.na(x)) return(\"unknown\")\n+  if (!is.finite(x)) return(\"Inf\")\n+  if (isTRUE(all.equal(x, round(x))))\n+    format(round(x), trim = TRUE, scientific = FA"
+              }
+            ]
+          },
+          "diff_summary": "This commit in 'scienceverse/metacheck' introduces transparent resource caps, adds controls for Large Language Model (LLM) downloads, and implements data-manifest and archive tooling, including interactive prompts to manage resource caps and prevent API blocks."
+        },
         {
           "sha": "342b25c",
           "message": "additions",
@@ -1092,69 +1227,7 @@
           "url": "https://github.com/scienceverse/metacheck/commit/342b25ced869558575dcef6ebd04687c9fde9e68",
           "type": "other",
           "branch": "data_check",
-          "diff": {
-            "additions": 2708,
-            "deletions": 98,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -39,6 +39,7 @@ Encoding: UTF-8\n Roxygen: list(markdown = TRUE)\n Suggests:\n     ggplot2,\n+    careless,\n     codebook,\n     devtools,\n     httptest2,"
-              },
-              {
-                "filename": "NAMESPACE",
-                "status": "modified",
-                "additions": 6,
-                "deletions": 0,
-                "patch": "@@ -63,8 +63,11 @@ export(convert_psychds)\n export(credit_roles)\n export(crossref_doi)\n export(crossref_query)\n+export(data_analysis_unit)\n export(data_check_case_issues)\n export(data_check_constant)\n+export(data_check_demographic)\n+export(data_check_is_qualtrics)\n export(data_check_miscoded_missing)\n export(data_check_numeric_in_text)\n export(data_check_outliers)\n@@ -75,12 +78,15 @@ export(data_check_pii_values)\n export(data_check_sparse_levels)\n export(data_check_whitespace)\n export(data_class"
-              },
-              {
-                "filename": "R/codebook-convert.R",
-                "status": "modified",
-                "additions": 78,
-                "deletions": 6,
-                "patch": "@@ -21,7 +21,8 @@\n   # Attach labels by source_file + column_name when available.\n   if (!is.null(labels) && nrow(labels) > 0 &&\n       all(c(\"source_file\", \"column_name\") %in% names(labels))) {\n-    keep <- c(\"source_file\", \"column_name\", \"label\", \"label_status\")\n+    keep <- c(\"source_file\", \"column_name\", \"label\", \"label_status\",\n+              \"scale\", \"scale_confidence\")\n     labels <- labels[, intersect(keep, names(labels)), drop = FALSE]\n     cols <- merge(cols, labels, by = c(\"source_fil"
-              },
-              {
-                "filename": "R/data_check_helpers.R",
-                "status": "modified",
-                "additions": 960,
-                "deletions": 14,
-                "patch": "@@ -435,6 +435,11 @@ data_read_head <- function(path, n_rows = 5) {\n         }\n         if (!hdr && !is.null(df) && ncol(df) > 0)\n           names(df) <- paste0(\"col_\", seq_len(ncol(df)))\n+        # Qualtrics \"use choice text\" exports carry extra header rows (question\n+        # text, ImportId JSON) as the first data rows, which force every column\n+        # to character. Strip them and re-type so the rest of data_check works.\n+        if (!is.null(df) && data_check_is_qualtrics(df))\n+          "
-              },
-              {
-                "filename": "R/llm.R",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 2,
-                "patch": "@@ -74,8 +74,10 @@ llm <- function(text, system_prompt,\n   # ollama checks ----\n   use_ollama_native <- FALSE\n   if (grepl(\"^ollama\", model)) {\n-    # ollama's /v1/ endpoint ignores think=FALSE; native /api/chat honours it\n-    use_ollama_native <- !isTRUE(params$think) %% !structured\n+    # ollama's /v1/ endpoint ignores think=FALSE; native /api/chat honours it.\n+    # Use the native path only for unstructured calls that are not \"thinking\";\n+    # structured output goes through the /v1/ endpoin"
-              },
-              {
-                "filename": "R/psychds-convert.R",
-                "status": "modified",
-                "additions": 93,
-                "deletions": 16,
-                "patch": "@@ -4,13 +4,12 @@\n # 3_psychds_convert.R, but driven by metacheck's data_check / codebook_check\n # outputs and the paper object (no GROBID XML / CrossRef enrichment).\n \n-# Column types that receive a numeric statistics block in variableMeasured.\n-.psychds_numeric_types <- c(\"continuous\", \"continuous_comma_decimal\",\n-                            \"continuous_outliers_excluded\")\n-# Column types that receive a valuePattern in variableMeasured.\n-.psychds_categorical_types <- c(\"categorical\", \"binary\","
-              },
-              {
-                "filename": "inst/modules/codebook_check.R",
-                "status": "modified",
-                "additions": 297,
-                "deletions": 0,
-                "patch": "@@ -20,6 +20,16 @@\n #' `match_column_labels()`, using normalised-name matching with experiment-group\n #' scoping, haven-label priority, and rule-based label-equivalence merging.\n #'\n+#' Beyond the variable label, the module harvests the DDI-style per-variable\n+#' properties a source supplies: the **value labels / code list** (the\n+#' 1=\"Strongly disagree\"\u20265=\"Strongly agree\" mapping \u2014 from SPSS/Stata value\n+#' labels and from a codebook \"values\"/\"coding\" column), the **missing-value\n+#' scheme** "
-              },
-              {
-                "filename": "inst/modules/data_check.R",
-                "status": "modified",
-                "additions": 176,
-                "deletions": 60,
-                "patch": "@@ -13,10 +13,21 @@\n #' names matching README / codebook patterns win first, then an extension\n #' crosswalk, then format-locked extension overrides. For every file classified\n #' as tabular `data` that is available locally, the module reads the file head,\n-#' assigns a column type to each column with `data_col_type()` (all-NA \u2192 empty,\n-#' ID name \u2192 id, 1 unique \u2192 constant, 2 unique \u2192 binary, date-parseable \u2192 date,\n-#' long strings \u2192 text, numeric \u2192 continuous, comma-decimal \u2192 continuous\n-#' var"
-              }
-            ]
-          },
-          "diff_summary": "This commit, titled 'additions', updates the 'scienceverse/metacheck' repository by adding the 'careless' package as a suggested dependency, exporting new functions such as 'data_analysis_unit', and modifying the code in 'codebook-convert.R' and other files to enhance data checking and conversion capabilities."
+          "diff": {}
         },
         {
           "sha": "bd8c890",
@@ -1196,7 +1269,7 @@
       ],
       "pushed_at": "2026-07-03T11:37:30Z",
       "created_at": "2012-03-26",
-      "last_push_days": 0,
+      "last_push_days": 1,
       "default_branch": "master",
       "license": "",
       "branches": [
@@ -1242,7 +1315,7 @@
       ],
       "commits_30d": 2,
       "commits_7d": 2,
-      "commits_1d": 2,
+      "commits_1d": 0,
       "commits_90d": 2,
       "authors_30d": [
         "MicheleNuijten"
@@ -1253,7 +1326,7 @@
       },
       "dormant_revived": true,
       "is_archived": false,
-      "summary": "The `feature-non-apa-newer` branch was worked on, where a merge was performed from the same branch of the `https://github.com/MicheleNuijten/statcheck` repository. \nIn the `feature-non-apa-newer` branch, \"admin updates\" were made, as per the commit message. \nNo other branches were modified in this set of commits. \nThe merge commit combined changes from the remote `feature-non-apa-newer` branch into the local version. \nThe nature of the \"admin updates\" is not specified beyond the commit message.",
+      "summary": "The `feature-non-apa-newer` branch was worked on, where a merge was performed from the same branch of the `https://github.com/MicheleNuijten/statcheck` repository. \nThe merge commit on the `feature-non-apa-newer` branch was made to integrate changes from the remote repository. \nAdditionally, on the `feature-non-apa-newer` branch, \"admin updates\" were made, as per the commit message. \nNo other branches were modified in this set of commits. \nThe changes were limited to the `feature-non-apa-newer` branch, with no other branches or modules mentioned.",
       "prs": [
         {
           "number": 107,
@@ -1798,7 +1871,68 @@
           "total": 2
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1775952000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1776556800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777161600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777766400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.6.1.9000",
@@ -1883,7 +2017,81 @@
               }
             ]
           },
-          "diff_summary": "This commit merges changes from the 'feature-non-apa-newer' branch into the same branch, updating several R files, including `clean_non_apa.R`, `extract_stats.R`, `helpers-parse-stats.R`, `regex.R`, and `statcheck.R`, to improve the handling of non-APA style statistical results, including cleaning and extracting statistics from text."
+          "diff_summary": "This commit merges changes from the 'feature-non-apa-newer' branch into the same branch in the 'MicheleNuijten/statcheck' repository, updating several R files, including adding a new function `clean_non_apa` and modifying existing functions like `extract_stats` to improve handling of non-APA style statistical results."
+        },
+        {
+          "sha": "ffba7eb",
+          "message": "admin updates",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-07-03",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/ffba7eb5b198605087b94718ce5e98ed6871d458",
+          "type": "other",
+          "branch": "feature-non-apa-newer",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "50ab5e6",
+          "message": "Merge branch 'feature-non-apa-newer' of https://github.com/MicheleNuijten/statcheck into feature-non-apa-newer",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-07-03",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/50ab5e66a0f32d77c9becef0c4bba3d638ec8019",
+          "type": "feat",
+          "branch": "feature-non-apa-newer",
+          "diff": {
+            "additions": 414,
+            "deletions": 105,
+            "files": [
+              {
+                "filename": "R/clean_non_apa.R",
+                "status": "added",
+                "additions": 44,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,44 @@\n+clean_non_apa <- function(nhst_raw){\n+  \n+  # remove all spaces\n+  # the parsing functions can handle no spaces, but it would be too complicated\n+  # to take into account every possible number of spaces, so removing them\n+  # all is easiest\n+  nhst_clean <- gsub(pattern = \"\\\\s+\", replacement = \"\",\n+                     nhst_raw)\n+  \n+  # replace square or curly brackets with parentheses\n+  nhst_clean <- gsub(pattern = RGX_SQ_CURLY1, replacement = RGX_PRTS_1, \n+                 "
+              },
+              {
+                "filename": "R/extract_stats.R",
+                "status": "modified",
+                "additions": 62,
+                "deletions": 34,
+                "patch": "@@ -1,13 +1,20 @@\n-extract_stats <- function(txt, stat){\n+extract_stats <- function(txt, apa_style, stat){\n   \n   # step 1: extract all NHST results from text -----------------------------------\n   \n+  # specify whether to search for APA NHST results or also to include non-APA\n+  if(apa_style == TRUE){\n+    rgx_nhst <- RGX_NHST\n+  } else {\n+    rgx_nhst <- RGX_NHST_NONAPA\n+  }\n+  \n   # if there are x NHST results in a text, this returns a character vector of \n   # length x\n   nhst_raw <- extract"
+              },
+              {
+                "filename": "R/helpers-parse-stats.R",
+                "status": "modified",
+                "additions": 65,
+                "deletions": 16,
+                "patch": "@@ -46,7 +46,22 @@ extract_df <- function(raw, test_type){\n     df1 <- NA\n     df2 <- NA\n     \n-  } else {\n+  } else if(test_type == \"r\" & grepl(RGX_DFN_R_NRS, raw)){\n+    # if correlations report N instead of df, transform to df\n+    \n+    # extract full string with N\n+    dfn <- extract_pattern(txt = raw,\n+                           pattern = RGX_DFN_R_NRS)[[1]]\n+    \n+    # only extract numbers\n+    n <- as.numeric(extract_pattern(txt = dfn,\n+                                    pattern = \"\\\\d"
+              },
+              {
+                "filename": "R/regex.R",
+                "status": "modified",
+                "additions": 221,
+                "deletions": 43,
+                "patch": "@@ -1,55 +1,114 @@\n # this script contains the regular expressions that statcheck uses to extract\n-# NHST results from text\n-\n-# test types\n-RGX_T <- \"t\"\n-RGX_R <- \"r\"\n-RGX_Q <- \"Q\\\\s?-?\\\\s?(w|W|(w|W)ithin|b|B|(b|B)etween)?\"\n-RGX_F <- \"F\"\n-RGX_Z <- \"([^a-z](z|Z))\"\n-# for chi2: effectively extract everything that is NOT a t, r, F, z, Q, W, n, or \n-# D, followed by *maybe* a 2 (and later followed by a result in a chi2 layout)\n-RGX_CHI2 <- \"((\\\\s[^trFzZQWnD ]\\\\s?)|([^trFzZQWnD ]2\\\\s?))2?\"\n-\n-# degr"
+              },
+              {
+                "filename": "R/statcheck.R",
+                "status": "modified",
+                "additions": 10,
+                "deletions": 2,
+                "patch": "@@ -115,6 +115,7 @@\n \n statcheck <- function(texts,\n                       stat = c(\"t\", \"F\", \"cor\", \"chisq\", \"Z\", \"Q\"),\n+                      apa_style = TRUE,\n                       OneTailedTests = FALSE,\n                       alpha = .05,\n                       pEqualAlphaSig = TRUE,\n@@ -159,7 +160,7 @@ statcheck <- function(texts,\n     # later on to calculate the APA factor: the ratio (statcheck results)/\n     # (total # of p values). It is also possible to let statcheck return this\n     "
+              },
+              {
+                "filename": "tests/testthat/test-extract-non-apa.R",
+                "status": "modified",
+                "additions": 12,
+                "deletions": 10,
+                "patch": "@@ -29,7 +29,7 @@ test_that(\"F with MSE is extracted and parsed\",{\n   expect_equal(result[[VAR_TEST_VALUE]], rep(11.37, 2))\n   \n   # don't extract these results when apa_style is TRUE\n-  expect_output(statcheck(c(txt1, txt2), messages = FALSE), \n+  expect_message(statcheck(c(txt1, txt2), messages = FALSE), \n                 \"did not find any results\")\n   \n })\n@@ -50,7 +50,7 @@ test_that(\"df between square, curly, or no brackets are extracted and parsed\",{\n   expect_equal(result[[VAR_DF2]], rep(2"
+              }
+            ]
+          },
+          "diff_summary": "This commit merges changes from the 'feature-non-apa-newer' branch into the same branch in the 'MicheleNuijten/statcheck' repository, updating several R files, including adding a new function `clean_non_apa` and modifying existing functions like `extract_stats` to improve handling of non-APA style statistical results."
         },
         {
           "sha": "ffba7eb",
@@ -1924,7 +2132,7 @@
       ],
       "pushed_at": "2026-03-03T10:54:18Z",
       "created_at": "2020-04-19",
-      "last_push_days": 122,
+      "last_push_days": 123,
       "default_branch": "master",
       "license": "NOASSERTION",
       "branches": [
@@ -2509,7 +2717,56 @@
           "html_url": "https://github.com/martonaronvarga"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1775952000,
+          "total": 0
+        },
+        {
+          "week": 1776556800,
+          "total": 0
+        },
+        {
+          "week": 1777161600,
+          "total": 0
+        },
+        {
+          "week": 1777766400,
+          "total": 0
+        },
+        {
+          "week": 1778371200,
+          "total": 0
+        },
+        {
+          "week": 1778976000,
+          "total": 0
+        },
+        {
+          "week": 1779580800,
+          "total": 0
+        },
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        },
+        {
+          "week": 1782000000,
+          "total": 0
+        },
+        {
+          "week": 1782604800,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -3162,7 +3419,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1775952000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1776556800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777161600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777766400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.6.1",
@@ -3504,7 +3822,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1775952000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1776556800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777161600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777766400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "7.2.3",
@@ -3564,7 +3943,7 @@
       "topics": [],
       "pushed_at": "2026-03-27T12:37:34Z",
       "created_at": "2020-01-11",
-      "last_push_days": 98,
+      "last_push_days": 99,
       "default_branch": "master",
       "license": "GPL-3.0",
       "branches": [
@@ -4103,7 +4482,56 @@
           "html_url": "https://github.com/yihui"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1775952000,
+          "total": 0
+        },
+        {
+          "week": 1776556800,
+          "total": 0
+        },
+        {
+          "week": 1777161600,
+          "total": 0
+        },
+        {
+          "week": 1777766400,
+          "total": 0
+        },
+        {
+          "week": 1778371200,
+          "total": 0
+        },
+        {
+          "week": 1778976000,
+          "total": 0
+        },
+        {
+          "week": 1779580800,
+          "total": 0
+        },
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        },
+        {
+          "week": 1782000000,
+          "total": 0
+        },
+        {
+          "week": 1782604800,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -4157,11 +4585,11 @@
       "subscribers_count": 0,
       "language": "Python",
       "languages_breakdown": {
-        "Python": 2232961,
+        "Python": 2235614,
         "PowerShell": 1799
       },
       "topics": [],
-      "pushed_at": "2026-07-04T08:04:33Z",
+      "pushed_at": "2026-07-04T08:37:50Z",
       "created_at": "2026-04-06",
       "last_push_days": 0,
       "default_branch": "main",
@@ -4197,19 +4625,19 @@
         {
           "name": "main",
           "last_commit": "2026-07-04",
-          "commits_30d": 34
+          "commits_30d": 35
         }
       ],
-      "commits_30d": 96,
-      "commits_7d": 30,
-      "commits_1d": 18,
-      "commits_90d": 433,
+      "commits_30d": 97,
+      "commits_7d": 31,
+      "commits_1d": 14,
+      "commits_90d": 434,
       "authors_30d": [
         "Gilad Feldman"
       ],
       "type_breakdown": {
         "other": 28,
-        "fix": 43,
+        "fix": 44,
         "feat": 13,
         "chore": 6,
         "refactor": 2,
@@ -4218,7 +4646,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "Work was done on the 'main' branch, where documentation triage was performed, recording the run-3 outcome, resolving W0l \u00d7-as-3 residuals, and rescoping efendic headings to B6. \nAdditionally on the 'main' branch, a fix was made to recover 2 residual \u00d7-as-3 prose shapes that W0k can't reach, related to efendic, as part of version 2.4.116. \nThe 'main' branch also saw a fix to the render function, specifically stripping an affiliation remnant that was orphaned in the Abstract body, related to chandrashekar, as part of version 2.4.115. \nNo other branches were worked on, with all changes occurring on the 'main' branch. \nThe commits addressed specific issues, including resolving residuals, recovering prose shapes, and stripping orphaned affiliation remnants. \nOnly the 'main' branch was modified in these commits.",
+      "summary": "Work was done on the 'main' branch, where a commit addressed the issue of \"chan_feldman T3 caption-tail-walk TEXT-LOSS\" by adding a diagnostic and an xfail guard, with the fix being deferred as it requires corpus-wide changes. Another commit on the 'main' branch updated the documentation to record the outcome of \"run-3\" and resolved \"W0l \u00d7-as-3 residuals\", also rescoping \"efendic headings to B6\" as part of the documentation triage. A fix was applied to the 'glyph' module on the 'main' branch to recover two residual \"\u00d7-as-3 prose shapes\" that \"W0k can't reach\", related to \"efendic\" and version \"v2.4.116\". Additionally, a rendering fix was made on the 'main' branch to remove an orphaned affiliation remnant in the Abstract body, related to \"chandrashekar\" and version \"v2.4.115\".",
       "prs": [
         {
           "number": 1,
@@ -4244,7 +4672,7 @@
       "contributors": [
         {
           "login": "giladfeldman",
-          "contributions": 424,
+          "contributions": 425,
           "avatar_url": "https://avatars.githubusercontent.com/u/22305310?v=4",
           "html_url": "https://github.com/giladfeldman"
         }
@@ -4252,7 +4680,7 @@
       "commit_activity": [
         {
           "week": 1776038400,
-          "total": 10
+          "total": 9
         },
         {
           "week": 1776643200,
@@ -4264,19 +4692,19 @@
         },
         {
           "week": 1777852800,
-          "total": 109
+          "total": 111
         },
         {
           "week": 1778457600,
-          "total": 133
+          "total": 140
         },
         {
           "week": 1779062400,
-          "total": 61
+          "total": 57
         },
         {
           "week": 1779667200,
-          "total": 18
+          "total": 13
         },
         {
           "week": 1780272000,
@@ -4296,7 +4724,7 @@
         },
         {
           "week": 1782691200,
-          "total": 30
+          "total": 31
         }
       ],
       "code_frequency": [],
@@ -4305,6 +4733,45 @@
       "readme_excerpt": "PDF, DOCX, and HTML text extraction plus normalization for academic papers.\n\nThe full documentation lives in `docs/README.md`.\n\n\n```bash\npip install docpluck\n```\n\nOptional extras:\n\n```bash\npip install docpluck[docx]\npip install docpluck[html]\npip install docpluck[all]\n```\n\n\n`extract_pdf()` requires the `pdftotext` binary from Poppler.\n\n- Linux/WSL: `apt-get install poppler-utils`\n- macOS: `brew install poppler`\n- Windows: install Poppler and add its `bin` folder to `PATH`\n\n## Links\n\n- Full usage and API reference: `docs/README.md`\n- Normalization pipeline details: `docs/NORMALIZATION.md`\n- Ben",
       "scopus_citations": null,
       "recent_commits": [
+        {
+          "sha": "ba4e124",
+          "message": "docs+test(rc-t): diagnose chan_feldman T3 caption-tail-walk TEXT-LOSS; xfail guard (fix is corpus-wide, deferred)",
+          "body": "Run 3 cycle 3: the whitespace_cells test failure is NOT a stale-premise test to\nupdate \u2014 a gold-verify confirmed it guards REAL TEXT-LOSS. chan_feldman Table 3's\nraw_text fallback silently drops its first 4 rows (Sample size 239/794,\nGeographic origin, Gender, Ethnic group). Root-caused to _extract_table_body_text's\nbody_start caption-tail walk overshooting the caption's own sentence terminator\n(`replication.`) to a later `\\n\\n`.\n\nA per-line-terminator walk fixes chan T3 \u2014 but a 101-PDF guard-diff\n(tmp/rct_body_text_diff.py) shows the walk is SHARED across every table's raw_text\nextraction: the fix shifts body_start on 310 captions (308 recover legitimately,\n2 TRUNCATE \u2014 amc_1 T3, xiao_2021 T6, a regression, and ~53 recover body-prose /\na leading Fig caption). That is a corpus-wide capture-path change for the gated\nRC-T cycle (48-paper structured guard-diff + 7-canary AI-gold + user sign-off),\nnot a session-tail patch. ATTEMPTED + REVERTED.\n\n- New FINDINGS doc: precise mechanism + guard-diff blast-radius + the RC-T cycle's\n  executable target.\n- test_t3_first_rows_not_dropped: xfail(strict=True) guard documenting the\n  TEXT-LOSS; will XPASS-alert when the RC-T cycle lands the corpus-safe fix.\n- TRIAGE run-3 section updated (whitespace_cells is a real TEXT-LOSS guard, not a\n  stale test; the raw_text fix is corpus-wide).\n\nextract_structured.py reverted to HEAD (no library change in this commit).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-07-04",
+          "url": "https://github.com/giladfeldman/docpluck/commit/ba4e12402e5dfa77ed298d8039093d42cfc8ba5d",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 186,
+            "deletions": 4,
+            "files": [
+              {
+                "filename": "docs/FINDINGS_2026-07-04_rct_caption_tail_walk_textloss.md",
+                "status": "added",
+                "additions": 95,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,95 @@\n+# FINDINGS \u2014 RC-T caption-tail-walk TEXT-LOSS (chan_feldman T3 first-4-rows drop): diagnosed, fix is corpus-wide, deferred to the gated RC-T cycle (2026-07-04 run 3)\n+\n+## The defect (gold-confirmed TEXT-LOSS)\n+\n+chan_feldman_2025_cogemo Table 3's raw_text fallback (`unstructured-table` block)\n+DROPS its first four rows. Gold Table 3 is a clean 2-column comparison\n+(McCullough et al. 1997 vs US Prolific), 10 rows:\n+\n+| row | McCullough 1997 | US Prolific |\n+|---|---|---|\n+| Sam"
+              },
+              {
+                "filename": "docs/TRIAGE_2026-07-03_head_v2.4.101_assessment.md",
+                "status": "modified",
+                "additions": 45,
+                "deletions": 4,
+                "patch": "@@ -41,11 +41,52 @@ Moved from Cluster C to Cluster B6/architectural. Detail in\n (`\u2026providing support` / Table4 / Table5 / `for the demonstration of\u2026`) \u2014 a\n table-PLACEMENT defect in the RC-T / floating-table family. Queued with RC-T.\n \n+**whitespace_cells 0-cell test \u2014 CONFIRMED A REAL TEXT-LOSS GUARD, do NOT \"update\n+the test to pass\" (2026-07-04 run 3, gold-verified).** The prior TRIAGE/HANDOFF\n+framed `test_b1_whitespace_cells_wiring_live` (fails on chan_feldman + maier, \"0\n+cells vs \u226550\") a"
+              },
+              {
+                "filename": "tests/test_rc_t_layer2_raw_text_real_pdf.py",
+                "status": "modified",
+                "additions": 46,
+                "deletions": 0,
+                "patch": "@@ -161,3 +161,49 @@ def test_t3_legit_fallback_table_survives(chan_md: str):\n     blocks = _unstructured_blocks(chan_md)\n     assert \"Median age\" in blocks, \"chan_feldman T3 descriptive fallback wrongly suppressed (FP)\"\n     assert \"Origin was not explicitly mentioned\" in blocks, \"T3 Note over-trimmed (FP)\"\n+\n+\n+# \u2500\u2500 RC-T TEXT-LOSS: the caption-tail-walk overshoot (diagnosed, deferred) \u2500\u2500\u2500\u2500\u2500\n+#\n+# The chan_feldman Table 3 fallback DROPS its first four rows (Sample size\n+# 239/794, Geographic or"
+              }
+            ]
+          },
+          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository documents and tests a diagnosed issue with text loss in the caption-tail-walk of the chan_feldman T3 dataset, marking the test as expected to fail until a corpus-wide fix is implemented in a future gated RC-T cycle."
+        },
         {
           "sha": "56f60b5",
           "message": "docs(triage): record run-3 outcome \u2014 W0l \u00d7-as-3 residuals resolved (v2.4.116); efendic headings rescoped to B6",
@@ -4315,27 +4782,7 @@
           "url": "https://github.com/giladfeldman/docpluck/commit/56f60b5f3f3f74a00ef98c3783f76abfad37da07",
           "type": "other",
           "branch": "main",
-          "diff": {
-            "additions": 120,
-            "deletions": 0,
-            "files": [
-              {
-                "filename": "docs/FINDINGS_2026-07-04_efendic_heading_demotions_are_B6.md",
-                "status": "added",
-                "additions": 81,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,81 @@\n+# FINDINGS \u2014 efendic's two \"demoted subsection headings\" are a B6 column-interleave problem, not a heading-promoter gap (2026-07-04, run 3 cycle 2)\n+\n+## Headline\n+\n+The `TRIAGE_2026-07-03` and `HANDOFF_2026-07-04` listed efendic's two remaining\n+SECTION-BOUNDARY findings \u2014 `Design, Procedure, and Measures` and `Analysis\n+Strategy` rendering as body instead of `###` \u2014 under Cluster C (\"heading-promoter,\n+delicate family\"). **Reproduction at HEAD (v2.4.116) shows the root cause "
-              },
-              {
-                "filename": "docs/TRIAGE_2026-07-03_head_v2.4.101_assessment.md",
-                "status": "modified",
-                "additions": 39,
-                "deletions": 0,
-                "patch": "@@ -8,6 +8,45 @@ v2.4.98\u2013101; its DP-1/DP-2 capture items are subsumed by the RC-T cluster belo\n rule \u2014 NEVER pdftotext / Camelot). Cycle-1 verify: 5 canaries (3 fixed + 2\n rotating) rendered at HEAD v2.4.101 and audited by 5 parallel Sonnet verifiers.\n \n+## 2026-07-04 RUN 3 OUTCOME \u2014 W0l \u00d7-as-3 residuals RESOLVED (v2.4.116); efendic headings RESCOPED to B6\n+\n+Run 3 (3h) shipped **W0l** (v2.4.116): the two \u00d7-as-3 GLYPH residuals W0k couldn't\n+reach \u2014 (A) factorial-design notation `<digit>(\u2026) 3 <"
-              }
-            ]
-          },
-          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository updates the documentation to record the outcome of a triage run, specifically that efendic headings have been rescoped to B6 and resolving W0l \u00d7-as-3 residuals, and adds new findings and assessment details to the corresponding markdown files."
+          "diff": {}
         },
         {
           "sha": "a4f8796",
@@ -4672,21 +5119,48 @@
           "type": "fix",
           "branch": "main",
           "diff": {}
-        },
-        {
-          "sha": "fd072b8",
-          "message": "feat(tables): region-driven Camelot capture + content-plausibility guards (DP-1/DP-2)",
-          "body": "Drive Camelot stream with docpluck's OWN caption-anchored region as\ntable_areas (per caption) so each extraction is that caption's table by\nconstruction \u2014 fixing the stacked-/side-by-side multi-table-per-page class\n(efendic Table 4+5, cog_emo) that blind pages=\"all\" auto-detect + token-overlap\npairing could not separate. Region tables are CANDIDATES, not winners:\n_pick_better_table keeps the structurally-richer of {region, auto-detect} per\ncaption (more columns wins + cell-retention guard), so region-driving can only\nADD coverage (0x0 stub -> real table) or replace an auto table it strictly beats\n\u2014 never collapse a wide table whose region bbox is too narrow (jama_open_1 stays\n43x7). A starved caption (the case region-driving exists for) has no auto\ncandidate, so region wins automatically; no page-multiplicity special-case.\n\nContent-plausibility guards on the region-driven path (keyed on structural\nsignatures, general to any PDF):\n- _cell_is_prose dominance reject: a region that over-captured 2-column body\n  text emits a grid whose cells are sentence fragments (cog_emo Table 3 was a\n  27x4 of the procedure paragraph). Reject when >=1/3 of rows carry a 6+word\n  prose cell -> honest 0x0 stub.\n- _CAPTION_LABEL_RE reject: a cell containing \"Table N.\"/\"Figure N.\" proves the\n  region absorbed an adjacent caption (cog_emo Table 9 pulled in Table 8's tail +\n  its own caption). One occurrence condemns the grid. (Note:/p< NOT rejected \u2014\n  legit footnotes, e.g. cog_emo Table 2's matrix.)\nGuards are region-only: applying them to the auto-detect path wholesale rejected\nlegitimate-but-imperfect tables (cog_emo T5/6/7) \u2014 a net regression.\n\nCaption page-fix (foundational): advance char_start past leading \\n\\n/\\f\nwhitespace so captions after a paragraph break / at a page top get a non-empty\nline_text (required for _bbox_of_caption_line -> region) and correct page\nattribution. Harmless on its own; the old token-overlap pairing it once\nperturbed is now superseded by region-driving + _pick_better_table.\n\nVerification (ground truth = AI multimodal PDF/gold reads per project rule, NOT\npdftotext):\n- Full 101-PDF structured diff vs v2.4.98 baseline: 27 papers changed, 0 errors.\n- AI-gold canary (6 papers): chandrashekar=FIX, ieee_access_4=FIX, efendic page-8\n  split=PASS (strict win, values match gold), bmj_open_1=FIX, ieee_access_7=\n  NET_BETTER, cog_emo=PASS (both prior regressions fixed, no new ones).\n- Full table unit + real-PDF test suite green.\n\nPre-existing issues surfaced for follow-up (not introduced here): cog_emo Table 8\ncontent-mislabel, efendic Table 2 raw_text-fallback / Table 1 row-into-header,\nbmc_med_3 two-fragment pairing, chandrashekar caption cross-column leak, U+2212\n(cid)->2 minus artifact.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-06-29",
-          "url": "https://github.com/giladfeldman/docpluck/commit/fd072b811d96ec46700f6508c855f665fdde9a11",
-          "type": "feat",
-          "branch": "main",
-          "diff": {}
         }
       ],
       "_new_commits": [
+        {
+          "sha": "ba4e124",
+          "message": "docs+test(rc-t): diagnose chan_feldman T3 caption-tail-walk TEXT-LOSS; xfail guard (fix is corpus-wide, deferred)",
+          "body": "Run 3 cycle 3: the whitespace_cells test failure is NOT a stale-premise test to\nupdate \u2014 a gold-verify confirmed it guards REAL TEXT-LOSS. chan_feldman Table 3's\nraw_text fallback silently drops its first 4 rows (Sample size 239/794,\nGeographic origin, Gender, Ethnic group). Root-caused to _extract_table_body_text's\nbody_start caption-tail walk overshooting the caption's own sentence terminator\n(`replication.`) to a later `\\n\\n`.\n\nA per-line-terminator walk fixes chan T3 \u2014 but a 101-PDF guard-diff\n(tmp/rct_body_text_diff.py) shows the walk is SHARED across every table's raw_text\nextraction: the fix shifts body_start on 310 captions (308 recover legitimately,\n2 TRUNCATE \u2014 amc_1 T3, xiao_2021 T6, a regression, and ~53 recover body-prose /\na leading Fig caption). That is a corpus-wide capture-path change for the gated\nRC-T cycle (48-paper structured guard-diff + 7-canary AI-gold + user sign-off),\nnot a session-tail patch. ATTEMPTED + REVERTED.\n\n- New FINDINGS doc: precise mechanism + guard-diff blast-radius + the RC-T cycle's\n  executable target.\n- test_t3_first_rows_not_dropped: xfail(strict=True) guard documenting the\n  TEXT-LOSS; will XPASS-alert when the RC-T cycle lands the corpus-safe fix.\n- TRIAGE run-3 section updated (whitespace_cells is a real TEXT-LOSS guard, not a\n  stale test; the raw_text fix is corpus-wide).\n\nextract_structured.py reverted to HEAD (no library change in this commit).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-07-04",
+          "url": "https://github.com/giladfeldman/docpluck/commit/ba4e12402e5dfa77ed298d8039093d42cfc8ba5d",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 186,
+            "deletions": 4,
+            "files": [
+              {
+                "filename": "docs/FINDINGS_2026-07-04_rct_caption_tail_walk_textloss.md",
+                "status": "added",
+                "additions": 95,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,95 @@\n+# FINDINGS \u2014 RC-T caption-tail-walk TEXT-LOSS (chan_feldman T3 first-4-rows drop): diagnosed, fix is corpus-wide, deferred to the gated RC-T cycle (2026-07-04 run 3)\n+\n+## The defect (gold-confirmed TEXT-LOSS)\n+\n+chan_feldman_2025_cogemo Table 3's raw_text fallback (`unstructured-table` block)\n+DROPS its first four rows. Gold Table 3 is a clean 2-column comparison\n+(McCullough et al. 1997 vs US Prolific), 10 rows:\n+\n+| row | McCullough 1997 | US Prolific |\n+|---|---|---|\n+| Sam"
+              },
+              {
+                "filename": "docs/TRIAGE_2026-07-03_head_v2.4.101_assessment.md",
+                "status": "modified",
+                "additions": 45,
+                "deletions": 4,
+                "patch": "@@ -41,11 +41,52 @@ Moved from Cluster C to Cluster B6/architectural. Detail in\n (`\u2026providing support` / Table4 / Table5 / `for the demonstration of\u2026`) \u2014 a\n table-PLACEMENT defect in the RC-T / floating-table family. Queued with RC-T.\n \n+**whitespace_cells 0-cell test \u2014 CONFIRMED A REAL TEXT-LOSS GUARD, do NOT \"update\n+the test to pass\" (2026-07-04 run 3, gold-verified).** The prior TRIAGE/HANDOFF\n+framed `test_b1_whitespace_cells_wiring_live` (fails on chan_feldman + maier, \"0\n+cells vs \u226550\") a"
+              },
+              {
+                "filename": "tests/test_rc_t_layer2_raw_text_real_pdf.py",
+                "status": "modified",
+                "additions": 46,
+                "deletions": 0,
+                "patch": "@@ -161,3 +161,49 @@ def test_t3_legit_fallback_table_survives(chan_md: str):\n     blocks = _unstructured_blocks(chan_md)\n     assert \"Median age\" in blocks, \"chan_feldman T3 descriptive fallback wrongly suppressed (FP)\"\n     assert \"Origin was not explicitly mentioned\" in blocks, \"T3 Note over-trimmed (FP)\"\n+\n+\n+# \u2500\u2500 RC-T TEXT-LOSS: the caption-tail-walk overshoot (diagnosed, deferred) \u2500\u2500\u2500\u2500\u2500\n+#\n+# The chan_feldman Table 3 fallback DROPS its first four rows (Sample size\n+# 239/794, Geographic or"
+              }
+            ]
+          },
+          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository documents and tests a diagnosed issue with text loss in the caption-tail-walk of the chan_feldman T3 dataset, marking the test as expected to fail until a corpus-wide fix is implemented in a future gated RC-T cycle."
+        },
         {
           "sha": "56f60b5",
           "message": "docs(triage): record run-3 outcome \u2014 W0l \u00d7-as-3 residuals resolved (v2.4.116); efendic headings rescoped to B6",
@@ -4697,27 +5171,7 @@
           "url": "https://github.com/giladfeldman/docpluck/commit/56f60b5f3f3f74a00ef98c3783f76abfad37da07",
           "type": "other",
           "branch": "main",
-          "diff": {
-            "additions": 120,
-            "deletions": 0,
-            "files": [
-              {
-                "filename": "docs/FINDINGS_2026-07-04_efendic_heading_demotions_are_B6.md",
-                "status": "added",
-                "additions": 81,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,81 @@\n+# FINDINGS \u2014 efendic's two \"demoted subsection headings\" are a B6 column-interleave problem, not a heading-promoter gap (2026-07-04, run 3 cycle 2)\n+\n+## Headline\n+\n+The `TRIAGE_2026-07-03` and `HANDOFF_2026-07-04` listed efendic's two remaining\n+SECTION-BOUNDARY findings \u2014 `Design, Procedure, and Measures` and `Analysis\n+Strategy` rendering as body instead of `###` \u2014 under Cluster C (\"heading-promoter,\n+delicate family\"). **Reproduction at HEAD (v2.4.116) shows the root cause "
-              },
-              {
-                "filename": "docs/TRIAGE_2026-07-03_head_v2.4.101_assessment.md",
-                "status": "modified",
-                "additions": 39,
-                "deletions": 0,
-                "patch": "@@ -8,6 +8,45 @@ v2.4.98\u2013101; its DP-1/DP-2 capture items are subsumed by the RC-T cluster belo\n rule \u2014 NEVER pdftotext / Camelot). Cycle-1 verify: 5 canaries (3 fixed + 2\n rotating) rendered at HEAD v2.4.101 and audited by 5 parallel Sonnet verifiers.\n \n+## 2026-07-04 RUN 3 OUTCOME \u2014 W0l \u00d7-as-3 residuals RESOLVED (v2.4.116); efendic headings RESCOPED to B6\n+\n+Run 3 (3h) shipped **W0l** (v2.4.116): the two \u00d7-as-3 GLYPH residuals W0k couldn't\n+reach \u2014 (A) factorial-design notation `<digit>(\u2026) 3 <"
-              }
-            ]
-          },
-          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository updates the documentation to record the outcome of a triage run, specifically that efendic headings have been rescoped to B6 and resolving W0l \u00d7-as-3 residuals, and adds new findings and assessment details to the corresponding markdown files."
+          "diff": {}
         },
         {
           "sha": "a4f8796",
@@ -4835,7 +5289,56 @@
           "html_url": "https://github.com/ontogenerator"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1775952000,
+          "total": 0
+        },
+        {
+          "week": 1776556800,
+          "total": 0
+        },
+        {
+          "week": 1777161600,
+          "total": 0
+        },
+        {
+          "week": 1777766400,
+          "total": 0
+        },
+        {
+          "week": 1778371200,
+          "total": 0
+        },
+        {
+          "week": 1778976000,
+          "total": 0
+        },
+        {
+          "week": 1779580800,
+          "total": 0
+        },
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        },
+        {
+          "week": 1782000000,
+          "total": 0
+        },
+        {
+          "week": 1782604800,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -4931,7 +5434,56 @@
           "html_url": "https://github.com/ontogenerator"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1775952000,
+          "total": 0
+        },
+        {
+          "week": 1776556800,
+          "total": 0
+        },
+        {
+          "week": 1777161600,
+          "total": 0
+        },
+        {
+          "week": 1777766400,
+          "total": 0
+        },
+        {
+          "week": 1778371200,
+          "total": 0
+        },
+        {
+          "week": 1778976000,
+          "total": 0
+        },
+        {
+          "week": 1779580800,
+          "total": 0
+        },
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        },
+        {
+          "week": 1782000000,
+          "total": 0
+        },
+        {
+          "week": 1782604800,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -5270,8 +5822,8 @@
       "commits_1d": 0,
       "commits_90d": 372,
       "authors_30d": [
-        "David Van Dijcke",
-        "Davidvandijcke"
+        "Davidvandijcke",
+        "David Van Dijcke"
       ],
       "type_breakdown": {
         "fix": 10,
@@ -5281,7 +5833,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "Work was done on the 'dev' and 'main' branches. On both branches, the \"fix(web): re-enable Fable 5 in the model picker\" change was made, which re-enables Fable 5 in the model picker. This specific fix suggests that Fable 5 was previously disabled, and this change restores its functionality. The fact that this change was applied to both the 'dev' and 'main' branches indicates that it was considered important enough to be applied to the main branch directly, in addition to the development branch. The re-enabling of Fable 5 in the model picker is the sole focus of these commits.",
+      "summary": "Work was done on the 'dev' and 'main' branches. On both branches, the \"fix(web): re-enable Fable 5 in the model picker\" change was made, which specifically re-enables Fable 5 in the model picker. The 'dev' branch had this fix applied, likely for testing purposes before being merged into 'main'. The 'main' branch also received this fix, which suggests it is now live and available for general use. This change only affects the web component of the repository, as indicated by \"web\" in the commit message. The re-enabling of Fable 5 in the model picker is the sole change mentioned in the provided commits.",
       "prs": [
         {
           "number": 245,
@@ -5815,7 +6367,68 @@
           "total": 2
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1775952000,
+          "additions": 33476,
+          "deletions": -18482
+        },
+        {
+          "week": 1776556800,
+          "additions": 778,
+          "deletions": -143
+        },
+        {
+          "week": 1777161600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777766400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 2377,
+          "deletions": -580
+        },
+        {
+          "week": 1780185600,
+          "additions": 769,
+          "deletions": -166
+        },
+        {
+          "week": 1780790400,
+          "additions": 2445,
+          "deletions": -291
+        },
+        {
+          "week": 1781395200,
+          "additions": 14811,
+          "deletions": -1044
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 1,
+          "deletions": -1
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "Free, open-source AI academic paper reviewer that outperforms popular paid AI reviewers.\n\nYou provide your own API key and pay the LLM provider directly \u2014 typically **under $2 per review**.\n\nDon't want to run it locally? Use the [web interface](https://coarse.vercel.app/) instead.\n\n\nGet an API key from [OpenRouter](https://openrouter.ai/keys) (free to sign up), then:\n\n```bash\nuvx coarse-ink review paper.pdf --api-key sk-or-v1-YOUR_KEY\n```\n\nThat's it. The review is written to `paper_review.md` in the current directory.\n\n\ncoarse requires Python 3.12+. If you don't have `uvx`, install [uv](https:",
@@ -6194,6 +6807,45 @@
           "branch": "feat/221-i18n-localized-review",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "d93b6f8",
+          "message": "fix(web): re-enable Fable 5 in the model picker",
+          "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-07-02",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/d93b6f8ce532991eb16a11928710e553c7f384c2",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {
+            "additions": 1,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "web/src/components/ModelPicker.tsx",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -17,7 +17,7 @@ type DefaultModel = {\n };\n \n const DEFAULT_MODELS: DefaultModel[] = [\n-  { id: \"anthropic/claude-fable-5\", label: \"Fable 5\", provider: \"Anthropic\", unavailable: true },\n+  { id: \"anthropic/claude-fable-5\", label: \"Fable 5\", provider: \"Anthropic\" },\n   { id: \"anthropic/claude-opus-4.8\", label: \"Opus 4.8\", provider: \"Anthropic\" },\n   { id: \"anthropic/claude-sonnet-4.6\", label: \"Sonnet 4.6\", provider: \"Anthropic\" },\n   { id: \"openai/gpt-5.5\", label: \"GPT-5.5\", provider: \"OpenAI\" }"
+              }
+            ]
+          },
+          "diff_summary": "This commit re-enables the Fable 5 model in the model picker by changing its \"unavailable\" status from true to false in the `ModelPicker.tsx` file."
+        },
+        {
+          "sha": "d6df84a",
+          "message": "fix(web): re-enable Fable 5 in the model picker",
+          "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-07-02",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/d6df84ab3c3abc476d1c7e9a9f42c2a6073b7480",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -6218,7 +6870,7 @@
       "topics": [],
       "pushed_at": "2026-07-01T09:17:58Z",
       "created_at": "2026-01-19",
-      "last_push_days": 2,
+      "last_push_days": 3,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -6376,7 +7028,68 @@
           "total": 18
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1775952000,
+          "additions": 168,
+          "deletions": -2
+        },
+        {
+          "week": 1776556800,
+          "additions": 378,
+          "deletions": -95
+        },
+        {
+          "week": 1777161600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777766400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 729,
+          "deletions": -3
+        },
+        {
+          "week": 1779580800,
+          "additions": 880,
+          "deletions": -126
+        },
+        {
+          "week": 1780185600,
+          "additions": 736,
+          "deletions": -115
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "AI-assisted comparison tool for preregistrations/clinical trial registrations/preclinical (animals) registrations and published papers. FastAPI serves the web UI and HTTP API; a CLI entrypoint enables backend-only runs with CSV-defined dimensions. Redis is used for task state when running via the web app.\n\nStatus: beta (under active development).\n\n- `app.py` / `backend/`: FastAPI app, routes, services (comparisons, embeddings, parsing).\n- `templates/` + `static/`: Frontend pages and assets.\n- `uploads/`: Runtime uploads directory (created at runtime; ignored by git).\n- `backend/worker.py`: Bac",
@@ -6412,7 +7125,7 @@
               }
             ]
           },
-          "diff_summary": "This commit removes the sign-up functionality from the 'JamieCummins/regcheck' application by modifying the backend code in `main.py` and removing 33 lines of HTML code related to the sign-up feature from the `index.html` template."
+          "diff_summary": "This commit in 'JamieCummins/regcheck' removes the sign-up functionality by modifying the backend code in `main.py` and removing 33 lines of code from the `index.html` template, specifically the HTML elements related to the home account and sign-up section."
         },
         {
           "sha": "717d756",
@@ -6762,40 +7475,6 @@
           "branch": "staging",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "1f6986b",
-          "message": "remove sign-up",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-01",
-          "url": "https://github.com/JamieCummins/regcheck/commit/1f6986bebd85c384b4a9ba906dab056ee71ccea5",
-          "type": "other",
-          "branch": "staging",
-          "diff": {
-            "additions": 1,
-            "deletions": 34,
-            "files": [
-              {
-                "filename": "backend/main.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -25,7 +25,7 @@\n # Single source of truth for static-asset cache-busting. Bump this on any\n # CSS/JS change so browsers refetch; it is exposed to every template as the\n # `static_version` global (templates reference it as `?v={{ static_version }}`).\n-STATIC_VERSION = \"20260701-survey-wizard\"\n+STATIC_VERSION = \"20260701-home-account-rm\"\n \n \n def create_app() -> FastAPI:"
-              },
-              {
-                "filename": "templates/index.html",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 33,
-                "patch": "@@ -126,29 +126,6 @@\n         font-size: 0.9rem;\n         line-height: 1.5;\n       }\n-      .home-account {\n-        width: min(64rem, 100%);\n-        margin-top: 1.25rem;\n-        background: var(--rc-surface);\n-        border: 1px solid var(--rc-border);\n-        border-radius: var(--rc-radius);\n-        padding: 1.1rem 1.3rem;\n-        text-align: left;\n-        display: flex;\n-        flex-wrap: wrap;\n-        align-items: center;\n-        justify-content: space-between;\n-        gap: 0.75re"
-              }
-            ]
-          },
-          "diff_summary": "This commit removes the sign-up functionality from the 'JamieCummins/regcheck' application by modifying the backend code in `main.py` and removing 33 lines of HTML code related to the sign-up feature from the `index.html` template."
-        }
       ]
     },
     {
@@ -6816,7 +7495,7 @@
       "topics": [],
       "pushed_at": "2026-07-03T09:15:19Z",
       "created_at": "2026-01-28",
-      "last_push_days": 0,
+      "last_push_days": 1,
       "default_branch": "main",
       "license": "NOASSERTION",
       "branches": [
@@ -6838,7 +7517,7 @@
       ],
       "commits_30d": 10,
       "commits_7d": 6,
-      "commits_1d": 1,
+      "commits_1d": 0,
       "commits_90d": 34,
       "authors_30d": [
         "Gilad Feldman"
@@ -6848,7 +7527,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was updated with a commit that synchronizes it with the `escicheckapp` repository at version `ec9eb9f`, which corresponds to `effectcheck` version `0.6.13`, as stated in the commit message \"sync from escicheckapp@ec9eb9f (effectcheck v0.6.13)\".\nThis commit is associated with issue `#26`.\nNo other branches were worked on in this set of commits.\nThe specific change is a synchronization with a specific version of `effectcheck`, which is now at version `0.6.13` in the `main` branch.\nThe commit message does not specify what changes were made in `effectcheck` version `0.6.13`, only that the `main` branch now matches this version.",
+      "summary": "The `main` branch was updated with a commit that synchronized it with the `escicheckapp` repository at version `ec9eb9f`, which corresponds to `effectcheck` version `0.6.13`, as stated in the commit message \"sync from escicheckapp@ec9eb9f (effectcheck v0.6.13)\".\nNo other branches were worked on in this set of commits.\nThis commit is related to issue `#26`, indicating that it may be a fix or implementation for a specific problem or feature request.\nThe commit message does not specify any particular features or modules that were added or changed, only that it was a synchronization with another repository.\nThe synchronization with `escicheckapp` at `ec9eb9f` suggests that the `main` branch now reflects the state of `effectcheck` at version `0.6.13`.",
       "prs": [
         {
           "number": 26,
@@ -7092,7 +7771,7 @@
       "commit_activity": [
         {
           "week": 1776038400,
-          "total": 5
+          "total": 4
         },
         {
           "week": 1776643200,
@@ -7139,7 +7818,68 @@
           "total": 6
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1775952000,
+          "additions": 98,
+          "deletions": -8
+        },
+        {
+          "week": 1776556800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777161600,
+          "additions": 98,
+          "deletions": 0
+        },
+        {
+          "week": 1777766400,
+          "additions": 1755,
+          "deletions": -1716
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 2751,
+          "deletions": -262
+        },
+        {
+          "week": 1779580800,
+          "additions": 1336,
+          "deletions": -53
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 682,
+          "deletions": -43
+        },
+        {
+          "week": 1782000000,
+          "additions": 2154,
+          "deletions": -50
+        },
+        {
+          "week": 1782604800,
+          "additions": 3579,
+          "deletions": -74
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.6.13",
@@ -7249,7 +7989,7 @@
               }
             ]
           },
-          "diff_summary": "This commit, 'sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)', updates the 'effectcheck' package to version 0.6.13, adding two new test types (F1 bare Bayes factor and HR hazard ratio) and fixing issues from the escicheck-iterate cycles, as reflected in changes to the"
+          "diff_summary": "This commit, 'sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)', updates the 'effectcheck' package to version 0.6.13, adding two new test types, including a bare Bayes factor and a hazard ratio, and fixes issues from the escicheck-iterate cycles."
         },
         {
           "sha": "e09dbc9",
@@ -7359,6 +8099,82 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "7ec3c89",
+          "message": "sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)",
+          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-07-03",
+          "url": "https://github.com/giladfeldman/escicheck/commit/7ec3c89a5291a35f690b0b4962daa5ea32abfc73",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 1181,
+            "deletions": 11,
+            "files": [
+              {
+                "filename": "DESCRIPTION",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,7 +1,7 @@\n Package: effectcheck\n Type: Package\n Title: Statistical Consistency Checker for Published Research Results\n-Version: 0.6.12\n+Version: 0.6.13\n Authors@R: c(person(given = \"Gilad\", family = \"Feldman\", role = c(\"aut\", \"cre\"),\n     email = \"giladfel@gmail.com\", comment = c(ORCID = \"0000-0003-2812-6599\")))\n Description: A conservative, assumption-aware statistical consistency checker"
+              },
+              {
+                "filename": "NEWS.md",
+                "status": "modified",
+                "additions": 101,
+                "deletions": 0,
+                "patch": "@@ -1,3 +1,104 @@\n+# effectcheck 0.6.13\n+\n+**Two new test types + two canary-re-audit fixes from the 2026-07-02 escicheck-iterate cycles 2-3\n+(F1 bare Bayes factor + HR hazard ratio, both user-approved; independent Sonnet-watches-Opus canary\n+re-audit over the fixed-3 + rotating set).**\n+\n+- **`bayes_factor`** (new `test_type`; cycle-2 F1) \u2014 a STANDALONE evidential Bayes factor reported as\n+  a PRIMARY finding of a RoBMA / Bayesian meta-analysis is extracted as an extraction-only NOTE\n+  surfaci"
+              },
+              {
+                "filename": "R/check.R",
+                "status": "modified",
+                "additions": 160,
+                "deletions": 9,
+                "patch": "@@ -920,6 +920,7 @@ compute_and_compare_one <- function(row,\n     \"or\" = \"OR\", \"odds ratio\" = \"OR\",\n     \"rr\" = \"RR\", \"risk ratio\" = \"RR\",\n     \"irr\" = \"IRR\", \"incidence rate ratio\" = \"IRR\",\n+    \"hr\" = \"HR\", \"ahr\" = \"HR\", \"adjusted hr\" = \"HR\", \"hazard ratio\" = \"HR\",\n     \"h\" = \"h\", \"cohen's h\" = \"h\", \"cohens h\" = \"h\",\n     \"w\" = \"cohens_w\", \"cohen's w\" = \"cohens_w\", \"cohens w\" = \"cohens_w\",\n     \"cohens_w\" = \"cohens_w\",\n@@ -1149,11 +1150,23 @@ compute_and_compare_one <- function(row,\n          "
+              },
+              {
+                "filename": "R/parse.R",
+                "status": "modified",
+                "additions": 342,
+                "deletions": 0,
+                "patch": "@@ -985,6 +985,22 @@ parse_text <- function(text, context_window_size = 2) {\n   pat_OR <- \"(?:OR|odds\\\\s*ratio)\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n   pat_RR <- \"(?:RR|risk\\\\s*ratio)\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n   pat_IRR <- \"(?:IRR|incidence\\\\s*rate\\\\s*ratio)\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n+  # v0.6.13: hazard ratio (Cox proportional-hazards / survival analysis). Accepts\n+  # the adjusted forms (aHR / adjusted HR) and the spelled-out \"hazard ratio\". The\n+  # HR is an effect-size-only report with no rec"
+              },
+              {
+                "filename": "man/check_text.Rd",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 1,
+                "patch": "@@ -8,7 +8,8 @@ check_text(\n   text,\n   stats = c(\"t\", \"F\", \"r\", \"chisq\", \"z\", \"U\", \"W\", \"H\", \"regression\", \"spearman\",\n     \"kendall\", \"kendall_w\", \"dscf\", \"cochran_q\", \"RR\", \"rdpct\", \"md_hl\", \"binomial\",\n-    \"interaction_p\", \"mediation_indirect\", \"mcnemar_or\"),\n+    \"interaction_p\", \"mediation_indirect\", \"mcnemar_or\", \"bayes_factor\",\n+    \"hazard_ratio\"),\n   ci_level = 0.95,\n   alpha = 0.05,\n   one_tailed = FALSE,"
+              },
+              {
+                "filename": "tests/testthat/test-v0613-canary-reaudit-fixes.R",
+                "status": "added",
+                "additions": 96,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,96 @@\n+# v0.6.13: two effectcheck defects surfaced by the 2026-07-02 cycle-2 canary\n+# re-audit (independent Sonnet-watches-Opus over the fixed-3 + rotating set).\n+#\n+# (1) E-mcnemar-chisq-OR (collabra.37122 loc 305): a Table-6 restatement of a\n+#     McNemar finding written as a bare chi-square cell with an odds ratio +\n+#     CI -- \"chi2 (1, N = 265) = 0.00, p = .951, OR = 0.99, 95% CI [0.77, 1.27]\"\n+#     -- was classified chisq/contingency (with the OR bound as effect_reported)\n+#"
+              },
+              {
+                "filename": "tests/testthat/test-v0613-corr-target-article-n.R",
+                "status": "added",
+                "additions": 60,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,60 @@\n+# v0.6.13 (E-corr-target-article-N): a correlation explicitly attributed to the\n+# TARGET / ORIGINAL article -- a value a replication reproduces from the paper it\n+# replicates (a \"Table 2. Target article\" intercorrelation block, or prose \"the\n+# weakest effect in the target article ... r = 0.36\") -- must carry the TARGET\n+# article's own sample size, not the current study's (global) N. For a bare `r`\n+# with no co-located N, the current study's global N is bound by default, wh"
+              },
+              {
+                "filename": "tests/testthat/test-v0613-hazard-ratio.R",
+                "status": "added",
+                "additions": 104,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,104 @@\n+# v0.6.13: hazard ratio (Cox proportional-hazards / survival analysis) reported in\n+# a clean prose sentence is extracted as an extraction-only NOTE\n+# (`test_type = \"hazard_ratio\"`), mirroring the OR / RR / mcnemar_or ratios. A Cox\n+# HR is not independently recomputable from the reported numbers (it needs the full\n+# time-to-event data), so the HR + its CI + p are surfaced without a verdict.\n+#\n+# Scope note (from the 2026-07-02 corpus audit): s41598-023-50401-z's 58 hazard\n"
+              }
+            ]
+          },
+          "diff_summary": "This commit, 'sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)', updates the 'effectcheck' package to version 0.6.13, adding two new test types, including a bare Bayes factor and a hazard ratio, and fixes issues from the escicheck-iterate cycles."
+        }
       ]
     },
     {
@@ -7387,7 +8203,7 @@
       ],
       "pushed_at": "2026-04-10T12:11:57Z",
       "created_at": "2020-10-20",
-      "last_push_days": 84,
+      "last_push_days": 85,
       "default_branch": "main",
       "license": "GPL-3.0",
       "branches": [
@@ -7514,7 +8330,56 @@
           "html_url": "https://github.com/ingmarboeschen"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1775952000,
+          "total": 0
+        },
+        {
+          "week": 1776556800,
+          "total": 0
+        },
+        {
+          "week": 1777161600,
+          "total": 0
+        },
+        {
+          "week": 1777766400,
+          "total": 0
+        },
+        {
+          "week": 1778371200,
+          "total": 0
+        },
+        {
+          "week": 1778976000,
+          "total": 0
+        },
+        {
+          "week": 1779580800,
+          "total": 0
+        },
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        },
+        {
+          "week": 1782000000,
+          "total": 0
+        },
+        {
+          "week": 1782604800,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -7586,7 +8451,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was worked on, where the validation note was revised and a citation was included, as stated in the commit message \"Revise validation note and include citation\". \nNo other branches were modified in this set of commits.\nThe revision of the validation note and addition of a citation are the specific changes made in this commit.\nThe commit message does not mention any other changes or additions to the repository.\nThe work was limited to a single commit on the `main` branch, with no other branches or modules affected.\nThe commit provides a clear and specific description of the changes made, with no other changes or updates mentioned.",
+      "summary": "The `main` branch was worked on, where the validation note was revised and a citation was added, as stated in the commit message \"Revise validation note and include citation\". \nNo other branches were modified in this set of commits.\nThe revision of the validation note and the inclusion of a citation were the specific changes made in this commit.\nThe commit message does not mention any other changes or additions to the repository.\nThe work was limited to a single commit on the `main` branch.",
       "prs": [],
       "open_prs_count": 0,
       "merged_prs_count": 0,
@@ -7651,7 +8516,38 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1779580800,
+          "additions": 5458,
+          "deletions": -1
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 3,
+          "deletions": -1
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "Auto Z-Curve reads a folder of PDF articles, uses Google's Gemini AI to extract focal statistical results from each one, and produces a z-curve analysis report \u2014 including a plot, summary statistics, and a full disclosure table.\n\nYou interact with it through a simple terminal interface: point it at your PDFs, enter your API key, and click Run.\n\nIn the below screenshot, I z-curved 45 articles on cognitive dissonance in under 4 minutes, costing under 2 USD in tokens.\n\n![](assets/example.svg)\n\n**Note:** I have validated statistic extraction as part of a study, which is currently under peer review",
@@ -7680,7 +8576,34 @@
               }
             ]
           },
-          "diff_summary": "This commit revises the validation note in the README.md file of the 'auto-zcurve' repository to include a citation, updating the text to reflect the current status of the tool's peer review."
+          "diff_summary": "This commit revises the validation note in the README.md file of the 'auto-zcurve' repository to include a citation, updating the language to reflect the current status of the tool's peer review."
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "3fce87a",
+          "message": "Revise validation note and include citation",
+          "body": "Updated validation note and added preprint citation.",
+          "author": "Shaheed Azaad",
+          "author_login": "shaheedazaad",
+          "date": "2026-06-14",
+          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 3,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 1,
+                "patch": "@@ -8,7 +8,9 @@ In the below screenshot, I z-curved 45 articles on cognitive dissonance in under\n \n ![](assets/example.svg)\n \n-**Note:** this tool has not yet been peer-reviewed, although a validation study is in the works.\n+**Note:** I have validated statistic extraction as part of a study, which is currently under peer review. The preprint citation is below, and details of the validation are in the supplemental material.\n+\n+Azaad, S. (2026). Empirically derived effect size guidelines for socia"
+              }
+            ]
+          },
+          "diff_summary": "This commit revises the validation note in the README.md file of the 'auto-zcurve' repository to include a citation, updating the language to reflect the current status of the tool's peer review."
         }
       ]
     },
@@ -8249,7 +9172,56 @@
           "html_url": "https://github.com/aaronpeikert"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1775952000,
+          "total": 0
+        },
+        {
+          "week": 1776556800,
+          "total": 0
+        },
+        {
+          "week": 1777161600,
+          "total": 0
+        },
+        {
+          "week": 1777766400,
+          "total": 0
+        },
+        {
+          "week": 1778371200,
+          "total": 0
+        },
+        {
+          "week": 1778976000,
+          "total": 0
+        },
+        {
+          "week": 1779580800,
+          "total": 0
+        },
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        },
+        {
+          "week": 1782000000,
+          "total": 0
+        },
+        {
+          "week": 1782604800,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -8328,7 +9300,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was updated with a commit that added a Chrome Webstore link for OIF, as stated in the commit message \"Add Chrome Webstore link for OIF\". \nNo other branches were worked on in this set of commits.\nThis specific change involved adding a link, with no other features or fixes mentioned in the provided commit messages.\nThe commit message directly mentions the addition of the Chrome Webstore link, indicating this was the sole purpose of the commit.\nThere are no other branches or changes to report based on the given information.",
+      "summary": "The `main` branch was updated with a commit that added a Chrome Webstore link for OIF, as stated in the commit message \"Add Chrome Webstore link for OIF\". \nNo other branches were worked on in this set of commits. \nThe specific change made was the addition of a link, with no other features or fixes mentioned. \nThis change suggests that the project, referred to as OIF, is now available on the Chrome Webstore. \nThere were no other changes or additions made in this set of commits. \nThe commit message directly mentions the addition of the Chrome Webstore link, indicating that this was the sole purpose of the commit.",
       "prs": [],
       "open_prs_count": 0,
       "merged_prs_count": 0,
@@ -8393,7 +9365,53 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1777766400,
+          "additions": 1519,
+          "deletions": -7
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 53,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 3,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\nOIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailoring the extension to your discipline requires no programming expertise, just edit a list.\n\nFollow this link: https://chr",
@@ -8422,7 +9440,7 @@
               }
             ]
           },
-          "diff_summary": "This commit adds a link to the Chrome Webstore for the Output It Forward (OIF) extension in the README.md file, making it easier for users to find and install the extension."
+          "diff_summary": "This commit adds a link to the Chrome Webstore for the Output It Forward (OIF) Chrome extension in the README.md file, making it easier for users to find and install the extension."
         },
         {
           "sha": "aa35045",
@@ -8435,6 +9453,33 @@
           "type": "feat",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "71c2a30",
+          "message": "Add Chrome Webstore link for OIF",
+          "body": "Added a link to the OIF Chrome extension in the README.",
+          "author": "giovannacdelsordo",
+          "author_login": "giovannacdelsordo",
+          "date": "2026-06-17",
+          "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
+          "type": "feat",
+          "branch": "main",
+          "diff": {
+            "additions": 3,
+            "deletions": 0,
+            "files": [
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 0,
+                "patch": "@@ -2,6 +2,9 @@\n OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\n OIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailorin"
+              }
+            ]
+          },
+          "diff_summary": "This commit adds a link to the Chrome Webstore for the Output It Forward (OIF) Chrome extension in the README.md file, making it easier for users to find and install the extension."
         }
       ]
     }
@@ -8465,10 +9510,10 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/22305310?v=4",
       "html_url": "https://github.com/giladfeldman",
       "repos": {
-        "giladfeldman/docpluck": 424,
+        "giladfeldman/docpluck": 425,
         "giladfeldman/escicheck": 83
       },
-      "total_contributions": 507,
+      "total_contributions": 508,
       "name": "Gilad Feldman",
       "bio": null,
       "company": null,
@@ -9029,7 +10074,7 @@
   "digest": {
     "week_start": "2026-06-27",
     "active_repos": 6,
-    "total_commits_7d": 62,
+    "total_commits_7d": 64,
     "dormant_revived": [
       {
         "owner": "MicheleNuijten",
@@ -9041,7 +10086,7 @@
       {
         "owner": "giladfeldman",
         "repo": "docpluck",
-        "commits": 30
+        "commits": 31
       },
       {
         "owner": "JamieCummins",
@@ -9056,7 +10101,7 @@
       {
         "owner": "scienceverse",
         "repo": "metacheck",
-        "commits": 4
+        "commits": 5
       },
       {
         "owner": "MicheleNuijten",
@@ -9065,6 +10110,24 @@
       }
     ],
     "highlights": [
+      {
+        "repo": "metacheck",
+        "owner": "scienceverse",
+        "message": "Transparent resource caps, LLM/download controls, data-manifest + archive tooling",
+        "body": "Replace silent truncation across the data pipeline with an upfront,\nall-or-nothing \"cannot complete as configured\" gate that always names the\nparameter and the value needed to proceed. Add interactive/auto cap prompts,\na per-paper file manifest, an OSF listing efficiency fix, and two crash fixes.\n\nCaps & transparency\n- New shared message builders cap_gate_size / cap_gate_count / cap_gate_unknown\n  (R/report-helpers.R): a cap that would prevent fully completing a unit of work\n  refuses that repository/codebook and reports the offending files/sizes, the\n  parameter, and the lift-to value \u2014 no partial processing.\n- download_repo_files (R/repo-download.R): upfront per-repo size gate; resolve\n  NA-sized files via a HEAD Content-Length probe before downloading (fixes the\n  bug where unsized files bypassed both caps); refuse repos with undeterminable\n  sizes; defaults raised to max_file_size = 100 MB, max_download_size = 500 MB;\n  \"omitted\" attribute replaced by \"gated\".\n- data_check / code_check: file_limit is now an upfront per-repo gate (skip the\n  whole repo, name file_limit + the true count) instead of a silent slice_head;\n  same size-cap defaults; docs updated.\n- codebook_check: codebook_max_calls param; codebook-parse and scale-ID tiers\n  gate upfront instead of truncating silently; llm_max_calls() error now states\n  the value to set.\n- data_validate: max_facets promoted to an argument with a transparent\n  \"showing N of M\" note (display cap, not a resource refusal).\n\nInteractive cap control\n- New auto() accessor + metacheck.auto option (default !interactive()) and\n  cap_prompt() (R/cap-prompt.R): when interactive and not auto, a cap pauses and\n  shows the offending files + sizes, letting the user skip or raise the limit;\n  under auto() or a non-interactive session it reports inline and skips without\n  blocking. Cap messages are emitted inline as they happen (not batched at the\n  end of a loop). Wired through the download, file_limit, and codebook LLM caps.\n\nDownload modes & manifest\n- data_check gains download = \"data\" (default; readable files only) / \"all\"\n  (every repo file, for building a data archive) / \"none\"; TRUE/FALSE accepted\n  as synonyms.\n- data_check gains manifest = <path>: writes a per-paper JSON manifest (every\n  file with URL, size, type, download status, and skip reason). NA-sized wanted\n  files are HEAD-probed so sizes are complete for choosing an archive size\n  ceiling. An empty manifest is written for papers with no accessible repository.\n- convert_psychds: the opaque \"N file(s) skipped (no local copy)\" message now\n  says how many of how many, why (not downloaded), a breakdown by file type, and\n  how to include them (download = \"all\"); genuine copy failures are reported\n  separately.\n\nOSF efficiency\n- osf_get_all_pages requests page[size]=100 (was the API default of 10),\n  reducing listing calls up to ~10x and preventing OSF rate-limiting. Test\n  fixtures resolved via an httptest2 redactor that strips the param on mock\n  lookup.\n\nCrash fixes\n- data_analysis_unit: guard an all-NA identifier column (0/0 -> NaN in an if()).\n- repo_check: guard NA file sizes in the human-readable size column\n  (format.object_size errored on NA).\n\nProgress bars\n- llm() takes a phase label shown (with the model) in the progress bar, so LLM\n  passes are identifiable; report_module_run attributes elapsed time to the\n  running module instead of the next one.\n\nAlso: removed the col_type-only backward-compat path in convert_psychds() and\nits test; added regression tests for the crash fixes, the cap gates, the\nmanifest, and the codebook LLM gate. Rewrote _stuff/run_openmind.R as a two-pass\n(manifest sweep -> build) archive script.",
+        "type": "other",
+        "author": "Lakens",
+        "date": "2026-07-04"
+      },
+      {
+        "repo": "docpluck",
+        "owner": "giladfeldman",
+        "message": "docs+test(rc-t): diagnose chan_feldman T3 caption-tail-walk TEXT-LOSS; xfail guard (fix is corpus-wide, deferred)",
+        "body": "Run 3 cycle 3: the whitespace_cells test failure is NOT a stale-premise test to\nupdate \u2014 a gold-verify confirmed it guards REAL TEXT-LOSS. chan_feldman Table 3's\nraw_text fallback silently drops its first 4 rows (Sample size 239/794,\nGeographic origin, Gender, Ethnic group). Root-caused to _extract_table_body_text's\nbody_start caption-tail walk overshooting the caption's own sentence terminator\n(`replication.`) to a later `\\n\\n`.\n\nA per-line-terminator walk fixes chan T3 \u2014 but a 101-PDF guard-diff\n(tmp/rct_body_text_diff.py) shows the walk is SHARED across every table's raw_text\nextraction: the fix shifts body_start on 310 captions (308 recover legitimately,\n2 TRUNCATE \u2014 amc_1 T3, xiao_2021 T6, a regression, and ~53 recover body-prose /\na leading Fig caption). That is a corpus-wide capture-path change for the gated\nRC-T cycle (48-paper structured guard-diff + 7-canary AI-gold + user sign-off),\nnot a session-tail patch. ATTEMPTED + REVERTED.\n\n- New FINDINGS doc: precise mechanism + guard-diff blast-radius + the RC-T cycle's\n  executable target.\n- test_t3_first_rows_not_dropped: xfail(strict=True) guard documenting the\n  TEXT-LOSS; will XPASS-alert when the RC-T cycle lands the corpus-safe fix.\n- TRIAGE run-3 section updated (whitespace_cells is a real TEXT-LOSS guard, not a\n  stale test; the raw_text fix is corpus-wide).\n\nextract_structured.py reverted to HEAD (no library change in this commit).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+        "type": "fix",
+        "author": "Gilad Feldman",
+        "date": "2026-07-04"
+      },
       {
         "repo": "docpluck",
         "owner": "giladfeldman",
@@ -9496,35 +10559,17 @@
         "type": "chore",
         "author": "Gilad Feldman",
         "date": "2026-06-30"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "chore(release): v2.4.99 \u2014 region-driven table capture (version bump + CHANGELOG)",
-        "body": "Bump __version__ 2.4.98\u21922.4.99, pyproject version, and TABLE_EXTRACTION_VERSION\n2.4.4\u21922.4.5 (region-driven capture is the first capture-path change in the\nv2.4.x table series). CHANGELOG documents the feature, the AI-gold verification\n(101-PDF structured diff 27 changed/0 err + 6-paper canary all FIX/PASS/\nNET-BETTER), and the known pre-existing hard cases (cog_emo T8 under-segmentation,\nchandrashekar 2-col caption interleave, efendic T2 Camelot-invisible, bmc_med_3\nduplicate-fragment pairing \u2014 dedupe + bbox-proximity both tried and reverted as\nnet-harmful).\n\nThe capture-path code itself shipped in the preceding commit (region-driven\nCamelot + content-plausibility guards); this commit is release prep only.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-        "type": "docs",
-        "author": "Gilad Feldman",
-        "date": "2026-06-29"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "fix(skills): correct stale PDFextractor/docpluck paths to MetaScienceTools/ layout",
-        "body": "docpluck-qa reference files pointed at Vibe/PDFextractor and Vibe/docpluck (pre-move\nlocations). Both now live under Vibe/MetaScienceTools/ per the two-repo architecture.\nAuto-applied by the 2026-06-29 weekly skill-portfolio-review (verified on disk).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-        "type": "fix",
-        "author": "Gilad Feldman",
-        "date": "2026-06-29"
       }
     ],
-    "narrative": "Our open-source research community has seen exciting progress across multiple projects. In the scienceverse/metacheck project, Lakens made foundational additions to the `data_check` branch, laying the groundwork for further development of datacheck modules. Meanwhile, giladfeldman/docpluck saw significant updates to its 'main' branch, including documentation triage, residual fixes, and improvements to the render function. Notably, the removal of the sign-up feature in JamieCummins/regcheck suggests a potential shift in focus or approach. As our projects continue to evolve, we celebrate the connections and collaborations that drive our community forward, and we look forward to seeing how these developments intersect and inform one another in the future. With these updates, our community is poised for continued growth and innovation."
+    "narrative": "Our community has seen significant progress across multiple projects recently. The `scienceverse/metacheck` project has made notable advancements with the introduction of transparent resource caps, LLM/download controls, and archive tooling on the `data_check` branch. Meanwhile, `MicheleNuijten/statcheck` and `giladfeldman/escicheck` have focused on integrating changes and synchronizing with other repositories, highlighting the connections between our projects. Additionally, `giladfeldman/docpluck` and `Davidvandijcke/coarse` have made fixes and updates to their respective main and dev branches, demonstrating the community's commitment to continuous improvement. The `giovannacdelsordo/output-it-forward` project has also made its presence known on the Chrome Webstore, and `shaheedazaad/auto-zcurve` has revised its validation note and added a citation, showcasing the diversity of our community's work. These updates reflect the collaborative spirit and dedication to open-source research that our community embodies."
   },
   "aggregate": {
     "total_repos": 16,
     "total_stars": 675,
     "total_forks": 121,
-    "total_commits_30d": 319,
-    "total_commits_7d": 62,
-    "total_commits_1d": 22,
+    "total_commits_30d": 321,
+    "total_commits_7d": 64,
+    "total_commits_1d": 16,
     "active_repos_7d": 6,
     "dormant_revived": 1,
     "total_open_issues": 179,
