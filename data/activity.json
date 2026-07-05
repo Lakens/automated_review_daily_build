@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-04T19:18:47.145119+00:00",
+  "generated_at": "2026-07-05T02:58:35.704483+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -99,7 +99,7 @@
         {
           "name": "data_check",
           "last_commit": "2026-07-04",
-          "commits_30d": 68
+          "commits_30d": 58
         },
         {
           "name": "jw_bibr_read_passthrough",
@@ -142,25 +142,25 @@
           "commits_30d": 4
         }
       ],
-      "commits_30d": 96,
+      "commits_30d": 86,
       "commits_7d": 15,
       "commits_1d": 11,
       "commits_90d": 213,
       "authors_30d": [
+        "Daniel Lakens",
         "Lakens",
         "nielsvanberkel",
-        "Jakub Werner",
-        "Daniel Lakens",
-        "Lisa DeBruine"
+        "Lisa DeBruine",
+        "Jakub Werner"
       ],
       "type_breakdown": {
-        "other": 31,
-        "chore": 19,
+        "other": 29,
+        "chore": 14,
         "fix": 24,
         "feat": 15,
         "refactor": 1,
         "test": 1,
-        "docs": 5
+        "docs": 2
       },
       "dormant_revived": false,
       "is_archived": false,
@@ -804,7 +804,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in 'scienceverse/metacheck' fixes the ollama-native gate logic by replacing '%%' with '&&', adds early parameter and model checks to catch errors such as typos or bad values, and updates the documentation for the `llm_model` function to reflect that the `model` argument is now required."
+          "diff_summary": ""
         },
         {
           "sha": "d99956e",
@@ -1154,160 +1154,6 @@
           "branch": "data_check",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "a73d52a",
-          "message": "fix(llm): correct ollama-native gate (&& not %%); fail-fast param/model checks",
-          "body": "- llm(): the ollama-native branch used `%%` (modulo) where `&&` was intended,\n  so use_ollama_native came from arithmetic on logicals rather than a boolean\n  AND. Fixed to `&&`.\n- Validate `params` and the presence of a model up front, before any\n  provider/network work, with clear error messages.\n- llm_model(): use missing() so llm_model(NULL) can reset the option\n  (a saved NULL round-trips); regen man/llm_model.Rd to match.\n\nExtracted from #329.\n\nClaude-Session: https://claude.ai/code/session_01YLqyRiqzyaZncJ3m5VcjxK",
-          "author": "Jakub Werner",
-          "author_login": "thesanogoeffect",
-          "date": "2026-07-04",
-          "url": "https://github.com/scienceverse/metacheck/commit/a73d52a91e559bbfb9f2f031bddc717503db745d",
-          "type": "fix",
-          "branch": "jw_llm_fixes",
-          "diff": {
-            "additions": 23,
-            "deletions": 11,
-            "files": [
-              {
-                "filename": "R/llm.R",
-                "status": "modified",
-                "additions": 22,
-                "deletions": 10,
-                "patch": "@@ -71,11 +71,25 @@ llm <- function(text, system_prompt,\n   # check if json schema type is set for a structured return\n   structured <- !is.null(type)\n \n+  # check params early: catches typos/bad values before any provider or\n+  # network work (the raw `params` list is still needed for the ollama path,\n+  # so only the converted copy is kept for the ellmer chat below)\n+  tryCatch({\n+    checked_params <- do.call(ellmer::params, params)\n+  }, error = \\(e) {\n+    stop(\"Misspecified params argument"
-              },
-              {
-                "filename": "man/llm_model.Rd",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -4,7 +4,7 @@\n \\alias{llm_model}\n \\title{Set the default LLM model}\n \\usage{\n-llm_model(model = NULL)\n+llm_model(model)\n }\n \\arguments{\n \\item{model}{the name of the model}"
-              }
-            ]
-          },
-          "diff_summary": "This commit in 'scienceverse/metacheck' fixes the ollama-native gate logic by replacing '%%' with '&&', adds early parameter and model checks to catch errors such as typos or bad values, and updates the documentation for the `llm_model` function to reflect that the `model` argument is now required."
-        },
-        {
-          "sha": "d99956e",
-          "message": "feat(plumber): bibr-JSON REST API \u2014 validated uploads, HTML report, hardened runtime",
-          "body": "Rework of the Plumber API around bibr JSON ingestion, extracted from #329:\n- validate uploads as bibr JSON; raise size cap to 50MB\n- read via metacheck:::.read_bibr (surfaces per-file errors that read() swallows)\n- env-driven LLM config; /check includes metacheck_version and can render\n  metacheck's HTML report (report_html); report=false to skip\n- DRY endpoint pipeline, add /modules endpoint, strip unserializable S3\n  classes from JSON responses\n- hardened Docker runtime + docker-compose; expanded README\n- new tests: test-api, test-plumber-helpers, test-plumber-validators\n\nClaude-Session: https://claude.ai/code/session_01YLqyRiqzyaZncJ3m5VcjxK",
-          "author": "Jakub Werner",
-          "author_login": "thesanogoeffect",
-          "date": "2026-07-04",
-          "url": "https://github.com/scienceverse/metacheck/commit/d99956ea5867cce92a07d3f513ead0816823a36c",
-          "type": "feat",
-          "branch": "jw_plumber_bibr_api",
-          "diff": {}
-        },
-        {
-          "sha": "4daee8c",
-          "message": "feat(read): let bibr abstract and figure/table captions flow through",
-          "body": "read() dropped info$abstract and figure/table $caption via three\n\"tempfix\" NULL assignments left over from before bibr emitted them.\nbibr now provides these fields, so stop discarding them. paper_validate()\ndoes not require these columns and .paper_coerce() leaves unknown columns\nuntouched, so this is additive on the current schema and pairs with the\ncaption $defs in the v10.5 schema sync (#330).\n\nExtracted from #329.\n\nClaude-Session: https://claude.ai/code/session_01YLqyRiqzyaZncJ3m5VcjxK",
-          "author": "Jakub Werner",
-          "author_login": "thesanogoeffect",
-          "date": "2026-07-04",
-          "url": "https://github.com/scienceverse/metacheck/commit/4daee8c0126af10324ee1c72c639a21c7f0c3fd2",
-          "type": "feat",
-          "branch": "jw_bibr_read_passthrough",
-          "diff": {}
-        },
-        {
-          "sha": "00d98b8",
-          "message": "fix(grobid): stop anchor normalization from corrupting paper text",
-          "body": "grobid_to_bibr() rewrote every occurrence of each URL's anchor text with\nits href across the whole paper. Short anchors (e.g. \"Fig\") clobbered\nunrelated matches like \"Fig. 2\", and NA anchors were iterated blindly.\nRestrict the substitution to anchors that ARE the URL (modulo spaces and\nprotocol), and skip NAs.\n\nExtracted from #329 as a standalone fix.\n\nClaude-Session: https://claude.ai/code/session_01YLqyRiqzyaZncJ3m5VcjxK",
-          "author": "Jakub Werner",
-          "author_login": "thesanogoeffect",
-          "date": "2026-07-04",
-          "url": "https://github.com/scienceverse/metacheck/commit/00d98b8c90da0129891fb6fcdf911c344936663e",
-          "type": "fix",
-          "branch": "jw_grobid_text_fix",
-          "diff": {}
-        },
-        {
-          "sha": "4d53313",
-          "message": "fix(schema): sync bundled paper.json to bibr v10.5",
-          "body": "The published schema at scienceverse.org/schema/paper.json moved to\nv10.5 (scienceverse/schema#1), which made test-paper.R's `.paper_schema`\ntest \u2014 an exact-equality check of the bundled schema against the\npublished contract \u2014 fail on every branch.\n\nSync the bundled inst/schema/paper.json to v10.5 (adds $defs funding,\naffiliation, info_match, table.caption and many new info fields), with\nONE deliberate relaxation: drop `schema_version` from info.required.\nmetacheck must validate historical papers (psychsci, demopaper, user\nPDFs) produced by pre-10.5 bibr, which emit bibr_version but not\nschema_version; paper_validate() hard-errors on missing required\ncolumns, so a byte-exact sync would break ~30 validation assertions.\nFresh paper() objects still gain all 27 info columns because the\nconstructor builds columns from properties, not required.\n\nUpdate `.paper_schema` to pin schema_version as the only relaxed field\n(and assert bundled adds nothing the remote lacks), then compare\neverything else for exact drift \u2014 so unintended divergence is caught.\n\nVerified: full suite green (0 failures, 2724 passed) on both dev and\njw_fable_fixes bases; `.paper_schema` passes online against live remote.\n\nClaude-Session: https://claude.ai/code/session_01YLqyRiqzyaZncJ3m5VcjxK",
-          "author": "Jakub Werner",
-          "author_login": "thesanogoeffect",
-          "date": "2026-07-04",
-          "url": "https://github.com/scienceverse/metacheck/commit/4d53313bc0c61703b45026c210bfcae58e5fa4f6",
-          "type": "fix",
-          "branch": "jw_schema_sync_10_5",
-          "diff": {}
-        },
-        {
-          "sha": "fdc5a1d",
-          "message": "tests: fix test_that wrapper warnings, add expect_disjoint, env-aware .onLoad test",
-          "body": "- helper.R: rebuild the test_that call with the literal braced\n  expression instead of forwarding the code promise (testthat warned\n  'must be a braced expression' on every test)\n- add the missing expect_disjoint() helper used by four test files\n- .onLoad test: metacheck.llm.model is derived from configured API keys\n  (NULL when none), so stop hardcoding \"groq\"\n\nFull suite after this series: 0 failures, 2400 passes (previously\nearly-terminated at 5 failures via set_max_fails(5), hiding a dozen\norder-dependent failures caused by the httr import masking).\n\nClaude-Session: https://claude.ai/code/session_01YLqyRiqzyaZncJ3m5VcjxK",
-          "author": "Jakub Werner",
-          "author_login": "thesanogoeffect",
-          "date": "2026-07-04",
-          "url": "https://github.com/scienceverse/metacheck/commit/fdc5a1d5e0d2f37f8693b3b7a9f61802e8c75fd8",
-          "type": "fix",
-          "branch": "jw_fable_fixes",
-          "diff": {}
-        },
-        {
-          "sha": "994fb58",
-          "message": "modules: fix code_check green path, ref_miscitation report, traffic lights, stale imports",
-          "body": "- code_check: length(sum(...)) == 0 is never true, so the module could\n  never report green; isTRUE() on a vector mis-selected the parse-error\n  table rows\n- ref_miscitation: the report loop overwrote instead of accumulating,\n  keeping only the last miscited DOI\n- ref_accuracy: \"error\" is not a renderable traffic light (no tl_error\n  emoji); use \"na\" like the sibling no-refs branch (test updated)\n- causal_claims: stray literal 1 leaked into the title report (belongs\n  inside scroll_table())\n- code_check/prereg_check: drop stale @import httr/jsonlite (zero usage;\n  module_run() attaches imports, and httr::verbose / jsonlite::validate\n  masked metacheck's own exports for the rest of the session)\n\nClaude-Session: https://claude.ai/code/session_01YLqyRiqzyaZncJ3m5VcjxK",
-          "author": "Jakub Werner",
-          "author_login": "thesanogoeffect",
-          "date": "2026-07-04",
-          "url": "https://github.com/scienceverse/metacheck/commit/994fb585c831c51d15076927368697e376055b57",
-          "type": "fix",
-          "branch": "jw_fable_fixes",
-          "diff": {}
-        },
-        {
-          "sha": "de6fd04",
-          "message": "core: fix GROBID text corruption, LLM crashes, API hardening",
-          "body": "Claude-Session: https://claude.ai/code/session_01YLqyRiqzyaZncJ3m5VcjxK",
-          "author": "Jakub Werner",
-          "author_login": "thesanogoeffect",
-          "date": "2026-07-04",
-          "url": "https://github.com/scienceverse/metacheck/commit/de6fd044e67386f1c629489d5c338fc7ffd25d9b",
-          "type": "fix",
-          "branch": "jw_fable_fixes",
-          "diff": {}
-        },
-        {
-          "sha": "d91dc7e",
-          "message": "read: let bibr abstract and figure/table captions flow through .read_bibr",
-          "body": "Drop the three defensive deletions (info$abstract, figure$caption,\ntable$caption). Captions are plain nullable strings in every bibr\nvintage that emits them, and 10.5 emits abstract as a nullable scalar;\nverified against 10.0 demo, 10.2 golden, and real 10.5 outputs (info\nstays one row in all three). Answers the open question in\nscienceverse/schema#1.\n\nClaude-Session: https://claude.ai/code/session_01YLqyRiqzyaZncJ3m5VcjxK",
-          "author": "Jakub Werner",
-          "author_login": "thesanogoeffect",
-          "date": "2026-07-04",
-          "url": "https://github.com/scienceverse/metacheck/commit/d91dc7e673f6a5912ab57e7b3ae7b60fcef857f6",
-          "type": "other",
-          "branch": "jw_fable_fixes",
-          "diff": {}
-        },
-        {
-          "sha": "9483c49",
-          "message": "plumber: DRY endpoint pipeline, /modules endpoint, report=false, hardened Docker runtime",
-          "body": "Centralise the per-endpoint upload boilerplate in with_uploaded_paper()\n(single multipart parse, no second file copy, tempfile cleanup, optional\nprevalidate hook that rejects bad params before the bibr parse). Add\nGET /paper/modules discovery, a report=false switch on /check to skip\nthe Quarto render, and parse_bool() for multipart string flags.\n\nPin the Quarto version in the Dockerfile, run the compose service\nread-only with a /tmp tmpfs, and pass LLM env config through.\n\nThe restricted parser set c(\"multi\", \"octet\") is kept and documented:\n\"none\" empirically breaks mime::parse_multipart (all uploads 500),\nwhile the plumber defaults would JSON-parse the uploaded file a second\ntime. test-api.R now honours METACHECK_API_URL so tests can target a\nnon-default instance.\n\nClaude-Session: https://claude.ai/code/session_01YLqyRiqzyaZncJ3m5VcjxK",
-          "author": "Jakub Werner",
-          "author_login": "thesanogoeffect",
-          "date": "2026-07-04",
-          "url": "https://github.com/scienceverse/metacheck/commit/9483c49f96d17916dc26f5978c7e7a2f63671d8b",
-          "type": "other",
-          "branch": "jw_fable_fixes",
-          "diff": {}
-        },
-        {
-          "sha": "c42ecbf",
-          "message": "Transparent resource caps, LLM/download controls, data-manifest + archive tooling",
-          "body": "Replace silent truncation across the data pipeline with an upfront,\nall-or-nothing \"cannot complete as configured\" gate that always names the\nparameter and the value needed to proceed. Add interactive/auto cap prompts,\na per-paper file manifest, an OSF listing efficiency fix, and two crash fixes.\n\nCaps & transparency\n- New shared message builders cap_gate_size / cap_gate_count / cap_gate_unknown\n  (R/report-helpers.R): a cap that would prevent fully completing a unit of work\n  refuses that repository/codebook and reports the offending files/sizes, the\n  parameter, and the lift-to value \u2014 no partial processing.\n- download_repo_files (R/repo-download.R): upfront per-repo size gate; resolve\n  NA-sized files via a HEAD Content-Length probe before downloading (fixes the\n  bug where unsized files bypassed both caps); refuse repos with undeterminable\n  sizes; defaults raised to max_file_size = 100 MB, max_download_size = 500 MB;\n  \"omitted\" attribute replaced by \"gated\".\n- data_check / code_check: file_limit is now an upfront per-repo gate (skip the\n  whole repo, name file_limit + the true count) instead of a silent slice_head;\n  same size-cap defaults; docs updated.\n- codebook_check: codebook_max_calls param; codebook-parse and scale-ID tiers\n  gate upfront instead of truncating silently; llm_max_calls() error now states\n  the value to set.\n- data_validate: max_facets promoted to an argument with a transparent\n  \"showing N of M\" note (display cap, not a resource refusal).\n\nInteractive cap control\n- New auto() accessor + metacheck.auto option (default !interactive()) and\n  cap_prompt() (R/cap-prompt.R): when interactive and not auto, a cap pauses and\n  shows the offending files + sizes, letting the user skip or raise the limit;\n  under auto() or a non-interactive session it reports inline and skips without\n  blocking. Cap messages are emitted inline as they happen (not batched at the\n  end of a loop). Wired through the download, file_limit, and codebook LLM caps.\n\nDownload modes & manifest\n- data_check gains download = \"data\" (default; readable files only) / \"all\"\n  (every repo file, for building a data archive) / \"none\"; TRUE/FALSE accepted\n  as synonyms.\n- data_check gains manifest = <path>: writes a per-paper JSON manifest (every\n  file with URL, size, type, download status, and skip reason). NA-sized wanted\n  files are HEAD-probed so sizes are complete for choosing an archive size\n  ceiling. An empty manifest is written for papers with no accessible repository.\n- convert_psychds: the opaque \"N file(s) skipped (no local copy)\" message now\n  says how many of how many, why (not downloaded), a breakdown by file type, and\n  how to include them (download = \"all\"); genuine copy failures are reported\n  separately.\n\nOSF efficiency\n- osf_get_all_pages requests page[size]=100 (was the API default of 10),\n  reducing listing calls up to ~10x and preventing OSF rate-limiting. Test\n  fixtures resolved via an httptest2 redactor that strips the param on mock\n  lookup.\n\nCrash fixes\n- data_analysis_unit: guard an all-NA identifier column (0/0 -> NaN in an if()).\n- repo_check: guard NA file sizes in the human-readable size column\n  (format.object_size errored on NA).\n\nProgress bars\n- llm() takes a phase label shown (with the model) in the progress bar, so LLM\n  passes are identifiable; report_module_run attributes elapsed time to the\n  running module instead of the next one.\n\nAlso: removed the col_type-only backward-compat path in convert_psychds() and\nits test; added regression tests for the crash fixes, the cap gates, the\nmanifest, and the codebook LLM gate. Rewrote _stuff/run_openmind.R as a two-pass\n(manifest sweep -> build) archive script.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-07-04",
-          "url": "https://github.com/scienceverse/metacheck/commit/c42ecbf3c1232c30ed995398f1e4f1afa911b3b8",
-          "type": "other",
-          "branch": "data_check",
-          "diff": {}
-        }
       ]
     },
     {
@@ -1393,7 +1239,7 @@
       },
       "dormant_revived": true,
       "is_archived": false,
-      "summary": "The `feature-non-apa-newer` branch was worked on, where a merge was performed from the same branch of the `https://github.com/MicheleNuijten/statcheck` repository. \nThe merge commit on the `feature-non-apa-newer` branch was made to integrate changes from the remote repository. \nAdditionally, on the `feature-non-apa-newer` branch, \"admin updates\" were made, as per the commit message. \nNo other branches were modified in this set of commits. \nThe changes were limited to the `feature-non-apa-newer` branch, with no other branches or modules mentioned.",
+      "summary": "The `feature-non-apa-newer` branch was worked on, where a merge was performed from the same branch of the remote repository. \nThe merge commit was made to integrate changes from the remote `feature-non-apa-newer` branch into the local `feature-non-apa-newer` branch. \nAdditionally, on the `feature-non-apa-newer` branch, \"admin updates\" were made, as per the commit message. \nNo other branches were modified in this set of commits. \nThe changes were made by MicheleNuijten. \nThese commits did not introduce any new features or fixes beyond the mentioned admin updates and the merge operation.",
       "prs": [
         {
           "number": 107,
@@ -2084,7 +1930,81 @@
               }
             ]
           },
-          "diff_summary": "This commit merges the 'feature-non-apa-newer' branch into itself, updating several R files, including `clean_non_apa.R`, `extract_stats.R`, `helpers-parse-stats.R`, `regex.R`, and `statcheck.R`, to improve the handling of non-APA style statistical results, including the removal of spaces and the extraction of NHST results."
+          "diff_summary": "This commit merges changes from the 'feature-non-apa-newer' branch into the same branch, updating several R files, including `clean_non_apa.R`, `extract_stats.R`, and `helpers-parse-stats.R`, to improve the parsing and extraction of non-APA style statistical results in the statcheck package."
+        },
+        {
+          "sha": "ffba7eb",
+          "message": "admin updates",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-07-03",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/ffba7eb5b198605087b94718ce5e98ed6871d458",
+          "type": "other",
+          "branch": "feature-non-apa-newer",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "50ab5e6",
+          "message": "Merge branch 'feature-non-apa-newer' of https://github.com/MicheleNuijten/statcheck into feature-non-apa-newer",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-07-03",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/50ab5e66a0f32d77c9becef0c4bba3d638ec8019",
+          "type": "feat",
+          "branch": "feature-non-apa-newer",
+          "diff": {
+            "additions": 414,
+            "deletions": 105,
+            "files": [
+              {
+                "filename": "R/clean_non_apa.R",
+                "status": "added",
+                "additions": 44,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,44 @@\n+clean_non_apa <- function(nhst_raw){\n+  \n+  # remove all spaces\n+  # the parsing functions can handle no spaces, but it would be too complicated\n+  # to take into account every possible number of spaces, so removing them\n+  # all is easiest\n+  nhst_clean <- gsub(pattern = \"\\\\s+\", replacement = \"\",\n+                     nhst_raw)\n+  \n+  # replace square or curly brackets with parentheses\n+  nhst_clean <- gsub(pattern = RGX_SQ_CURLY1, replacement = RGX_PRTS_1, \n+                 "
+              },
+              {
+                "filename": "R/extract_stats.R",
+                "status": "modified",
+                "additions": 62,
+                "deletions": 34,
+                "patch": "@@ -1,13 +1,20 @@\n-extract_stats <- function(txt, stat){\n+extract_stats <- function(txt, apa_style, stat){\n   \n   # step 1: extract all NHST results from text -----------------------------------\n   \n+  # specify whether to search for APA NHST results or also to include non-APA\n+  if(apa_style == TRUE){\n+    rgx_nhst <- RGX_NHST\n+  } else {\n+    rgx_nhst <- RGX_NHST_NONAPA\n+  }\n+  \n   # if there are x NHST results in a text, this returns a character vector of \n   # length x\n   nhst_raw <- extract"
+              },
+              {
+                "filename": "R/helpers-parse-stats.R",
+                "status": "modified",
+                "additions": 65,
+                "deletions": 16,
+                "patch": "@@ -46,7 +46,22 @@ extract_df <- function(raw, test_type){\n     df1 <- NA\n     df2 <- NA\n     \n-  } else {\n+  } else if(test_type == \"r\" & grepl(RGX_DFN_R_NRS, raw)){\n+    # if correlations report N instead of df, transform to df\n+    \n+    # extract full string with N\n+    dfn <- extract_pattern(txt = raw,\n+                           pattern = RGX_DFN_R_NRS)[[1]]\n+    \n+    # only extract numbers\n+    n <- as.numeric(extract_pattern(txt = dfn,\n+                                    pattern = \"\\\\d"
+              },
+              {
+                "filename": "R/regex.R",
+                "status": "modified",
+                "additions": 221,
+                "deletions": 43,
+                "patch": "@@ -1,55 +1,114 @@\n # this script contains the regular expressions that statcheck uses to extract\n-# NHST results from text\n-\n-# test types\n-RGX_T <- \"t\"\n-RGX_R <- \"r\"\n-RGX_Q <- \"Q\\\\s?-?\\\\s?(w|W|(w|W)ithin|b|B|(b|B)etween)?\"\n-RGX_F <- \"F\"\n-RGX_Z <- \"([^a-z](z|Z))\"\n-# for chi2: effectively extract everything that is NOT a t, r, F, z, Q, W, n, or \n-# D, followed by *maybe* a 2 (and later followed by a result in a chi2 layout)\n-RGX_CHI2 <- \"((\\\\s[^trFzZQWnD ]\\\\s?)|([^trFzZQWnD ]2\\\\s?))2?\"\n-\n-# degr"
+              },
+              {
+                "filename": "R/statcheck.R",
+                "status": "modified",
+                "additions": 10,
+                "deletions": 2,
+                "patch": "@@ -115,6 +115,7 @@\n \n statcheck <- function(texts,\n                       stat = c(\"t\", \"F\", \"cor\", \"chisq\", \"Z\", \"Q\"),\n+                      apa_style = TRUE,\n                       OneTailedTests = FALSE,\n                       alpha = .05,\n                       pEqualAlphaSig = TRUE,\n@@ -159,7 +160,7 @@ statcheck <- function(texts,\n     # later on to calculate the APA factor: the ratio (statcheck results)/\n     # (total # of p values). It is also possible to let statcheck return this\n     "
+              },
+              {
+                "filename": "tests/testthat/test-extract-non-apa.R",
+                "status": "modified",
+                "additions": 12,
+                "deletions": 10,
+                "patch": "@@ -29,7 +29,7 @@ test_that(\"F with MSE is extracted and parsed\",{\n   expect_equal(result[[VAR_TEST_VALUE]], rep(11.37, 2))\n   \n   # don't extract these results when apa_style is TRUE\n-  expect_output(statcheck(c(txt1, txt2), messages = FALSE), \n+  expect_message(statcheck(c(txt1, txt2), messages = FALSE), \n                 \"did not find any results\")\n   \n })\n@@ -50,7 +50,7 @@ test_that(\"df between square, curly, or no brackets are extracted and parsed\",{\n   expect_equal(result[[VAR_DF2]], rep(2"
+              }
+            ]
+          },
+          "diff_summary": "This commit merges changes from the 'feature-non-apa-newer' branch into the same branch, updating several R files, including `clean_non_apa.R`, `extract_stats.R`, and `helpers-parse-stats.R`, to improve the parsing and extraction of non-APA style statistical results in the statcheck package."
         },
         {
           "sha": "ffba7eb",
@@ -4745,7 +4665,7 @@
       ],
       "commits_30d": 97,
       "commits_7d": 31,
-      "commits_1d": 12,
+      "commits_1d": 3,
       "commits_90d": 434,
       "authors_30d": [
         "Gilad Feldman"
@@ -4761,7 +4681,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "Work was done on the 'main' branch, where a commit addressed the issue of \"chan_feldman T3 caption-tail-walk TEXT-LOSS\" by adding a diagnostic and an xfail guard, with the fix being deferred as it requires corpus-wide changes. Another commit on the 'main' branch updated the documentation to record the outcome of \"run-3\" and resolved \"W0l \u00d7-as-3 residuals\", also rescoping \"efendic headings to B6\" as part of the documentation triage. A fix was applied to the 'glyph' module on the 'main' branch to recover two residual \"\u00d7-as-3 prose shapes\" that \"W0k can't reach\", related to \"efendic\" and version \"v2.4.116\". Additionally, a rendering fix was made on the 'main' branch to remove an orphaned affiliation remnant in the Abstract body, related to \"chandrashekar\" and version \"v2.4.115\".",
+      "summary": "Work was done on the 'main' branch, where a fix was applied to recover 2 residual \u00d7-as-3 prose shapes that W0k couldn't reach, as stated in the commit message \"fix(glyph): recover 2 residual \u00d7-as-3 prose shapes W0k can't reach (efendic) + v2.4.116\". Another commit on the 'main' branch addressed the issue of an orphaned affiliation remnant in the Abstract body, with the commit message \"fix(render): strip affiliation remnant orphaned in Abstract body (chandrashekar) + v2.4.115\" describing the change. The 'main' branch also saw documentation updates, including a commit that \"record run-3 outcome \u2014 W0l \u00d7-as-3 residuals resolved (v2.4.116)\" and another that diagnosed a \"chan_feldman T3 caption-tail-walk TEXT-LOSS\" issue, with an \"xfail guard\" added as a fix is deferred. Additionally, the documentation was updated to rescope \"efendic headings to B6\" as part of the triage process. The 'main' branch also saw a commit that added documentation and tests for the \"rc-t\" module to diagnose a specific text loss issue.",
       "prs": [
         {
           "number": 1,
@@ -4795,7 +4715,7 @@
       "commit_activity": [
         {
           "week": 1776038400,
-          "total": 5
+          "total": 3
         },
         {
           "week": 1776643200,
@@ -4807,19 +4727,19 @@
         },
         {
           "week": 1777852800,
-          "total": 116
+          "total": 119
         },
         {
           "week": 1778457600,
-          "total": 139
+          "total": 145
         },
         {
           "week": 1779062400,
-          "total": 53
+          "total": 48
         },
         {
           "week": 1779667200,
-          "total": 13
+          "total": 9
         },
         {
           "week": 1780272000,
@@ -4831,11 +4751,11 @@
         },
         {
           "week": 1781481600,
-          "total": 29
+          "total": 31
         },
         {
           "week": 1782086400,
-          "total": 12
+          "total": 10
         },
         {
           "week": 1782691200,
@@ -4946,7 +4866,7 @@
               }
             ]
           },
-          "diff_summary": ""
+          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository documents and tests a diagnosed issue with text loss in the caption-tail-walk of the chan_feldman T3 dataset, marking it as an expected failure for now, with the actual fix deferred to a future corpus-wide update."
         },
         {
           "sha": "56f60b5",
@@ -5292,6 +5212,83 @@
           "author_login": "giladfeldman",
           "date": "2026-06-29",
           "url": "https://github.com/giladfeldman/docpluck/commit/b0fdd5f7cb649a43528b7ed90a2b9562510e4a3b",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "ba4e124",
+          "message": "docs+test(rc-t): diagnose chan_feldman T3 caption-tail-walk TEXT-LOSS; xfail guard (fix is corpus-wide, deferred)",
+          "body": "Run 3 cycle 3: the whitespace_cells test failure is NOT a stale-premise test to\nupdate \u2014 a gold-verify confirmed it guards REAL TEXT-LOSS. chan_feldman Table 3's\nraw_text fallback silently drops its first 4 rows (Sample size 239/794,\nGeographic origin, Gender, Ethnic group). Root-caused to _extract_table_body_text's\nbody_start caption-tail walk overshooting the caption's own sentence terminator\n(`replication.`) to a later `\\n\\n`.\n\nA per-line-terminator walk fixes chan T3 \u2014 but a 101-PDF guard-diff\n(tmp/rct_body_text_diff.py) shows the walk is SHARED across every table's raw_text\nextraction: the fix shifts body_start on 310 captions (308 recover legitimately,\n2 TRUNCATE \u2014 amc_1 T3, xiao_2021 T6, a regression, and ~53 recover body-prose /\na leading Fig caption). That is a corpus-wide capture-path change for the gated\nRC-T cycle (48-paper structured guard-diff + 7-canary AI-gold + user sign-off),\nnot a session-tail patch. ATTEMPTED + REVERTED.\n\n- New FINDINGS doc: precise mechanism + guard-diff blast-radius + the RC-T cycle's\n  executable target.\n- test_t3_first_rows_not_dropped: xfail(strict=True) guard documenting the\n  TEXT-LOSS; will XPASS-alert when the RC-T cycle lands the corpus-safe fix.\n- TRIAGE run-3 section updated (whitespace_cells is a real TEXT-LOSS guard, not a\n  stale test; the raw_text fix is corpus-wide).\n\nextract_structured.py reverted to HEAD (no library change in this commit).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-07-04",
+          "url": "https://github.com/giladfeldman/docpluck/commit/ba4e12402e5dfa77ed298d8039093d42cfc8ba5d",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 186,
+            "deletions": 4,
+            "files": [
+              {
+                "filename": "docs/FINDINGS_2026-07-04_rct_caption_tail_walk_textloss.md",
+                "status": "added",
+                "additions": 95,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,95 @@\n+# FINDINGS \u2014 RC-T caption-tail-walk TEXT-LOSS (chan_feldman T3 first-4-rows drop): diagnosed, fix is corpus-wide, deferred to the gated RC-T cycle (2026-07-04 run 3)\n+\n+## The defect (gold-confirmed TEXT-LOSS)\n+\n+chan_feldman_2025_cogemo Table 3's raw_text fallback (`unstructured-table` block)\n+DROPS its first four rows. Gold Table 3 is a clean 2-column comparison\n+(McCullough et al. 1997 vs US Prolific), 10 rows:\n+\n+| row | McCullough 1997 | US Prolific |\n+|---|---|---|\n+| Sam"
+              },
+              {
+                "filename": "docs/TRIAGE_2026-07-03_head_v2.4.101_assessment.md",
+                "status": "modified",
+                "additions": 45,
+                "deletions": 4,
+                "patch": "@@ -41,11 +41,52 @@ Moved from Cluster C to Cluster B6/architectural. Detail in\n (`\u2026providing support` / Table4 / Table5 / `for the demonstration of\u2026`) \u2014 a\n table-PLACEMENT defect in the RC-T / floating-table family. Queued with RC-T.\n \n+**whitespace_cells 0-cell test \u2014 CONFIRMED A REAL TEXT-LOSS GUARD, do NOT \"update\n+the test to pass\" (2026-07-04 run 3, gold-verified).** The prior TRIAGE/HANDOFF\n+framed `test_b1_whitespace_cells_wiring_live` (fails on chan_feldman + maier, \"0\n+cells vs \u226550\") a"
+              },
+              {
+                "filename": "tests/test_rc_t_layer2_raw_text_real_pdf.py",
+                "status": "modified",
+                "additions": 46,
+                "deletions": 0,
+                "patch": "@@ -161,3 +161,49 @@ def test_t3_legit_fallback_table_survives(chan_md: str):\n     blocks = _unstructured_blocks(chan_md)\n     assert \"Median age\" in blocks, \"chan_feldman T3 descriptive fallback wrongly suppressed (FP)\"\n     assert \"Origin was not explicitly mentioned\" in blocks, \"T3 Note over-trimmed (FP)\"\n+\n+\n+# \u2500\u2500 RC-T TEXT-LOSS: the caption-tail-walk overshoot (diagnosed, deferred) \u2500\u2500\u2500\u2500\u2500\n+#\n+# The chan_feldman Table 3 fallback DROPS its first four rows (Sample size\n+# 239/794, Geographic or"
+              }
+            ]
+          },
+          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository documents and tests a diagnosed issue with text loss in the caption-tail-walk of the chan_feldman T3 dataset, marking it as an expected failure for now, with the actual fix deferred to a future corpus-wide update."
+        },
+        {
+          "sha": "56f60b5",
+          "message": "docs(triage): record run-3 outcome \u2014 W0l \u00d7-as-3 residuals resolved (v2.4.116); efendic headings rescoped to B6",
+          "body": "- TRIAGE run-3 section: W0l shipped (both efendic \u00d7-as-3 residuals RESOLVED,\n  Sonnet-verified, 101-PDF FP scan clean); efendic 2 demoted subsection headings\n  RESCOPED from \"heading-promoter\" to B6 column-interleave (root-cause reproduction).\n- NEW FINDINGS doc: efendic Design/Procedure/Measures + Analysis Strategy headings\n  are spatially orphaned from their bodies by two-column pdftotext serialization \u2014\n  a heading-promotion hack would emit heading-with-no-body. Deferred to the B6\n  architectural cluster (same as the chandrashekar canary).\n- Also logged: NEW efendic Table 4/5 mid-sentence splice (RC-T family); ar_apa gold\n  misread (\"yet feel\" vs correct \"not yell\" docpluck renders) \u2014 flag gold for regen.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-07-04",
+          "url": "https://github.com/giladfeldman/docpluck/commit/56f60b5f3f3f74a00ef98c3783f76abfad37da07",
+          "type": "other",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "a4f8796",
+          "message": "fix(glyph): recover 2 residual \u00d7-as-3 prose shapes W0k can't reach (efendic) + v2.4.116",
+          "body": "W0l \u2014 the two \u00d7-as-3 glyph residuals the single-line W0k word-pair regex\nstructurally cannot reach (both silently render `3` where a scientist should\nread `\u00d7`), documented in docs/FINDINGS_2026-07-03_efendic_glyph_in_prose_channel.md:\n\n(A) recover_times_design_notation \u2014 factorial-design notation `<digit>(\u2026) 3\n    <digit>(\u2026)`: \"2 (Between-subject factor--Direction: \u2026) 3 2 (\u2026) 3 3\n    (Within-subject factor--\u2026) mixed-subject design\" \u2192 each `) 3 <digit> (`\n    boundary's `3` is a corrupted `\u00d7` (trailing digit is the real factor SIZE).\n    Fires ONLY when tied to a genuine factor parenthetical: an adjacent\n    parenthetical names a factor type, OR both sides are factor-size parens\n    closed by a factorial/design tail. A range recode `(min 1) 3 2 (max 5)`,\n    a formula `f(x) 3 2 (y)`, `(from level 3) 3 2 (see note)` are left alone.\n\n(B) recover_times_wrapped_interaction \u2014 a line ending `<Pred> 3` whose next\n    line starts with a predictor word, inside an \"interaction\" context:\n    \"(Direction 3\\nManipulated Attribute \u00d7 CMA)\" \u2192 \"Direction \u00d7 Manipulated\u2026\".\n    Reference-word tail guard (FIGURE 3 / Table 3 / Model 3) \u2014 the wide FP\n    scan caught amj_1 `FIGURE 3\\nRegression\u2026` + jamison `Table 3\\nMain-effects\n    and interactions.` wrongly joined; guard added + regression-tested.\n\nNORMALIZATION_VERSION 1.9.42 \u2192 1.9.43. Wired channel 1 (normalize_text) AND\nchannel 3 (render post-process) per glyph-fixes-need-all-three-text-channels.\n\nVerification (ground truth = AI multimodal reading golds via article-finder):\n- Independent Sonnet canary audit CONFIRMS both efendic glyph fixes correct\n  (design `\u00d7 2 \u00d7 3`, interaction `Direction \u00d7 Manipulated Attribute \u00d7 CMA`),\n  no \u00d7-as-3 / minus-as-2 corruption anywhere else in efendic.\n- Wide 101-PDF raw-text FP scan CLEAN (0 non-target FPs; efendic recovered).\n- 26-paper baseline 26/26 PASS. Normalize idempotency corpus PASS.\n- 42 W0k/W0l tests + real-PDF end-to-end (fails at HEAD v2.4.115, passes here).\n\nResolves efendic's two \u00d7-as-3 residuals. Remaining efendic findings (2 demoted\nsubsection headings; a NEW Table 4/5 mid-sentence splice) are queued; RC-T\ntable-data-loss on ip_feldman/plos_med/chandrashekar remains architectural.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-07-04",
+          "url": "https://github.com/giladfeldman/docpluck/commit/a4f879628fb2752952871e95a61f8df0181a5742",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "e140cf1",
+          "message": "fix(render): strip affiliation remnant orphaned in Abstract body (chandrashekar) + v2.4.115",
+          "body": "A canary AI-verify found chandrashekar_2023_mp rendering \"Department of Philosophy,\nLake Forest College\" + \"*Joint first authors\" right after the ## Abstract heading,\nbefore the abstract prose. The paper has 3 author affiliations; the section\npartitioner inserted ## Abstract mid-affiliation-block, so the masthead strip\n(which stops AT ## Abstract) caught the first two but left the third orphaned in\nthe Abstract body, and the >=3-consecutive-line _strip_body_affiliation_block\ncould not reach a single surviving affiliation line.\n\nFix: _strip_abstract_zone_affiliation_remnant removes an affiliation line (+ a\njoint-authors / corresponding-author companion note) that is the FIRST non-blank\ncontent after ## Abstract. A real Abstract always opens with PROSE, so an\naffiliation LINE in that slot is unambiguously a boundary-split front-matter\nremnant -- the structural signature is affiliation-grammar (via the existing\n_is_affiliation_line) at the Abstract-heading boundary, never paper identity. An\nabstract that merely MENTIONS a university mid-sentence is prose, not an\naffiliation line, and is kept.\n\nVerification (AI-gold via article-finder): chandrashekar's ## Abstract now goes\ndirectly to the abstract body; all 3 affiliations are in the front matter (stripped\nby design), none in the Abstract. An abstract-zone FP-scan across the rendered\ncorpus fires ONLY on chandrashekar -- every other paper's abstract is byte-identical.\n4 new tests (incl. real-abstract + university-mention FP guards). Full suite: 1896\npassed, only the 2 documented pre-existing whitespace_cells failures remain.\n\nResolves chandrashekar's METADATA-LEAK (defect #1 of the 2026-07-04 report). Its\nTables 9/10 RC-T data-loss (defects #2/#3) is the architectural cluster --\ndiagnosed with a precise cycle plan in\ndocs/FINDINGS_2026-07-04_chandrashekar_rc_t_tables_9_10.md (the missing piece: wire\ntables/whitespace.py::char_whitespace_cells to REPLACE a degenerate matched Camelot\ntable in extract_structured.py::_pick_better_table). Deferred to a dedicated gated\ncycle (full 48-paper guard-diff + 7-canary AI-verify; do NOT rush at session-tail).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-07-04",
+          "url": "https://github.com/giladfeldman/docpluck/commit/e140cf159e73370aa9b8db830cb5169ae905e120",
           "type": "fix",
           "branch": "main",
           "diff": {}
@@ -5764,7 +5761,7 @@
       "topics": [],
       "pushed_at": "2026-07-02T20:22:59Z",
       "created_at": "2026-03-03",
-      "last_push_days": 1,
+      "last_push_days": 2,
       "default_branch": "dev",
       "license": "MIT",
       "branches": [
@@ -6054,7 +6051,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "Work was done on the 'dev' and 'main' branches. On both branches, the \"fix(web): re-enable Fable 5 in the model picker\" change was made, which specifically re-enables Fable 5 in the model picker. The 'dev' branch had this fix applied, likely for testing purposes before being merged into 'main'. The 'main' branch also received this fix, which suggests it is now live and available for general use. This change only affects the web component of the repository, as indicated by \"web\" in the commit message. The re-enabling of Fable 5 in the model picker is the sole change mentioned in the provided commits.",
+      "summary": "Work was done on the \"dev\" and \"main\" branches. On both branches, the commit \"fix(web): re-enable Fable 5 in the model picker\" was made, which re-enables Fable 5 in the model picker. This specific fix was applied to the web component, as indicated by \"fix(web)\". The change is identical on both the \"dev\" and \"main\" branches, with the same commit message. The model picker now has Fable 5 re-enabled, following this change. This re-enabling of Fable 5 is the sole modification made in these commits.",
       "prs": [
         {
           "number": 245,
@@ -6541,7 +6538,7 @@
       "commit_activity": [
         {
           "week": 1776038400,
-          "total": 198
+          "total": 183
         },
         {
           "week": 1776643200,
@@ -7028,6 +7025,45 @@
           "branch": "feat/221-i18n-localized-review",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "d93b6f8",
+          "message": "fix(web): re-enable Fable 5 in the model picker",
+          "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-07-02",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/d93b6f8ce532991eb16a11928710e553c7f384c2",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {
+            "additions": 1,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "web/src/components/ModelPicker.tsx",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -17,7 +17,7 @@ type DefaultModel = {\n };\n \n const DEFAULT_MODELS: DefaultModel[] = [\n-  { id: \"anthropic/claude-fable-5\", label: \"Fable 5\", provider: \"Anthropic\", unavailable: true },\n+  { id: \"anthropic/claude-fable-5\", label: \"Fable 5\", provider: \"Anthropic\" },\n   { id: \"anthropic/claude-opus-4.8\", label: \"Opus 4.8\", provider: \"Anthropic\" },\n   { id: \"anthropic/claude-sonnet-4.6\", label: \"Sonnet 4.6\", provider: \"Anthropic\" },\n   { id: \"openai/gpt-5.5\", label: \"GPT-5.5\", provider: \"OpenAI\" }"
+              }
+            ]
+          },
+          "diff_summary": "This commit re-enables the Fable 5 model in the model picker by changing its \"unavailable\" status from true to false in the `ModelPicker.tsx` file."
+        },
+        {
+          "sha": "d6df84a",
+          "message": "fix(web): re-enable Fable 5 in the model picker",
+          "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-07-02",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/d6df84ab3c3abc476d1c7e9a9f42c2a6073b7480",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -7086,10 +7122,10 @@
         {
           "name": "staging",
           "last_commit": "2026-07-01",
-          "commits_30d": 81
+          "commits_30d": 75
         }
       ],
-      "commits_30d": 83,
+      "commits_30d": 77,
       "commits_7d": 18,
       "commits_1d": 0,
       "commits_90d": 94,
@@ -7097,9 +7133,9 @@
         "Jamie Cummins"
       ],
       "type_breakdown": {
-        "other": 48,
-        "feat": 18,
-        "fix": 14,
+        "other": 46,
+        "feat": 16,
+        "fix": 12,
         "chore": 2,
         "test": 1
       },
@@ -7657,40 +7693,6 @@
           "branch": "staging",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "1f6986b",
-          "message": "remove sign-up",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-01",
-          "url": "https://github.com/JamieCummins/regcheck/commit/1f6986bebd85c384b4a9ba906dab056ee71ccea5",
-          "type": "other",
-          "branch": "staging",
-          "diff": {
-            "additions": 1,
-            "deletions": 34,
-            "files": [
-              {
-                "filename": "backend/main.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -25,7 +25,7 @@\n # Single source of truth for static-asset cache-busting. Bump this on any\n # CSS/JS change so browsers refetch; it is exposed to every template as the\n # `static_version` global (templates reference it as `?v={{ static_version }}`).\n-STATIC_VERSION = \"20260701-survey-wizard\"\n+STATIC_VERSION = \"20260701-home-account-rm\"\n \n \n def create_app() -> FastAPI:"
-              },
-              {
-                "filename": "templates/index.html",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 33,
-                "patch": "@@ -126,29 +126,6 @@\n         font-size: 0.9rem;\n         line-height: 1.5;\n       }\n-      .home-account {\n-        width: min(64rem, 100%);\n-        margin-top: 1.25rem;\n-        background: var(--rc-surface);\n-        border: 1px solid var(--rc-border);\n-        border-radius: var(--rc-radius);\n-        padding: 1.1rem 1.3rem;\n-        text-align: left;\n-        display: flex;\n-        flex-wrap: wrap;\n-        align-items: center;\n-        justify-content: space-between;\n-        gap: 0.75re"
-              }
-            ]
-          },
-          "diff_summary": "This commit in 'JamieCummins/regcheck' removes the sign-up functionality by modifying the backend code in `main.py` and removing 33 lines of code from the `index.html` template, specifically the HTML elements related to the home account and sign-up section."
-        }
       ]
     },
     {
@@ -7743,7 +7745,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was updated with a commit that synchronized it with the `escicheckapp` repository at version `ec9eb9f`, which corresponds to `effectcheck` version `0.6.13`, as stated in the commit message \"sync from escicheckapp@ec9eb9f (effectcheck v0.6.13)\".\nNo other branches were worked on in this set of commits.\nThis commit is related to issue `#26`, indicating that it may be a fix or implementation for a specific problem or feature request.\nThe commit message does not specify any particular features or modules that were added or changed, only that it was a synchronization with another repository.\nThe synchronization with `escicheckapp` at `ec9eb9f` suggests that the `main` branch now reflects the state of `effectcheck` at version `0.6.13`.",
+      "summary": "The `main` branch was updated with a commit that synchronized it with the `escicheckapp` repository at version `ec9eb9f`, which corresponds to `effectcheck` version `0.6.13`, as stated in the commit message \"sync from escicheckapp@ec9eb9f (effectcheck v0.6.13)\".\nThis commit is associated with pull request `#26`.\nNo other branches were worked on in this set of commits.\nThe specific change made was to bring the `main` branch in line with the `escicheckapp` repository at the specified version.\nThe commit message does not mention any new features or modules being added, only the synchronization with the other repository.",
       "prs": [
         {
           "number": 26,
@@ -7987,7 +7989,7 @@
       "commit_activity": [
         {
           "week": 1776038400,
-          "total": 4
+          "total": 1
         },
         {
           "week": 1776643200,
@@ -8205,7 +8207,7 @@
               }
             ]
           },
-          "diff_summary": "This commit, 'sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)', updates the 'effectcheck' package to version 0.6.13, adding two new test types, including bare Bayes factor and hazard ratio, and fixes issues from the escicheck-iterate cycles."
+          "diff_summary": "This commit, 'sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)', updates the 'effectcheck' package to version 0.6.13, adding two new test types, including a bare Bayes factor and a hazard ratio, as well as fixing issues from the escicheck-iterate cycles."
         },
         {
           "sha": "e09dbc9",
@@ -8314,6 +8316,82 @@
           "type": "chore",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "7ec3c89",
+          "message": "sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)",
+          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-07-03",
+          "url": "https://github.com/giladfeldman/escicheck/commit/7ec3c89a5291a35f690b0b4962daa5ea32abfc73",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 1181,
+            "deletions": 11,
+            "files": [
+              {
+                "filename": "DESCRIPTION",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,7 +1,7 @@\n Package: effectcheck\n Type: Package\n Title: Statistical Consistency Checker for Published Research Results\n-Version: 0.6.12\n+Version: 0.6.13\n Authors@R: c(person(given = \"Gilad\", family = \"Feldman\", role = c(\"aut\", \"cre\"),\n     email = \"giladfel@gmail.com\", comment = c(ORCID = \"0000-0003-2812-6599\")))\n Description: A conservative, assumption-aware statistical consistency checker"
+              },
+              {
+                "filename": "NEWS.md",
+                "status": "modified",
+                "additions": 101,
+                "deletions": 0,
+                "patch": "@@ -1,3 +1,104 @@\n+# effectcheck 0.6.13\n+\n+**Two new test types + two canary-re-audit fixes from the 2026-07-02 escicheck-iterate cycles 2-3\n+(F1 bare Bayes factor + HR hazard ratio, both user-approved; independent Sonnet-watches-Opus canary\n+re-audit over the fixed-3 + rotating set).**\n+\n+- **`bayes_factor`** (new `test_type`; cycle-2 F1) \u2014 a STANDALONE evidential Bayes factor reported as\n+  a PRIMARY finding of a RoBMA / Bayesian meta-analysis is extracted as an extraction-only NOTE\n+  surfaci"
+              },
+              {
+                "filename": "R/check.R",
+                "status": "modified",
+                "additions": 160,
+                "deletions": 9,
+                "patch": "@@ -920,6 +920,7 @@ compute_and_compare_one <- function(row,\n     \"or\" = \"OR\", \"odds ratio\" = \"OR\",\n     \"rr\" = \"RR\", \"risk ratio\" = \"RR\",\n     \"irr\" = \"IRR\", \"incidence rate ratio\" = \"IRR\",\n+    \"hr\" = \"HR\", \"ahr\" = \"HR\", \"adjusted hr\" = \"HR\", \"hazard ratio\" = \"HR\",\n     \"h\" = \"h\", \"cohen's h\" = \"h\", \"cohens h\" = \"h\",\n     \"w\" = \"cohens_w\", \"cohen's w\" = \"cohens_w\", \"cohens w\" = \"cohens_w\",\n     \"cohens_w\" = \"cohens_w\",\n@@ -1149,11 +1150,23 @@ compute_and_compare_one <- function(row,\n          "
+              },
+              {
+                "filename": "R/parse.R",
+                "status": "modified",
+                "additions": 342,
+                "deletions": 0,
+                "patch": "@@ -985,6 +985,22 @@ parse_text <- function(text, context_window_size = 2) {\n   pat_OR <- \"(?:OR|odds\\\\s*ratio)\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n   pat_RR <- \"(?:RR|risk\\\\s*ratio)\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n   pat_IRR <- \"(?:IRR|incidence\\\\s*rate\\\\s*ratio)\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n+  # v0.6.13: hazard ratio (Cox proportional-hazards / survival analysis). Accepts\n+  # the adjusted forms (aHR / adjusted HR) and the spelled-out \"hazard ratio\". The\n+  # HR is an effect-size-only report with no rec"
+              },
+              {
+                "filename": "man/check_text.Rd",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 1,
+                "patch": "@@ -8,7 +8,8 @@ check_text(\n   text,\n   stats = c(\"t\", \"F\", \"r\", \"chisq\", \"z\", \"U\", \"W\", \"H\", \"regression\", \"spearman\",\n     \"kendall\", \"kendall_w\", \"dscf\", \"cochran_q\", \"RR\", \"rdpct\", \"md_hl\", \"binomial\",\n-    \"interaction_p\", \"mediation_indirect\", \"mcnemar_or\"),\n+    \"interaction_p\", \"mediation_indirect\", \"mcnemar_or\", \"bayes_factor\",\n+    \"hazard_ratio\"),\n   ci_level = 0.95,\n   alpha = 0.05,\n   one_tailed = FALSE,"
+              },
+              {
+                "filename": "tests/testthat/test-v0613-canary-reaudit-fixes.R",
+                "status": "added",
+                "additions": 96,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,96 @@\n+# v0.6.13: two effectcheck defects surfaced by the 2026-07-02 cycle-2 canary\n+# re-audit (independent Sonnet-watches-Opus over the fixed-3 + rotating set).\n+#\n+# (1) E-mcnemar-chisq-OR (collabra.37122 loc 305): a Table-6 restatement of a\n+#     McNemar finding written as a bare chi-square cell with an odds ratio +\n+#     CI -- \"chi2 (1, N = 265) = 0.00, p = .951, OR = 0.99, 95% CI [0.77, 1.27]\"\n+#     -- was classified chisq/contingency (with the OR bound as effect_reported)\n+#"
+              },
+              {
+                "filename": "tests/testthat/test-v0613-corr-target-article-n.R",
+                "status": "added",
+                "additions": 60,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,60 @@\n+# v0.6.13 (E-corr-target-article-N): a correlation explicitly attributed to the\n+# TARGET / ORIGINAL article -- a value a replication reproduces from the paper it\n+# replicates (a \"Table 2. Target article\" intercorrelation block, or prose \"the\n+# weakest effect in the target article ... r = 0.36\") -- must carry the TARGET\n+# article's own sample size, not the current study's (global) N. For a bare `r`\n+# with no co-located N, the current study's global N is bound by default, wh"
+              },
+              {
+                "filename": "tests/testthat/test-v0613-hazard-ratio.R",
+                "status": "added",
+                "additions": 104,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,104 @@\n+# v0.6.13: hazard ratio (Cox proportional-hazards / survival analysis) reported in\n+# a clean prose sentence is extracted as an extraction-only NOTE\n+# (`test_type = \"hazard_ratio\"`), mirroring the OR / RR / mcnemar_or ratios. A Cox\n+# HR is not independently recomputable from the reported numbers (it needs the full\n+# time-to-event data), so the HR + its CI + p are surfaced without a verdict.\n+#\n+# Scope note (from the 2026-07-02 corpus audit): s41598-023-50401-z's 58 hazard\n"
+              }
+            ]
+          },
+          "diff_summary": "This commit, 'sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)', updates the 'effectcheck' package to version 0.6.13, adding two new test types, including a bare Bayes factor and a hazard ratio, as well as fixing issues from the escicheck-iterate cycles."
         }
       ]
     },
@@ -8652,7 +8730,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was worked on, where the validation note was revised and a citation was added, as stated in the commit message \"Revise validation note and include citation\". \nNo other branches were modified in this set of commits.\nThe revision of the validation note and the inclusion of a citation were the specific changes made in this commit.\nThe commit message does not mention any other changes or additions to the repository.\nThe work was limited to a single commit on the `main` branch.",
+      "summary": "The `main` branch was worked on, where the validation note was revised and a citation was included, as stated in the commit message \"Revise validation note and include citation\". \nNo other branches were modified in this set of commits.\nThe revision of the validation note and the addition of a citation are the specific changes made in this commit.\nThe commit message does not mention any other changes or additions to the repository.\nThe work was limited to a single commit on the `main` branch, with no other branches or modules affected.\nThe commit provides a clear and specific description of the changes made, with no other changes or updates mentioned.",
       "prs": [],
       "open_prs_count": 0,
       "merged_prs_count": 0,
@@ -8777,7 +8855,34 @@
               }
             ]
           },
-          "diff_summary": "This commit revises the validation note in the README.md file of the 'auto-zcurve' repository to include a citation, updating the language to reflect the current status of the tool's peer review."
+          "diff_summary": "This commit revises the validation note in the README.md file of the 'auto-zcurve' repository to include a citation, updating the text to reflect the current status of the tool's peer review."
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "3fce87a",
+          "message": "Revise validation note and include citation",
+          "body": "Updated validation note and added preprint citation.",
+          "author": "Shaheed Azaad",
+          "author_login": "shaheedazaad",
+          "date": "2026-06-14",
+          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 3,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 1,
+                "patch": "@@ -8,7 +8,9 @@ In the below screenshot, I z-curved 45 articles on cognitive dissonance in under\n \n ![](assets/example.svg)\n \n-**Note:** this tool has not yet been peer-reviewed, although a validation study is in the works.\n+**Note:** I have validated statistic extraction as part of a study, which is currently under peer review. The preprint citation is below, and details of the validation are in the supplemental material.\n+\n+Azaad, S. (2026). Empirically derived effect size guidelines for socia"
+              }
+            ]
+          },
+          "diff_summary": "This commit revises the validation note in the README.md file of the 'auto-zcurve' repository to include a citation, updating the text to reflect the current status of the tool's peer review."
         }
       ]
     },
@@ -9535,7 +9640,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was updated with a commit that added a Chrome Webstore link for OIF, as stated in the commit message \"Add Chrome Webstore link for OIF\". \nNo other branches were worked on in this set of commits. \nThe specific change made was the addition of a link, with no other features or fixes mentioned. \nThis change suggests that the project, referred to as OIF, is now available on the Chrome Webstore. \nThere were no other changes or additions made in this set of commits. \nThe commit message directly mentions the addition of the Chrome Webstore link, indicating that this was the sole purpose of the commit.",
+      "summary": "The `main` branch was updated with a commit that added a Chrome Webstore link for OIF, as stated in the commit message \"Add Chrome Webstore link for OIF\". \nNo other branches were worked on according to the provided commit messages. \nThe commit specifically added a link, with no other changes mentioned. \nThere were no fixes or new modules added in this set of commits, only the addition of the Chrome Webstore link. \nThe work was limited to a single commit on the `main` branch. \nNo other features were changed or added in this update.",
       "prs": [],
       "open_prs_count": 0,
       "merged_prs_count": 0,
@@ -9675,7 +9780,7 @@
               }
             ]
           },
-          "diff_summary": "This commit adds a link to the Chrome Webstore for the Output It Forward (OIF) extension in the README.md file, making it easier for users to find and install the extension."
+          "diff_summary": ""
         },
         {
           "sha": "aa35045",
@@ -9688,6 +9793,33 @@
           "type": "feat",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "71c2a30",
+          "message": "Add Chrome Webstore link for OIF",
+          "body": "Added a link to the OIF Chrome extension in the README.",
+          "author": "giovannacdelsordo",
+          "author_login": "giovannacdelsordo",
+          "date": "2026-06-17",
+          "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
+          "type": "feat",
+          "branch": "main",
+          "diff": {
+            "additions": 3,
+            "deletions": 0,
+            "files": [
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 0,
+                "patch": "@@ -2,6 +2,9 @@\n OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\n OIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailorin"
+              }
+            ]
+          },
+          "diff_summary": ""
         }
       ]
     }
@@ -10280,7 +10412,7 @@
     }
   ],
   "digest": {
-    "week_start": "2026-06-27",
+    "week_start": "2026-06-28",
     "active_repos": 6,
     "total_commits_7d": 74,
     "dormant_revived": [
@@ -10769,15 +10901,15 @@
         "date": "2026-06-30"
       }
     ],
-    "narrative": "Our community has seen significant progress across multiple projects, with notable updates in the scienceverse/metacheck and JamieCummins/regcheck repositories. In metacheck, several branches were actively developed, including fixes to the LLM and plumber endpoints, as well as the introduction of a bibr-JSON REST API and transparent resource caps. These updates demonstrate the interconnected nature of our projects, with metacheck's advancements in data management and validation likely to benefit other tools, such as regcheck. Speaking of regcheck, a recent update removed the sign-up feature, streamlining the user experience. Overall, our community's collaborative efforts are driving innovation and improvement across the board, and we celebrate the hard work and dedication of our contributors. As our projects continue to evolve, we look forward to exploring the exciting possibilities that emerge from these connections and advancements."
+    "narrative": "Our community has seen a flurry of activity across multiple projects, with notable updates in `giladfeldman/docpluck`, `Davidvandijcke/coarse`, and `giladfeldman/escicheck`. The `docpluck` project resolved several issues, including recovering residual prose shapes and addressing an orphaned affiliation remnant, while also updating documentation and adding tests for the \"rc-t\" module. Meanwhile, `coarse` re-enabled Fable 5 in the model picker, and `escicheck` synchronized its `main` branch with the `escicheckapp` repository, bringing it in line with `effectcheck` version `0.6.13`. Additionally, `auto-zcurve` and `output-it-forward` saw updates, including a revised validation note with a citation and the addition of a Chrome Webstore link, respectively. These updates demonstrate the connections and progress being made across our projects, and we celebrate the hard work and dedication of our community members."
   },
   "aggregate": {
     "total_repos": 16,
     "total_stars": 676,
     "total_forks": 122,
-    "total_commits_30d": 335,
+    "total_commits_30d": 319,
     "total_commits_7d": 74,
-    "total_commits_1d": 23,
+    "total_commits_1d": 14,
     "active_repos_7d": 6,
     "dormant_revived": 1,
     "total_open_issues": 184,
