@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-07T14:38:10.952039+00:00",
+  "generated_at": "2026-07-07T20:03:54.317130+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -143,15 +143,15 @@
         }
       ],
       "commits_30d": 81,
-      "commits_7d": 20,
+      "commits_7d": 19,
       "commits_1d": 1,
       "commits_90d": 218,
       "authors_30d": [
         "nielsvanberkel",
+        "Lakens",
         "Jakub Werner",
         "Lisa DeBruine",
-        "Daniel Lakens",
-        "Lakens"
+        "Daniel Lakens"
       ],
       "type_breakdown": {
         "other": 29,
@@ -163,7 +163,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `data_check` branch was the focus of the recent work, with multiple commits made to it. The most recent commit on July 7 improved the cache, kept the original data, and made changes to hardcoded folders, as stated in the commit message \"improve cache, keep original data, better hardcoded folders\". On July 5, fixes for bugs were made, an archive report was added, large GitHub repositories were gated, and feedback was improved, according to the commit \"fix bugs, add archive report, gate large github repos, improve feedback\". Additionally, updates were made to OSF download and to various functions, with bug fixes also applied, as mentioned in the commits \"updates osf download\" and \"updates to functions, fix bugs\". An earlier commit on the same day also referenced \"improvements\", but the subsequent commits provided more specific details on the changes made.",
+      "summary": "The `data_check` branch was worked on, where the cache was improved, the original data is now kept, and hardcoded folders were made better. \nThe commit on the `data_check` branch specifically aimed to enhance the caching mechanism and retain the original data. \nNo other branches were modified in this set of commits. \nThe changes were focused on refining how data is handled and stored within the `data_check` branch. \nThe hardcoded folders were also revised for better functionality, as stated in the commit message.",
       "prs": [
         {
           "number": 334,
@@ -647,11 +647,11 @@
         },
         {
           "week": 1779667200,
-          "total": 34
+          "total": 36
         },
         {
           "week": 1780272000,
-          "total": 44
+          "total": 42
         },
         {
           "week": 1780876800,
@@ -659,19 +659,19 @@
         },
         {
           "week": 1781481600,
-          "total": 40
+          "total": 41
         },
         {
           "week": 1782086400,
-          "total": 8
+          "total": 7
         },
         {
           "week": 1782691200,
-          "total": 10
+          "total": 11
         },
         {
           "week": 1783296000,
-          "total": 20
+          "total": 19
         }
       ],
       "code_frequency": [
@@ -845,7 +845,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in 'scienceverse/metacheck' improves the caching mechanism, preserves the original data, and enhances the handling of hardcoded folders by modifying and adding functions in various R files, including the addition of a new export for `data_check_out_of_range` and the introduction of shared cache-location logic."
+          "diff_summary": "This commit in 'scienceverse/metacheck' improves the caching mechanism, preserves the original data, and enhances the handling of hardcoded folders by modifying and adding functions in various R files, including the addition of a new function `data_check_out_of_range` and the introduction of shared cache-location logic."
         },
         {
           "sha": "0c8303d",
@@ -1194,6 +1194,82 @@
           "type": "fix",
           "branch": "data_check",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "c799dcf",
+          "message": "improve cache, keep original data, better hardcoded folders",
+          "body": "",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-07-07",
+          "url": "https://github.com/scienceverse/metacheck/commit/c799dcf66f2d62666954b01ae3b8d92fa19bb3e5",
+          "type": "other",
+          "branch": "data_check",
+          "diff": {
+            "additions": 860,
+            "deletions": 123,
+            "files": [
+              {
+                "filename": "NAMESPACE",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 0,
+                "patch": "@@ -78,6 +78,7 @@ export(data_check_demographic)\n export(data_check_is_qualtrics)\n export(data_check_miscoded_missing)\n export(data_check_numeric_in_text)\n+export(data_check_out_of_range)\n export(data_check_outliers)\n export(data_check_pii_freetext)\n export(data_check_pii_geo)\n@@ -137,6 +138,7 @@ export(logger)\n export(logpath)\n export(match_column_labels)\n export(message)\n+export(metacheck_cache_info)\n export(module_help)\n export(module_info)\n export(module_list)"
+              },
+              {
+                "filename": "R/archive-report.R",
+                "status": "modified",
+                "additions": 169,
+                "deletions": 17,
+                "patch": "@@ -92,13 +92,118 @@ write_file_manifest <- function(manifest_dir, out = NULL) {\n   invisible(inv)\n }\n \n+# Modules whose `table` is a per-column/per-file INVENTORY, not a list of\n+# flagged issues \u2014 one row per column (data_check) or per documented variable\n+# (codebook_check). Left whole they dominate _all_findings.csv (hundreds of\n+# thousands of rows, with bloated free-text like data_check$sample_values), so\n+# they are reduced to their genuine problem rows below rather than dumped.\n+.invento"
+              },
+              {
+                "filename": "R/cache.R",
+                "status": "added",
+                "additions": 81,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,81 @@\n+# Shared cache-location logic for metacheck's two on-disk caches:\n+#   * the downloaded-repository-file cache (see repo-download.R)\n+#   * the LLM-response cache (see llm-cache.R)\n+#\n+# Both default to a folder in the CURRENT WORKING DIRECTORY, so a project's\n+# cache lives with the project \u2014 easy to find, easy to inspect, easy to delete,\n+# and gone when the project folder is. This is a deliberate choice over a hidden\n+# per-user OS cache: metacheck caches are per-analysis, no"
+              },
+              {
+                "filename": "R/code_check.R",
+                "status": "modified",
+                "additions": 9,
+                "deletions": 1,
+                "patch": "@@ -178,12 +178,20 @@ code_abs_path <- function(code_text) {\n   # Shared absolute path pattern and quoted filename pattern\n   # absolute_path_pattern <- '(?<![A-Za-z0-9_])([\"\\'])(?:(?!https?://)(?:[A-Za-z]:[\\\\\\\\/]|(?:\\\\\\\\\\\\\\\\|//)[^\\\\\\\\/]+[\\\\\\\\/]|~[/\\\\\\\\]|/(?:Users|home|var|etc|opt|srv|mnt|Volumes|Library|Applications|gpfs|data|tmp|media|root)\\\\b)[^\"\\']*)\\\\1'\n \n+  # A quoted string that is an absolute filesystem path. The UNC branch is\n+  # deliberately strict: a bare backslash string is far more"
+              },
+              {
+                "filename": "R/data_check_helpers.R",
+                "status": "modified",
+                "additions": 87,
+                "deletions": 4,
+                "patch": "@@ -1826,6 +1826,89 @@ data_check_outliers <- function(x, k = 1.5, n_max = 10) {\n        values = out, lower = lower, upper = upper)\n }\n \n+#' Flag impossible / out-of-range values in a bounded numeric column\n+#'\n+#' A statistical outlier (a value past the Tukey fence) is usually NOT a data\n+#' problem \u2014 reaction times, physiological measures and sum scores all have\n+#' legitimate long tails. What *is* a problem is a value that falls outside a\n+#' column's evident **bounded range**: the tell-tale"
+              },
+              {
+                "filename": "R/llm-cache.R",
+                "status": "modified",
+                "additions": 6,
+                "deletions": 6,
+                "patch": "@@ -55,13 +55,13 @@ llm_cache_clear <- function() {\n   invisible(length(files))\n }\n \n-# Root directory for cached LLM responses. The METACHECK_LLM_CACHE_DIR env var\n-# overrides the default location (used by tests to stay out of the user cache).\n+# Root directory for cached LLM responses. Defaults to \".metacheck_llm_cache\" in\n+# the working directory (see .metacheck_cache_subdir). The METACHECK_LLM_CACHE_DIR\n+# env var overrides just this cache; `metacheck.cache.dir` relocates both caches.\n .llm"
+              },
+              {
+                "filename": "R/psychds-convert.R",
+                "status": "modified",
+                "additions": 49,
+                "deletions": 3,
+                "patch": "@@ -345,6 +345,29 @@\n   }, error = function(e) FALSE)\n }\n \n+# Robustly coerce a plan column to logical (it may arrive as logical, or as\n+# character \"TRUE\"/\"FALSE\" after a JSON round-trip).\n+isTRUE_vec <- function(x) {\n+  if (is.logical(x)) return(!is.na(x) & x)\n+  tolower(as.character(x)) %in% c(\"true\", \"1\")\n+}\n+\n+# Write a genuine, Psych-DS-clean CSV from a non-CSV data source (xlsx, sav,\n+# dta, ...). Reads the file in full via data_read_head() \u2014 the same reader\n+# data_check uses, so the col"
+              },
+              {
+                "filename": "R/repo-download.R",
+                "status": "modified",
+                "additions": 22,
+                "deletions": 12,
+                "patch": "@@ -4,14 +4,13 @@\n # files a module needs, into a shared persistent cache, so downloads are reused\n # across modules and R sessions.\n \n-# Root cache directory for downloaded repository files. Honours the\n-# `metacheck.repo_cache.dir` option so tests (and users who want a project-local\n-# cache) can redirect it away from the shared rappdirs location.\n+# Root cache directory for downloaded repository files. Defaults to\n+# \".metacheck_repo_cache\" in the working directory (see .metacheck_cache_subdi"
+              }
+            ]
+          },
+          "diff_summary": "This commit in 'scienceverse/metacheck' improves the caching mechanism, preserves the original data, and enhances the handling of hardcoded folders by modifying and adding functions in various R files, including the addition of a new function `data_check_out_of_range` and the introduction of shared cache-location logic."
         }
       ]
     },
@@ -1971,81 +2047,7 @@
               }
             ]
           },
-          "diff_summary": "This commit merges changes from the 'feature-non-apa-newer' branch into the same branch, updating several R files, including `clean_non_apa.R`, `extract_stats.R`, `helpers-parse-stats.R`, `regex.R`, and `statcheck.R`, to improve the handling of non-APA style statistical results, including cleaning and extracting statistics from text."
-        },
-        {
-          "sha": "ffba7eb",
-          "message": "admin updates",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-07-03",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/ffba7eb5b198605087b94718ce5e98ed6871d458",
-          "type": "other",
-          "branch": "feature-non-apa-newer",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "50ab5e6",
-          "message": "Merge branch 'feature-non-apa-newer' of https://github.com/MicheleNuijten/statcheck into feature-non-apa-newer",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-07-03",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/50ab5e66a0f32d77c9becef0c4bba3d638ec8019",
-          "type": "feat",
-          "branch": "feature-non-apa-newer",
-          "diff": {
-            "additions": 414,
-            "deletions": 105,
-            "files": [
-              {
-                "filename": "R/clean_non_apa.R",
-                "status": "added",
-                "additions": 44,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,44 @@\n+clean_non_apa <- function(nhst_raw){\n+  \n+  # remove all spaces\n+  # the parsing functions can handle no spaces, but it would be too complicated\n+  # to take into account every possible number of spaces, so removing them\n+  # all is easiest\n+  nhst_clean <- gsub(pattern = \"\\\\s+\", replacement = \"\",\n+                     nhst_raw)\n+  \n+  # replace square or curly brackets with parentheses\n+  nhst_clean <- gsub(pattern = RGX_SQ_CURLY1, replacement = RGX_PRTS_1, \n+                 "
-              },
-              {
-                "filename": "R/extract_stats.R",
-                "status": "modified",
-                "additions": 62,
-                "deletions": 34,
-                "patch": "@@ -1,13 +1,20 @@\n-extract_stats <- function(txt, stat){\n+extract_stats <- function(txt, apa_style, stat){\n   \n   # step 1: extract all NHST results from text -----------------------------------\n   \n+  # specify whether to search for APA NHST results or also to include non-APA\n+  if(apa_style == TRUE){\n+    rgx_nhst <- RGX_NHST\n+  } else {\n+    rgx_nhst <- RGX_NHST_NONAPA\n+  }\n+  \n   # if there are x NHST results in a text, this returns a character vector of \n   # length x\n   nhst_raw <- extract"
-              },
-              {
-                "filename": "R/helpers-parse-stats.R",
-                "status": "modified",
-                "additions": 65,
-                "deletions": 16,
-                "patch": "@@ -46,7 +46,22 @@ extract_df <- function(raw, test_type){\n     df1 <- NA\n     df2 <- NA\n     \n-  } else {\n+  } else if(test_type == \"r\" & grepl(RGX_DFN_R_NRS, raw)){\n+    # if correlations report N instead of df, transform to df\n+    \n+    # extract full string with N\n+    dfn <- extract_pattern(txt = raw,\n+                           pattern = RGX_DFN_R_NRS)[[1]]\n+    \n+    # only extract numbers\n+    n <- as.numeric(extract_pattern(txt = dfn,\n+                                    pattern = \"\\\\d"
-              },
-              {
-                "filename": "R/regex.R",
-                "status": "modified",
-                "additions": 221,
-                "deletions": 43,
-                "patch": "@@ -1,55 +1,114 @@\n # this script contains the regular expressions that statcheck uses to extract\n-# NHST results from text\n-\n-# test types\n-RGX_T <- \"t\"\n-RGX_R <- \"r\"\n-RGX_Q <- \"Q\\\\s?-?\\\\s?(w|W|(w|W)ithin|b|B|(b|B)etween)?\"\n-RGX_F <- \"F\"\n-RGX_Z <- \"([^a-z](z|Z))\"\n-# for chi2: effectively extract everything that is NOT a t, r, F, z, Q, W, n, or \n-# D, followed by *maybe* a 2 (and later followed by a result in a chi2 layout)\n-RGX_CHI2 <- \"((\\\\s[^trFzZQWnD ]\\\\s?)|([^trFzZQWnD ]2\\\\s?))2?\"\n-\n-# degr"
-              },
-              {
-                "filename": "R/statcheck.R",
-                "status": "modified",
-                "additions": 10,
-                "deletions": 2,
-                "patch": "@@ -115,6 +115,7 @@\n \n statcheck <- function(texts,\n                       stat = c(\"t\", \"F\", \"cor\", \"chisq\", \"Z\", \"Q\"),\n+                      apa_style = TRUE,\n                       OneTailedTests = FALSE,\n                       alpha = .05,\n                       pEqualAlphaSig = TRUE,\n@@ -159,7 +160,7 @@ statcheck <- function(texts,\n     # later on to calculate the APA factor: the ratio (statcheck results)/\n     # (total # of p values). It is also possible to let statcheck return this\n     "
-              },
-              {
-                "filename": "tests/testthat/test-extract-non-apa.R",
-                "status": "modified",
-                "additions": 12,
-                "deletions": 10,
-                "patch": "@@ -29,7 +29,7 @@ test_that(\"F with MSE is extracted and parsed\",{\n   expect_equal(result[[VAR_TEST_VALUE]], rep(11.37, 2))\n   \n   # don't extract these results when apa_style is TRUE\n-  expect_output(statcheck(c(txt1, txt2), messages = FALSE), \n+  expect_message(statcheck(c(txt1, txt2), messages = FALSE), \n                 \"did not find any results\")\n   \n })\n@@ -50,7 +50,7 @@ test_that(\"df between square, curly, or no brackets are extracted and parsed\",{\n   expect_equal(result[[VAR_DF2]], rep(2"
-              }
-            ]
-          },
-          "diff_summary": "This commit merges changes from the 'feature-non-apa-newer' branch into the same branch, updating several R files, including `clean_non_apa.R`, `extract_stats.R`, `helpers-parse-stats.R`, `regex.R`, and `statcheck.R`, to improve the handling of non-APA style statistical results, including cleaning and extracting statistics from text."
+          "diff_summary": "This commit merges changes from the 'feature-non-apa-newer' branch into the same branch, updating several R files, including `clean_non_apa.R`, `extract_stats.R`, `helpers-parse-stats.R`, `regex.R`, and `statcheck.R`, to improve the handling of non-APA style statistical results in the statcheck package."
         },
         {
           "sha": "ffba7eb",
@@ -2721,7 +2723,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1776556800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777161600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777766400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.4.1",
@@ -2780,7 +2843,7 @@
       "topics": [],
       "pushed_at": "2026-05-05T18:18:15Z",
       "created_at": "2021-11-21",
-      "last_push_days": 62,
+      "last_push_days": 63,
       "default_branch": "main",
       "license": "NOASSERTION",
       "branches": [
@@ -3334,11 +3397,11 @@
         },
         {
           "week": 1777852800,
-          "total": 0
+          "total": 4
         },
         {
           "week": 1778457600,
-          "total": 4
+          "total": 0
         },
         {
           "week": 1779062400,
@@ -3492,7 +3555,7 @@
       "topics": [],
       "pushed_at": "2026-04-30T14:46:09Z",
       "created_at": "2019-03-14",
-      "last_push_days": 67,
+      "last_push_days": 68,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -4486,7 +4549,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1776556800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777161600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777766400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.1.21.1",
@@ -4574,7 +4698,7 @@
         {
           "name": "feat/rc-t-table-region-guard",
           "last_commit": "2026-06-22",
-          "commits_30d": 56
+          "commits_30d": 54
         },
         {
           "name": "main",
@@ -4582,7 +4706,7 @@
           "commits_30d": 35
         }
       ],
-      "commits_30d": 91,
+      "commits_30d": 89,
       "commits_7d": 27,
       "commits_1d": 0,
       "commits_90d": 430,
@@ -4590,7 +4714,7 @@
         "Gilad Feldman"
       ],
       "type_breakdown": {
-        "other": 26,
+        "other": 24,
         "fix": 42,
         "feat": 12,
         "chore": 5,
@@ -4646,11 +4770,11 @@
         },
         {
           "week": 1778457600,
-          "total": 163
+          "total": 165
         },
         {
           "week": 1779062400,
-          "total": 116
+          "total": 114
         },
         {
           "week": 1779667200,
@@ -4785,7 +4909,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository documents and tests a diagnosed issue with text loss in the caption-tail-walk of the RC-T layer, specifically in the chan_feldman T3 dataset, and marks the test as expected to fail until a corpus-wide fix is implemented in a future gated RC-T cycle."
+          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository updates documentation and test files to diagnose and document a TEXT-LOSS issue in the chan_feldman T3 caption-tail-walk, marking the fix as deferred due to its corpus-wide scope."
         },
         {
           "sha": "56f60b5",
@@ -5135,83 +5259,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "ba4e124",
-          "message": "docs+test(rc-t): diagnose chan_feldman T3 caption-tail-walk TEXT-LOSS; xfail guard (fix is corpus-wide, deferred)",
-          "body": "Run 3 cycle 3: the whitespace_cells test failure is NOT a stale-premise test to\nupdate \u2014 a gold-verify confirmed it guards REAL TEXT-LOSS. chan_feldman Table 3's\nraw_text fallback silently drops its first 4 rows (Sample size 239/794,\nGeographic origin, Gender, Ethnic group). Root-caused to _extract_table_body_text's\nbody_start caption-tail walk overshooting the caption's own sentence terminator\n(`replication.`) to a later `\\n\\n`.\n\nA per-line-terminator walk fixes chan T3 \u2014 but a 101-PDF guard-diff\n(tmp/rct_body_text_diff.py) shows the walk is SHARED across every table's raw_text\nextraction: the fix shifts body_start on 310 captions (308 recover legitimately,\n2 TRUNCATE \u2014 amc_1 T3, xiao_2021 T6, a regression, and ~53 recover body-prose /\na leading Fig caption). That is a corpus-wide capture-path change for the gated\nRC-T cycle (48-paper structured guard-diff + 7-canary AI-gold + user sign-off),\nnot a session-tail patch. ATTEMPTED + REVERTED.\n\n- New FINDINGS doc: precise mechanism + guard-diff blast-radius + the RC-T cycle's\n  executable target.\n- test_t3_first_rows_not_dropped: xfail(strict=True) guard documenting the\n  TEXT-LOSS; will XPASS-alert when the RC-T cycle lands the corpus-safe fix.\n- TRIAGE run-3 section updated (whitespace_cells is a real TEXT-LOSS guard, not a\n  stale test; the raw_text fix is corpus-wide).\n\nextract_structured.py reverted to HEAD (no library change in this commit).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-07-04",
-          "url": "https://github.com/giladfeldman/docpluck/commit/ba4e12402e5dfa77ed298d8039093d42cfc8ba5d",
-          "type": "fix",
-          "branch": "main",
-          "diff": {
-            "additions": 186,
-            "deletions": 4,
-            "files": [
-              {
-                "filename": "docs/FINDINGS_2026-07-04_rct_caption_tail_walk_textloss.md",
-                "status": "added",
-                "additions": 95,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,95 @@\n+# FINDINGS \u2014 RC-T caption-tail-walk TEXT-LOSS (chan_feldman T3 first-4-rows drop): diagnosed, fix is corpus-wide, deferred to the gated RC-T cycle (2026-07-04 run 3)\n+\n+## The defect (gold-confirmed TEXT-LOSS)\n+\n+chan_feldman_2025_cogemo Table 3's raw_text fallback (`unstructured-table` block)\n+DROPS its first four rows. Gold Table 3 is a clean 2-column comparison\n+(McCullough et al. 1997 vs US Prolific), 10 rows:\n+\n+| row | McCullough 1997 | US Prolific |\n+|---|---|---|\n+| Sam"
-              },
-              {
-                "filename": "docs/TRIAGE_2026-07-03_head_v2.4.101_assessment.md",
-                "status": "modified",
-                "additions": 45,
-                "deletions": 4,
-                "patch": "@@ -41,11 +41,52 @@ Moved from Cluster C to Cluster B6/architectural. Detail in\n (`\u2026providing support` / Table4 / Table5 / `for the demonstration of\u2026`) \u2014 a\n table-PLACEMENT defect in the RC-T / floating-table family. Queued with RC-T.\n \n+**whitespace_cells 0-cell test \u2014 CONFIRMED A REAL TEXT-LOSS GUARD, do NOT \"update\n+the test to pass\" (2026-07-04 run 3, gold-verified).** The prior TRIAGE/HANDOFF\n+framed `test_b1_whitespace_cells_wiring_live` (fails on chan_feldman + maier, \"0\n+cells vs \u226550\") a"
-              },
-              {
-                "filename": "tests/test_rc_t_layer2_raw_text_real_pdf.py",
-                "status": "modified",
-                "additions": 46,
-                "deletions": 0,
-                "patch": "@@ -161,3 +161,49 @@ def test_t3_legit_fallback_table_survives(chan_md: str):\n     blocks = _unstructured_blocks(chan_md)\n     assert \"Median age\" in blocks, \"chan_feldman T3 descriptive fallback wrongly suppressed (FP)\"\n     assert \"Origin was not explicitly mentioned\" in blocks, \"T3 Note over-trimmed (FP)\"\n+\n+\n+# \u2500\u2500 RC-T TEXT-LOSS: the caption-tail-walk overshoot (diagnosed, deferred) \u2500\u2500\u2500\u2500\u2500\n+#\n+# The chan_feldman Table 3 fallback DROPS its first four rows (Sample size\n+# 239/794, Geographic or"
-              }
-            ]
-          },
-          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository documents and tests a diagnosed issue with text loss in the caption-tail-walk of the RC-T layer, specifically in the chan_feldman T3 dataset, and marks the test as expected to fail until a corpus-wide fix is implemented in a future gated RC-T cycle."
-        },
-        {
-          "sha": "56f60b5",
-          "message": "docs(triage): record run-3 outcome \u2014 W0l \u00d7-as-3 residuals resolved (v2.4.116); efendic headings rescoped to B6",
-          "body": "- TRIAGE run-3 section: W0l shipped (both efendic \u00d7-as-3 residuals RESOLVED,\n  Sonnet-verified, 101-PDF FP scan clean); efendic 2 demoted subsection headings\n  RESCOPED from \"heading-promoter\" to B6 column-interleave (root-cause reproduction).\n- NEW FINDINGS doc: efendic Design/Procedure/Measures + Analysis Strategy headings\n  are spatially orphaned from their bodies by two-column pdftotext serialization \u2014\n  a heading-promotion hack would emit heading-with-no-body. Deferred to the B6\n  architectural cluster (same as the chandrashekar canary).\n- Also logged: NEW efendic Table 4/5 mid-sentence splice (RC-T family); ar_apa gold\n  misread (\"yet feel\" vs correct \"not yell\" docpluck renders) \u2014 flag gold for regen.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-07-04",
-          "url": "https://github.com/giladfeldman/docpluck/commit/56f60b5f3f3f74a00ef98c3783f76abfad37da07",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "a4f8796",
-          "message": "fix(glyph): recover 2 residual \u00d7-as-3 prose shapes W0k can't reach (efendic) + v2.4.116",
-          "body": "W0l \u2014 the two \u00d7-as-3 glyph residuals the single-line W0k word-pair regex\nstructurally cannot reach (both silently render `3` where a scientist should\nread `\u00d7`), documented in docs/FINDINGS_2026-07-03_efendic_glyph_in_prose_channel.md:\n\n(A) recover_times_design_notation \u2014 factorial-design notation `<digit>(\u2026) 3\n    <digit>(\u2026)`: \"2 (Between-subject factor--Direction: \u2026) 3 2 (\u2026) 3 3\n    (Within-subject factor--\u2026) mixed-subject design\" \u2192 each `) 3 <digit> (`\n    boundary's `3` is a corrupted `\u00d7` (trailing digit is the real factor SIZE).\n    Fires ONLY when tied to a genuine factor parenthetical: an adjacent\n    parenthetical names a factor type, OR both sides are factor-size parens\n    closed by a factorial/design tail. A range recode `(min 1) 3 2 (max 5)`,\n    a formula `f(x) 3 2 (y)`, `(from level 3) 3 2 (see note)` are left alone.\n\n(B) recover_times_wrapped_interaction \u2014 a line ending `<Pred> 3` whose next\n    line starts with a predictor word, inside an \"interaction\" context:\n    \"(Direction 3\\nManipulated Attribute \u00d7 CMA)\" \u2192 \"Direction \u00d7 Manipulated\u2026\".\n    Reference-word tail guard (FIGURE 3 / Table 3 / Model 3) \u2014 the wide FP\n    scan caught amj_1 `FIGURE 3\\nRegression\u2026` + jamison `Table 3\\nMain-effects\n    and interactions.` wrongly joined; guard added + regression-tested.\n\nNORMALIZATION_VERSION 1.9.42 \u2192 1.9.43. Wired channel 1 (normalize_text) AND\nchannel 3 (render post-process) per glyph-fixes-need-all-three-text-channels.\n\nVerification (ground truth = AI multimodal reading golds via article-finder):\n- Independent Sonnet canary audit CONFIRMS both efendic glyph fixes correct\n  (design `\u00d7 2 \u00d7 3`, interaction `Direction \u00d7 Manipulated Attribute \u00d7 CMA`),\n  no \u00d7-as-3 / minus-as-2 corruption anywhere else in efendic.\n- Wide 101-PDF raw-text FP scan CLEAN (0 non-target FPs; efendic recovered).\n- 26-paper baseline 26/26 PASS. Normalize idempotency corpus PASS.\n- 42 W0k/W0l tests + real-PDF end-to-end (fails at HEAD v2.4.115, passes here).\n\nResolves efendic's two \u00d7-as-3 residuals. Remaining efendic findings (2 demoted\nsubsection headings; a NEW Table 4/5 mid-sentence splice) are queued; RC-T\ntable-data-loss on ip_feldman/plos_med/chandrashekar remains architectural.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-07-04",
-          "url": "https://github.com/giladfeldman/docpluck/commit/a4f879628fb2752952871e95a61f8df0181a5742",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "e140cf1",
-          "message": "fix(render): strip affiliation remnant orphaned in Abstract body (chandrashekar) + v2.4.115",
-          "body": "A canary AI-verify found chandrashekar_2023_mp rendering \"Department of Philosophy,\nLake Forest College\" + \"*Joint first authors\" right after the ## Abstract heading,\nbefore the abstract prose. The paper has 3 author affiliations; the section\npartitioner inserted ## Abstract mid-affiliation-block, so the masthead strip\n(which stops AT ## Abstract) caught the first two but left the third orphaned in\nthe Abstract body, and the >=3-consecutive-line _strip_body_affiliation_block\ncould not reach a single surviving affiliation line.\n\nFix: _strip_abstract_zone_affiliation_remnant removes an affiliation line (+ a\njoint-authors / corresponding-author companion note) that is the FIRST non-blank\ncontent after ## Abstract. A real Abstract always opens with PROSE, so an\naffiliation LINE in that slot is unambiguously a boundary-split front-matter\nremnant -- the structural signature is affiliation-grammar (via the existing\n_is_affiliation_line) at the Abstract-heading boundary, never paper identity. An\nabstract that merely MENTIONS a university mid-sentence is prose, not an\naffiliation line, and is kept.\n\nVerification (AI-gold via article-finder): chandrashekar's ## Abstract now goes\ndirectly to the abstract body; all 3 affiliations are in the front matter (stripped\nby design), none in the Abstract. An abstract-zone FP-scan across the rendered\ncorpus fires ONLY on chandrashekar -- every other paper's abstract is byte-identical.\n4 new tests (incl. real-abstract + university-mention FP guards). Full suite: 1896\npassed, only the 2 documented pre-existing whitespace_cells failures remain.\n\nResolves chandrashekar's METADATA-LEAK (defect #1 of the 2026-07-04 report). Its\nTables 9/10 RC-T data-loss (defects #2/#3) is the architectural cluster --\ndiagnosed with a precise cycle plan in\ndocs/FINDINGS_2026-07-04_chandrashekar_rc_t_tables_9_10.md (the missing piece: wire\ntables/whitespace.py::char_whitespace_cells to REPLACE a degenerate matched Camelot\ntable in extract_structured.py::_pick_better_table). Deferred to a dedicated gated\ncycle (full 48-paper guard-diff + 7-canary AI-verify; do NOT rush at session-tail).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-07-04",
-          "url": "https://github.com/giladfeldman/docpluck/commit/e140cf159e73370aa9b8db830cb5169ae905e120",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        }
       ]
     },
     {
@@ -5232,7 +5279,7 @@
       "topics": [],
       "pushed_at": "2025-11-13T15:11:14Z",
       "created_at": "2023-09-13",
-      "last_push_days": 235,
+      "last_push_days": 236,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -5354,7 +5401,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1776556800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777161600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777766400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.0.0.9000",
@@ -5410,7 +5518,7 @@
       "topics": [],
       "pushed_at": "2025-10-06T14:57:42Z",
       "created_at": "2024-12-05",
-      "last_push_days": 273,
+      "last_push_days": 274,
       "default_branch": "master",
       "license": "GPL-3.0",
       "branches": [
@@ -5499,7 +5607,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1776556800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777161600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777766400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.2.6",
@@ -5837,8 +6006,8 @@
       "commits_1d": 0,
       "commits_90d": 372,
       "authors_30d": [
-        "Davidvandijcke",
-        "David Van Dijcke"
+        "David Van Dijcke",
+        "Davidvandijcke"
       ],
       "type_breakdown": {
         "fix": 10,
@@ -6335,7 +6504,7 @@
       "commit_activity": [
         {
           "week": 1776643200,
-          "total": 78
+          "total": 64
         },
         {
           "week": 1777248000,
@@ -6359,7 +6528,7 @@
         },
         {
           "week": 1780272000,
-          "total": 16
+          "total": 20
         },
         {
           "week": 1780876800,
@@ -6367,7 +6536,7 @@
         },
         {
           "week": 1781481600,
-          "total": 11
+          "total": 7
         },
         {
           "week": 1782086400,
@@ -6822,45 +6991,6 @@
           "branch": "feat/221-i18n-localized-review",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "d93b6f8",
-          "message": "fix(web): re-enable Fable 5 in the model picker",
-          "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-02",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/d93b6f8ce532991eb16a11928710e553c7f384c2",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {
-            "additions": 1,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "web/src/components/ModelPicker.tsx",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -17,7 +17,7 @@ type DefaultModel = {\n };\n \n const DEFAULT_MODELS: DefaultModel[] = [\n-  { id: \"anthropic/claude-fable-5\", label: \"Fable 5\", provider: \"Anthropic\", unavailable: true },\n+  { id: \"anthropic/claude-fable-5\", label: \"Fable 5\", provider: \"Anthropic\" },\n   { id: \"anthropic/claude-opus-4.8\", label: \"Opus 4.8\", provider: \"Anthropic\" },\n   { id: \"anthropic/claude-sonnet-4.6\", label: \"Sonnet 4.6\", provider: \"Anthropic\" },\n   { id: \"openai/gpt-5.5\", label: \"GPT-5.5\", provider: \"OpenAI\" }"
-              }
-            ]
-          },
-          "diff_summary": "This commit re-enables the Fable 5 model in the model picker by changing its \"unavailable\" status to false in the `ModelPicker.tsx` file."
-        },
-        {
-          "sha": "d6df84a",
-          "message": "fix(web): re-enable Fable 5 in the model picker",
-          "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-02",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/d6df84ab3c3abc476d1c7e9a9f42c2a6073b7480",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        }
       ]
     },
     {
@@ -6885,7 +7015,7 @@
       "topics": [],
       "pushed_at": "2026-07-06T15:49:33Z",
       "created_at": "2026-01-19",
-      "last_push_days": 0,
+      "last_push_days": 1,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -6918,8 +7048,8 @@
         }
       ],
       "commits_30d": 77,
-      "commits_7d": 12,
-      "commits_1d": 3,
+      "commits_7d": 10,
+      "commits_1d": 0,
       "commits_90d": 97,
       "authors_30d": [
         "Jamie Cummins"
@@ -6933,7 +7063,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `staging` branch was the focus of the recent work, where the default OpenAI model was updated. \nAesthetic bug fixes were also applied to the `staging` branch, as described by the commit message \"aesthetic bug fixes\". \nAdditionally, the backend handling of insufficient evidence was improved on the `staging` branch, according to the commit message \"improve backend handling of insufficient evidence\". \nThe `staging` branch saw these specific changes, with no other branches mentioned in the commits. \nNo new features or modules were explicitly mentioned as being added, only the aforementioned updates. \nThe work was solely done on the `staging` branch, with no other branches receiving updates.",
+      "summary": "The `staging` branch was the focus of the recent work, where the default OpenAI model was updated. \nOn the `staging` branch, aesthetic bug fixes were made, as described in the commit message. \nAdditionally, on the `staging` branch, the backend handling of insufficient evidence was improved, according to the commit message. \nThe `staging` branch also saw changes to address specific issues, with the commit messages providing details on the nature of these changes, such as the update to the default OpenAI model and aesthetic bug fixes. \nNo other branches were worked on during this time, with all changes confined to the `staging` branch.",
       "prs": [
         {
           "number": 2,
@@ -7031,11 +7161,11 @@
         },
         {
           "week": 1782691200,
-          "total": 14
+          "total": 16
         },
         {
           "week": 1783296000,
-          "total": 12
+          "total": 10
         }
       ],
       "code_frequency": [
@@ -7156,7 +7286,7 @@
               }
             ]
           },
-          "diff_summary": "This commit updates the default OpenAI model used in the 'JamieCummins/regcheck' project from \"gpt-5\" to \"gpt-5.5\", reflecting the change in the README, comparisons route, and LLM service files."
+          "diff_summary": "This commit updates the default OpenAI model used in the 'JamieCummins/regcheck' project from \"gpt-5\" to \"gpt-5.5\", reflecting the change in multiple files including the README, comparisons route, and LLM service."
         },
         {
           "sha": "90c62a8",
@@ -7506,6 +7636,85 @@
           "branch": "staging",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "f02456c",
+          "message": "update default openai model",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-07-06",
+          "url": "https://github.com/JamieCummins/regcheck/commit/f02456c265aeb4e28534a62b4a5126388503cfc3",
+          "type": "other",
+          "branch": "staging",
+          "diff": {
+            "additions": 7,
+            "deletions": 7,
+            "files": [
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 3,
+                "patch": "@@ -43,9 +43,9 @@ DEEPSEEK_API_KEY=...\n CLAUDE_API_KEY=...\n \n # Optional model overrides\n-OPENAI_MODEL=gpt-5\n-OPENAI_COMPARISON_MODEL=gpt-5\n-OPENAI_EXPERIMENT_MODEL=gpt-5\n+OPENAI_MODEL=gpt-5.5\n+OPENAI_COMPARISON_MODEL=gpt-5.5\n+OPENAI_EXPERIMENT_MODEL=gpt-5.5\n OPENAI_EXPERIMENT_REASONING_EFFORT=medium        # low | medium | high\n DEEPSEEK_MODEL=deepseek-reasoner\n CLAUDE_MODEL=claude-opus-4-8"
+              },
+              {
+                "filename": "backend/routes/comparisons.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -282,7 +282,7 @@ def _normalize_client(client: str) -> str:\n \n def _normalize_reasoning_effort(client: str, reasoning_effort: str | None) -> str | None:\n     effort_normalized = (reasoning_effort or \"\").strip().lower()\n-    # ChatGPT (gpt-5) is the only reasoning-effort model exposed to users.\n+    # ChatGPT (gpt-5.5) is the only reasoning-effort model exposed to users.\n     if client == \"openai\":\n         if effort_normalized not in {\"low\", \"medium\", \"high\"}:\n             effort_normalized ="
+              },
+              {
+                "filename": "backend/services/llm.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -27,7 +27,7 @@\n \n logger = logging.getLogger(__name__)\n \n-DEFAULT_OPENAI_MODEL = \"gpt-5\"\n+DEFAULT_OPENAI_MODEL = \"gpt-5.5\"\n DEFAULT_DEEPSEEK_MODEL = \"deepseek-reasoner\"\n DEFAULT_CLAUDE_MODEL = \"claude-opus-4-8\"\n # Open-weight Qwen, served via Groq's OpenAI-compatible endpoint (uses GROQ_API_KEY)."
+              },
+              {
+                "filename": "templates/api.html",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -163,7 +163,7 @@ <h2>2) Submit a comparison</h2>\n             <tr><td><code>clinical_registration</code></td><td>no</td><td><code>yes</code>/<code>no</code> (default <code>no</code>). When <code>yes</code>, fetches a ClinicalTrials.gov registration from <code>registration_id</code>.</td></tr>\n             <tr><td><code>registration_id</code></td><td>cond.</td><td>ClinicalTrials.gov identifier (e.g. <code>NCT01234567</code>). Required when <code>clinical_registration=yes</code>.</td></tr>\n    "
+              },
+              {
+                "filename": "templates/faq.html",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -181,7 +181,7 @@ <h2 class=\"accordion-header\">\n           </h2>\n           <div id=\"faq-q7\" class=\"accordion-collapse collapse\" data-bs-parent=\"#faqAccordion\">\n             <div class=\"accordion-body\">\n-              The model menu lists families; the exact default models are ChatGPT = <code>gpt-5</code>, Claude Opus 4.8 = <code>claude-opus-4-8</code>, DeepSeek = <code>deepseek-reasoner</code>, and Qwen3.6 27B = <code>qwen/qwen3.6-27b</code> (open-weight, served via Groq). These are the defau"
+              }
+            ]
+          },
+          "diff_summary": "This commit updates the default OpenAI model used in the 'JamieCummins/regcheck' project from \"gpt-5\" to \"gpt-5.5\", reflecting the change in multiple files including the README, comparisons route, and LLM service."
+        },
+        {
+          "sha": "90c62a8",
+          "message": "aesthetic bug fixes",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-07-06",
+          "url": "https://github.com/JamieCummins/regcheck/commit/90c62a8b80baf0a680b1e429432bf6c50df69f63",
+          "type": "fix",
+          "branch": "staging",
+          "diff": {}
+        },
+        {
+          "sha": "efb74a8",
+          "message": "improve backend handling of insufficient evidence",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-07-06",
+          "url": "https://github.com/JamieCummins/regcheck/commit/efb74a8080015ee52fbb17736bc92f886cfdcd03",
+          "type": "chore",
+          "branch": "staging",
+          "diff": {}
+        }
       ]
     },
     {
@@ -7818,11 +8027,11 @@
         },
         {
           "week": 1779062400,
-          "total": 2
+          "total": 3
         },
         {
           "week": 1779667200,
-          "total": 8
+          "total": 7
         },
         {
           "week": 1780272000,
@@ -8020,7 +8229,7 @@
               }
             ]
           },
-          "diff_summary": "This commit, 'sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)', updates the 'effectcheck' package to version 0.6.13, adding two new test types, including a bare Bayes factor and a hazard ratio, along with fixes and improvements from the escicheck-iterate cycles."
+          "diff_summary": "This commit, 'sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)', updates the 'effectcheck' package to version 0.6.13, adding two new test types, including a bare Bayes factor and a hazard ratio, as well as fixes from the escicheck-iterate cycles."
         },
         {
           "sha": "e09dbc9",
@@ -8129,82 +8338,6 @@
           "type": "chore",
           "branch": "main",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "7ec3c89",
-          "message": "sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)",
-          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-07-03",
-          "url": "https://github.com/giladfeldman/escicheck/commit/7ec3c89a5291a35f690b0b4962daa5ea32abfc73",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 1181,
-            "deletions": 11,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,7 +1,7 @@\n Package: effectcheck\n Type: Package\n Title: Statistical Consistency Checker for Published Research Results\n-Version: 0.6.12\n+Version: 0.6.13\n Authors@R: c(person(given = \"Gilad\", family = \"Feldman\", role = c(\"aut\", \"cre\"),\n     email = \"giladfel@gmail.com\", comment = c(ORCID = \"0000-0003-2812-6599\")))\n Description: A conservative, assumption-aware statistical consistency checker"
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 101,
-                "deletions": 0,
-                "patch": "@@ -1,3 +1,104 @@\n+# effectcheck 0.6.13\n+\n+**Two new test types + two canary-re-audit fixes from the 2026-07-02 escicheck-iterate cycles 2-3\n+(F1 bare Bayes factor + HR hazard ratio, both user-approved; independent Sonnet-watches-Opus canary\n+re-audit over the fixed-3 + rotating set).**\n+\n+- **`bayes_factor`** (new `test_type`; cycle-2 F1) \u2014 a STANDALONE evidential Bayes factor reported as\n+  a PRIMARY finding of a RoBMA / Bayesian meta-analysis is extracted as an extraction-only NOTE\n+  surfaci"
-              },
-              {
-                "filename": "R/check.R",
-                "status": "modified",
-                "additions": 160,
-                "deletions": 9,
-                "patch": "@@ -920,6 +920,7 @@ compute_and_compare_one <- function(row,\n     \"or\" = \"OR\", \"odds ratio\" = \"OR\",\n     \"rr\" = \"RR\", \"risk ratio\" = \"RR\",\n     \"irr\" = \"IRR\", \"incidence rate ratio\" = \"IRR\",\n+    \"hr\" = \"HR\", \"ahr\" = \"HR\", \"adjusted hr\" = \"HR\", \"hazard ratio\" = \"HR\",\n     \"h\" = \"h\", \"cohen's h\" = \"h\", \"cohens h\" = \"h\",\n     \"w\" = \"cohens_w\", \"cohen's w\" = \"cohens_w\", \"cohens w\" = \"cohens_w\",\n     \"cohens_w\" = \"cohens_w\",\n@@ -1149,11 +1150,23 @@ compute_and_compare_one <- function(row,\n          "
-              },
-              {
-                "filename": "R/parse.R",
-                "status": "modified",
-                "additions": 342,
-                "deletions": 0,
-                "patch": "@@ -985,6 +985,22 @@ parse_text <- function(text, context_window_size = 2) {\n   pat_OR <- \"(?:OR|odds\\\\s*ratio)\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n   pat_RR <- \"(?:RR|risk\\\\s*ratio)\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n   pat_IRR <- \"(?:IRR|incidence\\\\s*rate\\\\s*ratio)\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n+  # v0.6.13: hazard ratio (Cox proportional-hazards / survival analysis). Accepts\n+  # the adjusted forms (aHR / adjusted HR) and the spelled-out \"hazard ratio\". The\n+  # HR is an effect-size-only report with no rec"
-              },
-              {
-                "filename": "man/check_text.Rd",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 1,
-                "patch": "@@ -8,7 +8,8 @@ check_text(\n   text,\n   stats = c(\"t\", \"F\", \"r\", \"chisq\", \"z\", \"U\", \"W\", \"H\", \"regression\", \"spearman\",\n     \"kendall\", \"kendall_w\", \"dscf\", \"cochran_q\", \"RR\", \"rdpct\", \"md_hl\", \"binomial\",\n-    \"interaction_p\", \"mediation_indirect\", \"mcnemar_or\"),\n+    \"interaction_p\", \"mediation_indirect\", \"mcnemar_or\", \"bayes_factor\",\n+    \"hazard_ratio\"),\n   ci_level = 0.95,\n   alpha = 0.05,\n   one_tailed = FALSE,"
-              },
-              {
-                "filename": "tests/testthat/test-v0613-canary-reaudit-fixes.R",
-                "status": "added",
-                "additions": 96,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,96 @@\n+# v0.6.13: two effectcheck defects surfaced by the 2026-07-02 cycle-2 canary\n+# re-audit (independent Sonnet-watches-Opus over the fixed-3 + rotating set).\n+#\n+# (1) E-mcnemar-chisq-OR (collabra.37122 loc 305): a Table-6 restatement of a\n+#     McNemar finding written as a bare chi-square cell with an odds ratio +\n+#     CI -- \"chi2 (1, N = 265) = 0.00, p = .951, OR = 0.99, 95% CI [0.77, 1.27]\"\n+#     -- was classified chisq/contingency (with the OR bound as effect_reported)\n+#"
-              },
-              {
-                "filename": "tests/testthat/test-v0613-corr-target-article-n.R",
-                "status": "added",
-                "additions": 60,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,60 @@\n+# v0.6.13 (E-corr-target-article-N): a correlation explicitly attributed to the\n+# TARGET / ORIGINAL article -- a value a replication reproduces from the paper it\n+# replicates (a \"Table 2. Target article\" intercorrelation block, or prose \"the\n+# weakest effect in the target article ... r = 0.36\") -- must carry the TARGET\n+# article's own sample size, not the current study's (global) N. For a bare `r`\n+# with no co-located N, the current study's global N is bound by default, wh"
-              },
-              {
-                "filename": "tests/testthat/test-v0613-hazard-ratio.R",
-                "status": "added",
-                "additions": 104,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,104 @@\n+# v0.6.13: hazard ratio (Cox proportional-hazards / survival analysis) reported in\n+# a clean prose sentence is extracted as an extraction-only NOTE\n+# (`test_type = \"hazard_ratio\"`), mirroring the OR / RR / mcnemar_or ratios. A Cox\n+# HR is not independently recomputable from the reported numbers (it needs the full\n+# time-to-event data), so the HR + its CI + p are surfaced without a verdict.\n+#\n+# Scope note (from the 2026-07-02 corpus audit): s41598-023-50401-z's 58 hazard\n"
-              }
-            ]
-          },
-          "diff_summary": "This commit, 'sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)', updates the 'effectcheck' package to version 0.6.13, adding two new test types, including a bare Bayes factor and a hazard ratio, along with fixes and improvements from the escicheck-iterate cycles."
         }
       ]
     },
@@ -8411,7 +8544,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1776556800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777161600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777766400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.3.1",
@@ -8454,7 +8648,7 @@
       "topics": [],
       "pushed_at": "2026-06-14T14:44:45Z",
       "created_at": "2026-05-26",
-      "last_push_days": 22,
+      "last_push_days": 23,
       "default_branch": "main",
       "license": "",
       "branches": [
@@ -8520,11 +8714,11 @@
         },
         {
           "week": 1779667200,
-          "total": 0
+          "total": 3
         },
         {
           "week": 1780272000,
-          "total": 3
+          "total": 0
         },
         {
           "week": 1780876800,
@@ -8612,34 +8806,7 @@
               }
             ]
           },
-          "diff_summary": "This commit revises the validation note in the README.md file of the 'auto-zcurve' repository to include a citation, updating the language to reflect the current status of the tool's peer review."
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "3fce87a",
-          "message": "Revise validation note and include citation",
-          "body": "Updated validation note and added preprint citation.",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-06-14",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 3,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 1,
-                "patch": "@@ -8,7 +8,9 @@ In the below screenshot, I z-curved 45 articles on cognitive dissonance in under\n \n ![](assets/example.svg)\n \n-**Note:** this tool has not yet been peer-reviewed, although a validation study is in the works.\n+**Note:** I have validated statistic extraction as part of a study, which is currently under peer review. The preprint citation is below, and details of the validation are in the supplemental material.\n+\n+Azaad, S. (2026). Empirically derived effect size guidelines for socia"
-              }
-            ]
-          },
-          "diff_summary": "This commit revises the validation note in the README.md file of the 'auto-zcurve' repository to include a citation, updating the language to reflect the current status of the tool's peer review."
+          "diff_summary": "This commit revises the validation note in the README.md file of the 'auto-zcurve' repository to include a citation, updating the text to reflect the current status of the tool's peer review."
         }
       ]
     },
@@ -9258,7 +9425,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1776556800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777161600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777766400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.2.0",
@@ -9481,7 +9709,7 @@
               }
             ]
           },
-          "diff_summary": "This commit adds a link to the Chrome Webstore for the Output It Forward (OIF) extension in the README.md file, making it easier for users to find and install the extension."
+          "diff_summary": "This commit adds a link to the Chrome Webstore for the Output It Forward (OIF) extension in the README.md file, making it easier for users to access and install the extension."
         },
         {
           "sha": "aa35045",
@@ -9494,33 +9722,6 @@
           "type": "feat",
           "branch": "main",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "71c2a30",
-          "message": "Add Chrome Webstore link for OIF",
-          "body": "Added a link to the OIF Chrome extension in the README.",
-          "author": "giovannacdelsordo",
-          "author_login": "giovannacdelsordo",
-          "date": "2026-06-17",
-          "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
-          "type": "feat",
-          "branch": "main",
-          "diff": {
-            "additions": 3,
-            "deletions": 0,
-            "files": [
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 0,
-                "patch": "@@ -2,6 +2,9 @@\n OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\n OIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailorin"
-              }
-            ]
-          },
-          "diff_summary": "This commit adds a link to the Chrome Webstore for the Output It Forward (OIF) extension in the README.md file, making it easier for users to find and install the extension."
         }
       ]
     }
@@ -10115,7 +10316,7 @@
   "digest": {
     "week_start": "2026-06-30",
     "active_repos": 6,
-    "total_commits_7d": 66,
+    "total_commits_7d": 63,
     "dormant_revived": [
       {
         "owner": "MicheleNuijten",
@@ -10132,12 +10333,12 @@
       {
         "owner": "scienceverse",
         "repo": "metacheck",
-        "commits": 20
+        "commits": 19
       },
       {
         "owner": "JamieCummins",
         "repo": "regcheck",
-        "commits": 12
+        "commits": 10
       },
       {
         "owner": "giladfeldman",
@@ -10602,15 +10803,15 @@
         "date": "2026-07-02"
       }
     ],
-    "narrative": "Our community has seen significant activity across multiple projects, with a focus on administrative updates, issue resolutions, and feature enhancements. Notably, the `statcheck` project saw administrative changes, while `docpluck` addressed several issues, including text loss and rendering fixes. Meanwhile, `coarse` re-enabled Fable 5 in the model picker, and `escicheck` was synchronized with the `escicheckapp` repository to bring it in line with the latest version of `effectcheck`. Additionally, `auto-zcurve` and `output-it-forward` saw updates, including a revised validation note and the addition of a Chrome Webstore link, respectively. These connections between projects demonstrate the collaborative spirit of our community, and we celebrate the progress being made to enhance our open-source research tools."
+    "narrative": "It's been an exciting time in our open-source research community, with notable progress made in both the `scienceverse/metacheck` and `JamieCummins/regcheck` projects. In `metacheck`, the `data_check` branch saw significant improvements to its caching mechanism, data handling, and folder management, laying the groundwork for more efficient data storage and retrieval. Meanwhile, `regcheck` made strides in its `staging` branch, updating the default OpenAI model and refining backend handling of insufficient evidence, alongside aesthetic bug fixes. These updates demonstrate the connections between our projects, as both focus on enhancing data management and processing capabilities. The community's efforts to refine these tools will ultimately contribute to more robust and reliable research outcomes, and we celebrate the dedication and collaboration that drives our community forward. As these projects continue to evolve, we can expect even more innovative solutions to emerge, further solidifying our community's position at the forefront of open-source research."
   },
   "aggregate": {
     "total_repos": 16,
     "total_stars": 677,
     "total_forks": 122,
-    "total_commits_30d": 308,
-    "total_commits_7d": 66,
-    "total_commits_1d": 4,
+    "total_commits_30d": 306,
+    "total_commits_7d": 63,
+    "total_commits_1d": 1,
     "active_repos_7d": 6,
     "dormant_revived": 1,
     "total_open_issues": 184,
