@@ -1,5 +1,181 @@
 [
   {
+    "generated_at": "2026-07-08T02:36:10.856790+00:00",
+    "narrative": "Our community has seen significant activity across multiple projects, with notable updates in `statcheck`, `docpluck`, `coarse`, `escicheck`, `auto-zcurve`, and `output-it-forward`. MicheleNuijten's administrative updates to `statcheck` and the re-enabling of Fable 5 in the `coarse` model picker by Davidvandijcke are particularly noteworthy. Meanwhile, `docpluck` and `escicheck` have seen fixes and updates to issues and documentation, showcasing the connections between these projects and their shared goal of improving research tools. The addition of a Chrome Webstore link for `output-it-forward` and the revision of the validation note in `auto-zcurve` demonstrate the community's commitment to making research more accessible and user-friendly. These updates highlight the collaborative spirit and dedication to progress that defines our community.",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "The `main` branch was the focus of the recent work, with several commits made to address various issues. The first commit on `main` added documentation and tests to diagnose a \"chan_feldman T3 caption-tail-walk TEXT-LOSS\" issue, including an \"xfail guard\" as the fix is corpus-wide and deferred. Another commit on `main` updated documentation to record the outcome of \"run-3\", specifically that \"W0l \u00d7-as-3 residuals\" were resolved, and also rescoped \"efendic headings to B6\". A commit on `main` fixed a \"glyph\" issue by recovering \"2 residual \u00d7-as-3 prose shapes\" that \"W0k can't reach\", related to \"efendic\" and version \"v2.4.116\". Additionally, a commit on `main` fixed a \"render\" issue by stripping an \"affiliation remnant orphaned in Abstract body\", related to \"chandrashekar\" and version \"v2.4.115\".",
+        "commits_since_last": 4,
+        "pushed_at": "2026-07-04T08:37:50Z",
+        "recent_commits": [
+          {
+            "sha": "ba4e124",
+            "message": "docs+test(rc-t): diagnose chan_feldman T3 caption-tail-walk TEXT-LOSS; xfail guard (fix is corpus-wide, deferred)",
+            "body": "Run 3 cycle 3: the whitespace_cells test failure is NOT a stale-premise test to\nupdate \u2014 a gold-verify confirmed it guards REAL TEXT-LOSS. chan_feldman Table 3's\nraw_text fallback silently drops its first 4 rows (Sample size 239/794,\nGeographic origin, Gender, Ethnic group). Root-caused to _extract_table_body_text's\nbody_start caption-tail walk overshooting the caption's own sentence terminator\n(`replication.`) to a later `\\n\\n`.\n\nA per-line-terminator walk fixes chan T3 \u2014 but a 101-PDF guard-diff\n(tmp/rct_body_text_diff.py) shows the walk is SHARED across every table's raw_text\nextraction: the fix shifts body_start on 310 captions (308 recover legitimately,\n2 TRUNCATE \u2014 amc_1 T3, xiao_2021 T6, a regression, and ~53 recover body-prose /\na leading Fig caption). That is a corpus-wide capture-path change for the gated\nRC-T cycle (48-paper structured guard-diff + 7-canary AI-gold + user sign-off),\nnot a session-tail patch. ATTEMPTED + REVERTED.\n\n- New FINDINGS doc: precise mechanism + guard-diff blast-radius + the RC-T cycle's\n  executable target.\n- test_t3_first_rows_not_dropped: xfail(strict=True) guard documenting the\n  TEXT-LOSS; will XPASS-alert when the RC-T cycle lands the corpus-safe fix.\n- TRIAGE run-3 section updated (whitespace_cells is a real TEXT-LOSS guard, not a\n  stale test; the raw_text fix is corpus-wide).\n\nextract_structured.py reverted to HEAD (no library change in this commit).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-04",
+            "url": "https://github.com/giladfeldman/docpluck/commit/ba4e12402e5dfa77ed298d8039093d42cfc8ba5d",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "56f60b5",
+            "message": "docs(triage): record run-3 outcome \u2014 W0l \u00d7-as-3 residuals resolved (v2.4.116); efendic headings rescoped to B6",
+            "body": "- TRIAGE run-3 section: W0l shipped (both efendic \u00d7-as-3 residuals RESOLVED,\n  Sonnet-verified, 101-PDF FP scan clean); efendic 2 demoted subsection headings\n  RESCOPED from \"heading-promoter\" to B6 column-interleave (root-cause reproduction).\n- NEW FINDINGS doc: efendic Design/Procedure/Measures + Analysis Strategy headings\n  are spatially orphaned from their bodies by two-column pdftotext serialization \u2014\n  a heading-promotion hack would emit heading-with-no-body. Deferred to the B6\n  architectural cluster (same as the chandrashekar canary).\n- Also logged: NEW efendic Table 4/5 mid-sentence splice (RC-T family); ar_apa gold\n  misread (\"yet feel\" vs correct \"not yell\" docpluck renders) \u2014 flag gold for regen.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-04",
+            "url": "https://github.com/giladfeldman/docpluck/commit/56f60b5f3f3f74a00ef98c3783f76abfad37da07",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "a4f8796",
+            "message": "fix(glyph): recover 2 residual \u00d7-as-3 prose shapes W0k can't reach (efendic) + v2.4.116",
+            "body": "W0l \u2014 the two \u00d7-as-3 glyph residuals the single-line W0k word-pair regex\nstructurally cannot reach (both silently render `3` where a scientist should\nread `\u00d7`), documented in docs/FINDINGS_2026-07-03_efendic_glyph_in_prose_channel.md:\n\n(A) recover_times_design_notation \u2014 factorial-design notation `<digit>(\u2026) 3\n    <digit>(\u2026)`: \"2 (Between-subject factor--Direction: \u2026) 3 2 (\u2026) 3 3\n    (Within-subject factor--\u2026) mixed-subject design\" \u2192 each `) 3 <digit> (`\n    boundary's `3` is a corrupted `\u00d7` (trailing digit is the real factor SIZE).\n    Fires ONLY when tied to a genuine factor parenthetical: an adjacent\n    parenthetical names a factor type, OR both sides are factor-size parens\n    closed by a factorial/design tail. A range recode `(min 1) 3 2 (max 5)`,\n    a formula `f(x) 3 2 (y)`, `(from level 3) 3 2 (see note)` are left alone.\n\n(B) recover_times_wrapped_interaction \u2014 a line ending `<Pred> 3` whose next\n    line starts with a predictor word, inside an \"interaction\" context:\n    \"(Direction 3\\nManipulated Attribute \u00d7 CMA)\" \u2192 \"Direction \u00d7 Manipulated\u2026\".\n    Reference-word tail guard (FIGURE 3 / Table 3 / Model 3) \u2014 the wide FP\n    scan caught amj_1 `FIGURE 3\\nRegression\u2026` + jamison `Table 3\\nMain-effects\n    and interactions.` wrongly joined; guard added + regression-tested.\n\nNORMALIZATION_VERSION 1.9.42 \u2192 1.9.43. Wired channel 1 (normalize_text) AND\nchannel 3 (render post-process) per glyph-fixes-need-all-three-text-channels.\n\nVerification (ground truth = AI multimodal reading golds via article-finder):\n- Independent Sonnet canary audit CONFIRMS both efendic glyph fixes correct\n  (design `\u00d7 2 \u00d7 3`, interaction `Direction \u00d7 Manipulated Attribute \u00d7 CMA`),\n  no \u00d7-as-3 / minus-as-2 corruption anywhere else in efendic.\n- Wide 101-PDF raw-text FP scan CLEAN (0 non-target FPs; efendic recovered).\n- 26-paper baseline 26/26 PASS. Normalize idempotency corpus PASS.\n- 42 W0k/W0l tests + real-PDF end-to-end (fails at HEAD v2.4.115, passes here).\n\nResolves efendic's two \u00d7-as-3 residuals. Remaining efendic findings (2 demoted\nsubsection headings; a NEW Table 4/5 mid-sentence splice) are queued; RC-T\ntable-data-loss on ip_feldman/plos_med/chandrashekar remains architectural.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-04",
+            "url": "https://github.com/giladfeldman/docpluck/commit/a4f879628fb2752952871e95a61f8df0181a5742",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "e140cf1",
+            "message": "fix(render): strip affiliation remnant orphaned in Abstract body (chandrashekar) + v2.4.115",
+            "body": "A canary AI-verify found chandrashekar_2023_mp rendering \"Department of Philosophy,\nLake Forest College\" + \"*Joint first authors\" right after the ## Abstract heading,\nbefore the abstract prose. The paper has 3 author affiliations; the section\npartitioner inserted ## Abstract mid-affiliation-block, so the masthead strip\n(which stops AT ## Abstract) caught the first two but left the third orphaned in\nthe Abstract body, and the >=3-consecutive-line _strip_body_affiliation_block\ncould not reach a single surviving affiliation line.\n\nFix: _strip_abstract_zone_affiliation_remnant removes an affiliation line (+ a\njoint-authors / corresponding-author companion note) that is the FIRST non-blank\ncontent after ## Abstract. A real Abstract always opens with PROSE, so an\naffiliation LINE in that slot is unambiguously a boundary-split front-matter\nremnant -- the structural signature is affiliation-grammar (via the existing\n_is_affiliation_line) at the Abstract-heading boundary, never paper identity. An\nabstract that merely MENTIONS a university mid-sentence is prose, not an\naffiliation line, and is kept.\n\nVerification (AI-gold via article-finder): chandrashekar's ## Abstract now goes\ndirectly to the abstract body; all 3 affiliations are in the front matter (stripped\nby design), none in the Abstract. An abstract-zone FP-scan across the rendered\ncorpus fires ONLY on chandrashekar -- every other paper's abstract is byte-identical.\n4 new tests (incl. real-abstract + university-mention FP guards). Full suite: 1896\npassed, only the 2 documented pre-existing whitespace_cells failures remain.\n\nResolves chandrashekar's METADATA-LEAK (defect #1 of the 2026-07-04 report). Its\nTables 9/10 RC-T data-loss (defects #2/#3) is the architectural cluster --\ndiagnosed with a precise cycle plan in\ndocs/FINDINGS_2026-07-04_chandrashekar_rc_t_tables_9_10.md (the missing piece: wire\ntables/whitespace.py::char_whitespace_cells to REPLACE a degenerate matched Camelot\ntable in extract_structured.py::_pick_better_table). Deferred to a dedicated gated\ncycle (full 48-paper guard-diff + 7-canary AI-verify; do NOT rush at session-tail).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-04",
+            "url": "https://github.com/giladfeldman/docpluck/commit/e140cf159e73370aa9b8db830cb5169ae905e120",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "MicheleNuijten",
+        "repo": "statcheck",
+        "url": "https://github.com/MicheleNuijten/statcheck",
+        "summary": "The `feature-non-apa-newer` branch was worked on, where administrative updates were made. As stated in the commit message, \"admin updates\" were performed, but the specifics of these updates are not detailed. The branch was then merged into itself, as indicated by the message \"Merge branch 'feature-non-apa-newer' of https://github.com/MicheleNuijten/statcheck into feature-non-apa-newer\". No other branches were mentioned in the provided commits. The changes were made by MicheleNuijten. The commit messages do not provide further information on the nature of the administrative updates.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-07-03T11:37:30Z",
+        "recent_commits": [
+          {
+            "sha": "50ab5e6",
+            "message": "Merge branch 'feature-non-apa-newer' of https://github.com/MicheleNuijten/statcheck into feature-non-apa-newer",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-07-03",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/50ab5e66a0f32d77c9becef0c4bba3d638ec8019",
+            "type": "feat",
+            "branch": "feature-non-apa-newer"
+          },
+          {
+            "sha": "ffba7eb",
+            "message": "admin updates",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-07-03",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/ffba7eb5b198605087b94718ce5e98ed6871d458",
+            "type": "other",
+            "branch": "feature-non-apa-newer"
+          }
+        ]
+      },
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "Work was done on the \"dev\" and \"main\" branches. On both branches, the commit \"fix(web): re-enable Fable 5 in the model picker\" was made, which re-enables Fable 5 in the model picker. This specific fix was applied to the web component, as indicated by the \"web\" label in the commit message. The \"dev\" branch and the \"main\" branch now both have Fable 5 re-enabled in the model picker. The identical commits on the two branches suggest that this fix was first made on the \"dev\" branch and then merged into the \"main\" branch.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-07-02T20:22:59Z",
+        "recent_commits": [
+          {
+            "sha": "d93b6f8",
+            "message": "fix(web): re-enable Fable 5 in the model picker",
+            "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Davidvandijcke",
+            "date": "2026-07-02",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/d93b6f8ce532991eb16a11928710e553c7f384c2",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "d6df84a",
+            "message": "fix(web): re-enable Fable 5 in the model picker",
+            "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+            "author": "Davidvandijcke",
+            "date": "2026-07-02",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/d6df84ab3c3abc476d1c7e9a9f42c2a6073b7480",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "The `main` branch was updated with a commit that synchronized it with the `escicheckapp` repository at version `ec9eb9f`, which corresponds to `effectcheck` version `0.6.13`, as stated in the commit message \"sync from escicheckapp@ec9eb9f (effectcheck v0.6.13)\".\nThis commit is referenced as pull request `#26`.\nNo other branches were worked on in this set of commits.\nThe specific change made was to bring the `main` branch in line with the `escicheckapp` repository at the specified version.\nThe commit message does not mention any new features or modules being added, only the synchronization with the external repository.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-07-03T09:15:19Z",
+        "recent_commits": [
+          {
+            "sha": "7ec3c89",
+            "message": "sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-07-03",
+            "url": "https://github.com/giladfeldman/escicheck/commit/7ec3c89a5291a35f690b0b4962daa5ea32abfc73",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "The `main` branch was worked on, where the validation note was revised and a citation was included, as stated in the commit message \"Revise validation note and include citation\". \nNo other branches were modified in this set of commits.\nThe revision of the validation note and addition of a citation are the only changes made in this update.\nThe commit message explicitly mentions the inclusion of a citation, indicating that previous versions lacked this reference.\nThere are no other features, fixes, or modules added or changed beyond the revision of the validation note and the inclusion of a citation.\nThe work was limited to a single commit on the `main` branch.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-14T14:44:45Z",
+        "recent_commits": [
+          {
+            "sha": "3fce87a",
+            "message": "Revise validation note and include citation",
+            "body": "Updated validation note and added preprint citation.",
+            "author": "Shaheed Azaad",
+            "date": "2026-06-14",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giovannacdelsordo",
+        "repo": "output-it-forward",
+        "url": "https://github.com/giovannacdelsordo/output-it-forward",
+        "summary": "The `main` branch was updated with a commit that added a Chrome Webstore link for OIF, as stated in the commit message \"Add Chrome Webstore link for OIF\". \nNo other branches were worked on in this set of commits. \nThis specific change involved adding a link, presumably to make it easier for users to access or install the OIF extension from the Chrome Webstore. \nThe commit does not mention any other changes or additions beyond the Chrome Webstore link. \nThere were no other commits or changes to report beyond this single update to the `main` branch.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-06-17T14:15:44Z",
+        "recent_commits": [
+          {
+            "sha": "71c2a30",
+            "message": "Add Chrome Webstore link for OIF",
+            "body": "Added a link to the OIF Chrome extension in the README.",
+            "author": "giovannacdelsordo",
+            "date": "2026-06-17",
+            "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
+            "type": "feat",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-07-07T20:03:54.299195+00:00",
     "narrative": "It's been an exciting time in our open-source research community, with notable progress made in both the `scienceverse/metacheck` and `JamieCummins/regcheck` projects. In `metacheck`, the `data_check` branch saw significant improvements to its caching mechanism, data handling, and folder management, laying the groundwork for more efficient data storage and retrieval. Meanwhile, `regcheck` made strides in its `staging` branch, updating the default OpenAI model and refining backend handling of insufficient evidence, alongside aesthetic bug fixes. These updates demonstrate the connections between our projects, as both focus on enhancing data management and processing capabilities. The community's efforts to refine these tools will ultimately contribute to more robust and reliable research outcomes, and we celebrate the dedication and collaboration that drives our community forward. As these projects continue to evolve, we can expect even more innovative solutions to emerge, further solidifying our community's position at the forefront of open-source research.",
     "repos": [
@@ -13967,202 +14143,6 @@
             "date": "2026-06-17",
             "url": "https://github.com/giladfeldman/docpluck/commit/662c4df19e3a46d03daf041bb8e58b92df9ba49b",
             "type": "other",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-06-17T20:37:31.015049+00:00",
-    "narrative": "Our open-source research community has seen significant progress across multiple projects. Notably, **JamieCummins/regcheck** has made strides in production preparation, adding HTML and OSF support, and introducing a \"light mode\" to the frontend. Meanwhile, **giladfeldman/escicheck** has been synced with the latest versions of effectcheck, bringing the repository up to date with the latest changes. Additionally, **shaheedazaad/auto-zcurve** has revised its validation note and added a citation, while **giovannacdelsordo/output-it-forward** has expanded its capabilities with the addition of a Chrome Webstore link and a list of detectable statements and data repositories. These updates demonstrate the connections and collaborations within our community, and we celebrate the progress being made across these projects.",
-    "repos": [
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "The staging branch was the focus of the recent work, with multiple commits made to it. The work began with \"prod preparation: phase 1 + 2\" as stated in the commit message, indicating initial preparation for production. The repository then saw the addition of HTML and OSF support, as well as \"harden osf handling\", which suggests enhanced handling of OSF. Additionally, the commit \"readd reasoning effort for oss\" was made, and the \"Update privacy.html\" commit modified the privacy.html file. The frontend also received updates, including the introduction of \"light mode\" and fixes for \"scroll and gpt-oss bugs\", along with the addition of \"claude functionality\".",
-        "commits_since_last": 8,
-        "pushed_at": "2026-06-17T20:32:08Z",
-        "recent_commits": [
-          {
-            "sha": "9c4cd96",
-            "message": "prod preparation: phase 1 + 2",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-06-17",
-            "url": "https://github.com/JamieCummins/regcheck/commit/9c4cd96b4ff2a302c25006f4b5a77f406556a210",
-            "type": "other",
-            "branch": "staging"
-          },
-          {
-            "sha": "57b6bc1",
-            "message": "readd reasoning effort for oss",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-06-17",
-            "url": "https://github.com/JamieCummins/regcheck/commit/57b6bc10472c33be16e6d079f3b9ea77a65ddb6d",
-            "type": "other",
-            "branch": "staging"
-          },
-          {
-            "sha": "9735187",
-            "message": "harden osf handling",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-06-17",
-            "url": "https://github.com/JamieCummins/regcheck/commit/97351871b0375015862f8a2faab6018b7e34c1be",
-            "type": "other",
-            "branch": "staging"
-          },
-          {
-            "sha": "8cddeb8",
-            "message": "add html, osf support",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-06-17",
-            "url": "https://github.com/JamieCummins/regcheck/commit/8cddeb8ca44362c83fb4a097c828bba3a78d4687",
-            "type": "feat",
-            "branch": "staging"
-          },
-          {
-            "sha": "978ec81",
-            "message": "Update privacy.html",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-06-17",
-            "url": "https://github.com/JamieCummins/regcheck/commit/978ec81062012345b88642738fceb3fed786f81d",
-            "type": "other",
-            "branch": "staging"
-          },
-          {
-            "sha": "50f52d9",
-            "message": "frontend updates - light mode!",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-06-17",
-            "url": "https://github.com/JamieCummins/regcheck/commit/50f52d9481814a923588d78141c4532680871f8a",
-            "type": "other",
-            "branch": "staging"
-          },
-          {
-            "sha": "b4dc8e4",
-            "message": "fix scroll and gpt-oss bugs",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-06-17",
-            "url": "https://github.com/JamieCummins/regcheck/commit/b4dc8e47d35dc326bfe1a2f2150ea81d37b775f3",
-            "type": "fix",
-            "branch": "staging"
-          },
-          {
-            "sha": "9a99761",
-            "message": "add claude functionality",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-06-17",
-            "url": "https://github.com/JamieCummins/regcheck/commit/9a99761d87290acf0af973e8b984ceb6d536b741",
-            "type": "feat",
-            "branch": "staging"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "escicheck",
-        "url": "https://github.com/giladfeldman/escicheck",
-        "summary": "Work was done on the 'main' branch, where Gilad Feldman synced the repository from 'escicheckapp' at various commit hashes, specifically 'e060e98' for effectcheck v0.6.2, '5093197' for effectcheck v0.6.1, and '1ebe05f' for effectcheck v0.5.18. A temporary branch 'sync/20260525-150441-b801333' was also used by github-actions[bot] to sync from 'escicheckapp' at commit 'b801333' for effectcheck v0.6.2. The commit messages indicate that these syncs were done to update the repository to match the respective versions of effectcheck. The sync operations brought the 'main' branch up to date with the latest changes from 'escicheckapp', specifically effectcheck versions v0.5.18, v0.6.1, and v0.6.2.",
-        "commits_since_last": 4,
-        "pushed_at": "2026-05-25T15:14:17Z",
-        "recent_commits": [
-          {
-            "sha": "1f1a89a",
-            "message": "sync from escicheckapp@e060e98 (effectcheck v0.6.2) (#16)",
-            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-05-25",
-            "url": "https://github.com/giladfeldman/escicheck/commit/1f1a89aef499e3e3b879c639286dd57fb3146309",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "f7e25f6",
-            "message": "sync from escicheckapp@b801333 (effectcheck v0.6.2)",
-            "body": "",
-            "author": "github-actions[bot]",
-            "date": "2026-05-25",
-            "url": "https://github.com/giladfeldman/escicheck/commit/f7e25f63402b6d450309b7d9b948ad64ece4b17a",
-            "type": "chore",
-            "branch": "sync/20260525-150441-b801333"
-          },
-          {
-            "sha": "d0db89d",
-            "message": "sync from escicheckapp@5093197 (effectcheck v0.6.1) (#14)",
-            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-05-25",
-            "url": "https://github.com/giladfeldman/escicheck/commit/d0db89d4557b43c7479d7f457bc1c5b1c86f7ae1",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "a44f236",
-            "message": "sync from escicheckapp@1ebe05f (effectcheck v0.5.18) (#13)",
-            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-05-25",
-            "url": "https://github.com/giladfeldman/escicheck/commit/a44f236b1fd55574fea33994c45df24a41a53661",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "giovannacdelsordo",
-        "repo": "output-it-forward",
-        "url": "https://github.com/giovannacdelsordo/output-it-forward",
-        "summary": "The `main` branch was the focus of the recent work, with two commits made to it. The commit on June 17, 2026, added a Chrome Webstore link for OIF, as stated in the message \"Add Chrome Webstore link for OIF\". On June 9, 2026, the `main` branch also received a commit that added \"detectable statements and data repositories list\", according to the commit message. The `main` branch is the only branch that was worked on during this period. The changes were specifically related to adding links and lists, with no other branches or modules modified. The work was confined to these two specific additions on the `main` branch.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-06-17T14:15:44Z",
-        "recent_commits": [
-          {
-            "sha": "71c2a30",
-            "message": "Add Chrome Webstore link for OIF",
-            "body": "Added a link to the OIF Chrome extension in the README.",
-            "author": "giovannacdelsordo",
-            "date": "2026-06-17",
-            "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "aa35045",
-            "message": "Add detectable statements and data repositories list",
-            "body": "Added a list of current detectable statements and data repositories.",
-            "author": "giovannacdelsordo",
-            "date": "2026-06-09",
-            "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/aa350459ae2784eaa55c2dc0addfd1d19a8da736",
-            "type": "feat",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "The `main` branch was worked on, where the validation note was revised and a citation was added, as stated in the commit message \"Revise validation note and include citation\". \nNo other branches were modified in this set of commits.\nThe revision of the validation note and the inclusion of a citation are the specific changes made in this commit.\nThe commit message does not mention any other changes or additions to the repository.\nThe work was limited to a single commit on the `main` branch, with no other branches or modules affected.\nThe commit provides a clear and specific description of the changes made, with no other changes or updates mentioned.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-06-14T14:44:45Z",
-        "recent_commits": [
-          {
-            "sha": "3fce87a",
-            "message": "Revise validation note and include citation",
-            "body": "Updated validation note and added preprint citation.",
-            "author": "Shaheed Azaad",
-            "date": "2026-06-14",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/3fce87a6f0582c0e187b9d9f4c0afa052e348624",
-            "type": "chore",
             "branch": "main"
           }
         ]
