@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-16T19:15:46.136120+00:00",
+  "generated_at": "2026-07-17T02:34:05.119724+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -147,10 +147,10 @@
       "commits_1d": 0,
       "commits_90d": 215,
       "authors_30d": [
-        "Lisa DeBruine",
-        "Daniel Lakens",
         "Lakens",
-        "Jakub Werner"
+        "Jakub Werner",
+        "Lisa DeBruine",
+        "Daniel Lakens"
       ],
       "type_breakdown": {
         "other": 18,
@@ -642,15 +642,15 @@
         },
         {
           "week": 1780272000,
-          "total": 34
+          "total": 44
         },
         {
           "week": 1780876800,
-          "total": 34
+          "total": 25
         },
         {
           "week": 1781481600,
-          "total": 35
+          "total": 34
         },
         {
           "week": 1782086400,
@@ -669,7 +669,68 @@
           "total": 3
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1777161600,
+          "additions": 318,
+          "deletions": -134
+        },
+        {
+          "week": 1777766400,
+          "additions": 2730833,
+          "deletions": -5
+        },
+        {
+          "week": 1778371200,
+          "additions": 3901785,
+          "deletions": -2151340
+        },
+        {
+          "week": 1778976000,
+          "additions": 16503,
+          "deletions": -741
+        },
+        {
+          "week": 1779580800,
+          "additions": 1740252,
+          "deletions": -187144
+        },
+        {
+          "week": 1780185600,
+          "additions": 287600,
+          "deletions": -205927
+        },
+        {
+          "week": 1780790400,
+          "additions": 1715267,
+          "deletions": -266311
+        },
+        {
+          "week": 1781395200,
+          "additions": 102161,
+          "deletions": -105469
+        },
+        {
+          "week": 1782000000,
+          "additions": 656,
+          "deletions": -1003
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.1.0",
@@ -779,7 +840,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in the 'scienceverse/metacheck' repository enhances the project by adding support for processing JASP files, improving study categorization, and refining scale extraction, as evidenced by changes to files such as `archive-report.R`, `code_check.R`, and `file_category.R`, which include new exports like `data_study_roster` and updated functions for handling different file types."
+          "diff_summary": "This commit in 'scienceverse/metacheck' enhances the processing of JASP files, improves study categorization, and refines scale extraction by modifying several R files, including adding a new export for `data_study_roster` and updating functions such as `code_lang` to handle JASP files."
         },
         {
           "sha": "a4b8270",
@@ -1128,82 +1189,6 @@
           "type": "chore",
           "branch": "data_check",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "0a34c42",
-          "message": "process jasp files, better study categorization, better scale extraction.",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-07-15",
-          "url": "https://github.com/scienceverse/metacheck/commit/0a34c4293a5e4c83cf2e6fc1c997efecd88a5ea0",
-          "type": "other",
-          "branch": "data_check",
-          "diff": {
-            "additions": 2287,
-            "deletions": 232,
-            "files": [
-              {
-                "filename": "NAMESPACE",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 0,
-                "patch": "@@ -100,6 +100,7 @@ export(data_format)\n export(data_group_llm)\n export(data_is_manifest)\n export(data_strip_qualtrics_header)\n+export(data_study_roster)\n export(datacite_doi)\n export(demofile)\n export(demopaper)\n@@ -184,6 +185,7 @@ export(rbox_file_download)\n export(rbox_info)\n export(rbox_links)\n export(read)\n+export(read_jasp)\n export(ref_table)\n export(regcheck_base_url)\n export(regcheck_compare)"
-              },
-              {
-                "filename": "R/archive-report.R",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 1,
-                "patch": "@@ -537,7 +537,11 @@ collect_check_results <- function(results_dir, out_dir = NULL) {\n       all_names <- unique(unlist(lapply(count_cols, names)))\n       for (nm in all_names)\n         ck[[nm]] <- vapply(count_cols, function(cc) {\n-          v <- cc[[nm]]; if (is.null(v)) NA_real_ else as.numeric(v)[1]\n+          v <- cc[[nm]]\n+          # A count field can hold a non-numeric value (a label/category rather\n+          # than a number); coercing it to NA is intended (see the NA_real_\n+          #"
-              },
-              {
-                "filename": "R/code_check.R",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 0,
-                "patch": "@@ -68,6 +68,11 @@ code_lang <- function(file_name) {\n   if (grepl(\"\\\\.(do|ado)$\", lname)) {\n     return(\"Stata\")\n   }\n+  # A .jasp bundles a dataset with its analyses. It is a binary (zip) archive,\n+  # so none of the text-based checks below apply; it is listed, not analysed.\n+  if (grepl(\"\\\\.jasp$\", lname)) {\n+    return(\"JASP\")\n+  }\n   return(NA_character_)\n }\n "
-              },
-              {
-                "filename": "R/data_check_helpers.R",
-                "status": "modified",
-                "additions": 546,
-                "deletions": 74,
-                "patch": "@@ -94,14 +94,30 @@ data_classify_files <- function(file_name) {\n   # README filename \u2192 readme (belt-and-braces; file_category usually catches it)\n   type[grepl(\"^readme($|\\\\.)\", tolower(file_name))] <- \"readme\"\n \n+  # A preregistration document belongs in documentation/, not data/. A file named\n+  # \"preregistration\" / \"pre-registration\" (or the abbreviation \"prereg\") is\n+  # treated as `supplemental` (which targets documentation/) so it is never\n+  # converted to a data CSV or filed as code \u2014 "
-              },
-              {
-                "filename": "R/file_category.R",
-                "status": "modified",
-                "additions": 9,
-                "deletions": 2,
-                "patch": "@@ -37,11 +37,18 @@ file_category <- function(contents) {\n \n   # category is from OSF, so can be: analysis, communication, data, hypothesis, instrumentation, methods and measures, procedure, project, software, other, but mostly uncategorized (NA)\n \n-  # hard rules\n+  # hard rules. Most files carry a single type, matched exactly as before. The\n+  # one compound case handled here is a statistics-package file that bundles BOTH\n+  # a dataset and its analyses (a .jasp / .por is typed \"data;stats\"): "
-              },
-              {
-                "filename": "R/jasp.R",
-                "status": "added",
-                "additions": 213,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,213 @@\n+# Read JASP (.jasp) data archives -------------------------------------------\n+#\n+# A .jasp file is a ZIP archive bundling a dataset, its variable metadata, the\n+# analyses that were run, and cached results. metacheck reads the DATA and the\n+# variable metadata (measurement level + value labels) so a .jasp can serve as\n+# both a data source and its own codebook \u2014 exactly as an SPSS .sav does.\n+#\n+# Two on-disk formats exist and both are handled:\n+#   * BINARY (JASP <= ~0.16): "
-              },
-              {
-                "filename": "R/llm.R",
-                "status": "modified",
-                "additions": 31,
-                "deletions": 0,
-                "patch": "@@ -70,6 +70,13 @@ llm <- function(text, system_prompt,\n \n   # set up answer data frame to return ----\n   unique_text <- unique(text[[text_col]])\n+  # Sanitise before anything downstream keys on the text (cache key, request\n+  # body). Research data routinely carries invalid UTF-8 (a mis-encoded\n+  # apostrophe/\u00b0/\u00e9 in a free-text survey answer) and stray control bytes; ellmer\n+  # serialises those into a JSON request body the provider then cannot parse\n+  # (Mistral: HTTP 400 \"There was an error"
-              },
-              {
-                "filename": "R/psychds-convert.R",
-                "status": "modified",
-                "additions": 578,
-                "deletions": 34,
-                "patch": "@@ -8,8 +8,12 @@\n .psychds_numeric_reps <- c(\"numeric\")\n # Measurement levels that receive a valuePattern (their distinct values matter).\n .psychds_categorical_levels <- c(\"nominal\", \"ordinal\")\n-# Quality states that get no variableMeasured entry at all (no measured content).\n-.psychds_excluded_quality <- c(\"empty\")\n+# Quality states that hold no measured content. These columns still get a\n+# variableMeasured entry (Psych-DS requires every CSV column to be described, so\n+# omitting them makes th"
-              }
-            ]
-          },
-          "diff_summary": "This commit in the 'scienceverse/metacheck' repository enhances the project by adding support for processing JASP files, improving study categorization, and refining scale extraction, as evidenced by changes to files such as `archive-report.R`, `code_check.R`, and `file_category.R`, which include new exports like `data_study_roster` and updated functions for handling different file types."
         }
       ]
     },
@@ -1923,80 +1908,6 @@
       "readme_excerpt": "`statcheck` is a \u201cspellchecker\u201d for statistics. It checks whether your\n*p*-values match their accompanying test statistic and degrees of\nfreedom.\n\n`statcheck` searches for null-hypothesis significance test (NHST) in APA\nstyle (e.g., *t*(28) = 2.2, *p* \\< .05). It recalculates the p-value\nusing the reported test statistic and degrees of freedom. If the\nreported and computed p-values don\u2019t match, `statcheck` will flag the\nresult as an error.\n\n![](man/figures/infograph.png)\n\n\n`statcheck` is mainly useful for:\n\n1.  **Self-checks**: you can use `statcheck` to make sure your\n    manuscript doesn\u2019t c",
       "scopus_citations": null,
       "recent_commits": [
-        {
-          "sha": "50ab5e6",
-          "message": "Merge branch 'feature-non-apa-newer' of https://github.com/MicheleNuijten/statcheck into feature-non-apa-newer",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-07-03",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/50ab5e66a0f32d77c9becef0c4bba3d638ec8019",
-          "type": "feat",
-          "branch": "feature-non-apa-newer",
-          "diff": {
-            "additions": 414,
-            "deletions": 105,
-            "files": [
-              {
-                "filename": "R/clean_non_apa.R",
-                "status": "added",
-                "additions": 44,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,44 @@\n+clean_non_apa <- function(nhst_raw){\n+  \n+  # remove all spaces\n+  # the parsing functions can handle no spaces, but it would be too complicated\n+  # to take into account every possible number of spaces, so removing them\n+  # all is easiest\n+  nhst_clean <- gsub(pattern = \"\\\\s+\", replacement = \"\",\n+                     nhst_raw)\n+  \n+  # replace square or curly brackets with parentheses\n+  nhst_clean <- gsub(pattern = RGX_SQ_CURLY1, replacement = RGX_PRTS_1, \n+                 "
-              },
-              {
-                "filename": "R/extract_stats.R",
-                "status": "modified",
-                "additions": 62,
-                "deletions": 34,
-                "patch": "@@ -1,13 +1,20 @@\n-extract_stats <- function(txt, stat){\n+extract_stats <- function(txt, apa_style, stat){\n   \n   # step 1: extract all NHST results from text -----------------------------------\n   \n+  # specify whether to search for APA NHST results or also to include non-APA\n+  if(apa_style == TRUE){\n+    rgx_nhst <- RGX_NHST\n+  } else {\n+    rgx_nhst <- RGX_NHST_NONAPA\n+  }\n+  \n   # if there are x NHST results in a text, this returns a character vector of \n   # length x\n   nhst_raw <- extract"
-              },
-              {
-                "filename": "R/helpers-parse-stats.R",
-                "status": "modified",
-                "additions": 65,
-                "deletions": 16,
-                "patch": "@@ -46,7 +46,22 @@ extract_df <- function(raw, test_type){\n     df1 <- NA\n     df2 <- NA\n     \n-  } else {\n+  } else if(test_type == \"r\" & grepl(RGX_DFN_R_NRS, raw)){\n+    # if correlations report N instead of df, transform to df\n+    \n+    # extract full string with N\n+    dfn <- extract_pattern(txt = raw,\n+                           pattern = RGX_DFN_R_NRS)[[1]]\n+    \n+    # only extract numbers\n+    n <- as.numeric(extract_pattern(txt = dfn,\n+                                    pattern = \"\\\\d"
-              },
-              {
-                "filename": "R/regex.R",
-                "status": "modified",
-                "additions": 221,
-                "deletions": 43,
-                "patch": "@@ -1,55 +1,114 @@\n # this script contains the regular expressions that statcheck uses to extract\n-# NHST results from text\n-\n-# test types\n-RGX_T <- \"t\"\n-RGX_R <- \"r\"\n-RGX_Q <- \"Q\\\\s?-?\\\\s?(w|W|(w|W)ithin|b|B|(b|B)etween)?\"\n-RGX_F <- \"F\"\n-RGX_Z <- \"([^a-z](z|Z))\"\n-# for chi2: effectively extract everything that is NOT a t, r, F, z, Q, W, n, or \n-# D, followed by *maybe* a 2 (and later followed by a result in a chi2 layout)\n-RGX_CHI2 <- \"((\\\\s[^trFzZQWnD ]\\\\s?)|([^trFzZQWnD ]2\\\\s?))2?\"\n-\n-# degr"
-              },
-              {
-                "filename": "R/statcheck.R",
-                "status": "modified",
-                "additions": 10,
-                "deletions": 2,
-                "patch": "@@ -115,6 +115,7 @@\n \n statcheck <- function(texts,\n                       stat = c(\"t\", \"F\", \"cor\", \"chisq\", \"Z\", \"Q\"),\n+                      apa_style = TRUE,\n                       OneTailedTests = FALSE,\n                       alpha = .05,\n                       pEqualAlphaSig = TRUE,\n@@ -159,7 +160,7 @@ statcheck <- function(texts,\n     # later on to calculate the APA factor: the ratio (statcheck results)/\n     # (total # of p values). It is also possible to let statcheck return this\n     "
-              },
-              {
-                "filename": "tests/testthat/test-extract-non-apa.R",
-                "status": "modified",
-                "additions": 12,
-                "deletions": 10,
-                "patch": "@@ -29,7 +29,7 @@ test_that(\"F with MSE is extracted and parsed\",{\n   expect_equal(result[[VAR_TEST_VALUE]], rep(11.37, 2))\n   \n   # don't extract these results when apa_style is TRUE\n-  expect_output(statcheck(c(txt1, txt2), messages = FALSE), \n+  expect_message(statcheck(c(txt1, txt2), messages = FALSE), \n                 \"did not find any results\")\n   \n })\n@@ -50,7 +50,7 @@ test_that(\"df between square, curly, or no brackets are extracted and parsed\",{\n   expect_equal(result[[VAR_DF2]], rep(2"
-              }
-            ]
-          },
-          "diff_summary": "This commit merges changes from the 'feature-non-apa-newer' branch into the same branch, updating several R files, including `clean_non_apa.R`, `extract_stats.R`, `helpers-parse-stats.R`, `regex.R`, and `statcheck.R`, to improve the handling of non-APA style statistical results in the statcheck package."
-        },
-        {
-          "sha": "ffba7eb",
-          "message": "admin updates",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-07-03",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/ffba7eb5b198605087b94718ce5e98ed6871d458",
-          "type": "other",
-          "branch": "feature-non-apa-newer",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
         {
           "sha": "50ab5e6",
           "message": "Merge branch 'feature-non-apa-newer' of https://github.com/MicheleNuijten/statcheck into feature-non-apa-newer",
@@ -3858,7 +3769,68 @@
           "total": 4
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1777161600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1777766400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778371200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 404,
+          "deletions": -196
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "7.2.3",
@@ -3934,7 +3906,7 @@
               }
             ]
           },
-          "diff_summary": "This commit, titled \"documentation update\", updates various files in the 'quest-bih/oddpub' repository, including R code, README, and YAML configuration files, to improve documentation and add new keyword patterns for supplement detection, while also refining the open data detection process."
+          "diff_summary": "This commit, titled \"documentation update\", updates various files in the 'quest-bih/oddpub' repository, including R code, README, and YAML data files, to improve documentation and add new keyword patterns for supplement detection."
         },
         {
           "sha": "2b600f3",
@@ -3969,66 +3941,6 @@
           "date": "2026-07-14",
           "url": "https://github.com/quest-bih/oddpub/commit/f2850fe422d79e01822dce59c7589a3cd332dcc8",
           "type": "fix",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "febed59",
-          "message": "documentation update",
-          "body": "",
-          "author": "ontogenerator",
-          "author_login": "",
-          "date": "2026-07-16",
-          "url": "https://github.com/quest-bih/oddpub/commit/febed5923857dd945f36b8e0ddd27521ada76c69",
-          "type": "other",
-          "branch": "main",
-          "diff": {
-            "additions": 131,
-            "deletions": 87,
-            "files": [
-              {
-                "filename": "R/screen_text.R",
-                "status": "modified",
-                "additions": 11,
-                "deletions": 9,
-                "patch": "@@ -50,11 +50,12 @@\n                                                           keyword_list$file_formats,\n                                                           dist = 12)\n \n-  keyword_list[[\"supp_table_data\"]] <- .near_wd_sym(keyword_list$supplemental_table,\n+  keyword_list[[\"suppl_table_data\"]] <- .near_wd_sym(keyword_list$supplemental_table,\n                                                     paste(keyword_list$file_formats,\n                                                           keyw"
-              },
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 108,
-                "deletions": 70,
-                "patch": "@@ -85,8 +85,9 @@ Loads all text files from given folder.\n ``` r\n open_data_results <- oddpub::open_data_search(pdf_text_sentences, screen_das = \"extra\")\n ```\n-Actual Open Data detection. Returns for each file if Open Data or Open Code is\n-detected. Additionally returns the identified Open Data/Code categories,\n+Actual Open Data detection. Returns for each file if Open Data or\n+Open Code is detected.\n+Additionally returns the identified Open Data/Code categories,\n as well as the detected sentenc"
-              },
-              {
-                "filename": "inst/extdata/keywords_patterns.yaml",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 0,
-                "patch": "@@ -517,6 +517,10 @@ grant:\n   - \"support (was provided )?by\"\n   - \"foundation\"\n \n+# exclusion phrases to downgrade specific mention to supplement\n+# flagging supplements is independent from this however, as it relies\n+# on the mention of a specific table or file, as opposed to general\n+# supplement mention\n supplement:\n   - \"supporting information\"\n   - \"supplement(?!ed)\""
-              },
-              {
-                "filename": "tests/testthat/test_individual_keywords.R",
-                "status": "modified",
-                "additions": 8,
-                "deletions": 8,
-                "patch": "@@ -249,14 +249,14 @@ test_that(\"all_data_file_formats\",\n             # expect_false(.detect_keywords(\"all data word word word word word word word word word word word xlsx\", \"all_data_file_formats\"))\n           })\n \n-test_that(\"supp_table_data\",\n+test_that(\"suppl_table_data\",\n           {\n-            expect_true(.detect_keywords(\"supplementary table S3 word word word word word xlsx\", \"supp_table_data\"))\n-            expect_true(.detect_keywords(\"supplementary table S3 word word word word word a"
-              }
-            ]
-          },
-          "diff_summary": "This commit, titled \"documentation update\", updates various files in the 'quest-bih/oddpub' repository, including R code, README, and YAML configuration files, to improve documentation and add new keyword patterns for supplement detection, while also refining the open data detection process."
-        },
-        {
-          "sha": "2b600f3",
-          "message": "improved reuse and upon request, references detection",
-          "body": "",
-          "author": "ontogenerator",
-          "author_login": "",
-          "date": "2026-07-15",
-          "url": "https://github.com/quest-bih/oddpub/commit/2b600f39a637ff610d1f09148d2f8b11b7115d42",
-          "type": "other",
           "branch": "main",
           "diff": {}
         }
@@ -4861,19 +4773,19 @@
         },
         {
           "week": 1777852800,
-          "total": 92
+          "total": 93
         },
         {
           "week": 1778457600,
-          "total": 119
+          "total": 123
         },
         {
           "week": 1779062400,
-          "total": 76
+          "total": 72
         },
         {
           "week": 1779667200,
-          "total": 34
+          "total": 33
         },
         {
           "week": 1780272000,
@@ -5008,7 +4920,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository documents and tests a diagnosed TEXT-LOSS issue in the chan_feldman T3 caption-tail-walk, adding findings and triage documentation, as well as a test case, with the actual fix deferred to a future corpus-wide update in the RC-T cycle."
+          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository documents and tests a diagnosed issue with text loss in the caption-tail-walk of the chan_feldman T3 model, specifically noting that the fix is corpus-wide and deferred, while also updating related documentation and test files."
         },
         {
           "sha": "56f60b5",
@@ -5354,83 +5266,6 @@
           "author_login": "giladfeldman",
           "date": "2026-06-29",
           "url": "https://github.com/giladfeldman/docpluck/commit/b0fdd5f7cb649a43528b7ed90a2b9562510e4a3b",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "ba4e124",
-          "message": "docs+test(rc-t): diagnose chan_feldman T3 caption-tail-walk TEXT-LOSS; xfail guard (fix is corpus-wide, deferred)",
-          "body": "Run 3 cycle 3: the whitespace_cells test failure is NOT a stale-premise test to\nupdate \u2014 a gold-verify confirmed it guards REAL TEXT-LOSS. chan_feldman Table 3's\nraw_text fallback silently drops its first 4 rows (Sample size 239/794,\nGeographic origin, Gender, Ethnic group). Root-caused to _extract_table_body_text's\nbody_start caption-tail walk overshooting the caption's own sentence terminator\n(`replication.`) to a later `\\n\\n`.\n\nA per-line-terminator walk fixes chan T3 \u2014 but a 101-PDF guard-diff\n(tmp/rct_body_text_diff.py) shows the walk is SHARED across every table's raw_text\nextraction: the fix shifts body_start on 310 captions (308 recover legitimately,\n2 TRUNCATE \u2014 amc_1 T3, xiao_2021 T6, a regression, and ~53 recover body-prose /\na leading Fig caption). That is a corpus-wide capture-path change for the gated\nRC-T cycle (48-paper structured guard-diff + 7-canary AI-gold + user sign-off),\nnot a session-tail patch. ATTEMPTED + REVERTED.\n\n- New FINDINGS doc: precise mechanism + guard-diff blast-radius + the RC-T cycle's\n  executable target.\n- test_t3_first_rows_not_dropped: xfail(strict=True) guard documenting the\n  TEXT-LOSS; will XPASS-alert when the RC-T cycle lands the corpus-safe fix.\n- TRIAGE run-3 section updated (whitespace_cells is a real TEXT-LOSS guard, not a\n  stale test; the raw_text fix is corpus-wide).\n\nextract_structured.py reverted to HEAD (no library change in this commit).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-07-04",
-          "url": "https://github.com/giladfeldman/docpluck/commit/ba4e12402e5dfa77ed298d8039093d42cfc8ba5d",
-          "type": "fix",
-          "branch": "main",
-          "diff": {
-            "additions": 186,
-            "deletions": 4,
-            "files": [
-              {
-                "filename": "docs/FINDINGS_2026-07-04_rct_caption_tail_walk_textloss.md",
-                "status": "added",
-                "additions": 95,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,95 @@\n+# FINDINGS \u2014 RC-T caption-tail-walk TEXT-LOSS (chan_feldman T3 first-4-rows drop): diagnosed, fix is corpus-wide, deferred to the gated RC-T cycle (2026-07-04 run 3)\n+\n+## The defect (gold-confirmed TEXT-LOSS)\n+\n+chan_feldman_2025_cogemo Table 3's raw_text fallback (`unstructured-table` block)\n+DROPS its first four rows. Gold Table 3 is a clean 2-column comparison\n+(McCullough et al. 1997 vs US Prolific), 10 rows:\n+\n+| row | McCullough 1997 | US Prolific |\n+|---|---|---|\n+| Sam"
-              },
-              {
-                "filename": "docs/TRIAGE_2026-07-03_head_v2.4.101_assessment.md",
-                "status": "modified",
-                "additions": 45,
-                "deletions": 4,
-                "patch": "@@ -41,11 +41,52 @@ Moved from Cluster C to Cluster B6/architectural. Detail in\n (`\u2026providing support` / Table4 / Table5 / `for the demonstration of\u2026`) \u2014 a\n table-PLACEMENT defect in the RC-T / floating-table family. Queued with RC-T.\n \n+**whitespace_cells 0-cell test \u2014 CONFIRMED A REAL TEXT-LOSS GUARD, do NOT \"update\n+the test to pass\" (2026-07-04 run 3, gold-verified).** The prior TRIAGE/HANDOFF\n+framed `test_b1_whitespace_cells_wiring_live` (fails on chan_feldman + maier, \"0\n+cells vs \u226550\") a"
-              },
-              {
-                "filename": "tests/test_rc_t_layer2_raw_text_real_pdf.py",
-                "status": "modified",
-                "additions": 46,
-                "deletions": 0,
-                "patch": "@@ -161,3 +161,49 @@ def test_t3_legit_fallback_table_survives(chan_md: str):\n     blocks = _unstructured_blocks(chan_md)\n     assert \"Median age\" in blocks, \"chan_feldman T3 descriptive fallback wrongly suppressed (FP)\"\n     assert \"Origin was not explicitly mentioned\" in blocks, \"T3 Note over-trimmed (FP)\"\n+\n+\n+# \u2500\u2500 RC-T TEXT-LOSS: the caption-tail-walk overshoot (diagnosed, deferred) \u2500\u2500\u2500\u2500\u2500\n+#\n+# The chan_feldman Table 3 fallback DROPS its first four rows (Sample size\n+# 239/794, Geographic or"
-              }
-            ]
-          },
-          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository documents and tests a diagnosed TEXT-LOSS issue in the chan_feldman T3 caption-tail-walk, adding findings and triage documentation, as well as a test case, with the actual fix deferred to a future corpus-wide update in the RC-T cycle."
-        },
-        {
-          "sha": "56f60b5",
-          "message": "docs(triage): record run-3 outcome \u2014 W0l \u00d7-as-3 residuals resolved (v2.4.116); efendic headings rescoped to B6",
-          "body": "- TRIAGE run-3 section: W0l shipped (both efendic \u00d7-as-3 residuals RESOLVED,\n  Sonnet-verified, 101-PDF FP scan clean); efendic 2 demoted subsection headings\n  RESCOPED from \"heading-promoter\" to B6 column-interleave (root-cause reproduction).\n- NEW FINDINGS doc: efendic Design/Procedure/Measures + Analysis Strategy headings\n  are spatially orphaned from their bodies by two-column pdftotext serialization \u2014\n  a heading-promotion hack would emit heading-with-no-body. Deferred to the B6\n  architectural cluster (same as the chandrashekar canary).\n- Also logged: NEW efendic Table 4/5 mid-sentence splice (RC-T family); ar_apa gold\n  misread (\"yet feel\" vs correct \"not yell\" docpluck renders) \u2014 flag gold for regen.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-07-04",
-          "url": "https://github.com/giladfeldman/docpluck/commit/56f60b5f3f3f74a00ef98c3783f76abfad37da07",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "a4f8796",
-          "message": "fix(glyph): recover 2 residual \u00d7-as-3 prose shapes W0k can't reach (efendic) + v2.4.116",
-          "body": "W0l \u2014 the two \u00d7-as-3 glyph residuals the single-line W0k word-pair regex\nstructurally cannot reach (both silently render `3` where a scientist should\nread `\u00d7`), documented in docs/FINDINGS_2026-07-03_efendic_glyph_in_prose_channel.md:\n\n(A) recover_times_design_notation \u2014 factorial-design notation `<digit>(\u2026) 3\n    <digit>(\u2026)`: \"2 (Between-subject factor--Direction: \u2026) 3 2 (\u2026) 3 3\n    (Within-subject factor--\u2026) mixed-subject design\" \u2192 each `) 3 <digit> (`\n    boundary's `3` is a corrupted `\u00d7` (trailing digit is the real factor SIZE).\n    Fires ONLY when tied to a genuine factor parenthetical: an adjacent\n    parenthetical names a factor type, OR both sides are factor-size parens\n    closed by a factorial/design tail. A range recode `(min 1) 3 2 (max 5)`,\n    a formula `f(x) 3 2 (y)`, `(from level 3) 3 2 (see note)` are left alone.\n\n(B) recover_times_wrapped_interaction \u2014 a line ending `<Pred> 3` whose next\n    line starts with a predictor word, inside an \"interaction\" context:\n    \"(Direction 3\\nManipulated Attribute \u00d7 CMA)\" \u2192 \"Direction \u00d7 Manipulated\u2026\".\n    Reference-word tail guard (FIGURE 3 / Table 3 / Model 3) \u2014 the wide FP\n    scan caught amj_1 `FIGURE 3\\nRegression\u2026` + jamison `Table 3\\nMain-effects\n    and interactions.` wrongly joined; guard added + regression-tested.\n\nNORMALIZATION_VERSION 1.9.42 \u2192 1.9.43. Wired channel 1 (normalize_text) AND\nchannel 3 (render post-process) per glyph-fixes-need-all-three-text-channels.\n\nVerification (ground truth = AI multimodal reading golds via article-finder):\n- Independent Sonnet canary audit CONFIRMS both efendic glyph fixes correct\n  (design `\u00d7 2 \u00d7 3`, interaction `Direction \u00d7 Manipulated Attribute \u00d7 CMA`),\n  no \u00d7-as-3 / minus-as-2 corruption anywhere else in efendic.\n- Wide 101-PDF raw-text FP scan CLEAN (0 non-target FPs; efendic recovered).\n- 26-paper baseline 26/26 PASS. Normalize idempotency corpus PASS.\n- 42 W0k/W0l tests + real-PDF end-to-end (fails at HEAD v2.4.115, passes here).\n\nResolves efendic's two \u00d7-as-3 residuals. Remaining efendic findings (2 demoted\nsubsection headings; a NEW Table 4/5 mid-sentence splice) are queued; RC-T\ntable-data-loss on ip_feldman/plos_med/chandrashekar remains architectural.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-07-04",
-          "url": "https://github.com/giladfeldman/docpluck/commit/a4f879628fb2752952871e95a61f8df0181a5742",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "e140cf1",
-          "message": "fix(render): strip affiliation remnant orphaned in Abstract body (chandrashekar) + v2.4.115",
-          "body": "A canary AI-verify found chandrashekar_2023_mp rendering \"Department of Philosophy,\nLake Forest College\" + \"*Joint first authors\" right after the ## Abstract heading,\nbefore the abstract prose. The paper has 3 author affiliations; the section\npartitioner inserted ## Abstract mid-affiliation-block, so the masthead strip\n(which stops AT ## Abstract) caught the first two but left the third orphaned in\nthe Abstract body, and the >=3-consecutive-line _strip_body_affiliation_block\ncould not reach a single surviving affiliation line.\n\nFix: _strip_abstract_zone_affiliation_remnant removes an affiliation line (+ a\njoint-authors / corresponding-author companion note) that is the FIRST non-blank\ncontent after ## Abstract. A real Abstract always opens with PROSE, so an\naffiliation LINE in that slot is unambiguously a boundary-split front-matter\nremnant -- the structural signature is affiliation-grammar (via the existing\n_is_affiliation_line) at the Abstract-heading boundary, never paper identity. An\nabstract that merely MENTIONS a university mid-sentence is prose, not an\naffiliation line, and is kept.\n\nVerification (AI-gold via article-finder): chandrashekar's ## Abstract now goes\ndirectly to the abstract body; all 3 affiliations are in the front matter (stripped\nby design), none in the Abstract. An abstract-zone FP-scan across the rendered\ncorpus fires ONLY on chandrashekar -- every other paper's abstract is byte-identical.\n4 new tests (incl. real-abstract + university-mention FP guards). Full suite: 1896\npassed, only the 2 documented pre-existing whitespace_cells failures remain.\n\nResolves chandrashekar's METADATA-LEAK (defect #1 of the 2026-07-04 report). Its\nTables 9/10 RC-T data-loss (defects #2/#3) is the architectural cluster --\ndiagnosed with a precise cycle plan in\ndocs/FINDINGS_2026-07-04_chandrashekar_rc_t_tables_9_10.md (the missing piece: wire\ntables/whitespace.py::char_whitespace_cells to REPLACE a degenerate matched Camelot\ntable in extract_structured.py::_pick_better_table). Deferred to a dedicated gated\ncycle (full 48-paper guard-diff + 7-canary AI-verify; do NOT rush at session-tail).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-07-04",
-          "url": "https://github.com/giladfeldman/docpluck/commit/e140cf159e73370aa9b8db830cb5169ae905e120",
           "type": "fix",
           "branch": "main",
           "diff": {}
@@ -5903,7 +5738,7 @@
       "topics": [],
       "pushed_at": "2026-07-02T20:22:59Z",
       "created_at": "2026-03-03",
-      "last_push_days": 13,
+      "last_push_days": 14,
       "default_branch": "dev",
       "license": "MIT",
       "branches": [
@@ -6677,11 +6512,11 @@
         },
         {
           "week": 1779667200,
-          "total": 0
+          "total": 8
         },
         {
           "week": 1780272000,
-          "total": 26
+          "total": 18
         },
         {
           "week": 1780876800,
@@ -6689,19 +6524,19 @@
         },
         {
           "week": 1781481600,
-          "total": 24
+          "total": 26
         },
         {
           "week": 1782086400,
-          "total": 7
+          "total": 5
         },
         {
           "week": 1782691200,
-          "total": 0
+          "total": 2
         },
         {
           "week": 1783296000,
-          "total": 2
+          "total": 0
         },
         {
           "week": 1783900800,
@@ -6798,7 +6633,7 @@
               }
             ]
           },
-          "diff_summary": "This commit re-enables the Fable 5 model in the model picker by changing its \"unavailable\" status to false in the `ModelPicker.tsx` file."
+          "diff_summary": "This commit re-enables the Fable 5 model in the model picker by changing its \"unavailable\" status from true to false in the `ModelPicker.tsx` file."
         },
         {
           "sha": "d6df84a",
@@ -7148,45 +6983,6 @@
           "branch": "feat/221-i18n-localized-review",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "d93b6f8",
-          "message": "fix(web): re-enable Fable 5 in the model picker",
-          "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-02",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/d93b6f8ce532991eb16a11928710e553c7f384c2",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {
-            "additions": 1,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "web/src/components/ModelPicker.tsx",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -17,7 +17,7 @@ type DefaultModel = {\n };\n \n const DEFAULT_MODELS: DefaultModel[] = [\n-  { id: \"anthropic/claude-fable-5\", label: \"Fable 5\", provider: \"Anthropic\", unavailable: true },\n+  { id: \"anthropic/claude-fable-5\", label: \"Fable 5\", provider: \"Anthropic\" },\n   { id: \"anthropic/claude-opus-4.8\", label: \"Opus 4.8\", provider: \"Anthropic\" },\n   { id: \"anthropic/claude-sonnet-4.6\", label: \"Sonnet 4.6\", provider: \"Anthropic\" },\n   { id: \"openai/gpt-5.5\", label: \"GPT-5.5\", provider: \"OpenAI\" }"
-              }
-            ]
-          },
-          "diff_summary": "This commit re-enables the Fable 5 model in the model picker by changing its \"unavailable\" status to false in the `ModelPicker.tsx` file."
-        },
-        {
-          "sha": "d6df84a",
-          "message": "fix(web): re-enable Fable 5 in the model picker",
-          "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-02",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/d6df84ab3c3abc476d1c7e9a9f42c2a6073b7480",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        }
       ]
     },
     {
@@ -7370,11 +7166,11 @@
         },
         {
           "week": 1780272000,
-          "total": 4
+          "total": 10
         },
         {
           "week": 1780876800,
-          "total": 16
+          "total": 13
         },
         {
           "week": 1781481600,
@@ -7382,7 +7178,7 @@
         },
         {
           "week": 1782086400,
-          "total": 15
+          "total": 12
         },
         {
           "week": 1782691200,
@@ -7508,7 +7304,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in the 'JamieCummins/regcheck' repository updates the demo page and fixes a bug in the Command Line Interface (CLI) by modifying the backend logic in `main.py` and `comparisons.py`, and also updates a sample report and test case in `sample-report.json` and `test_cost_tracking.py`."
+          "diff_summary": "This commit in the 'JamieCummins/regcheck' repository updates the demo page and fixes a bug in the command-line interface (CLI) by modifying the backend code and test files, including changes to cache-busting, comparison services, and cost tracking tests."
         },
         {
           "sha": "722db8f",
@@ -7854,114 +7650,6 @@
           "author_login": "JamieCummins",
           "date": "2026-06-30",
           "url": "https://github.com/JamieCummins/regcheck/commit/717d756af09ffbaf609e72ac9f16fe6bc5abda05",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "ffb127a",
-          "message": "update demo page; caught CLI bug",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/ffb127af3fa582b21ad7d14211f4392d00a61070",
-          "type": "fix",
-          "branch": "main",
-          "diff": {
-            "additions": 18,
-            "deletions": 10846,
-            "files": [
-              {
-                "filename": "backend/main.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -31,7 +31,7 @@\n # Single source of truth for static-asset cache-busting. Bump this on any\n # CSS/JS change so browsers refetch; it is exposed to every template as the\n # `static_version` global (templates reference it as `?v={{ static_version }}`).\n-STATIC_VERSION = \"20260714-wizard-guard\"\n+STATIC_VERSION = \"20260714-demo-refresh\"\n \n \n def create_app() -> FastAPI:"
-              },
-              {
-                "filename": "backend/services/comparisons.py",
-                "status": "modified",
-                "additions": 9,
-                "deletions": 6,
-                "patch": "@@ -1241,12 +1241,15 @@ async def general_preregistration_comparison(\n                 evidence_out[\"rr_integrity\"] = rr_integrity\n         except Exception as exc:  # pragma: no cover - degrade to Track B only\n             logger.warning(\"RR carried-forward alignment failed; Track B continues\", exc_info=exc)\n-        if evidence_out is not None:\n-            inline_manifest, inline_render_data = _assemble_inline_bundle(\n-                task_id, \"general_preregistration\", source_payloads\n-     "
-              },
-              {
-                "filename": "static/demo/sample-report.json",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 10839,
-                "patch": ""
-              },
-              {
-                "filename": "tests/test_cost_tracking.py",
-                "status": "modified",
-                "additions": 7,
-                "deletions": 0,
-                "patch": "@@ -137,16 +137,23 @@ def fake_runner(*args, **kwargs):\n             items=[comparisons.ComparisonItem(dimension=\"Sample size\", deviation_judgement=\"no\")]\n         )\n \n+    evidence_out: dict = {}\n     result = _run(\n         comparisons.general_preregistration_comparison(\n             str(reg), \".txt\", str(paper), \".txt\", \"openai\", \"pymupdf\",\n             selected_dimensions=[{\"dimension\": \"Sample size\", \"definition\": \"n\"}],\n             comparison_runner=fake_runner,\n+            evidence_out="
-              }
-            ]
-          },
-          "diff_summary": "This commit in the 'JamieCummins/regcheck' repository updates the demo page and fixes a bug in the Command Line Interface (CLI) by modifying the backend logic in `main.py` and `comparisons.py`, and also updates a sample report and test case in `sample-report.json` and `test_cost_tracking.py`."
-        },
-        {
-          "sha": "722db8f",
-          "message": "fix card preview bug",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/722db8ffb78e005a739e7849252421fe0e799358",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "4f8871e",
-          "message": "rename survey routes to avoid ad blocker interference",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/4f8871e153b1da9e92078254c71ce75a148dd943",
-          "type": "refactor",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "41a3c91",
-          "message": "fix: wizard incorrectly blocked by ad blockers",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/41a3c919db7c3487914670e13d9ed5f1370f52a2",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "dfc6177",
-          "message": "Update CHANGELOG.md",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/dfc61773855c60e9f25ee2b0f5969fc542db1056",
-          "type": "docs",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "483af6c",
-          "message": "handle iframe remenant issue",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/483af6cb25db3093b19ae080872eca3e68b5bdd0",
           "type": "other",
           "branch": "main",
           "diff": {}
@@ -8480,7 +8168,7 @@
               }
             ]
           },
-          "diff_summary": "This commit, 'sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)', updates the 'effectcheck' package to version 0.6.13, adding two new test types, including a bare Bayes factor and a hazard ratio, and fixes issues from the escicheck-iterate cycles."
+          "diff_summary": "This commit, 'sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)', updates the 'effectcheck' package to version 0.6.13, adding two new test types, including a bare Bayes factor and a hazard ratio, as well as fixes from the escicheck-iterate cycles."
         },
         {
           "sha": "e09dbc9",
@@ -8589,82 +8277,6 @@
           "type": "chore",
           "branch": "main",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "7ec3c89",
-          "message": "sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)",
-          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-07-03",
-          "url": "https://github.com/giladfeldman/escicheck/commit/7ec3c89a5291a35f690b0b4962daa5ea32abfc73",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 1181,
-            "deletions": 11,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,7 +1,7 @@\n Package: effectcheck\n Type: Package\n Title: Statistical Consistency Checker for Published Research Results\n-Version: 0.6.12\n+Version: 0.6.13\n Authors@R: c(person(given = \"Gilad\", family = \"Feldman\", role = c(\"aut\", \"cre\"),\n     email = \"giladfel@gmail.com\", comment = c(ORCID = \"0000-0003-2812-6599\")))\n Description: A conservative, assumption-aware statistical consistency checker"
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 101,
-                "deletions": 0,
-                "patch": "@@ -1,3 +1,104 @@\n+# effectcheck 0.6.13\n+\n+**Two new test types + two canary-re-audit fixes from the 2026-07-02 escicheck-iterate cycles 2-3\n+(F1 bare Bayes factor + HR hazard ratio, both user-approved; independent Sonnet-watches-Opus canary\n+re-audit over the fixed-3 + rotating set).**\n+\n+- **`bayes_factor`** (new `test_type`; cycle-2 F1) \u2014 a STANDALONE evidential Bayes factor reported as\n+  a PRIMARY finding of a RoBMA / Bayesian meta-analysis is extracted as an extraction-only NOTE\n+  surfaci"
-              },
-              {
-                "filename": "R/check.R",
-                "status": "modified",
-                "additions": 160,
-                "deletions": 9,
-                "patch": "@@ -920,6 +920,7 @@ compute_and_compare_one <- function(row,\n     \"or\" = \"OR\", \"odds ratio\" = \"OR\",\n     \"rr\" = \"RR\", \"risk ratio\" = \"RR\",\n     \"irr\" = \"IRR\", \"incidence rate ratio\" = \"IRR\",\n+    \"hr\" = \"HR\", \"ahr\" = \"HR\", \"adjusted hr\" = \"HR\", \"hazard ratio\" = \"HR\",\n     \"h\" = \"h\", \"cohen's h\" = \"h\", \"cohens h\" = \"h\",\n     \"w\" = \"cohens_w\", \"cohen's w\" = \"cohens_w\", \"cohens w\" = \"cohens_w\",\n     \"cohens_w\" = \"cohens_w\",\n@@ -1149,11 +1150,23 @@ compute_and_compare_one <- function(row,\n          "
-              },
-              {
-                "filename": "R/parse.R",
-                "status": "modified",
-                "additions": 342,
-                "deletions": 0,
-                "patch": "@@ -985,6 +985,22 @@ parse_text <- function(text, context_window_size = 2) {\n   pat_OR <- \"(?:OR|odds\\\\s*ratio)\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n   pat_RR <- \"(?:RR|risk\\\\s*ratio)\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n   pat_IRR <- \"(?:IRR|incidence\\\\s*rate\\\\s*ratio)\\\\s*=\\\\s*([-+]?\\\\d*\\\\.?\\\\d+)\"\n+  # v0.6.13: hazard ratio (Cox proportional-hazards / survival analysis). Accepts\n+  # the adjusted forms (aHR / adjusted HR) and the spelled-out \"hazard ratio\". The\n+  # HR is an effect-size-only report with no rec"
-              },
-              {
-                "filename": "man/check_text.Rd",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 1,
-                "patch": "@@ -8,7 +8,8 @@ check_text(\n   text,\n   stats = c(\"t\", \"F\", \"r\", \"chisq\", \"z\", \"U\", \"W\", \"H\", \"regression\", \"spearman\",\n     \"kendall\", \"kendall_w\", \"dscf\", \"cochran_q\", \"RR\", \"rdpct\", \"md_hl\", \"binomial\",\n-    \"interaction_p\", \"mediation_indirect\", \"mcnemar_or\"),\n+    \"interaction_p\", \"mediation_indirect\", \"mcnemar_or\", \"bayes_factor\",\n+    \"hazard_ratio\"),\n   ci_level = 0.95,\n   alpha = 0.05,\n   one_tailed = FALSE,"
-              },
-              {
-                "filename": "tests/testthat/test-v0613-canary-reaudit-fixes.R",
-                "status": "added",
-                "additions": 96,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,96 @@\n+# v0.6.13: two effectcheck defects surfaced by the 2026-07-02 cycle-2 canary\n+# re-audit (independent Sonnet-watches-Opus over the fixed-3 + rotating set).\n+#\n+# (1) E-mcnemar-chisq-OR (collabra.37122 loc 305): a Table-6 restatement of a\n+#     McNemar finding written as a bare chi-square cell with an odds ratio +\n+#     CI -- \"chi2 (1, N = 265) = 0.00, p = .951, OR = 0.99, 95% CI [0.77, 1.27]\"\n+#     -- was classified chisq/contingency (with the OR bound as effect_reported)\n+#"
-              },
-              {
-                "filename": "tests/testthat/test-v0613-corr-target-article-n.R",
-                "status": "added",
-                "additions": 60,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,60 @@\n+# v0.6.13 (E-corr-target-article-N): a correlation explicitly attributed to the\n+# TARGET / ORIGINAL article -- a value a replication reproduces from the paper it\n+# replicates (a \"Table 2. Target article\" intercorrelation block, or prose \"the\n+# weakest effect in the target article ... r = 0.36\") -- must carry the TARGET\n+# article's own sample size, not the current study's (global) N. For a bare `r`\n+# with no co-located N, the current study's global N is bound by default, wh"
-              },
-              {
-                "filename": "tests/testthat/test-v0613-hazard-ratio.R",
-                "status": "added",
-                "additions": 104,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,104 @@\n+# v0.6.13: hazard ratio (Cox proportional-hazards / survival analysis) reported in\n+# a clean prose sentence is extracted as an extraction-only NOTE\n+# (`test_type = \"hazard_ratio\"`), mirroring the OR / RR / mcnemar_or ratios. A Cox\n+# HR is not independently recomputable from the reported numbers (it needs the full\n+# time-to-event data), so the HR + its CI + p are surfaced without a verdict.\n+#\n+# Scope note (from the 2026-07-02 corpus audit): s41598-023-50401-z's 58 hazard\n"
-              }
-            ]
-          },
-          "diff_summary": "This commit, 'sync from escicheckapp@ec9eb9f (effectcheck v0.6.13) (#26)', updates the 'effectcheck' package to version 0.6.13, adding two new test types, including a bare Bayes factor and a hazard ratio, and fixes issues from the escicheck-iterate cycles."
         }
       ]
     },
@@ -10013,33 +9625,6 @@
           },
           "diff_summary": "This commit adds a link to the Chrome Webstore for the Output It Forward (OIF) extension in the README.md file, making it easier for users to find and install the extension."
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "71c2a30",
-          "message": "Add Chrome Webstore link for OIF",
-          "body": "Added a link to the OIF Chrome extension in the README.",
-          "author": "giovannacdelsordo",
-          "author_login": "giovannacdelsordo",
-          "date": "2026-06-17",
-          "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
-          "type": "feat",
-          "branch": "main",
-          "diff": {
-            "additions": 3,
-            "deletions": 0,
-            "files": [
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 0,
-                "patch": "@@ -2,6 +2,9 @@\n OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\n OIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailorin"
-              }
-            ]
-          },
-          "diff_summary": "This commit adds a link to the Chrome Webstore for the Output It Forward (OIF) extension in the README.md file, making it easier for users to find and install the extension."
-        }
       ]
     }
   ],
@@ -10631,7 +10216,7 @@
     }
   ],
   "digest": {
-    "week_start": "2026-07-09",
+    "week_start": "2026-07-10",
     "active_repos": 3,
     "total_commits_7d": 29,
     "dormant_revived": [
@@ -10923,33 +10508,6 @@
         "type": "other",
         "author": "Jamie Cummins",
         "date": "2026-07-10"
-      },
-      {
-        "repo": "regcheck",
-        "owner": "JamieCummins",
-        "message": "small fix",
-        "body": "",
-        "type": "fix",
-        "author": "Jamie Cummins",
-        "date": "2026-07-09"
-      },
-      {
-        "repo": "regcheck",
-        "owner": "JamieCummins",
-        "message": "budget-saving changes",
-        "body": "",
-        "type": "other",
-        "author": "Jamie Cummins",
-        "date": "2026-07-09"
-      },
-      {
-        "repo": "regcheck",
-        "owner": "JamieCummins",
-        "message": "improve specificity on 'missing' judgements",
-        "body": "",
-        "type": "test",
-        "author": "Jamie Cummins",
-        "date": "2026-07-09"
       }
     ],
     "narrative": "It's been an exciting week in the open-source research community, with multiple projects making significant progress. The `scienceverse/metacheck` and `MicheleNuijten/statcheck` projects have both seen updates, with `metacheck` adding the ability to process JASP files and improving study categorization, while `statcheck` received admin updates on its `feature-non-apa-newer` branch. Meanwhile, the `quest-bih/oddpub` project has been refining its ontogenerator, with updates to documentation and reference detection. Other notable updates include fixes and improvements to `giladfeldman/docpluck`, `Davidvandijcke/coarse`, `JamieCummins/regcheck`, and `giladfeldman/escicheck`, demonstrating the community's commitment to ongoing development and refinement. The addition of a Chrome Webstore link for `giovannacdelsordo/output-it-forward` also highlights the growing accessibility of these tools. These connections and advancements showcase the collaborative spirit and dedication to advancing open-source research tools."
