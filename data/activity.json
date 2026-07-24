@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-23T19:20:34.729378+00:00",
+  "generated_at": "2026-07-24T02:35:31.849850+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -128,8 +128,8 @@
       "commits_90d": 219,
       "authors_30d": [
         "Lisa DeBruine",
-        "Jakub Werner",
-        "Lakens"
+        "Lakens",
+        "Jakub Werner"
       ],
       "type_breakdown": {
         "feat": 7,
@@ -619,15 +619,15 @@
         },
         {
           "week": 1780272000,
-          "total": 35
+          "total": 44
         },
         {
           "week": 1780876800,
-          "total": 33
+          "total": 25
         },
         {
           "week": 1781481600,
-          "total": 35
+          "total": 34
         },
         {
           "week": 1782086400,
@@ -821,7 +821,7 @@
               }
             ]
           },
-          "diff_summary": "This commit, 'add reproducibility_check', in the 'scienceverse/metacheck' repository adds a new reproducibility check feature by modifying several files, including adding dependencies and ignoring a new cache directory, to enhance the package's functionality."
+          "diff_summary": "This commit, 'add reproducibility_check', in the 'scienceverse/metacheck' repository adds a new reproducibility check feature by modifying several files, including adding dependencies such as 'callr' and 'remotes', and updating the namespace to include new S3 methods, likely to support the execution and verification of reproducible research workflows."
         },
         {
           "sha": "0612101",
@@ -1171,82 +1171,6 @@
           "branch": "data_check",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "db4cf0f",
-          "message": "add reproducibility_check",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-07-22",
-          "url": "https://github.com/scienceverse/metacheck/commit/db4cf0f4bb6ca8fb317c81c16ee6c61433b22bbb",
-          "type": "feat",
-          "branch": "data_check",
-          "diff": {
-            "additions": 15194,
-            "deletions": 217,
-            "files": [
-              {
-                "filename": ".gitignore",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -13,6 +13,7 @@ inst/modules/sample-size*\n /data-raw/psychsci/pdf/\n /data-raw/psychsci/*_consolidated\n /data-raw/psychsci/bibr/\n+/data-raw/cache/\n _stuff/modules-old/sample-size*\n _stuff/check_correct_citations/pdfs_lakens\n _stuff/check_correct_citations/xmls_lakens"
-              },
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 6,
-                "deletions": 1,
-                "patch": "@@ -40,18 +40,23 @@ Roxygen: list(markdown = TRUE)\n Suggests:\n     ggplot2,\n     careless,\n+    callr,\n     codebook,\n     data.table,\n     devtools,\n     httptest2,\n     processx,\n+    remotes,\n     rmarkdown,\n     testthat (>= 3.0.0),\n     rstudioapi,\n     withr,\n     shiny,\n     shinyjs,\n-    shinydashboard\n+    shinydashboard,\n+    bslib,\n+    DBI,\n+    RSQLite\n Config/testthat/edition: 3\n Config/testthat/parallel: false\n Imports: "
-              },
-              {
-                "filename": "NAMESPACE",
-                "status": "modified",
-                "additions": 45,
-                "deletions": 0,
-                "patch": "@@ -8,10 +8,12 @@ S3method(print,metacheck_module_output)\n S3method(print,psychds_validation)\n S3method(print,scivrs_paper)\n S3method(print,scivrs_paperlist)\n+S3method(print,trove_index)\n export(\"%||%\")\n export(.aspredicted_info)\n export(.bibtype_convert)\n export(.blob_row_min_bytes)\n+export(.detect_header_row)\n export(.github_config)\n export(.grobid_to_bibr)\n export(.is_paper)\n@@ -31,6 +33,7 @@ export(.osf_reg_data)\n export(.osf_user_data)\n export(.paper_coerce)\n export(.paper_schema)\n+export(."
-              },
-              {
-                "filename": "R/app.R",
-                "status": "modified",
-                "additions": 92,
-                "deletions": 0,
-                "patch": "@@ -33,6 +33,98 @@ report_app <- function(quiet = FALSE, ...) {\n \n requireNamespace <- NULL # allows mocked bindings for test\n \n+#' Launch Trove App\n+#'\n+#' Launch the trove app: browse and search a corpus of metacheck-generated\n+#' Psych-DS collections. The app scans `root` for collection folders (each\n+#' containing a `collection.json` and one or more `study-*/` subfolders), builds\n+#' an index (see [trove_index()]), and lets you browse papers and search across\n+#' every variable and every ide"
-              },
-              {
-                "filename": "R/archive-osf.R",
-                "status": "modified",
-                "additions": 47,
-                "deletions": 5,
-                "patch": "@@ -672,12 +672,44 @@ osf_file_download <- function(osf_id,\n     suppressWarnings(as.numeric(val))\n   }\n \n-  .osf_download_zip <- function(zip_url, zip_path) {\n-    resp <- .batch_query(zip_url, msg = NULL, req_func = .osf_headers)[[1]]\n-    if (inherits(resp, \"error\") || httr2::resp_status(resp) != 200) {\n+  .osf_download_zip <- function(zip_url, zip_path, zip_size = NA_real_,\n+                                timeout_s = 1800) {\n+    # TEMP verbose diagnostics (remove later): OSF's Waterbutler "
-              },
-              {
-                "filename": "R/archive-psycharchives.R",
-                "status": "added",
-                "additions": 317,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,317 @@\n+# PsychArchives (ZPID) is a DSpace repository. Unlike ResearchBox (which has no\n+# API, forcing archive-researchbox.R to scrape HTML and download a whole zip just\n+# to list its contents), PsychArchives exposes the legacy DSpace 6 REST API at\n+# https://www.psycharchives.org/rest/. That lets us LIST public bitstreams\n+# (name, size, retrieve URL) without downloading anything, so this file mirrors\n+# archive-researchbox.R structurally but defers the actual byte-fetch to\n+# down"
-              },
-              {
-                "filename": "R/archive-report.R",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -77,6 +77,7 @@ write_file_manifest <- function(manifest_dir, out = NULL) {\n       file_name = col(d, \"file_name\"), file_path = col(d, \"file_path\"),\n       file_url = col(d, \"file_url\"), file_size = fs,\n       file_size_mb = round(fs / 1024^2, 3),\n+      provider = col(d, \"provider\"),\n       data_type = col(d, \"data_type\"), downloaded = col(d, \"downloaded\"),\n       status = col(d, \"status\"), skip_intentional = col(d, \"skip_intentional\"),\n       skip_reason = col(d, \"skip_reason\"), stringsAsFac"
-              },
-              {
-                "filename": "R/behaverse-convert.R",
-                "status": "modified",
-                "additions": 176,
-                "deletions": 10,
-                "patch": "@@ -133,24 +133,26 @@\n # relative path to the paired OSD file, set on the ONLY outward-pointing field\n # the Behaverse Instrument class permits (its additionalProperties is false).\n .bh_instrument_row <- function(instrument_id, name = NULL, version = NULL,\n-                               link = NULL) {\n+                               link = NULL, description = NULL) {\n   Filter(Negate(is.null), list(\n     instrument_id = instrument_id,\n     timeline_id   = instrument_id,\n     block_id      = ins"
-              }
-            ]
-          },
-          "diff_summary": "This commit, 'add reproducibility_check', in the 'scienceverse/metacheck' repository adds a new reproducibility check feature by modifying several files, including adding dependencies and ignoring a new cache directory, to enhance the package's functionality."
-        }
       ]
     },
     {
@@ -1332,7 +1256,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `feature-non-apa-newer` branch was worked on, where a merge was performed from the same branch of the remote repository. This merge was done to incorporate changes from the remote `feature-non-apa-newer` branch into the local branch. Additionally, on the `feature-non-apa-newer` branch, \"admin updates\" were made, as specified in the commit message. The repository's administration was thus modified in some way, although the specifics of these updates are not detailed. The work was confined to the `feature-non-apa-newer` branch, with no other branches mentioned in the commits.",
+      "summary": "The `feature-non-apa-newer` branch was worked on, where a merge was performed from the same branch of the `https://github.com/MicheleNuijten/statcheck` repository. \nThe merge commit was made to integrate changes from the remote repository into the local `feature-non-apa-newer` branch. \nAdditionally, on the `feature-non-apa-newer` branch, administrative updates were made, as indicated by the commit message \"admin updates\". \nNo other branches were modified in these commits. \nThe changes were made by MicheleNuijten.",
       "prs": [
         {
           "number": 107,
@@ -1965,6 +1889,80 @@
       "readme_excerpt": "`statcheck` is a \u201cspellchecker\u201d for statistics. It checks whether your\n*p*-values match their accompanying test statistic and degrees of\nfreedom.\n\n`statcheck` searches for null-hypothesis significance test (NHST) in APA\nstyle (e.g., *t*(28) = 2.2, *p* \\< .05). It recalculates the p-value\nusing the reported test statistic and degrees of freedom. If the\nreported and computed p-values don\u2019t match, `statcheck` will flag the\nresult as an error.\n\n![](man/figures/infograph.png)\n\n\n`statcheck` is mainly useful for:\n\n1.  **Self-checks**: you can use `statcheck` to make sure your\n    manuscript doesn\u2019t c",
       "scopus_citations": null,
       "recent_commits": [
+        {
+          "sha": "50ab5e6",
+          "message": "Merge branch 'feature-non-apa-newer' of https://github.com/MicheleNuijten/statcheck into feature-non-apa-newer",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-07-03",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/50ab5e66a0f32d77c9becef0c4bba3d638ec8019",
+          "type": "feat",
+          "branch": "feature-non-apa-newer",
+          "diff": {
+            "additions": 414,
+            "deletions": 105,
+            "files": [
+              {
+                "filename": "R/clean_non_apa.R",
+                "status": "added",
+                "additions": 44,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,44 @@\n+clean_non_apa <- function(nhst_raw){\n+  \n+  # remove all spaces\n+  # the parsing functions can handle no spaces, but it would be too complicated\n+  # to take into account every possible number of spaces, so removing them\n+  # all is easiest\n+  nhst_clean <- gsub(pattern = \"\\\\s+\", replacement = \"\",\n+                     nhst_raw)\n+  \n+  # replace square or curly brackets with parentheses\n+  nhst_clean <- gsub(pattern = RGX_SQ_CURLY1, replacement = RGX_PRTS_1, \n+                 "
+              },
+              {
+                "filename": "R/extract_stats.R",
+                "status": "modified",
+                "additions": 62,
+                "deletions": 34,
+                "patch": "@@ -1,13 +1,20 @@\n-extract_stats <- function(txt, stat){\n+extract_stats <- function(txt, apa_style, stat){\n   \n   # step 1: extract all NHST results from text -----------------------------------\n   \n+  # specify whether to search for APA NHST results or also to include non-APA\n+  if(apa_style == TRUE){\n+    rgx_nhst <- RGX_NHST\n+  } else {\n+    rgx_nhst <- RGX_NHST_NONAPA\n+  }\n+  \n   # if there are x NHST results in a text, this returns a character vector of \n   # length x\n   nhst_raw <- extract"
+              },
+              {
+                "filename": "R/helpers-parse-stats.R",
+                "status": "modified",
+                "additions": 65,
+                "deletions": 16,
+                "patch": "@@ -46,7 +46,22 @@ extract_df <- function(raw, test_type){\n     df1 <- NA\n     df2 <- NA\n     \n-  } else {\n+  } else if(test_type == \"r\" & grepl(RGX_DFN_R_NRS, raw)){\n+    # if correlations report N instead of df, transform to df\n+    \n+    # extract full string with N\n+    dfn <- extract_pattern(txt = raw,\n+                           pattern = RGX_DFN_R_NRS)[[1]]\n+    \n+    # only extract numbers\n+    n <- as.numeric(extract_pattern(txt = dfn,\n+                                    pattern = \"\\\\d"
+              },
+              {
+                "filename": "R/regex.R",
+                "status": "modified",
+                "additions": 221,
+                "deletions": 43,
+                "patch": "@@ -1,55 +1,114 @@\n # this script contains the regular expressions that statcheck uses to extract\n-# NHST results from text\n-\n-# test types\n-RGX_T <- \"t\"\n-RGX_R <- \"r\"\n-RGX_Q <- \"Q\\\\s?-?\\\\s?(w|W|(w|W)ithin|b|B|(b|B)etween)?\"\n-RGX_F <- \"F\"\n-RGX_Z <- \"([^a-z](z|Z))\"\n-# for chi2: effectively extract everything that is NOT a t, r, F, z, Q, W, n, or \n-# D, followed by *maybe* a 2 (and later followed by a result in a chi2 layout)\n-RGX_CHI2 <- \"((\\\\s[^trFzZQWnD ]\\\\s?)|([^trFzZQWnD ]2\\\\s?))2?\"\n-\n-# degr"
+              },
+              {
+                "filename": "R/statcheck.R",
+                "status": "modified",
+                "additions": 10,
+                "deletions": 2,
+                "patch": "@@ -115,6 +115,7 @@\n \n statcheck <- function(texts,\n                       stat = c(\"t\", \"F\", \"cor\", \"chisq\", \"Z\", \"Q\"),\n+                      apa_style = TRUE,\n                       OneTailedTests = FALSE,\n                       alpha = .05,\n                       pEqualAlphaSig = TRUE,\n@@ -159,7 +160,7 @@ statcheck <- function(texts,\n     # later on to calculate the APA factor: the ratio (statcheck results)/\n     # (total # of p values). It is also possible to let statcheck return this\n     "
+              },
+              {
+                "filename": "tests/testthat/test-extract-non-apa.R",
+                "status": "modified",
+                "additions": 12,
+                "deletions": 10,
+                "patch": "@@ -29,7 +29,7 @@ test_that(\"F with MSE is extracted and parsed\",{\n   expect_equal(result[[VAR_TEST_VALUE]], rep(11.37, 2))\n   \n   # don't extract these results when apa_style is TRUE\n-  expect_output(statcheck(c(txt1, txt2), messages = FALSE), \n+  expect_message(statcheck(c(txt1, txt2), messages = FALSE), \n                 \"did not find any results\")\n   \n })\n@@ -50,7 +50,7 @@ test_that(\"df between square, curly, or no brackets are extracted and parsed\",{\n   expect_equal(result[[VAR_DF2]], rep(2"
+              }
+            ]
+          },
+          "diff_summary": "This commit merges changes from the 'feature-non-apa-newer' branch into the same branch, updating several R files, including `clean_non_apa.R`, `extract_stats.R`, and `helpers-parse-stats.R`, to improve the parsing and extraction of non-APA style statistical results in the statcheck package."
+        },
+        {
+          "sha": "ffba7eb",
+          "message": "admin updates",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-07-03",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/ffba7eb5b198605087b94718ce5e98ed6871d458",
+          "type": "other",
+          "branch": "feature-non-apa-newer",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
         {
           "sha": "50ab5e6",
           "message": "Merge branch 'feature-non-apa-newer' of https://github.com/MicheleNuijten/statcheck into feature-non-apa-newer",
@@ -2838,7 +2836,7 @@
               }
             ]
           },
-          "diff_summary": "This commit updates the `last_built` timestamp in the `pkgdown.yml` file to `2026-07-23T04:37Z` to reflect the new build time for the tenzing site version 0.4.1."
+          "diff_summary": "This commit updates the `last_built` timestamp in the `pkgdown.yml` file to `2026-07-23T04:37Z`, indicating that the site for the tenzing package version 0.4.1 was rebuilt at that time."
         },
         {
           "sha": "d271884",
@@ -2932,45 +2930,6 @@
           "author_login": "alexholcombe",
           "date": "2026-07-17",
           "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/388e7e307dc1fc707697265127d12e9743062608",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "ea980fd",
-          "message": "Built site for tenzing@0.4.1: d271884",
-          "body": "",
-          "author": "Anka",
-          "author_login": "",
-          "date": "2026-07-23",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
-          "type": "other",
-          "branch": "gh-pages",
-          "diff": {
-            "additions": 1,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "pkgdown.yml",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -5,7 +5,7 @@ articles:\n   app_use: app_use.html\n   local_use: local_use.html\n   validation: validation.html\n-last_built: 2026-07-18T02:51Z\n+last_built: 2026-07-23T04:37Z\n urls:\n   reference: https://marton-balazs-kovacs.github.io/tenzing/reference\n   article: https://marton-balazs-kovacs.github.io/tenzing/articles"
-              }
-            ]
-          },
-          "diff_summary": "This commit updates the `last_built` timestamp in the `pkgdown.yml` file to `2026-07-23T04:37Z` to reflect the new build time for the tenzing site version 0.4.1."
-        },
-        {
-          "sha": "d271884",
-          "message": "Update success alert title in sweet_alert.js",
-          "body": "Update terminology from infosheet to contributors table",
-          "author": "Alex O. Holcombe",
-          "author_login": "alexholcombe",
-          "date": "2026-07-23",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
           "type": "other",
           "branch": "master",
           "diff": {}
@@ -3744,7 +3703,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was updated with a commit that modified the ontogenerator, specifically focusing on a \"code validation update\". \nThe commit to the `main` branch updated the ontogenerator's code validation. \nNo other branches were worked on according to the provided commits. \nThe ontogenerator's code validation was the sole focus of this update, as indicated by the commit message. \nThere were no additions of new features or modules in this set of commits, only the mentioned update to the ontogenerator. \nThe `main` branch remains the only branch with recorded changes in this update cycle.",
+      "summary": "The `main` branch was updated with a commit that specifically addressed the \"ontogenerator: code validation update\", which suggests that changes were made to the code validation process for the ontogenerator. \nThe `main` branch is the only branch that was worked on in this set of commits. \nThis update focused on the ontogenerator, which had its code validation process updated, as stated in the commit message. \nNo other branches or features were modified in this set of commits. \nThe commit message does not provide further details on the nature of the code validation update. \nThe work was limited to this single update on the `main` branch.",
       "prs": [
         {
           "number": 9,
@@ -4122,7 +4081,7 @@
               }
             ]
           },
-          "diff_summary": "This commit, \"code validation update\", in the 'quest-bih/oddpub' repository updates the validation section of the README.md file, adding 34 lines and removing 7 lines, to reflect changes in the code validation process."
+          "diff_summary": "This commit, \"code validation update\", in the 'quest-bih/oddpub' repository updates the validation section of the README.md file, revising and expanding the description of the algorithm validation process."
         },
         {
           "sha": "e1ca58e",
@@ -4231,6 +4190,33 @@
           "type": "fix",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "ceb9a9d",
+          "message": "code validation update",
+          "body": "",
+          "author": "ontogenerator",
+          "author_login": "",
+          "date": "2026-07-21",
+          "url": "https://github.com/quest-bih/oddpub/commit/ceb9a9d24c640ce0e5f7bfba9423ff100269de89",
+          "type": "other",
+          "branch": "main",
+          "diff": {
+            "additions": 34,
+            "deletions": 7,
+            "files": [
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 34,
+                "deletions": 7,
+                "patch": "@@ -100,13 +100,40 @@ write_csv(open_data_results, \"path/to/output/folder/open_data_results.csv\")\n \n ## Validation\n \n-To validate the algorithm, we manually screened a sample of 792 publications\n-that were randomly selected from PubMed. On this validation dataset,\n-our algorithm detects Open Data publications with a sensitivity of 0.73\n-and specificity of 0.97.\n-\n-The algorithm has been updated since the original publication and validation.\n-A new validation is planned for Q4 2026.\n+The most cur"
+              }
+            ]
+          },
+          "diff_summary": "This commit, \"code validation update\", in the 'quest-bih/oddpub' repository updates the validation section of the README.md file, revising and expanding the description of the algorithm validation process."
         }
       ]
     },
@@ -5018,7 +5004,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "Work was done on the 'main' branch, where a commit addressed the issue of \"chan_feldman T3 caption-tail-walk TEXT-LOSS\" by adding a diagnostic and an xfail guard, with the fix being corpus-wide but deferred. Another commit on the 'main' branch updated the documentation to record the outcome of \"run-3\" and resolved \"W0l \u00d7-as-3 residuals\", also rescoping \"efendic headings\" to \"B6\". A fix was made on the 'main' branch to recover \"2 residual \u00d7-as-3 prose shapes\" that \"W0k\" couldn't reach, related to \"efendic\" and version \"v2.4.116\". Additionally, a rendering fix was made on the 'main' branch to remove an \"affiliation remnant\" that was orphaned in the \"Abstract body\", related to \"chandrashekar\" and version \"v2.4.115\".",
+      "summary": "Work was done on the `main` branch, where a commit addressed the issue of \"chan_feldman T3 caption-tail-walk TEXT-LOSS\" by adding a diagnostic and an xfail guard, with the fix being deferred as it requires a corpus-wide change. Another commit on `main` updated the documentation to record the outcome of \"run-3\" and resolved \"W0l \u00d7-as-3 residuals\", also rescoping \"efendic headings\" to \"B6\". A fix was implemented on `main` to recover \"2 residual \u00d7-as-3 prose shapes\" that \"W0k\" couldn't reach, related to \"efendic\" and version \"v2.4.116\". Additionally, a rendering fix was made on `main` to remove an \"affiliation remnant\" that was orphaned in the Abstract body, related to \"chandrashekar\" and version \"v2.4.115\".",
       "prs": [
         {
           "number": 1,
@@ -5052,19 +5038,19 @@
       "commit_activity": [
         {
           "week": 1777852800,
-          "total": 92
+          "total": 93
         },
         {
           "week": 1778457600,
-          "total": 119
+          "total": 123
         },
         {
           "week": 1779062400,
-          "total": 76
+          "total": 72
         },
         {
           "week": 1779667200,
-          "total": 34
+          "total": 33
         },
         {
           "week": 1780272000,
@@ -5203,7 +5189,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository documents and tests a diagnosed issue with text loss in the caption-tail-walk of the RC-T layer, specifically in the chan_feldman T3 dataset, and marks the test as expected to fail until a corpus-wide fix is implemented in a future gated RC-T cycle."
+          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository documents and tests a diagnosed issue with text loss in the caption-tail-walk of the RC-T layer, specifically in the chan_feldman T3 table, and marks the test as expected to fail until a corpus-wide fix is implemented in a future gated RC-T cycle."
         },
         {
           "sha": "56f60b5",
@@ -5549,6 +5535,83 @@
           "author_login": "giladfeldman",
           "date": "2026-06-29",
           "url": "https://github.com/giladfeldman/docpluck/commit/b0fdd5f7cb649a43528b7ed90a2b9562510e4a3b",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "ba4e124",
+          "message": "docs+test(rc-t): diagnose chan_feldman T3 caption-tail-walk TEXT-LOSS; xfail guard (fix is corpus-wide, deferred)",
+          "body": "Run 3 cycle 3: the whitespace_cells test failure is NOT a stale-premise test to\nupdate \u2014 a gold-verify confirmed it guards REAL TEXT-LOSS. chan_feldman Table 3's\nraw_text fallback silently drops its first 4 rows (Sample size 239/794,\nGeographic origin, Gender, Ethnic group). Root-caused to _extract_table_body_text's\nbody_start caption-tail walk overshooting the caption's own sentence terminator\n(`replication.`) to a later `\\n\\n`.\n\nA per-line-terminator walk fixes chan T3 \u2014 but a 101-PDF guard-diff\n(tmp/rct_body_text_diff.py) shows the walk is SHARED across every table's raw_text\nextraction: the fix shifts body_start on 310 captions (308 recover legitimately,\n2 TRUNCATE \u2014 amc_1 T3, xiao_2021 T6, a regression, and ~53 recover body-prose /\na leading Fig caption). That is a corpus-wide capture-path change for the gated\nRC-T cycle (48-paper structured guard-diff + 7-canary AI-gold + user sign-off),\nnot a session-tail patch. ATTEMPTED + REVERTED.\n\n- New FINDINGS doc: precise mechanism + guard-diff blast-radius + the RC-T cycle's\n  executable target.\n- test_t3_first_rows_not_dropped: xfail(strict=True) guard documenting the\n  TEXT-LOSS; will XPASS-alert when the RC-T cycle lands the corpus-safe fix.\n- TRIAGE run-3 section updated (whitespace_cells is a real TEXT-LOSS guard, not a\n  stale test; the raw_text fix is corpus-wide).\n\nextract_structured.py reverted to HEAD (no library change in this commit).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-07-04",
+          "url": "https://github.com/giladfeldman/docpluck/commit/ba4e12402e5dfa77ed298d8039093d42cfc8ba5d",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 186,
+            "deletions": 4,
+            "files": [
+              {
+                "filename": "docs/FINDINGS_2026-07-04_rct_caption_tail_walk_textloss.md",
+                "status": "added",
+                "additions": 95,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,95 @@\n+# FINDINGS \u2014 RC-T caption-tail-walk TEXT-LOSS (chan_feldman T3 first-4-rows drop): diagnosed, fix is corpus-wide, deferred to the gated RC-T cycle (2026-07-04 run 3)\n+\n+## The defect (gold-confirmed TEXT-LOSS)\n+\n+chan_feldman_2025_cogemo Table 3's raw_text fallback (`unstructured-table` block)\n+DROPS its first four rows. Gold Table 3 is a clean 2-column comparison\n+(McCullough et al. 1997 vs US Prolific), 10 rows:\n+\n+| row | McCullough 1997 | US Prolific |\n+|---|---|---|\n+| Sam"
+              },
+              {
+                "filename": "docs/TRIAGE_2026-07-03_head_v2.4.101_assessment.md",
+                "status": "modified",
+                "additions": 45,
+                "deletions": 4,
+                "patch": "@@ -41,11 +41,52 @@ Moved from Cluster C to Cluster B6/architectural. Detail in\n (`\u2026providing support` / Table4 / Table5 / `for the demonstration of\u2026`) \u2014 a\n table-PLACEMENT defect in the RC-T / floating-table family. Queued with RC-T.\n \n+**whitespace_cells 0-cell test \u2014 CONFIRMED A REAL TEXT-LOSS GUARD, do NOT \"update\n+the test to pass\" (2026-07-04 run 3, gold-verified).** The prior TRIAGE/HANDOFF\n+framed `test_b1_whitespace_cells_wiring_live` (fails on chan_feldman + maier, \"0\n+cells vs \u226550\") a"
+              },
+              {
+                "filename": "tests/test_rc_t_layer2_raw_text_real_pdf.py",
+                "status": "modified",
+                "additions": 46,
+                "deletions": 0,
+                "patch": "@@ -161,3 +161,49 @@ def test_t3_legit_fallback_table_survives(chan_md: str):\n     blocks = _unstructured_blocks(chan_md)\n     assert \"Median age\" in blocks, \"chan_feldman T3 descriptive fallback wrongly suppressed (FP)\"\n     assert \"Origin was not explicitly mentioned\" in blocks, \"T3 Note over-trimmed (FP)\"\n+\n+\n+# \u2500\u2500 RC-T TEXT-LOSS: the caption-tail-walk overshoot (diagnosed, deferred) \u2500\u2500\u2500\u2500\u2500\n+#\n+# The chan_feldman Table 3 fallback DROPS its first four rows (Sample size\n+# 239/794, Geographic or"
+              }
+            ]
+          },
+          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository documents and tests a diagnosed issue with text loss in the caption-tail-walk of the RC-T layer, specifically in the chan_feldman T3 table, and marks the test as expected to fail until a corpus-wide fix is implemented in a future gated RC-T cycle."
+        },
+        {
+          "sha": "56f60b5",
+          "message": "docs(triage): record run-3 outcome \u2014 W0l \u00d7-as-3 residuals resolved (v2.4.116); efendic headings rescoped to B6",
+          "body": "- TRIAGE run-3 section: W0l shipped (both efendic \u00d7-as-3 residuals RESOLVED,\n  Sonnet-verified, 101-PDF FP scan clean); efendic 2 demoted subsection headings\n  RESCOPED from \"heading-promoter\" to B6 column-interleave (root-cause reproduction).\n- NEW FINDINGS doc: efendic Design/Procedure/Measures + Analysis Strategy headings\n  are spatially orphaned from their bodies by two-column pdftotext serialization \u2014\n  a heading-promotion hack would emit heading-with-no-body. Deferred to the B6\n  architectural cluster (same as the chandrashekar canary).\n- Also logged: NEW efendic Table 4/5 mid-sentence splice (RC-T family); ar_apa gold\n  misread (\"yet feel\" vs correct \"not yell\" docpluck renders) \u2014 flag gold for regen.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-07-04",
+          "url": "https://github.com/giladfeldman/docpluck/commit/56f60b5f3f3f74a00ef98c3783f76abfad37da07",
+          "type": "other",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "a4f8796",
+          "message": "fix(glyph): recover 2 residual \u00d7-as-3 prose shapes W0k can't reach (efendic) + v2.4.116",
+          "body": "W0l \u2014 the two \u00d7-as-3 glyph residuals the single-line W0k word-pair regex\nstructurally cannot reach (both silently render `3` where a scientist should\nread `\u00d7`), documented in docs/FINDINGS_2026-07-03_efendic_glyph_in_prose_channel.md:\n\n(A) recover_times_design_notation \u2014 factorial-design notation `<digit>(\u2026) 3\n    <digit>(\u2026)`: \"2 (Between-subject factor--Direction: \u2026) 3 2 (\u2026) 3 3\n    (Within-subject factor--\u2026) mixed-subject design\" \u2192 each `) 3 <digit> (`\n    boundary's `3` is a corrupted `\u00d7` (trailing digit is the real factor SIZE).\n    Fires ONLY when tied to a genuine factor parenthetical: an adjacent\n    parenthetical names a factor type, OR both sides are factor-size parens\n    closed by a factorial/design tail. A range recode `(min 1) 3 2 (max 5)`,\n    a formula `f(x) 3 2 (y)`, `(from level 3) 3 2 (see note)` are left alone.\n\n(B) recover_times_wrapped_interaction \u2014 a line ending `<Pred> 3` whose next\n    line starts with a predictor word, inside an \"interaction\" context:\n    \"(Direction 3\\nManipulated Attribute \u00d7 CMA)\" \u2192 \"Direction \u00d7 Manipulated\u2026\".\n    Reference-word tail guard (FIGURE 3 / Table 3 / Model 3) \u2014 the wide FP\n    scan caught amj_1 `FIGURE 3\\nRegression\u2026` + jamison `Table 3\\nMain-effects\n    and interactions.` wrongly joined; guard added + regression-tested.\n\nNORMALIZATION_VERSION 1.9.42 \u2192 1.9.43. Wired channel 1 (normalize_text) AND\nchannel 3 (render post-process) per glyph-fixes-need-all-three-text-channels.\n\nVerification (ground truth = AI multimodal reading golds via article-finder):\n- Independent Sonnet canary audit CONFIRMS both efendic glyph fixes correct\n  (design `\u00d7 2 \u00d7 3`, interaction `Direction \u00d7 Manipulated Attribute \u00d7 CMA`),\n  no \u00d7-as-3 / minus-as-2 corruption anywhere else in efendic.\n- Wide 101-PDF raw-text FP scan CLEAN (0 non-target FPs; efendic recovered).\n- 26-paper baseline 26/26 PASS. Normalize idempotency corpus PASS.\n- 42 W0k/W0l tests + real-PDF end-to-end (fails at HEAD v2.4.115, passes here).\n\nResolves efendic's two \u00d7-as-3 residuals. Remaining efendic findings (2 demoted\nsubsection headings; a NEW Table 4/5 mid-sentence splice) are queued; RC-T\ntable-data-loss on ip_feldman/plos_med/chandrashekar remains architectural.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-07-04",
+          "url": "https://github.com/giladfeldman/docpluck/commit/a4f879628fb2752952871e95a61f8df0181a5742",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "e140cf1",
+          "message": "fix(render): strip affiliation remnant orphaned in Abstract body (chandrashekar) + v2.4.115",
+          "body": "A canary AI-verify found chandrashekar_2023_mp rendering \"Department of Philosophy,\nLake Forest College\" + \"*Joint first authors\" right after the ## Abstract heading,\nbefore the abstract prose. The paper has 3 author affiliations; the section\npartitioner inserted ## Abstract mid-affiliation-block, so the masthead strip\n(which stops AT ## Abstract) caught the first two but left the third orphaned in\nthe Abstract body, and the >=3-consecutive-line _strip_body_affiliation_block\ncould not reach a single surviving affiliation line.\n\nFix: _strip_abstract_zone_affiliation_remnant removes an affiliation line (+ a\njoint-authors / corresponding-author companion note) that is the FIRST non-blank\ncontent after ## Abstract. A real Abstract always opens with PROSE, so an\naffiliation LINE in that slot is unambiguously a boundary-split front-matter\nremnant -- the structural signature is affiliation-grammar (via the existing\n_is_affiliation_line) at the Abstract-heading boundary, never paper identity. An\nabstract that merely MENTIONS a university mid-sentence is prose, not an\naffiliation line, and is kept.\n\nVerification (AI-gold via article-finder): chandrashekar's ## Abstract now goes\ndirectly to the abstract body; all 3 affiliations are in the front matter (stripped\nby design), none in the Abstract. An abstract-zone FP-scan across the rendered\ncorpus fires ONLY on chandrashekar -- every other paper's abstract is byte-identical.\n4 new tests (incl. real-abstract + university-mention FP guards). Full suite: 1896\npassed, only the 2 documented pre-existing whitespace_cells failures remain.\n\nResolves chandrashekar's METADATA-LEAK (defect #1 of the 2026-07-04 report). Its\nTables 9/10 RC-T data-loss (defects #2/#3) is the architectural cluster --\ndiagnosed with a precise cycle plan in\ndocs/FINDINGS_2026-07-04_chandrashekar_rc_t_tables_9_10.md (the missing piece: wire\ntables/whitespace.py::char_whitespace_cells to REPLACE a degenerate matched Camelot\ntable in extract_structured.py::_pick_better_table). Deferred to a dedicated gated\ncycle (full 48-paper guard-diff + 7-canary AI-verify; do NOT rush at session-tail).\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-07-04",
+          "url": "https://github.com/giladfeldman/docpluck/commit/e140cf159e73370aa9b8db830cb5169ae905e120",
           "type": "fix",
           "branch": "main",
           "diff": {}
@@ -6021,7 +6084,7 @@
       "topics": [],
       "pushed_at": "2026-07-02T20:22:59Z",
       "created_at": "2026-03-03",
-      "last_push_days": 20,
+      "last_push_days": 21,
       "default_branch": "dev",
       "license": "MIT",
       "branches": [
@@ -6242,7 +6305,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "Work was done on the \"dev\" and \"main\" branches. On both branches, the commit \"fix(web): re-enable Fable 5 in the model picker\" was made, which re-enables Fable 5 in the model picker. This specific fix was applied to both the development and main branches, as evidenced by identical commit messages on both the \"dev\" and \"main\" branches. The re-enabling of Fable 5 in the model picker is the sole change made in these commits. The fact that this change was made on both \"dev\" and \"main\" branches suggests that it was deemed necessary for both current development and the main, stable version of the code.",
+      "summary": "Work was done on the \"dev\" and \"main\" branches. On both branches, the \"fix(web): re-enable Fable 5 in the model picker\" change was made, which re-enables Fable 5 in the model picker. This specific fix was applied to the web component, as indicated by \"fix(web)\". The commit messages on both branches are identical, suggesting that the same fix was applied to both the development and main branches. The re-enabling of Fable 5 in the model picker was the sole change made in these commits.",
       "prs": [
         {
           "number": 245,
@@ -6737,11 +6800,11 @@
         },
         {
           "week": 1779667200,
-          "total": 0
+          "total": 8
         },
         {
           "week": 1780272000,
-          "total": 26
+          "total": 18
         },
         {
           "week": 1780876800,
@@ -6749,19 +6812,19 @@
         },
         {
           "week": 1781481600,
-          "total": 24
+          "total": 27
         },
         {
           "week": 1782086400,
-          "total": 7
+          "total": 4
         },
         {
           "week": 1782691200,
-          "total": 0
+          "total": 2
         },
         {
           "week": 1783296000,
-          "total": 2
+          "total": 0
         },
         {
           "week": 1783900800,
@@ -6876,6 +6939,45 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "d93b6f8",
+          "message": "fix(web): re-enable Fable 5 in the model picker",
+          "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-07-02",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/d93b6f8ce532991eb16a11928710e553c7f384c2",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {
+            "additions": 1,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "web/src/components/ModelPicker.tsx",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -17,7 +17,7 @@ type DefaultModel = {\n };\n \n const DEFAULT_MODELS: DefaultModel[] = [\n-  { id: \"anthropic/claude-fable-5\", label: \"Fable 5\", provider: \"Anthropic\", unavailable: true },\n+  { id: \"anthropic/claude-fable-5\", label: \"Fable 5\", provider: \"Anthropic\" },\n   { id: \"anthropic/claude-opus-4.8\", label: \"Opus 4.8\", provider: \"Anthropic\" },\n   { id: \"anthropic/claude-sonnet-4.6\", label: \"Sonnet 4.6\", provider: \"Anthropic\" },\n   { id: \"openai/gpt-5.5\", label: \"GPT-5.5\", provider: \"OpenAI\" }"
+              }
+            ]
+          },
+          "diff_summary": "This commit re-enables the Fable 5 model in the model picker by changing its \"unavailable\" status from true to false in the `ModelPicker.tsx` file."
+        },
+        {
+          "sha": "d6df84a",
+          "message": "fix(web): re-enable Fable 5 in the model picker",
+          "body": "Fable 5 is available on OpenRouter again, so drop the `unavailable: true`\nflag that greyed it out in #224. Backend temperature gating for the model\nwas already wired up in models.py (#214), so removing the flag is the whole\nfix. Hotfix direct to main; cherry-picked to dev to keep them in sync.\n\nCo-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-07-02",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/d6df84ab3c3abc476d1c7e9a9f42c2a6073b7480",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -6951,7 +7053,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The main branch was the focus of the recent work, with multiple commits addressing various issues. The demo page was updated and a CLI bug was caught, as stated in the commit message \"update demo page; caught CLI bug\". A bug with the card preview was fixed, according to the commit \"fix card preview bug\", which resolved the specific issue with card previews. The survey routes were renamed to avoid interference from ad blockers, as described in the commit \"rename survey routes to avoid ad blocker interference\", and a related issue was also fixed where the wizard was being incorrectly blocked by ad blockers, as noted in the commit \"fix: wizard incorrectly blocked by ad blockers\". Additionally, the CHANGELOG.md file was updated, and an issue with iframe remnants was handled, as mentioned in the commit \"handle iframe remenant issue\".",
+      "summary": "The main branch was the focus of the recent work, with multiple commits made to it. The demo page was updated and a CLI bug was caught, as stated in the commit message \"update demo page; caught CLI bug\". A bug with the card preview was fixed, according to the commit \"fix card preview bug\". The survey routes were renamed to avoid interference from ad blockers, as specified in the commit \"rename survey routes to avoid ad blocker interference\", and a related issue was also addressed where the wizard was being incorrectly blocked by ad blockers, as noted in the commit \"fix: wizard incorrectly blocked by ad blockers\". Additionally, the CHANGELOG.md file was updated, and an issue with an iframe remnant was handled, as described in the commit \"handle iframe remenant issue\".",
       "prs": [
         {
           "number": 4,
@@ -7055,11 +7157,11 @@
         },
         {
           "week": 1780272000,
-          "total": 4
+          "total": 10
         },
         {
           "week": 1780876800,
-          "total": 16
+          "total": 13
         },
         {
           "week": 1781481600,
@@ -7067,7 +7169,7 @@
         },
         {
           "week": 1782086400,
-          "total": 15
+          "total": 12
         },
         {
           "week": 1782691200,
@@ -7197,7 +7299,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in the 'JamieCummins/regcheck' repository updates the demo page and fixes a bug in the command-line interface (CLI) by modifying the backend logic in `main.py` and `comparisons.py`, and also updates a sample report and test case in `sample-report.json` and `test_cost_tracking.py`, respectively."
+          "diff_summary": "This commit in the 'JamieCummins/regcheck' repository updates the demo page and fixes a bug in the command-line interface (CLI) by modifying the backend logic in `main.py` and `comparisons.py`, and also updates a sample report and a test file."
         },
         {
           "sha": "722db8f",
@@ -7547,6 +7649,114 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "ffb127a",
+          "message": "update demo page; caught CLI bug",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-07-14",
+          "url": "https://github.com/JamieCummins/regcheck/commit/ffb127af3fa582b21ad7d14211f4392d00a61070",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 18,
+            "deletions": 10846,
+            "files": [
+              {
+                "filename": "backend/main.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -31,7 +31,7 @@\n # Single source of truth for static-asset cache-busting. Bump this on any\n # CSS/JS change so browsers refetch; it is exposed to every template as the\n # `static_version` global (templates reference it as `?v={{ static_version }}`).\n-STATIC_VERSION = \"20260714-wizard-guard\"\n+STATIC_VERSION = \"20260714-demo-refresh\"\n \n \n def create_app() -> FastAPI:"
+              },
+              {
+                "filename": "backend/services/comparisons.py",
+                "status": "modified",
+                "additions": 9,
+                "deletions": 6,
+                "patch": "@@ -1241,12 +1241,15 @@ async def general_preregistration_comparison(\n                 evidence_out[\"rr_integrity\"] = rr_integrity\n         except Exception as exc:  # pragma: no cover - degrade to Track B only\n             logger.warning(\"RR carried-forward alignment failed; Track B continues\", exc_info=exc)\n-        if evidence_out is not None:\n-            inline_manifest, inline_render_data = _assemble_inline_bundle(\n-                task_id, \"general_preregistration\", source_payloads\n-     "
+              },
+              {
+                "filename": "static/demo/sample-report.json",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 10839,
+                "patch": ""
+              },
+              {
+                "filename": "tests/test_cost_tracking.py",
+                "status": "modified",
+                "additions": 7,
+                "deletions": 0,
+                "patch": "@@ -137,16 +137,23 @@ def fake_runner(*args, **kwargs):\n             items=[comparisons.ComparisonItem(dimension=\"Sample size\", deviation_judgement=\"no\")]\n         )\n \n+    evidence_out: dict = {}\n     result = _run(\n         comparisons.general_preregistration_comparison(\n             str(reg), \".txt\", str(paper), \".txt\", \"openai\", \"pymupdf\",\n             selected_dimensions=[{\"dimension\": \"Sample size\", \"definition\": \"n\"}],\n             comparison_runner=fake_runner,\n+            evidence_out="
+              }
+            ]
+          },
+          "diff_summary": "This commit in the 'JamieCummins/regcheck' repository updates the demo page and fixes a bug in the command-line interface (CLI) by modifying the backend logic in `main.py` and `comparisons.py`, and also updates a sample report and a test file."
+        },
+        {
+          "sha": "722db8f",
+          "message": "fix card preview bug",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-07-14",
+          "url": "https://github.com/JamieCummins/regcheck/commit/722db8ffb78e005a739e7849252421fe0e799358",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "4f8871e",
+          "message": "rename survey routes to avoid ad blocker interference",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-07-14",
+          "url": "https://github.com/JamieCummins/regcheck/commit/4f8871e153b1da9e92078254c71ce75a148dd943",
+          "type": "refactor",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "41a3c91",
+          "message": "fix: wizard incorrectly blocked by ad blockers",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-07-14",
+          "url": "https://github.com/JamieCummins/regcheck/commit/41a3c919db7c3487914670e13d9ed5f1370f52a2",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "dfc6177",
+          "message": "Update CHANGELOG.md",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-07-14",
+          "url": "https://github.com/JamieCummins/regcheck/commit/dfc61773855c60e9f25ee2b0f5969fc542db1056",
+          "type": "docs",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "483af6c",
+          "message": "handle iframe remenant issue",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-07-14",
+          "url": "https://github.com/JamieCummins/regcheck/commit/483af6cb25db3093b19ae080872eca3e68b5bdd0",
+          "type": "other",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -7599,7 +7809,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was updated with a commit that synchronized changes from the `escicheckapp` repository at version `7c4eb22`, which corresponds to `effectcheck` version `0.6.14`, as indicated by the commit message \"sync from escicheckapp@7c4eb22 (effectcheck v0.6.14)\".\nThis commit is associated with issue `#27`.\nNo other branches were worked on in this set of commits.\nThe commit brought the `main` branch in line with the specified version of `effectcheck`.\nThe specific changes made by this synchronization are not detailed in the commit message, but they are tied to the `escicheckapp` repository's version `7c4eb22`.",
+      "summary": "The `main` branch was updated with a commit that synchronized it with `escicheckapp@7c4eb22`, which corresponds to `effectcheck` version `0.6.14`, as stated in the commit message \"sync from escicheckapp@7c4eb22 (effectcheck v0.6.14)\". \nOnly the `main` branch was worked on in this set of commits. \nThe commit was made by Gilad Feldman and is associated with issue #27. \nThis commit brought the `main` branch in line with the specified version of `effectcheck`. \nNo other branches or features were modified in this set of commits.",
       "prs": [
         {
           "number": 27,
@@ -8146,6 +8356,82 @@
           "type": "chore",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "e7b7351",
+          "message": "sync from escicheckapp@7c4eb22 (effectcheck v0.6.14) (#27)",
+          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-07-22",
+          "url": "https://github.com/giladfeldman/escicheck/commit/e7b7351ee48e668b9eebe6a2697841f0c20f2b2d",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 169,
+            "deletions": 6,
+            "files": [
+              {
+                "filename": "DESCRIPTION",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,7 +1,7 @@\n Package: effectcheck\n Type: Package\n Title: Statistical Consistency Checker for Published Research Results\n-Version: 0.6.13\n+Version: 0.6.14\n Authors@R: c(person(given = \"Gilad\", family = \"Feldman\", role = c(\"aut\", \"cre\"),\n     email = \"giladfel@gmail.com\", comment = c(ORCID = \"0000-0003-2812-6599\")))\n Description: A conservative, assumption-aware statistical consistency checker"
+              },
+              {
+                "filename": "NEWS.md",
+                "status": "modified",
+                "additions": 13,
+                "deletions": 0,
+                "patch": "@@ -1,3 +1,16 @@\n+# effectcheck 0.6.14\n+\n+**Correlation deduplication correctness fix.**\n+\n+- **E-corr-two-prose** \u2014 correlation deduplication now preserves two distinct\n+  prose findings that happen to have the same reported `r`, df, and inferred\n+  N. The earlier body-versus-table-fragment safeguard treated every matching\n+  parenthesized `r(df)` row as one finding, silently dropping a real second\n+  correlation when a paper reported the same numeric value for different\n+  variables. The dedup"
+              },
+              {
+                "filename": "R/parse.R",
+                "status": "modified",
+                "additions": 18,
+                "deletions": 2,
+                "patch": "@@ -2628,8 +2628,24 @@ parse_text <- function(text, context_window_size = 2) {\n       if (length(idx) > 1L) {\n         # Prefer rows whose raw_text has a parenthesized form (body text).\n         paren_idx <- idx[has_paren[idx]]\n-        if (length(paren_idx) > 0L) {\n-          # Keep the FIRST parenthesized row, drop all others in this key\n+        if (length(paren_idx) >= 2L) {\n+          # v0.6.14 (E-corr-two-prose): TWO OR MORE parenthesized body rows share\n+          # this key. This dedup e"
+              },
+              {
+                "filename": "cran-comments.md",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 2,
+                "patch": "@@ -1,7 +1,7 @@\n ## Submission\n \n This is an update of 'effectcheck' from 0.2.3 (the current CRAN release) to\n-0.5.11. Development has been active across 0.2.4-0.5.11 -- new test types,\n+0.6.14. Development has been active across 0.2.4-0.6.14 -- new test types,\n nonparametric and regression support, confidence-interval computation, and\n many parser and consistency fixes -- and the most significant change is\n structural, in 0.4.0 (see \"Breaking change\" below). Every intervening version\n@@ -35,7 +"
+              },
+              {
+                "filename": "inst/contracts/analysis-result.fixture.json",
+                "status": "added",
+                "additions": 32,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,32 @@\n+{\n+  \"schemaVersion\": 1,\n+  \"requiredFields\": [\n+    \"source\",\n+    \"test_type\",\n+    \"stat_value\",\n+    \"df1\",\n+    \"df2\",\n+    \"p_reported\",\n+    \"p_computed\",\n+    \"status\",\n+    \"decision_error\"\n+  ],\n+  \"statuses\": [\"PASS\", \"OK\", \"NOTE\", \"WARN\", \"ERROR\", \"SKIP\"],\n+  \"testTypes\": [\n+    \"t\", \"F\", \"r\", \"chisq\", \"z\", \"U\", \"W\", \"H\", \"regression\",\n+    \"spearman\", \"kendall\", \"kendall_w\", \"dscf\", \"cochran_q\", \"binomial\",\n+    \"RR\", \"rdpct\", \"md_hl\", \"interaction_p\", \"mediation_i"
+              },
+              {
+                "filename": "tests/testthat.R",
+                "status": "modified",
+                "additions": 13,
+                "deletions": 1,
+                "patch": "@@ -1,4 +1,16 @@\n library(testthat)\n library(effectcheck)\n \n-test_check(\"effectcheck\")\n+# R CMD check evaluates this file with R CMD BATCH on Windows.  Make the\n+# runner's outcome explicit: testthat prints a useful summary, while this\n+# process exits successfully only when every expectation did.  This avoids a\n+# platform-dependent non-zero BATCH exit after an otherwise clean suite.\n+results <- test_check(\"effectcheck\", reporter = \"summary\", stop_on_failure = FALSE)\n+result_table <- as.data.fr"
+              },
+              {
+                "filename": "tests/testthat/test-release-contract.R",
+                "status": "added",
+                "additions": 11,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,11 @@\n+test_that(\"the versioned result contract matches check_text output\", {\n+  fixture_path <- system.file(\"contracts\", \"analysis-result.fixture.json\", package = \"effectcheck\")\n+  expect_true(nzchar(fixture_path))\n+  fixture <- jsonlite::fromJSON(fixture_path)\n+  result <- check_text(\"The effect was significant, t(48) = 2.31, p = .025, d = 0.66.\")\n+\n+  expect_true(all(fixture$requiredFields %in% names(result)),\n+              info = \"check_text() dropped a required worker/frontend c"
+              },
+              {
+                "filename": "tests/testthat/test-v0614-corr-two-prose-not-collapsed.R",
+                "status": "added",
+                "additions": 78,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,78 @@\n+# v0.6.14 (E-corr-two-prose): the v0.5.14 body-vs-table-fragment r-dedup must NOT\n+# collapse two DISTINCT prose correlations that coincidentally share the same r,\n+# df, and N and carry no CI to tell them apart.\n+#\n+# The v0.5.14 dedup was built to collapse a body-text correlation (`r(741) = -.43,\n+# 95% CI [...]`, parenthesized) against its TABLE-FRAGMENT restatement (`r = -.43\n+# [...]`, no parenthesized `r(df)` form). Its key is (test_type, stat, df1, df2, N,\n+# ciL, ciU, e"
+              }
+            ]
+          },
+          "diff_summary": "This commit, 'sync from escicheckapp@7c4eb22 (effectcheck v0.6.14) (#27)', updates the 'effectcheck' package to version 0.6.14, which includes a fix for correlation deduplication correctness and other changes, as evidenced by modifications to the DESCRIPTION, NEWS.md, R/parse.R, and other files."
         }
       ]
     },
@@ -10060,7 +10346,7 @@
     }
   ],
   "digest": {
-    "week_start": "2026-07-16",
+    "week_start": "2026-07-17",
     "active_repos": 4,
     "total_commits_7d": 22,
     "dormant_revived": [],
@@ -10291,18 +10577,9 @@
         "type": "refactor",
         "author": "ontogenerator",
         "date": "2026-07-17"
-      },
-      {
-        "repo": "oddpub",
-        "owner": "quest-bih",
-        "message": "documentation update",
-        "body": "",
-        "type": "other",
-        "author": "ontogenerator",
-        "date": "2026-07-16"
       }
     ],
-    "narrative": "It's been an exciting week in our open-source research community, with notable updates to two key projects. The `scienceverse/metacheck` repository saw the addition of a reproducibility check to the `data_check` branch, courtesy of Lakens, which will enhance the tool's ability to verify research findings. Meanwhile, the `marton-balazs-kovacs/tenzing` project received updates to both its `gh-pages` and `master` branches, with Anka building the site for version 0.4.1 and Alex O. Holcombe refining the success alert title in `sweet_alert.js`. These developments demonstrate the connections between our projects, with a focus on reproducibility and user experience. As our community continues to grow and collaborate, we celebrate the progress being made towards more robust and reliable research tools."
+    "narrative": "Our open-source research community has seen significant progress across multiple projects. Notably, the `statcheck` and `escicheck` projects, both led by MicheleNuijten and Gilad Feldman respectively, have made administrative updates and synchronized their main branches with recent changes. Meanwhile, the `oddpub` project has updated its ontogenerator's code validation process, and `docpluck` has addressed several issues, including text loss and rendering fixes. The `coarse` project has re-enabled Fable 5 in the model picker, and `regcheck` has resolved multiple bugs, including issues with its demo page, card preview, and ad blocker interference. These connections between projects highlight the collaborative spirit of our community, and we celebrate the progress made towards improving research tools and methodologies."
   },
   "aggregate": {
     "total_repos": 16,
