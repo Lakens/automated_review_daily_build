@@ -1,5 +1,281 @@
 [
   {
+    "generated_at": "2026-08-05T08:41:26.317169+00:00",
+    "narrative": "Our community has seen a flurry of activity across multiple projects, with notable updates in `marton-balazs-kovacs/tenzing`, `lhdjung/scrutiny`, `quest-bih/oddpub`, `giladfeldman/docpluck`, and `shaheedazaad/auto-zcurve`. The `tenzing` and `scrutiny` projects both received updates to their deployment and user interface, with `tenzing` releasing version 0.4.1 and `scrutiny` deploying to `gh-pages` twice. Meanwhile, `oddpub` enhanced its ontogenerator with new detection capabilities, and `docpluck` made significant updates to its documentation, including the introduction of a \"TRIPLE AI VERIFICATION hard rule\". Additionally, `auto-zcurve` addressed security and installer issues, demonstrating the community's commitment to resolving specific problems and improving overall functionality. These updates highlight the connections between our projects and celebrate the progress being made across the community.",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Work was done on the `main` branch, where the documentation was updated to reflect a cross-project adjudication verdict being upheld, with the mechanism refuted, as stated in the commit message \"docs(audit): DP-3 cross-project adjudication \u2014 verdict upheld, MECHANISM REFUTED\". The documentation was also updated to include a \"TRIPLE AI VERIFICATION hard rule\" and to re-audit every prior \"won't-fix\" issue, as per the commit message \"docs: TRIPLE AI VERIFICATION hard rule + re-audit of every prior won't-fix\". Additionally, various handoff documents were updated, including recording cycle-1 Phase 5d verdicts, the eta-squared adjudication, the cycle-4 structural verdict on the plos_med column loss, and the cycle-3 gate state and canary evidence. A new rule, \"20a \u2014 how to survey, and when a survey cannot help\", was also added as part of the \"docpluck-iterate\" effort. Furthermore, a fix was implemented to \"refuse a sign flip against a CI that cannot hold a negative\" in the `normalize` module, as stated in the commit message \"fix(normalize): refuse a sign flip against a CI that cannot hold a negative (v2.4.123)\".",
+        "commits_since_last": 13,
+        "pushed_at": "2026-08-05T08:22:32Z",
+        "recent_commits": [
+          {
+            "sha": "b7634c1",
+            "message": "docs(audit): DP-3 cross-project adjudication \u2014 verdict upheld, MECHANISM REFUTED",
+            "body": "First item of the queued cross-project re-audit, chosen for blast radius: a\ndocpluck->ESCIcheck REPLY document where one project told another \"not our defect\".\n\nREPLY_FROM_DOCPLUCK_2026-06-25 stated the root cause as \"the eta-squared-p glyph\nlives in a font with no ToUnicode CMap (NotoSerif-Regular uni:no), so both pdftotext\nAND pdfplumber decode it as a space\". Measured on collabra.90203 p.1:\n\n- NotoSerif-Regular carries 561 char objects on that page and ALL 561 are the SPACE\n  character -- it is the document's space font, not a symbol font.\n- Its space widths are 2.08-3.90pt (mean 2.43); ZERO exceed 5pt, while the symbol's\n  ink spans 7.98pt. No NotoSerif space is wide enough to be the symbol.\n- The only char object near the gap is a NotoSerif space at x0=229.97 -- the ordinary\n  space BEFORE the '=' at x=232.31, i.e. after the symbol, not in place of it.\n- The symbol is 4 filled bezier curves (fill=True, no fontname) with NO char object.\n\nSo the verdict (OCR/shape-recognition tier for body prose) is RIGHT, but the stated\nmechanism is REFUTED. Codex on why that still causes harm: the rationale teaches the\nwrong failure mode, so a consumer would attempt ToUnicode recovery, glyph-name\nmapping, extractor tuning or post-processing NotoSerif spaces -- all of which target\nthe ordinary space before '=' and can never recover drawn curves. The distinction\nthat matters is \"text encoded badly\" vs \"ink that is not text\".\n\nPROPAGATION CONFIRMED. REPLY_TO_DOCPLUCK_2026-06-26 records ESCIcheck replying \"we\nconfirmed your OCR-tier won't-fix: the prose reads '( = .000...)' with no eta\nanywhere\" -- the identical circular check. A wrong rationale crossed the repo\nboundary and was ratified by the receiving project using the same flawed method.\nThat is exactly the shape this audit exists to catch.\n\nBoth documents now carry correction blocks (in ESCIcheckapp, a separate repo). The\ntable-side fields.eta2 binding is unaffected and remains correct. A deterministic\nvector-path recogniser remains a viable NON-OCR route.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-05",
+            "url": "https://github.com/giladfeldman/docpluck/commit/b7634c1adc94809aaeba9bf9d54ffa7bf966ce5b",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "7b22f8c",
+            "message": "docs: TRIPLE AI VERIFICATION hard rule + re-audit of every prior won't-fix",
+            "body": "User directive 2026-08-05, portfolio-wide: \"triple ai verifications always,\nfirst you, then codex, then sonnet... these are science platforms, we need 100%\naccuracy, no mistakes, no hallucinations.\"\n\nWHAT WENT WRONG. I rejected a verifier's finding (docpluck drops the eta-squared-p\nsymbol) by asking pdftotext and pdfplumber whether the glyph was there -- the two\nextractors whose flaws this library exists to correct. Getting 0 from both, I filed\n\"never encoded, OCR-tier, won't-fix\" and wrote a shared lesson card teaching that\nmethod. Rasterizing the page (pdftoppm -r 300) showed it plainly prints\n\"(eta^2_p = .000, 95% CI [.000, .003])\". I then OVER-corrected: a pdfminer dump made\nthe whole clause look missing and I briefly reported published statistics were lost\n-- also wrong, a pdfminer two-column reflow artifact.\n\nDone properly (rasterize -> codex -> sonnet), all three passes converge: the symbol\nis 4 filled bezier curves (fill=True, non_stroking_color=0.0, NO fontname -- font\nglyph outlines would be object_type 'char') arranged as eta + superscript-2 +\nsubscript-p against the text baseline, with no char object in the gap. A second\nidentical cluster 13pt below proves it systematic. Genuinely OCR/shape-recognition\ntier -- though codex noted a deterministic vector-path recogniser is a real non-OCR\nroute, so it is NOT closed forever.\n\nRE-AUDIT OF ALL PRIOR REJECTIONS (docs/FINDINGS_2026-08-05_reopened_rejections_audit.md).\nEvery past won't-fix used the same circular method, so all were re-opened.\nTWO OF FOUR WERE WRONG:\n\n- ar_apa \".245 painted minus\" -> WRONG TWICE OVER. The page reads \"beta = .245\",\n  POSITIVE, no minus anywhere, and there are 0 curves at the site. The ruling\n  defended a character that does not exist, and its \"OCR-tier\" label masked the REAL\n  defect (Greek beta in font AdvPSMP10 read as ASCII 'b' -- the W0m class, fixed in\n  v2.4.117; current output is correct). This ruling was cited as THE PRECEDENT for\n  the eta-squared won't-fix: a bad reject does not lose one defect, it propagates.\n- efendic T2 \"OCR-tier\" -> WRONG (a detect.py whitespace-dilution bug, fixed v2.4.101).\n- maier eta-squared-p -> upheld, but ONLY the curve geometry ever supported it.\n- chan_feldman \"alpha = 0.94 gold defect\" -> upheld on SOURCE evidence: page 9 carries\n  BOTH values on DIFFERENT scales (0.94 avoidance, 0.89 revenge); the gold attached\n  the revenge value to the avoidance sentence.\n\nRun 4's handoff called its evidence \"airtight\". It was not. Both that handoff and\nthis run's are corrected in place rather than left standing.\n\nENCODED PORTFOLIO-WIDE (not just this project):\n- ~/Vibe/CLAUDE.md -- top-level hard rule; explicitly covers REJECTING a finding;\n  standing obligation to re-open rejections whenever the standard rises.\n- docpluck/CLAUDE.md -- same rule in the project hard-rules list.\n- _shared/lessons/triple-ai-verification-mandatory-for-science-claims.md\n- _shared/lessons/never-adjudicate-an-extraction-defect-with-the-extractors.md\n- memory feedback_triple_ai_verification_always + MEMORY.md index\n- DELETED the bad card written earlier this session that taught the circular method.\n- ~/Vibe/todo.md -- 7 suspect won't-fix rulings queued across CitationGuard,\n  ESCIcheckapp and 2Rmarkdown, cross-project REPLY docs first (a wrong reject that\n  crosses a repo boundary closes the item on both sides).\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-05",
+            "url": "https://github.com/giladfeldman/docpluck/commit/7b22f8cb269a6d40c86ae2a7e0eab00e54228844",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "26b319a",
+            "message": "docs(handoff): record cycle-1 Phase 5d verdicts and the eta-squared adjudication",
+            "body": "All 8 canaries AI-verified against article-finder golds after the cycle gate\ncorrectly BLOCKED the release at I1/I2/I12 -- every deterministic gate was green\nbut no canary had been AI-verified. A guard-diff answers \"did my change touch\nanything it shouldn't?\"; it cannot answer \"is this output correct?\".\n\nAll 8 = FAIL (38 open findings, the honest standing state). None of the findings\ntrace to v2.4.124: the xiao verifier confirms REPAIR_A and REPAIR_B both LANDED\nwith no over-stripping.\n\nNEW findings the guard-diffs were structurally blind to:\n- plos_med: front-matter metadata spliced into LIVE Abstract prose, and\n  \"Published: December 28, 2023\" fused into the \"## Abstract\" heading text.\n- chandrashekar: the column-interleave defect is far broader than recorded --\n  ALL 16 supplementary tables (S1-S16, ~15 PDF pages) fail to render as tables,\n  row labels landing up to 250 lines from their data. The backlog listed only\n  \"T9 missing Part 2 rows; T10 empty shell\".\n- xiao: a FABRICATED \"## Evaluation\" heading manufactured from a Table-7\n  column-header token.\n- chan_feldman: Table 6's entire 11-row body lost while its caption survives.\n\nADJUDICATED AND REJECTED -- the maier eta-squared-p \"prose drop\" is NOT a\ndocpluck defect. The glyph is absent from BOTH channels: pdftotext reports 0\noccurrences document-wide; pdfplumber's character-level layout scan reports 0\nacross 95,450 chars, with the site reading \"( = .000\" and NO character between\n\"(\" and \"=\". The symbol was never encoded in the text layer -- the gold sees it\nbecause it reads the painted page. Mirror image of run 5's gold defects: there\nthe gold was wrong, here the gold is RIGHT and the inference is wrong. OCR-tier.\nAccepting it would have sent a cycle hunting normalize.py for a deletion that\nnever happens.\n\nAlso corrects this run's own earlier characterisation of the ip_feldman orphan\nblock: line-matching called it \"150 unattributed lines\"; reading both documents\nin full shows it is a scrambled duplicate of Tables 6-9's cell contents.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-05",
+            "url": "https://github.com/giladfeldman/docpluck/commit/26b319aaa40035c417218e9f8c91a0628699e52b",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "d2c10b8",
+            "message": "fix(normalize,sections): wrapped-CONTACT strip + KEYWORDS label/value split (v2.4.124)",
+            "body": "Publisher furniture was splitting a sentence in half, and a keyword list was\nbeing read as the Introduction's first sentence.\n\nNORMALIZATION_VERSION -> 1.9.49; SECTIONING_VERSION -> 1.2.4.\n\n1. Wrapped-CONTACT block (normalize.py, P0)\n\nxiao_2021_crsp rendered the T&F correspondence footer INSIDE a body sentence:\n\"The target and the / CONTACT Gilad Feldman / Hong Kong, Hong Kong SAR /\ncompetitor form a core choice set\". The v2.4.6 rule requires CONTACT + name +\nemail on ONE line; T&F column-wraps the block so each lands on its own line.\n\nFour of the block's six lines were ALREADY stripped by sibling patterns, so\nthis was a PARTIAL strip -- worse than none, because it removes exactly the\nlines that made the block recognisable as furniture and welds the residue into\nprose. When auditing a strip rule, check what its NEIGHBOURS already remove.\n\nKeyed on the structural signature (line-initial all-caps CONTACT followed only\nby a personal name), never paper identity. A _CONTACT_NON_NAME_WORDS veto keeps\nnav furniture (\"CONTACT Details Below\"). The orphaned \"<City>, <Region>\" tail is\nremoved ONLY by adjacency to a dropped opener -- never on its own shape, since a\nbare \"Hong Kong, Hong Kong SAR\" is ordinary prose (a test pins that it survives\nalone). The wrapped pattern deliberately does NOT live in\n_PAGE_FOOTER_LINE_PATTERNS: the generic any()-match would drop vetoed lines\nbefore the veto branch could run.\n\n2. KEYWORDS label/value split (sections/core.py)\n\nThe keywords section came out as 10 chars ('KEYWORDS\\n\\n') while its values\nbecame the synthesized Introduction's opening line. The cut-at-first-\"\\n\\n\"\nlanded BETWEEN the label and its own values. General rule: a \"cut at the first\nseparator\" heuristic needs a post-condition on what the cut LEAVES, not only\nwhere it lands.\n\nrender.py's _demote_metadata_label_headings blamed this on \"R4 column-aware\nextraction reorders the front-matter\" -- false on both counts (the raw text has\nlabel and values adjacent and in order, and \"Introduction\" does not occur in\nthat paper's source at all; the heading is synthesized). Comment corrected.\n\n3. pytest had NO configuration (pyproject.toml)\n\nA bare pytest walked tmp/ and collected 6 scratch files -> 10 collection ERRORs\nand a test count that depended on leftover debris (run5=1962 vs run6=2295, not\ncomparable), defeating the project's \"a shrinking test count is a failure\"\ntripwire. testpaths pinned -> stable 2199 = 2155 pre-existing + 44 new.\n\nVerification\n- 44 new tests, each watched FAILING against unfixed HEAD first.\n- Contact guard-diff, production path, 127 docs incl. all 8 canaries:\n  identical=125 changed=2 errors=0. Both changed docs are T&F papers; every\n  removed line is genuine correspondence furniture. NO lines added anywhere.\n  Surfaced the same leak on chan_feldman, undetected across 5 prior AI sweeps.\n- Keywords guard-diff, 156 docs incl. all 8 canaries:\n  identical=155 changed=1 errors=0; the 1 is xiao, exactly the intended repair.\n- Both guard-diffs verified their monkeypatch EFFECTIVE first, so a zero result\n  is trustworthy rather than a false green.\n- Suite on this exact tree: 2006 passed, 190 skipped, 3 xfailed, 0 failed.\n- Golden snapshots confirmed section-identical BEFORE regenerating; the diff is\n  one version line per file, no boundary moved.\n- Phase 5d: all 8 canaries AI-verified against article-finder golds. The xiao\n  verifier confirms both repairs LANDED with no over-stripping. All 8 remain\n  FAIL on pre-existing defects -- the corpus is not clean and the standing\n  verdict stays FAIL; none of the findings trace to this change.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-05",
+            "url": "https://github.com/giladfeldman/docpluck/commit/d2c10b8ff37eec8370d06e7f92e4b50bc657d0f8",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "8174db6",
+            "message": "docpluck-iterate: add rule 20a \u2014 how to survey, and when a survey cannot help",
+            "body": "Rule 20 says \"survey the corpus before you write a threshold\". Run 5 obeyed it\nand still got the survey wrong TWICE, in opposite directions, so the rule needed\nthe missing half: how to build a survey whose number means anything.\n\n(a) Survey through the REAL entry point. The W0i survey fed raw pdftotext lines\n    through a function that production only ever calls on Camelot table cells,\n    and reported ~85 hits in 10 papers -- including a paper's TITLE. The\n    production render for that same paper had ZERO. Overstated ~10x; reporting it\n    would have described a catastrophe that does not exist and over-engineered\n    the guard to match. Red flag encoded: a hit-rate wildly above the audit that\n    motivated the work means the harness is over-broad.\n\n(b) A ZERO result must be falsified before it is believed. The first W0d survey\n    returned zero firings corpus-wide -- a comfortable all-clear that was pure\n    artifact (W0d runs whole-document; the raw-text channel puts each cell on its\n    own line, so an estimate and its CI never share a line).\n\n(c) Prefer a GUARD-DIFF over a hit count: render twice with the change toggled,\n    so every difference is attributable. Both run-5 fixes shipped on exactly that\n    evidence. When a full double-render is too slow, pre-filter by a stated\n    criterion and report BOTH numbers so coverage stays auditable.\n\nPlus the boundary condition that retires an entire approach family: if the thing\nyou are detecting occurs on exactly ONE row, no vote/follower/corroboration rule\ncan recover it. Counting the populated occurrences first would have saved two\nprototypes on the plos_med column loss.\n\nAll references and factual claims re-verified against the tree before commit.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-05",
+            "url": "https://github.com/giladfeldman/docpluck/commit/8174db6280411aa3292aa95170600aed1b7dfbb4",
+            "type": "feat",
+            "branch": "main"
+          },
+          {
+            "sha": "1ddeade",
+            "message": "docs(todo): log run-5's open items into the committed backlog",
+            "body": "Run 5's working list lived only in tmp/iterate-todo.md, which is gitignored and\ndisk-only -- so its open items would not have survived the session. Run 4 logged\nits equivalents into TODO.md; this closes the same gap for run 5.\n\nRecords: the two items blocked on a product decision (heading tier mapping; the\nB6/RC-T go/no-go), the plos_med column loss with its FOUR rejected geometric\napproaches and the structural ceiling that retires the whole family, the 37\ncorpus findings still open across the 8 canaries, and the chan_feldman alpha\nfiled to article-finder as a gold defect rather than a docpluck one.\n\nIncludes the cheap early check that would have saved two prototypes: count the\nrows populating a missing column; if it is 1, no geometric rule can recover it.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-05",
+            "url": "https://github.com/giladfeldman/docpluck/commit/1ddeade62f5c4dfc7575efbd057120dfc5e2507f",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "cb4eae3",
+            "message": "docs(handoff): record the cycle-4 structural verdict on the plos_med column loss",
+            "body": "Two further repairs prototyped and rejected by measurement, retiring the whole\ngeometric family rather than inviting a fifth attempt: widest-row seeding (killed\nby 1,707 prose pages whose widest row is a page footer) and follower\ncorroboration (killed by the P-value column having zero corroboration anywhere in\nthe table). The columns occur on exactly one row, so no vote/follower rule can\nreach them. Next viable direction recorded: header-TEXT typing gated to\ncaption-anchored regions.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-05",
+            "url": "https://github.com/giladfeldman/docpluck/commit/cb4eae3f4d1acff6bd4d2628e552a515b3c2477e",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "2535559",
+            "message": "docs(findings): the plos_med column loss has a STRUCTURAL ceiling, not a threshold one",
+            "body": "Probed the follower/identity direction the survey pointed to (require the wide\nrow's column starts to be corroborated by the rows below). The classes do\nseparate -- furniture scores a clean 0.00, the real header 0.20 -- but 0.20 is\nfar too weak to found a threshold on, and per-column corroboration explains why:\n\n    x=36.0 -> 15/15    x=284.7 -> 4/15    x=369.3 -> 3/15\n    x=442.8 -> 1/15    x=549.8 -> 0/15  <- the P-value column\n\nThe rightmost column has ZERO corroboration anywhere in the table. Rel. risk and\nP value are populated on exactly ONE row (the aggregate); the other 11 are\nindented sub-rows that legitimately leave them blank. No vote-, follower-, or\ncorroboration-based rule can recover a column that occurs once -- the repetition\nthose algorithms need is not in the document.\n\nSo a geometry-only repair is impossible for this class, which retires the whole\nfamily of attempts rather than inviting a fifth. What remains viable is evidence\nfrom outside the geometry: header-TEXT typing (the header cells are recognisable\nstatistic labels, so they declare the column count directly), gated to\ncaption-anchored regions so it cannot fire on the ~1,700 prose pages the earlier\nsurvey surfaced; or feeding header-derived x-positions to Camelot as explicit\ncolumns. Both still need the 101-PDF guard-diff and canary sweep.\n\nRecords the cheap early check that would have saved two prototypes: count how\nmany rows populate the missing column; if it is 1, no geometric rule applies.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-05",
+            "url": "https://github.com/giladfeldman/docpluck/commit/25355590679a329f2499811c7e7860d35464f6a1",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "c5d86fd",
+            "message": "docs(findings): header-seeding PROTOTYPED then REJECTED by the corpus survey",
+            "body": "The proposed repair for plos_med T3's lost statistics columns -- seed boundaries\nfrom the widest row, since the header declares every column -- was prototyped and\nrecovers the 5-column grid exactly. The vote tally shows the defect in one line:\nthe four TRUE boundaries carry 5, 13, 2 and 2 votes against a threshold of 7, so\nexactly one clears it and the rule deletes all four.\n\nThe corpus survey then killed the fix. Scanning all 152 PDFs for the shape returns\n1,707 pages, dominated by ordinary PROSE (modal=1 widest=4 wide_rows=1/22).\nInspecting one directly shows the \"widest row\" is a PAGE FOOTER --\n\"JAMANetworkOpen.2023;6(5): | (Reprinted) | May31,2023 | 10/12\" -- above a\nREFERENCES list. Seeding from it would fabricate a 4-column table out of a\nbibliography on ~1,700 pages; the tail (\"lost 29 columns\") is the same artifact.\n\nSo the failing signal is not sparsity but IDENTITY: which row is actually a\nheader. A viable fix must establish that first (inside a caption-anchored region,\nfollowed by data rows sharing its column starts -- _row_is_header is the natural\nhome) and be re-measured against this same 1,707-page population.\n\nSecond geometric shortcut rejected for this defect class, fourth across the\nrow-cluster family. Each looked excellent on its motivating paper; measurement,\nnot review, killed them. Recorded as a project lesson: print the winning row's\nTEXT, not just its column count -- a footer, a running header and a wrapped\ncaption all look like \"wide rows\" to geometry.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-05",
+            "url": "https://github.com/giladfeldman/docpluck/commit/c5d86fd4eaf5018c6e1695e27cb6de640feedab1",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "28d94b2",
+            "message": "docs(handoff): correct the open-findings count and HEAD sha",
+            "body": "38 -> 37 open findings (the maier F = -.00 finding was resolved in cycle 3 and\nmarked resolved in run-meta, but the handoff's summary line still carried the\npre-fix count), and point the state section at the actual HEAD.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-05",
+            "url": "https://github.com/giladfeldman/docpluck/commit/28d94b2cd532c1a22f491d0964c37c0e9c64471b",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "a08dc22",
+            "message": "docs(handoff): record the cycle-3 gate state and canary evidence",
+            "body": "All three cycles pass every iterate-loop rule except I3, which cannot pass while\ngenuine FAIL verdicts remain -- that is the gate working, not a defect. Adds the\ncycle-3 canary evidence: 7 of 8 papers render byte-identical to their cycle-1\nartifacts at v2.4.123, and chan_feldman differs by exactly one line (the shipped\nv2.4.122 range fix). Nothing else moved across the roster.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-05",
+            "url": "https://github.com/giladfeldman/docpluck/commit/a08dc2268c9d1577861e13276bef271534064624",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "6c06df5",
+            "message": "docs(handoff): run-5 record \u2014 v2.4.122 + v2.4.123 shipped, 3 audit claims disproved",
+            "body": "Two real defects found, fixed, shipped and verified in production: a published\nscale bound replaced by an operator (W0i range guard), and an arithmetically\nimpossible F = -.00 (W0d non-negative-CI guard). Both corpus-guard-diffed with\n0 regressions; prod verified at 2.4.123.\n\nRecords the three audit findings that did NOT survive verification -- a gold\ndefect (alpha), a disproved heading-level claim (source typography contradicts a\nflattened gold), and a \"furniture leak\" class re-scoped to B6 -- because two of\nthem would have made correct output worse if acted on.\n\nStanding verdict stays FAIL (rule 0e-bis): 38 findings open. Two items held for\nuser decisions (heading tier mapping; B6/RC-T go/no-go), both surfaced with\nfindings docs rather than buried.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-05",
+            "url": "https://github.com/giladfeldman/docpluck/commit/6c06df50dec6a6ed0c2b04d87fe2638c3387908e",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "bde67ed",
+            "message": "fix(normalize): refuse a sign flip against a CI that cannot hold a negative (v2.4.123)",
+            "body": "docpluck rendered an IMPOSSIBLE F-statistic. maier Table 9's row is\n\n    Target article | 1, 114 | 2.00 | .16 | N/A | .02 | [.00, .09]\n\n-- an F, its p, its partial eta-squared, and the CI OF THE ETA-SQUARED. W0d\n(recover_minus_via_ci_pairing) repairs a font corruption where a minus is read\nas '2', accepting the flip when the corrected value lands inside a paired CI and\nthe literal does not. It paired the F-statistic with the eta-squared's CI: -.00\nis inside [.00, .09] and 2.00 is not, so it fired, and the render carried\n\n    F = -.00\n\nAn F-statistic is a ratio of sums of squares -- non-negative by construction --\nso the output was not merely wrong but arithmetically impossible. Both text\nchannels confirm the source reads 2.00; the library manufactured the sign.\n\nFix: refuse the pairing when the CI's LOWER bound is >= 0. A wholly non-negative\ninterval cannot contain a negative, so containment is satisfiable only\ndegenerately (-.00 clipping the zero edge), which is evidence of MIS-PAIRING\nrather than corruption. Keying on the interval's arithmetic instead of on F\nspecifically covers every non-negative statistic that can sit beside a\nnon-negative CI (F, chi-square, R2, eta2, odds ratios, variance components)\nwithout enumerating them, and cannot disarm a genuine recovery -- a truly\nnegative estimate always has a CI admitting negatives.\n\nEvidence:\n- tests written against the unfixed code and watched FAIL, then pass;\n- all 31 pre-existing W0d tests stay green, incl. the efendic B-column\n  recoveries the rule exists for;\n- corpus guard-diff, all 152 PDFs rendered twice (guard on vs off):\n  2 false positives removed (the maier article and its ESCIcheck duplicate),\n  0 regressions, every other paper byte-identical;\n- suite 1962 passed, 3 xfail (the P1 table defects stay armed).\n\nCompanion to the REJECTED W0b-col recovery: that failed because column consensus\nis not per-record evidence. This is the converse -- per-record containment IS the\nright evidence, but only when the record paired is the right one. A containment\ntest silently assumes the CI belongs to the token it pairs with; verify that is\narithmetically possible first.\n\nFound by the run-5 canary audit against the AI multimodal gold.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-05",
+            "url": "https://github.com/giladfeldman/docpluck/commit/bde67edca75c769966f742aecd5283b6d7dafeed",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "The `main` branch saw changes to the CITATION.cff file, with Lukas Jung updating it, and later adding the `date-released` field. The `gh-pages` branch was deployed to twice, first from commit `a81cd540332cf402c1ffc798f93534c31da17009` and then from `0fd47d0e2ffee48a24c1806c4e4bcd2da5d4e238`, with the message \"Deploying to gh-pages\" accompanying both deployments. Both deployments were marked with a rocket ship emoji, indicating a release or deployment, as noted in the commit messages \"Deploying to gh-pages from @ lhdjung/scrutiny@a81cd540332cf402c1ffc798f93534c31da17009 \ud83d\ude80\" and \"Deploying to gh-pages from @ lhdjung/scrutiny@0fd47d0e2ffee48a24c1806c4e4bcd2da5d4e238 \ud83d\ude80\". The `main` and `gh-pages` branches were the two branches that were worked on in this set of commits.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-07-31T15:02:02Z",
+        "recent_commits": [
+          {
+            "sha": "e3ffb87",
+            "message": "Deploying to gh-pages from @ lhdjung/scrutiny@a81cd540332cf402c1ffc798f93534c31da17009 \ud83d\ude80",
+            "body": "",
+            "author": "lhdjung",
+            "date": "2026-07-31",
+            "url": "https://github.com/lhdjung/scrutiny/commit/e3ffb87d9fcc352f6b9d7c9d6f2999af855b918a",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "a81cd54",
+            "message": "Update CITATION.cff with `date-released`",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-07-31",
+            "url": "https://github.com/lhdjung/scrutiny/commit/a81cd540332cf402c1ffc798f93534c31da17009",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "e712643",
+            "message": "Deploying to gh-pages from @ lhdjung/scrutiny@0fd47d0e2ffee48a24c1806c4e4bcd2da5d4e238 \ud83d\ude80",
+            "body": "",
+            "author": "lhdjung",
+            "date": "2026-07-31",
+            "url": "https://github.com/lhdjung/scrutiny/commit/e712643053ce7380a06978d0e03371a08ecca07d",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "0fd47d0",
+            "message": "Update CITATION.cff",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-07-31",
+            "url": "https://github.com/lhdjung/scrutiny/commit/0fd47d0e2ffee48a24c1806c4e4bcd2da5d4e238",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "The `gh-pages` branch was updated with a commit that built the site for `tenzing@0.4.1`, as indicated by the commit message \"Anka: Built site for tenzing@0.4.1: d271884\". \nThe `master` branch was updated with a change to the `sweet_alert.js` file, specifically to update the success alert title, as stated in the commit message \"Alex O. Holcombe: Update success alert title in sweet_alert.js\". \nNo other branches were modified in this set of commits, with the changes being limited to these two branches. \nThe commits suggest a focus on deployment and user interface adjustments. \nThese changes were made on July 23, 2026.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-07-23T04:38:31Z",
+        "recent_commits": [
+          {
+            "sha": "ea980fd",
+            "message": "Built site for tenzing@0.4.1: d271884",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-07-23",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "d271884",
+            "message": "Update success alert title in sweet_alert.js",
+            "body": "Update terminology from infosheet to contributors table",
+            "author": "Alex O. Holcombe",
+            "date": "2026-07-23",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
+            "type": "other",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "The `main` branch was the focus of the recent work, where a commit was made to \"Avoid automatic Keychain access\", as per the commit message. \nAnother commit on the `main` branch addressed a specific issue with the \"win64 installer fix\", as stated in the commit message. \nNo other branches were worked on during this period, with all changes being made to the `main` branch. \nThe changes were focused on security and installer functionality, with no other areas of the codebase modified. \nThe commits suggest a focus on resolving specific issues rather than adding new features.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-08-04T15:12:55Z",
+        "recent_commits": [
+          {
+            "sha": "a4d6ec8",
+            "message": "Avoid automatic Keychain access",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-08-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4d6ec84b42f896083556c753d2f57d31150d02e",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "09891d3",
+            "message": "win64 installer fix",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-08-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/09891d37d1e844e14d80d53076df043ccf014133",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "The `main` branch was worked on, where the ontogenerator was updated to include \"nature das and cas detection\", as per the commit message. \nNo other branches were modified in this set of commits.\nThe ontogenerator's new detection capabilities are the sole change mentioned in the provided commit history.\nThe commit does not specify what existing functionality was altered or expanded upon, only that this detection was added.\nThis change occurred on July 30, 2026. \nThere are no other commits to summarize beyond this single update to the ontogenerator in the `main` branch.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-07-30T15:11:29Z",
+        "recent_commits": [
+          {
+            "sha": "ec80478",
+            "message": "nature das and cas detection",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-07-30",
+            "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-08-05T02:19:22.687051+00:00",
     "narrative": "Our community has seen significant progress across multiple projects recently. Notably, the `scienceverse/metacheck` project has added dedicated import and export functionality, while `giladfeldman/docpluck` has updated its documentation and addressed several fixes, including refusing sign flips and range bounds issues. Meanwhile, `Davidvandijcke/coarse` has enhanced its security with a hardened release audit and workflows, and `JamieCummins/regcheck` has resolved multiple bugs, including issues with the demo page, card preview, and survey routes. Additionally, `giladfeldman/escicheck` has synced changes from the escicheckapp repository, ensuring consistency across related projects. These updates demonstrate the connections and collaborations within our community, and we celebrate the progress made by our contributors, including Lakens, Gilad Feldman, David van Dijcke, and Jamie Cummins.",
     "repos": [
@@ -16228,32 +16504,6 @@
             "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
             "type": "feat",
             "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-07-12T19:12:33.816336+00:00",
-    "narrative": "Our community has been buzzing with activity, and we're excited to share some updates with you. The scienceverse/metacheck project has made significant progress, with a recent commit to the `data_check` branch that improves the cache, retains original data, and enhances hardcoded folders. This development is particularly noteworthy as it lays the groundwork for more efficient data management and analysis. As our community continues to push the boundaries of open-source research, we celebrate the connections between projects like scienceverse/metacheck, which have the potential to inform and enhance one another. With these advancements, we're eager to see the ripple effects of innovation across our ecosystem. By working together and building upon each other's discoveries, we're driving progress and shaping the future of research.",
-    "repos": [
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "The `data_check` branch was worked on, where the cache was improved, the original data is now kept, and hardcoded folders were made better, as stated in the commit message \"improve cache, keep original data, better hardcoded folders\".\nNo other branches were modified in this set of commits.\nThe specific change involved enhancing the cache and modifying how data and folders are handled, with the original data now being retained.\nThe commit also mentions \"better hardcoded folders\", indicating a change to how folders are defined or managed within the repository.\nThere are no other changes or additions to report beyond this single commit to the `data_check` branch.\nThe `data_check` branch is the sole focus of this update, with no other branches receiving changes.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-07-07T03:08:19Z",
-        "recent_commits": [
-          {
-            "sha": "c799dcf",
-            "message": "improve cache, keep original data, better hardcoded folders",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-07-07",
-            "url": "https://github.com/scienceverse/metacheck/commit/c799dcf66f2d62666954b01ae3b8d92fa19bb3e5",
-            "type": "other",
-            "branch": "data_check"
           }
         ]
       }
