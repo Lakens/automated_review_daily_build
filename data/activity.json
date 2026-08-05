@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-05T14:12:40.021599+00:00",
+  "generated_at": "2026-08-05T19:35:12.152843+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -589,11 +589,11 @@
         },
         {
           "week": 1779667200,
-          "total": 44
+          "total": 45
         },
         {
           "week": 1780272000,
-          "total": 38
+          "total": 37
         },
         {
           "week": 1780876800,
@@ -605,7 +605,7 @@
         },
         {
           "week": 1782086400,
-          "total": 11
+          "total": 12
         },
         {
           "week": 1782691200,
@@ -613,7 +613,7 @@
         },
         {
           "week": 1783296000,
-          "total": 19
+          "total": 18
         },
         {
           "week": 1783900800,
@@ -621,11 +621,11 @@
         },
         {
           "week": 1784505600,
-          "total": 5
+          "total": 6
         },
         {
           "week": 1785110400,
-          "total": 4
+          "total": 3
         },
         {
           "week": 1785715200,
@@ -803,7 +803,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in 'scienceverse/metacheck' updates the code to process new output formats and adds dedicated import and export of files, modifying functions to retrieve links from OSF, PsychArchives, and ResearchBox archives, including real hyperlinks and body-text fallbacks for bare mentions."
+          "diff_summary": "This commit in 'scienceverse/metacheck' updates the code to process new output formats and adds dedicated import and export of files, modifying functions to retrieve links from various archives (OSF, PsychArchives, ResearchBox, Zenodo) to include both real hyperlinks and body-text fallbacks for bare mentions."
         },
         {
           "sha": "43fbc68",
@@ -960,82 +960,6 @@
           "type": "other",
           "branch": "data_check",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "2ed0b66",
-          "message": "Update code and output formats we process. Dedicated import and export of files",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-02",
-          "url": "https://github.com/scienceverse/metacheck/commit/2ed0b66ff304aee1abce787e22f6bb9bdd25f2d2",
-          "type": "other",
-          "branch": "data_check",
-          "diff": {
-            "additions": 13203,
-            "deletions": 987,
-            "files": [
-              {
-                "filename": "R/archive-osf.R",
-                "status": "modified",
-                "additions": 21,
-                "deletions": 2,
-                "patch": "@@ -55,7 +55,13 @@ osf_api_check <- function(osf_api = getOption(\"metacheck.osf.api\"),\n \n #' Find OSF Links in Papers\n #'\n-#' Get all OSF links.\n+#' Get all OSF links: real hyperlinks from the paper's own `url` table, plus a\n+#' body-text fallback for a BARE mention like \"osf.io/gms8z/\" that the source\n+#' PDF/HTML never encoded as an actual hyperlink (common in PDF-converted\n+#' papers, where a plain-text URL mention loses its link formatting) \u2014 the\n+#' `url` table only ever contains links the "
-              },
-              {
-                "filename": "R/archive-psycharchives.R",
-                "status": "modified",
-                "additions": 18,
-                "deletions": 2,
-                "patch": "@@ -26,6 +26,13 @@\n \n #' Find PsychArchives Links in Papers\n #'\n+#' Get all PsychArchives links: real hyperlinks from the paper's own `url`\n+#' table, plus a body-text fallback for a BARE mention (a handle like\n+#' \"20.500.12034/17526\" is routinely cited without any URL scheme at all)\n+#' that the source PDF/HTML never encoded as an actual hyperlink \u2014 the `url`\n+#' table only ever contains links the source document itself made clickable.\n+#' Same two-tier approach `github_links()` uses for GitHu"
-              },
-              {
-                "filename": "R/archive-researchbox.R",
-                "status": "modified",
-                "additions": 16,
-                "deletions": 2,
-                "patch": "@@ -1,5 +1,13 @@\n #' Find ResearchBox Links in Papers\n #'\n+#' Get all ResearchBox links: real hyperlinks from the paper's own `url`\n+#' table, plus a body-text fallback for a BARE mention like \"researchbox.org/\n+#' 801\" that the source PDF/HTML never encoded as an actual hyperlink (common\n+#' in PDF-converted papers, where a plain-text URL mention loses its link\n+#' formatting) \u2014 the `url` table only ever contains links the source\n+#' document itself made clickable. Same two-tier approach `githu"
-              },
-              {
-                "filename": "R/archive-zenodo.R",
-                "status": "modified",
-                "additions": 18,
-                "deletions": 2,
-                "patch": "@@ -1,5 +1,12 @@\n #' Find Zenodo Links in Papers\n #'\n+#' Get all Zenodo links: real hyperlinks from the paper's own `url` table,\n+#' plus a body-text fallback for a BARE mention (a DOI like\n+#' \"10.5281/zenodo.1234567\" is routinely cited without any URL scheme at all)\n+#' that the source PDF/HTML never encoded as an actual hyperlink \u2014 the `url`\n+#' table only ever contains links the source document itself made clickable.\n+#' Same two-tier approach `github_links()` uses for GitHub.\n+#'\n #' @param"
-              },
-              {
-                "filename": "R/code_check.R",
-                "status": "modified",
-                "additions": 319,
-                "deletions": 21,
-                "patch": "@@ -34,7 +34,7 @@ code_read <- function(file_path) {\n \n #' Detect Code Language\n #'\n-#' Detects code language used in files, only for languages metacheck currently processes (R, SAS, SPSS, Stata).\n+#' Detects code language used in files, only for languages metacheck currently processes (R, SAS, SPSS, Stata, Mplus).\n #'\n #' @param file_name a vector of file names\n #'\n@@ -68,18 +68,256 @@ code_lang <- function(file_name) {\n   if (grepl(\"\\\\.(do|ado)$\", lname)) {\n     return(\"Stata\")\n   }\n+  if (gre"
-              },
-              {
-                "filename": "R/codebook-convert.R",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 1,
-                "patch": "@@ -360,9 +360,11 @@ convert_codebook <- function(paper, output_dir = NULL, render = TRUE,\n   }\n \n   # \u2500\u2500 One labelled data frame per study group (flat when no groups) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n+  # Every file except the collection-level root readme/ro-crate-metadata.json\n+  # resolves to exactly one study \u2014 there is no \"shared\" bucket to filter out.\n   groups <- if (\"group\" %in% names(columns_df)) columns_df$group else\n     rep(NA_character_, nrow(columns_df))\n-  study_groups <- unique(groups[!is.na(groups)"
-              },
-              {
-                "filename": "R/data_check_helpers.R",
-                "status": "modified",
-                "additions": 433,
-                "deletions": 134,
-                "patch": "@@ -9,59 +9,100 @@\n \n # \u2500\u2500 File-type crosswalk \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n \n-# datacheck's semantic file types. Superset of metacheck's coarse\n-# `file_types$type` vocabulary; `data_check` reports at this granularity.\n+# data_check's semantic file types. A file's finer documentation ROLE (is this\n+# row the root readme? a codebook? plain supplemental text?) is NOT part of\n+# this vocabulary \u2014 that is `.data_doc_role()`, a separate, orthogonal column.\n+# `data_type` an"
-              },
-              {
-                "filename": "R/extract-tests.R",
-                "status": "added",
-                "additions": 207,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,207 @@\n+# Extract the statistical TESTS a paper reports, as matchable units.\n+#\n+# This exists because `extract_eq()` (R/text-extractors.R) is a general\n+# equation scraper, not a test extractor, and three of its properties make it a\n+# poor matching source:\n+#\n+#   1. `grp_id` IS the sentence number. Its own comment says \"set group equal to\n+#      sentence for now\" \u2014 so a sentence reporting two t-tests yields ONE group\n+#      of ten components, which no single analysis can ever pro"
-              }
-            ]
-          },
-          "diff_summary": "This commit in 'scienceverse/metacheck' updates the code to process new output formats and adds dedicated import and export of files, modifying functions to retrieve links from OSF, PsychArchives, and ResearchBox archives, including real hyperlinks and body-text fallbacks for bare mentions."
         }
       ]
     },
@@ -1878,7 +1802,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `gh-pages` branch was updated with a commit that built the site for `tenzing@0.4.1`, as indicated by the commit message \"Anka: Built site for tenzing@0.4.1: d271884\". \nThe `master` branch was updated with a change to the `sweet_alert.js` file, specifically to update the success alert title, as stated in the commit message \"Alex O. Holcombe: Update success alert title in sweet_alert.js\". \nNo other branches were modified in this set of commits, with the changes being limited to these two branches. \nThe commits suggest a focus on deployment and user interface adjustments. \nThese changes were made on July 23, 2026.",
+      "summary": "The `gh-pages` branch was updated with a commit that built the site for `tenzing@0.4.1`, as indicated by the commit message \"Anka: Built site for tenzing@0.4.1\". \nThe `master` branch was updated with a commit by Alex O. Holcombe that changed the success alert title in `sweet_alert.js`, according to the commit message \"Update success alert title in sweet_alert.js\". \nNo other branches were worked on in these commits, which only include changes to the `gh-pages` and `master` branches. \nThe `gh-pages` commit was made by Anka, while the `master` commit was made by Alex O. Holcombe. \nThese commits suggest that the project is being actively maintained and updated, with specific changes being made to the site build and alert titles. \nThe version `tenzing@0.4.1` was specifically targeted in the `gh-pages` commit.",
       "prs": [
         {
           "number": 106,
@@ -2643,6 +2567,45 @@
           "branch": "master",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "ea980fd",
+          "message": "Built site for tenzing@0.4.1: d271884",
+          "body": "",
+          "author": "Anka",
+          "author_login": "",
+          "date": "2026-07-23",
+          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
+          "type": "other",
+          "branch": "gh-pages",
+          "diff": {
+            "additions": 1,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "pkgdown.yml",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -5,7 +5,7 @@ articles:\n   app_use: app_use.html\n   local_use: local_use.html\n   validation: validation.html\n-last_built: 2026-07-18T02:51Z\n+last_built: 2026-07-23T04:37Z\n urls:\n   reference: https://marton-balazs-kovacs.github.io/tenzing/reference\n   article: https://marton-balazs-kovacs.github.io/tenzing/articles"
+              }
+            ]
+          },
+          "diff_summary": "This commit updates the `last_built` timestamp in the `pkgdown.yml` file to `2026-07-23T04:37Z`, indicating that the site for the tenzing package version 0.4.1 was rebuilt at that time."
+        },
+        {
+          "sha": "d271884",
+          "message": "Update success alert title in sweet_alert.js",
+          "body": "Update terminology from infosheet to contributors table",
+          "author": "Alex O. Holcombe",
+          "author_login": "alexholcombe",
+          "date": "2026-07-23",
+          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
+          "type": "other",
+          "branch": "master",
+          "diff": {}
+        }
       ]
     },
     {
@@ -2664,7 +2627,7 @@
       "topics": [],
       "pushed_at": "2026-07-31T15:02:02Z",
       "created_at": "2021-11-21",
-      "last_push_days": 4,
+      "last_push_days": 5,
       "default_branch": "main",
       "license": "NOASSERTION",
       "branches": [
@@ -2723,7 +2686,7 @@
       },
       "dormant_revived": true,
       "is_archived": false,
-      "summary": "The `main` branch saw changes to the CITATION.cff file, with Lukas Jung updating it, and later adding the `date-released` field. The `gh-pages` branch was deployed to twice, first from commit `a81cd540332cf402c1ffc798f93534c31da17009` and then from `0fd47d0e2ffee48a24c1806c4e4bcd2da5d4e238`, with the message \"Deploying to gh-pages\" accompanying both deployments. Both deployments were marked with a rocket ship emoji, indicating a release or deployment, as noted in the commit messages \"Deploying to gh-pages from @ lhdjung/scrutiny@a81cd540332cf402c1ffc798f93534c31da17009 \ud83d\ude80\" and \"Deploying to gh-pages from @ lhdjung/scrutiny@0fd47d0e2ffee48a24c1806c4e4bcd2da5d4e238 \ud83d\ude80\". The `main` and `gh-pages` branches were the two branches that were worked on in this set of commits.",
+      "summary": "The `main` branch saw changes to the `CITATION.cff` file, with Lukas Jung updating it, and later adding the `date-released` field. The `gh-pages` branch was deployed to twice, first from commit `a81cd540332cf402c1ffc798f93534c31da17009` and then from commit `0fd47d0e2ffee48a24c1806c4e4bcd2da5d4e238`, with the message \"Deploying to gh-pages\" accompanied by a rocket ship emoji. Both deployments were initiated by `lhdjung`, indicating a push to the GitHub pages. The `main` and `gh-pages` branches were the focus of these updates.",
       "prs": [
         {
           "number": 84,
@@ -3430,6 +3393,69 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "e3ffb87",
+          "message": "Deploying to gh-pages from @ lhdjung/scrutiny@a81cd540332cf402c1ffc798f93534c31da17009 \ud83d\ude80",
+          "body": "",
+          "author": "lhdjung",
+          "author_login": "lhdjung",
+          "date": "2026-07-31",
+          "url": "https://github.com/lhdjung/scrutiny/commit/e3ffb87d9fcc352f6b9d7c9d6f2999af855b918a",
+          "type": "other",
+          "branch": "gh-pages",
+          "diff": {
+            "additions": 1,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "pkgdown.yml",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -13,7 +13,7 @@ articles:\n   rounding-in-depth: rounding-in-depth.html\n   rounding-options: rounding-options.html\n   wrangling: wrangling.html\n-last_built: 2026-07-31T14:19Z\n+last_built: 2026-07-31T15:00Z\n urls:\n   reference: https://lhdjung.github.io/scrutiny/reference\n   article: https://lhdjung.github.io/scrutiny/articles"
+              }
+            ]
+          },
+          "diff_summary": "This commit, 'Deploying to gh-pages from @ lhdjung/scrutiny@a81cd540332cf402c1ffc798f93534c31da17009', updates the `last_built` timestamp in the `pkgdown.yml` file, likely as part of an automated deployment process to gh-pages."
+        },
+        {
+          "sha": "a81cd54",
+          "message": "Update CITATION.cff with `date-released`",
+          "body": "",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-07-31",
+          "url": "https://github.com/lhdjung/scrutiny/commit/a81cd540332cf402c1ffc798f93534c31da17009",
+          "type": "chore",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "e712643",
+          "message": "Deploying to gh-pages from @ lhdjung/scrutiny@0fd47d0e2ffee48a24c1806c4e4bcd2da5d4e238 \ud83d\ude80",
+          "body": "",
+          "author": "lhdjung",
+          "author_login": "lhdjung",
+          "date": "2026-07-31",
+          "url": "https://github.com/lhdjung/scrutiny/commit/e712643053ce7380a06978d0e03371a08ecca07d",
+          "type": "other",
+          "branch": "gh-pages",
+          "diff": {}
+        },
+        {
+          "sha": "0fd47d0",
+          "message": "Update CITATION.cff",
+          "body": "",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-07-31",
+          "url": "https://github.com/lhdjung/scrutiny/commit/0fd47d0e2ffee48a24c1806c4e4bcd2da5d4e238",
+          "type": "chore",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -3450,7 +3476,7 @@
       "topics": [],
       "pushed_at": "2026-07-30T15:11:29Z",
       "created_at": "2019-03-14",
-      "last_push_days": 5,
+      "last_push_days": 6,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -3486,7 +3512,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was worked on, where the ontogenerator was updated to include \"nature das and cas detection\", as per the commit message. \nNo other branches were modified in this set of commits.\nThe ontogenerator's new detection capabilities are the sole change mentioned in the provided commit history.\nThe commit does not specify what existing functionality was altered or expanded upon, only that this detection was added.\nThis change occurred on July 30, 2026. \nThere are no other commits to summarize beyond this single update to the ontogenerator in the `main` branch.",
+      "summary": "The `main` branch was updated with a commit that added functionality to the ontogenerator for detecting \"nature das and cas\". \nThe commit message specifically mentions \"ontogenerator: nature das and cas detection\", indicating that this detection capability was the focus of the change.\nNo other branches were worked on in this set of commits, so all the work was confined to `main`.\nThe ontogenerator is now capable of detecting the specified types, as per the commit message.\nThis change is the only update since the last repository update, and it is limited to the `main` branch.",
       "prs": [
         {
           "number": 9,
@@ -3999,6 +4025,47 @@
           "type": "fix",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "ec80478",
+          "message": "nature das and cas detection",
+          "body": "",
+          "author": "ontogenerator",
+          "author_login": "",
+          "date": "2026-07-30",
+          "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
+          "type": "other",
+          "branch": "main",
+          "diff": {
+            "additions": 43,
+            "deletions": 10,
+            "files": [
+              {
+                "filename": "R/parse_pdf.R",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -298,7 +298,7 @@ Mode <- function(x) {\n \n   keyword_list <- .create_keyword_list()\n \n-  stopwords <- paste0(keyword_list$section_stopwords, \"|\\\\bauthor|\\\\bdata\")\n+  stopwords <- paste0(keyword_list$section_stopwords, \"|\\\\bauthor|\\\\bdata|\\\\bmethods\")\n \n   starts_with_section <- stringr::str_detect(\n     tolower(text_data$text[1]),"
+              },
+              {
+                "filename": "R/screen_text.R",
+                "status": "modified",
+                "additions": 41,
+                "deletions": 8,
+                "patch": "@@ -470,15 +470,40 @@\n     stringr::str_detect(\"(<section>|##+) r ?e ?f ?e ?r ?e ?n ?c ?e ?s(?! and notes)\") |>\n     which() - 1\n \n+  if (sum(line_before_refs) == 0) {\n+    # if no references detected but online content and nature portfolio\n+    if (all(c(any(stringr::str_detect(pdf_text_sentences, \"nature portfolio\")),\n+              any(stringr::str_detect(pdf_text_sentences, \"statements of data and code\"))))) {\n+      line_before_refs <- pdf_text_sentences |>\n+        stringr::str_detect(\"(<s"
+              },
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -111,7 +111,7 @@ The performance metrics for open code detection are given below:\n \n metric | estimate |\n -------|----------|\n-accuracy| 0.87 |\n+accuracy | 0.87 |\n sensitivity | 0.94 |\n specificity | 0.82 |\n positive predictive value | 0.79 |"
+              }
+            ]
+          },
+          "diff_summary": "This commit, \"nature das and cas detection\", in the 'quest-bih/oddpub' repository, updates the `parse_pdf.R` and `screen_text.R` files to improve the detection of references and sections in PDFs, and makes a minor formatting change to the `README.md` file."
         }
       ]
     },
@@ -4617,7 +4684,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.1.21.1",
@@ -4710,7 +4838,7 @@
       ],
       "commits_30d": 50,
       "commits_7d": 50,
-      "commits_1d": 38,
+      "commits_1d": 26,
       "commits_90d": 376,
       "authors_30d": [
         "Gilad Feldman"
@@ -4758,11 +4886,11 @@
       "commit_activity": [
         {
           "week": 1779062400,
-          "total": 99
+          "total": 98
         },
         {
           "week": 1779667200,
-          "total": 40
+          "total": 39
         },
         {
           "week": 1780272000,
@@ -4774,11 +4902,11 @@
         },
         {
           "week": 1781481600,
-          "total": 26
+          "total": 29
         },
         {
           "week": 1782086400,
-          "total": 19
+          "total": 16
         },
         {
           "week": 1782691200,
@@ -4805,7 +4933,68 @@
           "total": 50
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1778976000,
+          "additions": 26785,
+          "deletions": -10466
+        },
+        {
+          "week": 1779580800,
+          "additions": 6796,
+          "deletions": -228
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 5564,
+          "deletions": -390
+        },
+        {
+          "week": 1781395200,
+          "additions": 6268,
+          "deletions": -504
+        },
+        {
+          "week": 1782000000,
+          "additions": 2739,
+          "deletions": -66
+        },
+        {
+          "week": 1782604800,
+          "additions": 8410,
+          "deletions": -329
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 7945,
+          "deletions": -336
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "PDF, DOCX, and HTML text extraction plus normalization for academic papers.\n\nThe full documentation lives in `docs/README.md`.\n\n\n```bash\npip install docpluck\n```\n\nOptional extras:\n\n```bash\npip install docpluck[docx]\npip install docpluck[html]\npip install docpluck[all]\n```\n\n\n`extract_pdf()` requires the `pdftotext` binary from Poppler.\n\n- Linux/WSL: `apt-get install poppler-utils`\n- macOS: `brew install poppler`\n- Windows: install Poppler and add its `bin` folder to `PATH`\n\n## Links\n\n- Full usage and API reference: `docs/README.md`\n- Normalization pipeline details: `docs/NORMALIZATION.md`\n- Ben",
@@ -4834,7 +5023,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in 'giladfeldman/docpluck' updates the TODO.md file to reflect that the B6 decision has been made, marking it as \"NO-GO\" and also correcting two run-7 remedies, effectively closing one of the open user decisions."
+          "diff_summary": "This commit in the 'giladfeldman/docpluck' repository updates the TODO.md file to reflect that the B6 decision has been made as \"NO-GO\" and also notes the correction of two run-7 remedies."
         },
         {
           "sha": "9173c32",
@@ -5184,285 +5373,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "bf19f01",
-          "message": "docs(todo): record run-8 outcomes \u2014 B6 decided NO-GO, two run-7 remedies corrected",
-          "body": "B6/RC-T closed as NO-GO (the one open user decision). The S7 entry keeps its\ndead-code diagnosis but records that its prescribed remedy would corrupt the\ncorpus. The Well-Being entry's \"do NOT gate on attestation\" instruction is\nwithdrawn with the measurement that refutes it, the validated gate is written\ndown, and the implementation blocker is recorded so the next session does not\nre-attempt the route that is already measured closed.\n\nNew item: mid-line glued URL hyphens, a class no line-final rule can reach.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/bf19f0182facbbd93ef8df64963641b2bf3c0f19",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 47,
-            "deletions": 6,
-            "files": [
-              {
-                "filename": "TODO.md",
-                "status": "modified",
-                "additions": 47,
-                "deletions": 6,
-                "patch": "@@ -391,7 +391,22 @@ are the durable entries.\n \n ### Decisions / gated\n \n-- [ ] **B6 / RC-T go/no-go \u2014 THE one open user decision.** Evidence pack now exists:\n+- [x] ~~**B6 / RC-T go/no-go**~~ \u2014 **DECIDED AND CLOSED IN RUN 8: NO-GO.** The user approved the\n+      staged go conditional on \"no regressions or issues\"; the 8-canary **rendered** read is that\n+      gate and it FAILED. **7 heading regressions across 6 of 8 canaries**, two of them content\n+      corruption: `efendic`'s `### Author Biog"
-              }
-            ]
-          },
-          "diff_summary": "This commit in 'giladfeldman/docpluck' updates the TODO.md file to reflect that the B6 decision has been made, marking it as \"NO-GO\" and also correcting two run-7 remedies, effectively closing one of the open user decisions."
-        },
-        {
-          "sha": "9173c32",
-          "message": "docs(evidence): complete 8-canary B6 result + W0o implementation blocker measured",
-          "body": "B6 verdict updated with the full canary set: 7 heading regressions across 6 of\n8 canaries (xiao adds \"## Evaluation\"; maier and plos_med are the only clean\nones). Zero byte-identical. Table counts unchanged everywhere, so the damage is\npurely to the document outline, not a table-capture trade. Verdict unchanged:\nNO-GO, default stays OFF.\n\nW0o hyphen recovery was prototyped against the LayoutDoc that normalize.py\nalready receives as dropped_minus_layout, so it could be wired exactly like\nW0h/W0m. It returns 0 rewrites, and per the \"a zero is a claim to be tested\"\nrule that was diagnosed rather than accepted:\n\n  131 line-final-hyphen pairs found, only 26 correct, and the target\n  ('Well','Being') is NOT among them. The wrong pairs are scrambled across\n  columns -- indepen+Background, well+Corresponding, pur+beyond.\n\nCause: bucketing pdfplumber chars into visual lines by y merges the two columns,\nso \"the next line\" grabs the other column's text. This is the B6 interleave\nproblem reappearing inside the fix's own helper -- the same root cause that makes\n70% of the S7 population garbage. pdftotext -bbox gets reading order right;\nthe pdfplumber char stream alone does not.\n\nSo W0o cannot ship as a drop-in sibling of W0h/W0m. It needs a pdftotext -bbox\nword channel threaded into normalize (tractable, but a new extraction channel),\nNOT column-aware line assembly over LayoutDoc (that is B6, just declined).\n\nThe gate itself remains validated; only its implementation route is blocked.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/9173c3237f78a7631d39eb5b4cf5c8a978d59171",
-          "type": "feat",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "02cbe49",
-          "message": "docs(verdict): B6 staged go step 1 FAILS the canary read \u2014 NO-GO, default stays OFF",
-          "body": "The user approved a staged go conditional on \"no regressions or issues\". The\n8-canary rendered-output read is that gate, and it fails.\n\nSix heading regressions across five of six canaries compared so far, two of\nwhich are content corruption rather than reflow:\n\n  efendic  -- \"### Author Biographies\" is WELDED INTO a reference-list line:\n              \"...https://doi.org/10.1111/ jcom.12071 Author Biographies Emir\n              Efendic is a postdoctoral scholar...\" Three properly separated\n              blocks with the flag OFF; one spliced run with it ON.\n  ar_apa   -- \"### Participants\" absent from the ON render entirely.\n  chandrashekar / chan_feldman / ip_feldman / efendic -- headings demoted to\n              body text or absorbed into table cells.\n\nplos_med_1 is clean.\n\nEvery one of these preserves the word multiset perfectly, which is exactly why\nrun 7's 58-document / 0-words-lost text-channel measurement could not see them.\nThat result is not contradicted -- it was never capable of detecting reordering,\nas the evidence pack itself said. The rendered word count is equally misleading:\nthe raw diff reads \"560 words lost\" but most is HTML escaping and table filler.\nNeither word count decides this; reading the structure does.\n\nRecorded honestly: the flag genuinely IMPROVES some table rendering (ip_feldman\nTable 5 goes from an orphaned vertical value dump to a correct aligned table).\nThe change is not uniformly bad -- it is net-unsafe, which is the more dangerous\nshape and why an isolated improvement was never sufficient evidence.\n\nThird correct rejection of this class at the rendered-reading gate. Flags stay\nshipped-dark for per-document opt-in. Prerequisite for any future attempt: a\nblock-level structural-preservation guard inside the splice, mirroring the\nexisting unconditional word-preservation guard one level up.\n\nNo code changed; defaults verified still OFF at extract.py:194/:204.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/02cbe49708da9bc18f5fbe28ee24c0d75d30e338",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "f818e9d",
-          "message": "docs(evidence): hyphenation gate MEASURED \u2014 both queued fixes were mis-specified",
-          "body": "Run 8 set out to execute the two queued hyphenation fixes. Measuring them first\nchanged both, so this lands the evidence before any code.\n\n1. The S7 widening, as specified, would CORRUPT the corpus. The tolerant\n   separator matches 43 sites across 40 papers, but 30 of them (70%, all from\n   one 3-column paper) are column-interleave garbage, not hyphenation:\n   conspir-|that, theo-|imply, phenom-|experiment. Geometry proves it \u2014\n   `conspir-` ends at x=288 and `that` begins at x=306 on the SAME visual line,\n   a jump across the gutter. The true continuation is conspir-|acy. Widening\n   would create ~30 corruptions to repair ~13 real breaks. The dead-code\n   diagnosis stands; the prescribed remedy does not.\n\n2. The attestation gate, explicitly banned by the prior audit, is the only\n   discriminator that works. The ban rested on \"every no-hyphen wellbeing here\n   is itself a line-break artifact\" \u2014 true about the glued form's ORIGIN, but\n   the inference drawn from it (no independent attestation exists) is false:\n   the document has 61 genuinely inline `well-being`, 0 spanning a newline.\n\n3. Codex's recommended gate (capital right fragment) is UNSAFE \u2014 it fires on\n   minor-We, percep-Minority, the-Personal, Ameri-To, con-M,\n   electroencephalog-Action, all column interleave. Rejected on measurement per\n   the \"reproduction decides it\" rule. Two attempts at a column-continuity\n   guard to rescue it both failed and are recorded as a dead end.\n\nFinal gate, measured over 4,506 line-final-hyphen sites in 46 papers:\n    fire IFF inline_hyphenated(A-B) > genuine_glued_tokens(AB)\nwhere genuine_glued counts AB as a single word token in the -bbox LAYOUT\nchannel \u2014 asking the layout channel is what keeps the glued count non-circular,\nsince the text channel's glued forms are the artifacts under repair.\n\n168 fires (3.73%), correct on every decisive case: accepts Well-Being (7/0),\nwell-being (53/0), in-group (17/2); rejects out-group (2/7), inter-group (1/4).\nOne known FP: New-York, a publisher typo the page actually prints.\n\nTriple-verified: measurement + codex (dissented, refuted on data) + an\nadversarial Sonnet pass that reproduced every number, confirmed the page by\n300dpi raster, and found a URL false-positive class neither other pass raised\n(0 of 168 fires, so incidental \u2014 hardening noted, plus a separate open defect\nfor mid-line glued URL hyphens).\n\nNo code changed.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/f818e9d5c9584abe5fc13c67d72903ce79ab657f",
-          "type": "test",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "82e3e1a",
-          "message": "docs(handoff): run-8 resumable handoff + log run-7 deferred items to todo.md",
-          "body": "Handoff for a fresh session to close the remaining backlog: 37 open\ncanary findings, the S7 hyphenation dead-code defect, the re-opened\nip_feldman Well-Being hyphen, and the B6/RC-T go/no-go.\n\nThe handoff leads with the one BLOCKING decision (B6/RC-T) so the next\nsession asks it before spending budget elsewhere, and states plainly\nthat the evidence is already measured and must not be re-derived.\n\nWatchouts carried forward so the next session cannot repeat them:\nnever re-init run-meta (a sibling project's /wrapup drove phase_5d_runs\n21 -> 0 and produced a false PASS); a word multiset is blind to\nREORDERING so the banded default must not be flipped on run-7 evidence\nalone; plos_med column loss and the row-cluster chain merge are both\nMEASURED dead ends; and do not gate the hyphen fix on cross-document\nattestation -- the adversarial pass measured that premise false.\n\ntodo.md gains a \"Run 7\" section logging every deferred item, including\nthe two decisions closed by measurement rather than by a product call.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/82e3e1a81f9006c19d95d379da5cc9fe53d53d38",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "44107ea",
-          "message": "fix(normalize): strip BIDI FORMAT marks in S6 (v2.4.125)",
-          "body": "An invisible U+200E LEFT-TO-RIGHT MARK survived normalization into\nrendered output immediately after a citation's closing paren\n(xiao_2021_crsp: `Connolly, Reb, and Kausel (2013)<U+200E>`).\n\nThe S6 invisible-character block already stripped U+200B/C/D and\nU+FEFF but SKIPPED U+200E/U+200F -- an omission in a sequence, not a\ndesign decision. Now also strips U+2060 WORD JOINER, same class.\n\nThis is a CORRECTNESS defect, not cosmetics. An invisible character\ninside rendered output breaks STRING EQUALITY and SEARCH for every\ndownstream consumer: a citation checker comparing `(2013)` against\n`(2013)<LRM>` sees a mismatch it cannot see on screen -- and docpluck's\noutput feeds exactly such consumers (citelink, CitationGuard). Same\nrationale already recorded for the adjacent U+00AD strip (\"invisible,\nbreaks search\").\n\nNORMALIZATION_VERSION -> 1.9.50.\n\nVerification:\n- 9 new tests, each watched FAILING at unfixed HEAD first (7 failed /\n  2 passed -- the 2 passing prove the pre-existing U+200B/C/D/FEFF\n  strips still work, so the red was specific to the new class).\n- Strip effectiveness verified on a synthetic positive BEFORE the\n  guard-diff, so a zero result is trustworthy rather than a false green.\n- Corpus guard-diff, all 101 PDFs: 100 byte-identical BY CONSTRUCTION\n  (they contain no bidi mark at all); the 1 touched is xiao, with\n  exactly the 2 reported marks. Zero false positives possible.\n- Idempotency + normalize guards: 41 passed, 0 failed.\n- Full suite: 2015 passed, 190 skipped, 3 xfailed, 0 failed.\n  Reconciles exactly as 2006 pre-existing + 9 new; skips and xfails\n  unchanged, so zero behavioural drift.\n\nFound via the run-7 triage of the open canary findings.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/44107eab217dc60d52150b46ca8cfc3be2af8790",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "15c710c",
-          "message": "docs(evidence): B6/RC-T measured go/no-go pack + S7 hyphenation dead-code finding",
-          "body": "No library code changed; both are measurements.\n\nB6/RC-T evidence pack. Flag ON vs OFF (GENERAL+BANDED) across 58 docs\nincl. all 8 canaries, measured on extract_pdf (the channel the flags act\non) via word MULTISET comparison:\n  38 REORDERED-SAFE | 12 UNCHANGED | 8 WORDS-DIFFER | 0 errors\nAll 8 WORDS-DIFFER inspected INDIVIDUALLY -- zero words lost in every\none. Seven are fragment gains (footnote markers, table header tokens);\nthe single NEGATIVE delta (ieee_access_alt -2) is the corrector JOINING\n'S','i','U+2208' into the correct math token 'i\u2208S'. amd_2 recovers a\ntable header region (RMS / Health Complaints / B) that OFF drops.\nThe unconditional word-preservation guard held on all 58.\n\nRecommendation is a STAGED go, explicitly NOT a blind flip: a word\nmultiset is blind to REORDERING, which is the whole point of the change\n-- the standing portfolio lesson records a 26/26 multiset pass that\ncoexisted with a corrupting reorder. The remaining gate is the 8-canary\nAI-gold read that rejected the last attempt. Counter-evidence carried:\nplos_med column loss is measured unrecoverable by geometry, and the\nrow-cluster chain merge has 4 discriminators already rejected.\n\nS7 hyphenation. Verifying CitationGuard's R9 confirmed the code but\nchanged the conclusion: S7's regex needs a SINGLE newline while poppler\n24.08 emits a BLANK LINE, so S7 matches 0 sites across 40 papers while\nthe real form matches 14. Dead code -- real breaks (con-|trast,\nsignif-|icant) pass unrepaired while semantic hyphens (health-|related)\nmust be preserved, so widening the separator alone would over-join.\nThe U+00AD rule 12 lines above already uses a tolerant separator; that\nasymmetry is the bug.\n\nTested rather than assumed: S7 does NOT explain the ip_feldman\n'WellBeing' re-opened in the self-re-audit (S7 needs lowercase both\nsides; pdftotext itself performs that join upstream). Two mechanisms,\none symptom class -- recorded so a fix does not go to the wrong layer.\n\nAlso files ESCIcheck's DP-2 withdrawal (their beta/B header glyph is\nNOT a docpluck defect -- reproduced here: 5 fully-decoded U+2BD1 chars\nin PrinceFallback, 0 curves; the diamond is baked into the published\nPDF) and upholds DP-6 on measurement.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/15c710c4722a3c67ebd6fedb5ca4326441dfe22e",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "4fecbe1",
-          "message": "docs(audit): re-audit docpluck's OWN won't-fix rulings + heading-tier measurement",
-          "body": "Two streams, both evidence-first, no library code changed.\n\n1. docpluck-self re-audit (the block missing from the 2026-08-05 handoff).\n   The prior audit re-opened 4 local rulings then queued only the SIBLING\n   repos, leaving docpluck's own backlog un-re-audited. Tally: 1 WRONG,\n   2 UPHELD on new evidence, 1 already-refuted with 4 stale restatements\n   now carrying correction blocks.\n\n   - ip_feldman `WellBeing` -> WRONG, re-opened. Filed OCR-tier on the\n     circular claim \"raw pdftotext drops it\". The hyphen is a real char\n     object (GillSansMTPro-MediumItalic 12.0, x1=508.37), the page has\n     0 curves/0 rects, and `pdftotext -bbox` ITSELF emits `Well-`+`Being`\n     as two words -- only the default plain-text mode loses it.\n   - chen ref mangling -> UPHELD, but on the rasterized page (the\n     publisher genuinely prints the mangled text) rather than on the\n     extractor's self-report.\n   - DP-6 figure-inset -> UPHELD, measured for the first time: true\n     raster images, no char AND no curve objects. Unlike maier's eta2p\n     (4 curves) this is NOT reopenable by a vector-path recogniser.\n\n   The adversarial third pass refuted the FIX, not the finding: it\n   measured the \"attested elsewhere in the document\" premise both prior\n   passes had converged on and found it false here.\n\n2. Heading-tier measurement -> typographic mapper REJECTED.\n   Measured over 8 canaries + 50 corpus PDFs: usable ladder on only\n   43% (25/58) and on just 3 of 8 canaries. On mixed documents the 2nd\n   font family is as often table debris or a competing supplementary\n   body as a heading level, and mean words/span does not separate them\n   (ip_feldman 7.1 legit vs chandrashekar 7.3 pathological) -- the same\n   \"classes interleave\" result that killed four row-cluster\n   discriminators. The tier-mapping PRODUCT DECISION is therefore moot\n   and comes off the pending list; the cosmetic inconsistency stays\n   filed below the data-loss findings.\n\nRun-meta: heading decision resolved, re-opened hyphen defect added,\nfirst_seen_cycle:2 residue corrected, and the \"38 open\" prose corrected\nto 36 open + 2 resolved.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/4fecbe1606f9bb814be44b6d169deae9fdee8561",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "a81e0e1",
-          "message": "docs: hand-off prompts for the CitationGuard / ESCIcheck / 2Rmarkdown re-audit",
-          "body": "Ready-to-paste prompts for the 5 remaining queued won't-fix re-audits, one per\nproject, each translated to that project's own \"extractor under suspicion\":\n\n- CitationGuard: 3 docs; PDF/.docx primary source.\n- ESCIcheck: 1 remaining doc; DP-3 already corrected on both sides (62d3c7b in\n  ESCIcheckapp) and given as the worked example. Includes the practical warning\n  NOT to invest in font/CMap/ToUnicode fixes for this class, plus the\n  vector-path-recogniser route worth scoping.\n- 2Rmarkdown: 1 doc; the analogue is the PARSER, not a PDF library -- the\n  circular error there reads \"our parser returns nothing, therefore the\n  construct is unsupported\". Flags the highest-value case: a ruling that claims\n  a Stata/SPSS construct \"cannot be represented in R\" when the converter simply\n  does not handle it yet -- a wrong reject dressed as a language limitation.\n\nEach prompt requires the full triple pass (primary source -> codex -> sonnet\ninstructed to refute; Claude Max only, never the API), the\nUPHELD / MECHANISM-REFUTED / WRONG classification, correction blocks written\nINTO the original docs rather than silent rewrites, and an explicit check for\nrulings cited as PRECEDENT for other rulings -- the mechanism by which one bad\nreject became two in docpluck.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/a81e0e1ac108798f9c882f5bcb29d18d8356dcaa",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "b7634c1",
-          "message": "docs(audit): DP-3 cross-project adjudication \u2014 verdict upheld, MECHANISM REFUTED",
-          "body": "First item of the queued cross-project re-audit, chosen for blast radius: a\ndocpluck->ESCIcheck REPLY document where one project told another \"not our defect\".\n\nREPLY_FROM_DOCPLUCK_2026-06-25 stated the root cause as \"the eta-squared-p glyph\nlives in a font with no ToUnicode CMap (NotoSerif-Regular uni:no), so both pdftotext\nAND pdfplumber decode it as a space\". Measured on collabra.90203 p.1:\n\n- NotoSerif-Regular carries 561 char objects on that page and ALL 561 are the SPACE\n  character -- it is the document's space font, not a symbol font.\n- Its space widths are 2.08-3.90pt (mean 2.43); ZERO exceed 5pt, while the symbol's\n  ink spans 7.98pt. No NotoSerif space is wide enough to be the symbol.\n- The only char object near the gap is a NotoSerif space at x0=229.97 -- the ordinary\n  space BEFORE the '=' at x=232.31, i.e. after the symbol, not in place of it.\n- The symbol is 4 filled bezier curves (fill=True, no fontname) with NO char object.\n\nSo the verdict (OCR/shape-recognition tier for body prose) is RIGHT, but the stated\nmechanism is REFUTED. Codex on why that still causes harm: the rationale teaches the\nwrong failure mode, so a consumer would attempt ToUnicode recovery, glyph-name\nmapping, extractor tuning or post-processing NotoSerif spaces -- all of which target\nthe ordinary space before '=' and can never recover drawn curves. The distinction\nthat matters is \"text encoded badly\" vs \"ink that is not text\".\n\nPROPAGATION CONFIRMED. REPLY_TO_DOCPLUCK_2026-06-26 records ESCIcheck replying \"we\nconfirmed your OCR-tier won't-fix: the prose reads '( = .000...)' with no eta\nanywhere\" -- the identical circular check. A wrong rationale crossed the repo\nboundary and was ratified by the receiving project using the same flawed method.\nThat is exactly the shape this audit exists to catch.\n\nBoth documents now carry correction blocks (in ESCIcheckapp, a separate repo). The\ntable-side fields.eta2 binding is unaffected and remains correct. A deterministic\nvector-path recogniser remains a viable NON-OCR route.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/b7634c1adc94809aaeba9bf9d54ffa7bf966ce5b",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "7b22f8c",
-          "message": "docs: TRIPLE AI VERIFICATION hard rule + re-audit of every prior won't-fix",
-          "body": "User directive 2026-08-05, portfolio-wide: \"triple ai verifications always,\nfirst you, then codex, then sonnet... these are science platforms, we need 100%\naccuracy, no mistakes, no hallucinations.\"\n\nWHAT WENT WRONG. I rejected a verifier's finding (docpluck drops the eta-squared-p\nsymbol) by asking pdftotext and pdfplumber whether the glyph was there -- the two\nextractors whose flaws this library exists to correct. Getting 0 from both, I filed\n\"never encoded, OCR-tier, won't-fix\" and wrote a shared lesson card teaching that\nmethod. Rasterizing the page (pdftoppm -r 300) showed it plainly prints\n\"(eta^2_p = .000, 95% CI [.000, .003])\". I then OVER-corrected: a pdfminer dump made\nthe whole clause look missing and I briefly reported published statistics were lost\n-- also wrong, a pdfminer two-column reflow artifact.\n\nDone properly (rasterize -> codex -> sonnet), all three passes converge: the symbol\nis 4 filled bezier curves (fill=True, non_stroking_color=0.0, NO fontname -- font\nglyph outlines would be object_type 'char') arranged as eta + superscript-2 +\nsubscript-p against the text baseline, with no char object in the gap. A second\nidentical cluster 13pt below proves it systematic. Genuinely OCR/shape-recognition\ntier -- though codex noted a deterministic vector-path recogniser is a real non-OCR\nroute, so it is NOT closed forever.\n\nRE-AUDIT OF ALL PRIOR REJECTIONS (docs/FINDINGS_2026-08-05_reopened_rejections_audit.md).\nEvery past won't-fix used the same circular method, so all were re-opened.\nTWO OF FOUR WERE WRONG:\n\n- ar_apa \".245 painted minus\" -> WRONG TWICE OVER. The page reads \"beta = .245\",\n  POSITIVE, no minus anywhere, and there are 0 curves at the site. The ruling\n  defended a character that does not exist, and its \"OCR-tier\" label masked the REAL\n  defect (Greek beta in font AdvPSMP10 read as ASCII 'b' -- the W0m class, fixed in\n  v2.4.117; current output is correct). This ruling was cited as THE PRECEDENT for\n  the eta-squared won't-fix: a bad reject does not lose one defect, it propagates.\n- efendic T2 \"OCR-tier\" -> WRONG (a detect.py whitespace-dilution bug, fixed v2.4.101).\n- maier eta-squared-p -> upheld, but ONLY the curve geometry ever supported it.\n- chan_feldman \"alpha = 0.94 gold defect\" -> upheld on SOURCE evidence: page 9 carries\n  BOTH values on DIFFERENT scales (0.94 avoidance, 0.89 revenge); the gold attached\n  the revenge value to the avoidance sentence.\n\nRun 4's handoff called its evidence \"airtight\". It was not. Both that handoff and\nthis run's are corrected in place rather than left standing.\n\nENCODED PORTFOLIO-WIDE (not just this project):\n- ~/Vibe/CLAUDE.md -- top-level hard rule; explicitly covers REJECTING a finding;\n  standing obligation to re-open rejections whenever the standard rises.\n- docpluck/CLAUDE.md -- same rule in the project hard-rules list.\n- _shared/lessons/triple-ai-verification-mandatory-for-science-claims.md\n- _shared/lessons/never-adjudicate-an-extraction-defect-with-the-extractors.md\n- memory feedback_triple_ai_verification_always + MEMORY.md index\n- DELETED the bad card written earlier this session that taught the circular method.\n- ~/Vibe/todo.md -- 7 suspect won't-fix rulings queued across CitationGuard,\n  ESCIcheckapp and 2Rmarkdown, cross-project REPLY docs first (a wrong reject that\n  crosses a repo boundary closes the item on both sides).\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/7b22f8cb269a6d40c86ae2a7e0eab00e54228844",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "26b319a",
-          "message": "docs(handoff): record cycle-1 Phase 5d verdicts and the eta-squared adjudication",
-          "body": "All 8 canaries AI-verified against article-finder golds after the cycle gate\ncorrectly BLOCKED the release at I1/I2/I12 -- every deterministic gate was green\nbut no canary had been AI-verified. A guard-diff answers \"did my change touch\nanything it shouldn't?\"; it cannot answer \"is this output correct?\".\n\nAll 8 = FAIL (38 open findings, the honest standing state). None of the findings\ntrace to v2.4.124: the xiao verifier confirms REPAIR_A and REPAIR_B both LANDED\nwith no over-stripping.\n\nNEW findings the guard-diffs were structurally blind to:\n- plos_med: front-matter metadata spliced into LIVE Abstract prose, and\n  \"Published: December 28, 2023\" fused into the \"## Abstract\" heading text.\n- chandrashekar: the column-interleave defect is far broader than recorded --\n  ALL 16 supplementary tables (S1-S16, ~15 PDF pages) fail to render as tables,\n  row labels landing up to 250 lines from their data. The backlog listed only\n  \"T9 missing Part 2 rows; T10 empty shell\".\n- xiao: a FABRICATED \"## Evaluation\" heading manufactured from a Table-7\n  column-header token.\n- chan_feldman: Table 6's entire 11-row body lost while its caption survives.\n\nADJUDICATED AND REJECTED -- the maier eta-squared-p \"prose drop\" is NOT a\ndocpluck defect. The glyph is absent from BOTH channels: pdftotext reports 0\noccurrences document-wide; pdfplumber's character-level layout scan reports 0\nacross 95,450 chars, with the site reading \"( = .000\" and NO character between\n\"(\" and \"=\". The symbol was never encoded in the text layer -- the gold sees it\nbecause it reads the painted page. Mirror image of run 5's gold defects: there\nthe gold was wrong, here the gold is RIGHT and the inference is wrong. OCR-tier.\nAccepting it would have sent a cycle hunting normalize.py for a deletion that\nnever happens.\n\nAlso corrects this run's own earlier characterisation of the ip_feldman orphan\nblock: line-matching called it \"150 unattributed lines\"; reading both documents\nin full shows it is a scrambled duplicate of Tables 6-9's cell contents.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/26b319aaa40035c417218e9f8c91a0628699e52b",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "d2c10b8",
-          "message": "fix(normalize,sections): wrapped-CONTACT strip + KEYWORDS label/value split (v2.4.124)",
-          "body": "Publisher furniture was splitting a sentence in half, and a keyword list was\nbeing read as the Introduction's first sentence.\n\nNORMALIZATION_VERSION -> 1.9.49; SECTIONING_VERSION -> 1.2.4.\n\n1. Wrapped-CONTACT block (normalize.py, P0)\n\nxiao_2021_crsp rendered the T&F correspondence footer INSIDE a body sentence:\n\"The target and the / CONTACT Gilad Feldman / Hong Kong, Hong Kong SAR /\ncompetitor form a core choice set\". The v2.4.6 rule requires CONTACT + name +\nemail on ONE line; T&F column-wraps the block so each lands on its own line.\n\nFour of the block's six lines were ALREADY stripped by sibling patterns, so\nthis was a PARTIAL strip -- worse than none, because it removes exactly the\nlines that made the block recognisable as furniture and welds the residue into\nprose. When auditing a strip rule, check what its NEIGHBOURS already remove.\n\nKeyed on the structural signature (line-initial all-caps CONTACT followed only\nby a personal name), never paper identity. A _CONTACT_NON_NAME_WORDS veto keeps\nnav furniture (\"CONTACT Details Below\"). The orphaned \"<City>, <Region>\" tail is\nremoved ONLY by adjacency to a dropped opener -- never on its own shape, since a\nbare \"Hong Kong, Hong Kong SAR\" is ordinary prose (a test pins that it survives\nalone). The wrapped pattern deliberately does NOT live in\n_PAGE_FOOTER_LINE_PATTERNS: the generic any()-match would drop vetoed lines\nbefore the veto branch could run.\n\n2. KEYWORDS label/value split (sections/core.py)\n\nThe keywords section came out as 10 chars ('KEYWORDS\\n\\n') while its values\nbecame the synthesized Introduction's opening line. The cut-at-first-\"\\n\\n\"\nlanded BETWEEN the label and its own values. General rule: a \"cut at the first\nseparator\" heuristic needs a post-condition on what the cut LEAVES, not only\nwhere it lands.\n\nrender.py's _demote_metadata_label_headings blamed this on \"R4 column-aware\nextraction reorders the front-matter\" -- false on both counts (the raw text has\nlabel and values adjacent and in order, and \"Introduction\" does not occur in\nthat paper's source at all; the heading is synthesized). Comment corrected.\n\n3. pytest had NO configuration (pyproject.toml)\n\nA bare pytest walked tmp/ and collected 6 scratch files -> 10 collection ERRORs\nand a test count that depended on leftover debris (run5=1962 vs run6=2295, not\ncomparable), defeating the project's \"a shrinking test count is a failure\"\ntripwire. testpaths pinned -> stable 2199 = 2155 pre-existing + 44 new.\n\nVerification\n- 44 new tests, each watched FAILING against unfixed HEAD first.\n- Contact guard-diff, production path, 127 docs incl. all 8 canaries:\n  identical=125 changed=2 errors=0. Both changed docs are T&F papers; every\n  removed line is genuine correspondence furniture. NO lines added anywhere.\n  Surfaced the same leak on chan_feldman, undetected across 5 prior AI sweeps.\n- Keywords guard-diff, 156 docs incl. all 8 canaries:\n  identical=155 changed=1 errors=0; the 1 is xiao, exactly the intended repair.\n- Both guard-diffs verified their monkeypatch EFFECTIVE first, so a zero result\n  is trustworthy rather than a false green.\n- Suite on this exact tree: 2006 passed, 190 skipped, 3 xfailed, 0 failed.\n- Golden snapshots confirmed section-identical BEFORE regenerating; the diff is\n  one version line per file, no boundary moved.\n- Phase 5d: all 8 canaries AI-verified against article-finder golds. The xiao\n  verifier confirms both repairs LANDED with no over-stripping. All 8 remain\n  FAIL on pre-existing defects -- the corpus is not clean and the standing\n  verdict stays FAIL; none of the findings trace to this change.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/d2c10b8ff37eec8370d06e7f92e4b50bc657d0f8",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "8174db6",
-          "message": "docpluck-iterate: add rule 20a \u2014 how to survey, and when a survey cannot help",
-          "body": "Rule 20 says \"survey the corpus before you write a threshold\". Run 5 obeyed it\nand still got the survey wrong TWICE, in opposite directions, so the rule needed\nthe missing half: how to build a survey whose number means anything.\n\n(a) Survey through the REAL entry point. The W0i survey fed raw pdftotext lines\n    through a function that production only ever calls on Camelot table cells,\n    and reported ~85 hits in 10 papers -- including a paper's TITLE. The\n    production render for that same paper had ZERO. Overstated ~10x; reporting it\n    would have described a catastrophe that does not exist and over-engineered\n    the guard to match. Red flag encoded: a hit-rate wildly above the audit that\n    motivated the work means the harness is over-broad.\n\n(b) A ZERO result must be falsified before it is believed. The first W0d survey\n    returned zero firings corpus-wide -- a comfortable all-clear that was pure\n    artifact (W0d runs whole-document; the raw-text channel puts each cell on its\n    own line, so an estimate and its CI never share a line).\n\n(c) Prefer a GUARD-DIFF over a hit count: render twice with the change toggled,\n    so every difference is attributable. Both run-5 fixes shipped on exactly that\n    evidence. When a full double-render is too slow, pre-filter by a stated\n    criterion and report BOTH numbers so coverage stays auditable.\n\nPlus the boundary condition that retires an entire approach family: if the thing\nyou are detecting occurs on exactly ONE row, no vote/follower/corroboration rule\ncan recover it. Counting the populated occurrences first would have saved two\nprototypes on the plos_med column loss.\n\nAll references and factual claims re-verified against the tree before commit.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/8174db6280411aa3292aa95170600aed1b7dfbb4",
-          "type": "feat",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "1ddeade",
-          "message": "docs(todo): log run-5's open items into the committed backlog",
-          "body": "Run 5's working list lived only in tmp/iterate-todo.md, which is gitignored and\ndisk-only -- so its open items would not have survived the session. Run 4 logged\nits equivalents into TODO.md; this closes the same gap for run 5.\n\nRecords: the two items blocked on a product decision (heading tier mapping; the\nB6/RC-T go/no-go), the plos_med column loss with its FOUR rejected geometric\napproaches and the structural ceiling that retires the whole family, the 37\ncorpus findings still open across the 8 canaries, and the chan_feldman alpha\nfiled to article-finder as a gold defect rather than a docpluck one.\n\nIncludes the cheap early check that would have saved two prototypes: count the\nrows populating a missing column; if it is 1, no geometric rule can recover it.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/1ddeade62f5c4dfc7575efbd057120dfc5e2507f",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "cb4eae3",
-          "message": "docs(handoff): record the cycle-4 structural verdict on the plos_med column loss",
-          "body": "Two further repairs prototyped and rejected by measurement, retiring the whole\ngeometric family rather than inviting a fifth attempt: widest-row seeding (killed\nby 1,707 prose pages whose widest row is a page footer) and follower\ncorroboration (killed by the P-value column having zero corroboration anywhere in\nthe table). The columns occur on exactly one row, so no vote/follower rule can\nreach them. Next viable direction recorded: header-TEXT typing gated to\ncaption-anchored regions.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/cb4eae3f4d1acff6bd4d2628e552a515b3c2477e",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "2535559",
-          "message": "docs(findings): the plos_med column loss has a STRUCTURAL ceiling, not a threshold one",
-          "body": "Probed the follower/identity direction the survey pointed to (require the wide\nrow's column starts to be corroborated by the rows below). The classes do\nseparate -- furniture scores a clean 0.00, the real header 0.20 -- but 0.20 is\nfar too weak to found a threshold on, and per-column corroboration explains why:\n\n    x=36.0 -> 15/15    x=284.7 -> 4/15    x=369.3 -> 3/15\n    x=442.8 -> 1/15    x=549.8 -> 0/15  <- the P-value column\n\nThe rightmost column has ZERO corroboration anywhere in the table. Rel. risk and\nP value are populated on exactly ONE row (the aggregate); the other 11 are\nindented sub-rows that legitimately leave them blank. No vote-, follower-, or\ncorroboration-based rule can recover a column that occurs once -- the repetition\nthose algorithms need is not in the document.\n\nSo a geometry-only repair is impossible for this class, which retires the whole\nfamily of attempts rather than inviting a fifth. What remains viable is evidence\nfrom outside the geometry: header-TEXT typing (the header cells are recognisable\nstatistic labels, so they declare the column count directly), gated to\ncaption-anchored regions so it cannot fire on the ~1,700 prose pages the earlier\nsurvey surfaced; or feeding header-derived x-positions to Camelot as explicit\ncolumns. Both still need the 101-PDF guard-diff and canary sweep.\n\nRecords the cheap early check that would have saved two prototypes: count how\nmany rows populate the missing column; if it is 1, no geometric rule applies.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/25355590679a329f2499811c7e7860d35464f6a1",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "c5d86fd",
-          "message": "docs(findings): header-seeding PROTOTYPED then REJECTED by the corpus survey",
-          "body": "The proposed repair for plos_med T3's lost statistics columns -- seed boundaries\nfrom the widest row, since the header declares every column -- was prototyped and\nrecovers the 5-column grid exactly. The vote tally shows the defect in one line:\nthe four TRUE boundaries carry 5, 13, 2 and 2 votes against a threshold of 7, so\nexactly one clears it and the rule deletes all four.\n\nThe corpus survey then killed the fix. Scanning all 152 PDFs for the shape returns\n1,707 pages, dominated by ordinary PROSE (modal=1 widest=4 wide_rows=1/22).\nInspecting one directly shows the \"widest row\" is a PAGE FOOTER --\n\"JAMANetworkOpen.2023;6(5): | (Reprinted) | May31,2023 | 10/12\" -- above a\nREFERENCES list. Seeding from it would fabricate a 4-column table out of a\nbibliography on ~1,700 pages; the tail (\"lost 29 columns\") is the same artifact.\n\nSo the failing signal is not sparsity but IDENTITY: which row is actually a\nheader. A viable fix must establish that first (inside a caption-anchored region,\nfollowed by data rows sharing its column starts -- _row_is_header is the natural\nhome) and be re-measured against this same 1,707-page population.\n\nSecond geometric shortcut rejected for this defect class, fourth across the\nrow-cluster family. Each looked excellent on its motivating paper; measurement,\nnot review, killed them. Recorded as a project lesson: print the winning row's\nTEXT, not just its column count -- a footer, a running header and a wrapped\ncaption all look like \"wide rows\" to geometry.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/c5d86fd4eaf5018c6e1695e27cb6de640feedab1",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "28d94b2",
-          "message": "docs(handoff): correct the open-findings count and HEAD sha",
-          "body": "38 -> 37 open findings (the maier F = -.00 finding was resolved in cycle 3 and\nmarked resolved in run-meta, but the handoff's summary line still carried the\npre-fix count), and point the state section at the actual HEAD.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/28d94b2cd532c1a22f491d0964c37c0e9c64471b",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "a08dc22",
-          "message": "docs(handoff): record the cycle-3 gate state and canary evidence",
-          "body": "All three cycles pass every iterate-loop rule except I3, which cannot pass while\ngenuine FAIL verdicts remain -- that is the gate working, not a defect. Adds the\ncycle-3 canary evidence: 7 of 8 papers render byte-identical to their cycle-1\nartifacts at v2.4.123, and chan_feldman differs by exactly one line (the shipped\nv2.4.122 range fix). Nothing else moved across the roster.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/a08dc2268c9d1577861e13276bef271534064624",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "6c06df5",
-          "message": "docs(handoff): run-5 record \u2014 v2.4.122 + v2.4.123 shipped, 3 audit claims disproved",
-          "body": "Two real defects found, fixed, shipped and verified in production: a published\nscale bound replaced by an operator (W0i range guard), and an arithmetically\nimpossible F = -.00 (W0d non-negative-CI guard). Both corpus-guard-diffed with\n0 regressions; prod verified at 2.4.123.\n\nRecords the three audit findings that did NOT survive verification -- a gold\ndefect (alpha), a disproved heading-level claim (source typography contradicts a\nflattened gold), and a \"furniture leak\" class re-scoped to B6 -- because two of\nthem would have made correct output worse if acted on.\n\nStanding verdict stays FAIL (rule 0e-bis): 38 findings open. Two items held for\nuser decisions (heading tier mapping; B6/RC-T go/no-go), both surfaced with\nfindings docs rather than buried.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/6c06df50dec6a6ed0c2b04d87fe2638c3387908e",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "bde67ed",
-          "message": "fix(normalize): refuse a sign flip against a CI that cannot hold a negative (v2.4.123)",
-          "body": "docpluck rendered an IMPOSSIBLE F-statistic. maier Table 9's row is\n\n    Target article | 1, 114 | 2.00 | .16 | N/A | .02 | [.00, .09]\n\n-- an F, its p, its partial eta-squared, and the CI OF THE ETA-SQUARED. W0d\n(recover_minus_via_ci_pairing) repairs a font corruption where a minus is read\nas '2', accepting the flip when the corrected value lands inside a paired CI and\nthe literal does not. It paired the F-statistic with the eta-squared's CI: -.00\nis inside [.00, .09] and 2.00 is not, so it fired, and the render carried\n\n    F = -.00\n\nAn F-statistic is a ratio of sums of squares -- non-negative by construction --\nso the output was not merely wrong but arithmetically impossible. Both text\nchannels confirm the source reads 2.00; the library manufactured the sign.\n\nFix: refuse the pairing when the CI's LOWER bound is >= 0. A wholly non-negative\ninterval cannot contain a negative, so containment is satisfiable only\ndegenerately (-.00 clipping the zero edge), which is evidence of MIS-PAIRING\nrather than corruption. Keying on the interval's arithmetic instead of on F\nspecifically covers every non-negative statistic that can sit beside a\nnon-negative CI (F, chi-square, R2, eta2, odds ratios, variance components)\nwithout enumerating them, and cannot disarm a genuine recovery -- a truly\nnegative estimate always has a CI admitting negatives.\n\nEvidence:\n- tests written against the unfixed code and watched FAIL, then pass;\n- all 31 pre-existing W0d tests stay green, incl. the efendic B-column\n  recoveries the rule exists for;\n- corpus guard-diff, all 152 PDFs rendered twice (guard on vs off):\n  2 false positives removed (the maier article and its ESCIcheck duplicate),\n  0 regressions, every other paper byte-identical;\n- suite 1962 passed, 3 xfail (the P1 table defects stay armed).\n\nCompanion to the REJECTED W0b-col recovery: that failed because column consensus\nis not per-record evidence. This is the converse -- per-record containment IS the\nright evidence, but only when the record paired is the right one. A containment\ntest silently assumes the CI belongs to the token it pairs with; verify that is\narithmetically possible first.\n\nFound by the run-5 canary audit against the AI multimodal gold.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/docpluck/commit/bde67edca75c769966f742aecd5283b6d7dafeed",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        }
       ]
     },
     {
@@ -5483,7 +5393,7 @@
       "topics": [],
       "pushed_at": "2025-11-13T15:11:14Z",
       "created_at": "2023-09-13",
-      "last_push_days": 264,
+      "last_push_days": 265,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -5605,7 +5515,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.0.0.9000",
@@ -5661,7 +5632,7 @@
       "topics": [],
       "pushed_at": "2025-10-06T14:57:42Z",
       "created_at": "2024-12-05",
-      "last_push_days": 302,
+      "last_push_days": 303,
       "default_branch": "master",
       "license": "GPL-3.0",
       "branches": [
@@ -5750,7 +5721,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.2.6",
@@ -6054,8 +6086,8 @@
       "commits_1d": 0,
       "commits_90d": 84,
       "authors_30d": [
-        "Davidvandijcke",
-        "David Van Dijcke"
+        "David Van Dijcke",
+        "Davidvandijcke"
       ],
       "type_breakdown": {
         "fix": 3,
@@ -6568,11 +6600,11 @@
         },
         {
           "week": 1781481600,
-          "total": 3
+          "total": 7
         },
         {
           "week": 1782086400,
-          "total": 30
+          "total": 26
         },
         {
           "week": 1782691200,
@@ -6854,184 +6886,6 @@
           "branch": "feat/latest-models-deep-literature",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "f054f42",
-          "message": "docs: add Buy Me a Coffee funding links",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/f054f4289ffa177b7723981892724b19e8d74eb9",
-          "type": "feat",
-          "branch": "dev",
-          "diff": {
-            "additions": 2,
-            "deletions": 0,
-            "files": [
-              {
-                "filename": ".github/FUNDING.yml",
-                "status": "added",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1 @@\n+buy_me_a_coffee: coarse"
-              },
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -5,6 +5,7 @@\n [![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fcoarse.ink%2Fapi%2Fdownloads)](https://pypistats.org/packages/coarse-ink)\n [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/downloads/)\n [![License](https://img.shields.io/github/license/Davidvandijcke/coarse)](LICENSE)\n+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-support-FFDD00?logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/coarse)\n"
-              }
-            ]
-          },
-          "diff_summary": "This commit adds \"Buy Me a Coffee\" funding links to the 'coarse' project by updating the `.github/FUNDING.yml` file and the `README.md` file, allowing users to support the project financially."
-        },
-        {
-          "sha": "34b892d",
-          "message": "docs: add Buy Me a Coffee funding links",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/34b892d34d80ba3fecbb8bb95adf9ab757f13862",
-          "type": "feat",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "ac28c17",
-          "message": "feat(web): add Buy Me a Coffee support button",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/ac28c1728b05b82c30a8d64a41bb2e73db48dec4",
-          "type": "feat",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "00dce61",
-          "message": "Merge pull request #252 from Davidvandijcke/dev",
-          "body": "fix(security): harden release audit and workflows",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/00dce61fbd61dd04fb2d4ada45ed8b3156709ff6",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "def053b",
-          "message": "Merge pull request #251 from Davidvandijcke/codex/fix-release-audit",
-          "body": "fix(security): harden release audit and workflows",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/def053b58fabc853598bb8a2f56424d4a53e8a14",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "033647e",
-          "message": "fix(security): harden release audit and workflows",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/033647e83435a70af909a231cf296162d738d365",
-          "type": "fix",
-          "branch": "codex/fix-release-audit",
-          "diff": {}
-        },
-        {
-          "sha": "00c696c",
-          "message": "Merge pull request #249 from Davidvandijcke/dev",
-          "body": "release: v1.9.0 \u2014 frontier models and deep literature search",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/00c696c8b12d832d237d680f3e830b07d3a393ff",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "071c4f6",
-          "message": "Merge pull request #250 from Davidvandijcke/codex/sync-main-v1.9.0",
-          "body": "merge: reconcile main Fable hotfix into v1.9.0 release",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/071c4f6894e3c42049811c40b43a253d20e48953",
-          "type": "other",
-          "branch": "codex/fix-release-audit",
-          "diff": {}
-        },
-        {
-          "sha": "eabba85",
-          "message": "merge: reconcile main Fable hotfix into dev",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/eabba858fac56f4c9b002f1381f52bd61ebecb7e",
-          "type": "chore",
-          "branch": "codex/fix-release-audit",
-          "diff": {}
-        },
-        {
-          "sha": "30c85b2",
-          "message": "chore(release): prepare v1.9.0 (#248)",
-          "body": "",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/30c85b232f9d015b6cbf0f5022ef4e1877860fac",
-          "type": "chore",
-          "branch": "codex/fix-release-audit",
-          "diff": {}
-        },
-        {
-          "sha": "6324170",
-          "message": "chore(release): prepare v1.9.0",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/63241708368b4c733849cb340ef6d79594e6b49d",
-          "type": "chore",
-          "branch": "codex/release-v1.9.0",
-          "diff": {}
-        },
-        {
-          "sha": "3b236ea",
-          "message": "Refresh frontier models and add deep literature search (#247)",
-          "body": "* feat(review): refresh models and add deep literature search\n\n* fix(review): address pre-pr rollout findings",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/3b236ea11eeb5a073ff84c40bc1dac4ebb244439",
-          "type": "feat",
-          "branch": "codex/fix-release-audit",
-          "diff": {}
-        },
-        {
-          "sha": "c36a5eb",
-          "message": "fix(review): address pre-pr rollout findings",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/c36a5eb4354c76b5485f2f10fbe06e1a0d7a2437",
-          "type": "fix",
-          "branch": "feat/latest-models-deep-literature",
-          "diff": {}
-        }
       ]
     },
     {
@@ -7057,7 +6911,7 @@
       "topics": [],
       "pushed_at": "2026-07-14T15:54:41Z",
       "created_at": "2026-01-19",
-      "last_push_days": 21,
+      "last_push_days": 22,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -7086,10 +6940,10 @@
         {
           "name": "main",
           "last_commit": "2026-07-14",
-          "commits_30d": 28
+          "commits_30d": 25
         }
       ],
-      "commits_30d": 28,
+      "commits_30d": 25,
       "commits_7d": 0,
       "commits_1d": 0,
       "commits_90d": 116,
@@ -7097,13 +6951,12 @@
         "Jamie Cummins"
       ],
       "type_breakdown": {
-        "fix": 5,
+        "fix": 4,
         "refactor": 1,
         "docs": 1,
-        "other": 18,
+        "other": 17,
         "feat": 1,
-        "test": 1,
-        "chore": 1
+        "test": 1
       },
       "dormant_revived": false,
       "is_archived": false,
@@ -7211,15 +7064,15 @@
         },
         {
           "week": 1781481600,
-          "total": 21
+          "total": 26
         },
         {
           "week": 1782086400,
-          "total": 30
+          "total": 27
         },
         {
           "week": 1782691200,
-          "total": 22
+          "total": 20
         },
         {
           "week": 1783296000,
@@ -7353,7 +7206,7 @@
               }
             ]
           },
-          "diff_summary": "This commit in the 'JamieCummins/regcheck' repository updates the demo page and fixes a bug in the command-line interface (CLI) by modifying the backend logic in `main.py` and `comparisons.py`, as well as updating a sample report and test file."
+          "diff_summary": "This commit in the 'JamieCummins/regcheck' repository updates the demo page and fixes a bug in the command-line interface (CLI) by modifying the backend logic in `main.py` and `comparisons.py`, and also updates a sample report and a test file."
         },
         {
           "sha": "722db8f",
@@ -7642,150 +7495,6 @@
           "type": "test",
           "branch": "main",
           "diff": {}
-        },
-        {
-          "sha": "f02456c",
-          "message": "update default openai model",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-06",
-          "url": "https://github.com/JamieCummins/regcheck/commit/f02456c265aeb4e28534a62b4a5126388503cfc3",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "90c62a8",
-          "message": "aesthetic bug fixes",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-06",
-          "url": "https://github.com/JamieCummins/regcheck/commit/90c62a8b80baf0a680b1e429432bf6c50df69f63",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "efb74a8",
-          "message": "improve backend handling of insufficient evidence",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-06",
-          "url": "https://github.com/JamieCummins/regcheck/commit/efb74a8080015ee52fbb17736bc92f886cfdcd03",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "ffb127a",
-          "message": "update demo page; caught CLI bug",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/ffb127af3fa582b21ad7d14211f4392d00a61070",
-          "type": "fix",
-          "branch": "main",
-          "diff": {
-            "additions": 18,
-            "deletions": 10846,
-            "files": [
-              {
-                "filename": "backend/main.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -31,7 +31,7 @@\n # Single source of truth for static-asset cache-busting. Bump this on any\n # CSS/JS change so browsers refetch; it is exposed to every template as the\n # `static_version` global (templates reference it as `?v={{ static_version }}`).\n-STATIC_VERSION = \"20260714-wizard-guard\"\n+STATIC_VERSION = \"20260714-demo-refresh\"\n \n \n def create_app() -> FastAPI:"
-              },
-              {
-                "filename": "backend/services/comparisons.py",
-                "status": "modified",
-                "additions": 9,
-                "deletions": 6,
-                "patch": "@@ -1241,12 +1241,15 @@ async def general_preregistration_comparison(\n                 evidence_out[\"rr_integrity\"] = rr_integrity\n         except Exception as exc:  # pragma: no cover - degrade to Track B only\n             logger.warning(\"RR carried-forward alignment failed; Track B continues\", exc_info=exc)\n-        if evidence_out is not None:\n-            inline_manifest, inline_render_data = _assemble_inline_bundle(\n-                task_id, \"general_preregistration\", source_payloads\n-     "
-              },
-              {
-                "filename": "static/demo/sample-report.json",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 10839,
-                "patch": ""
-              },
-              {
-                "filename": "tests/test_cost_tracking.py",
-                "status": "modified",
-                "additions": 7,
-                "deletions": 0,
-                "patch": "@@ -137,16 +137,23 @@ def fake_runner(*args, **kwargs):\n             items=[comparisons.ComparisonItem(dimension=\"Sample size\", deviation_judgement=\"no\")]\n         )\n \n+    evidence_out: dict = {}\n     result = _run(\n         comparisons.general_preregistration_comparison(\n             str(reg), \".txt\", str(paper), \".txt\", \"openai\", \"pymupdf\",\n             selected_dimensions=[{\"dimension\": \"Sample size\", \"definition\": \"n\"}],\n             comparison_runner=fake_runner,\n+            evidence_out="
-              }
-            ]
-          },
-          "diff_summary": "This commit in the 'JamieCummins/regcheck' repository updates the demo page and fixes a bug in the command-line interface (CLI) by modifying the backend logic in `main.py` and `comparisons.py`, as well as updating a sample report and test file."
-        },
-        {
-          "sha": "722db8f",
-          "message": "fix card preview bug",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/722db8ffb78e005a739e7849252421fe0e799358",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "4f8871e",
-          "message": "rename survey routes to avoid ad blocker interference",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/4f8871e153b1da9e92078254c71ce75a148dd943",
-          "type": "refactor",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "41a3c91",
-          "message": "fix: wizard incorrectly blocked by ad blockers",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/41a3c919db7c3487914670e13d9ed5f1370f52a2",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "dfc6177",
-          "message": "Update CHANGELOG.md",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/dfc61773855c60e9f25ee2b0f5969fc542db1056",
-          "type": "docs",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "483af6c",
-          "message": "handle iframe remenant issue",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-07-14",
-          "url": "https://github.com/JamieCummins/regcheck/commit/483af6cb25db3093b19ae080872eca3e68b5bdd0",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
         }
       ]
     },
@@ -7829,7 +7538,7 @@
       ],
       "commits_30d": 7,
       "commits_7d": 6,
-      "commits_1d": 5,
+      "commits_1d": 4,
       "commits_90d": 27,
       "authors_30d": [
         "Gilad Feldman"
@@ -8130,7 +7839,68 @@
           "total": 6
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1778976000,
+          "additions": 2751,
+          "deletions": -262
+        },
+        {
+          "week": 1779580800,
+          "additions": 1336,
+          "deletions": -53
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 682,
+          "deletions": -43
+        },
+        {
+          "week": 1782000000,
+          "additions": 2154,
+          "deletions": -50
+        },
+        {
+          "week": 1782604800,
+          "additions": 3579,
+          "deletions": -74
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 169,
+          "deletions": -6
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 3835,
+          "deletions": -177
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.6.19",
@@ -8240,7 +8010,7 @@
               }
             ]
           },
-          "diff_summary": "This commit, 'sync from escicheckapp@c75d418 (effectcheck v0.6.19) (#33)', updates the 'effectcheck' package to version 0.6.19, incorporating changes that address and correct two previously shipped \"cannot verify\" messages that incorrectly claimed mathematical impossibility, as well as other modifications to the package's code and documentation."
+          "diff_summary": "This commit, 'sync from escicheckapp@c75d418 (effectcheck v0.6.19) (#33)', updates the 'effectcheck' package to version 0.6.19, fixing an issue where two \"cannot verify\" messages incorrectly claimed mathematical impossibility, and makes corresponding changes to the package's description, news, and test files."
         },
         {
           "sha": "c8a6866",
@@ -8310,142 +8080,6 @@
           "author_login": "giladfeldman",
           "date": "2026-07-22",
           "url": "https://github.com/giladfeldman/escicheck/commit/e7b7351ee48e668b9eebe6a2697841f0c20f2b2d",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "9dcdf6d",
-          "message": "sync from escicheckapp@c75d418 (effectcheck v0.6.19) (#33)",
-          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/escicheck/commit/9dcdf6d36427607e74da968b96341f2dc8d02829",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 186,
-            "deletions": 40,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,7 +1,7 @@\n Package: effectcheck\n Type: Package\n Title: Statistical Consistency Checker for Published Research Results\n-Version: 0.6.18\n+Version: 0.6.19\n Authors@R: c(person(given = \"Gilad\", family = \"Feldman\", role = c(\"aut\", \"cre\"),\n     email = \"giladfel@gmail.com\", comment = c(ORCID = \"0000-0003-2812-6599\")))\n Description: A conservative, assumption-aware statistical consistency checker"
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 62,
-                "deletions": 6,
-                "patch": "@@ -1,3 +1,50 @@\n+# effectcheck 0.6.19\n+\n+**Two shipped \"cannot verify\" messages claimed mathematical impossibility that does\n+not hold.** Found by the 2026-08-05 re-audit of every won't-fix / not-recoverable\n+ruling in the repo, run under the portfolio-wide triple-verification rule (each claim\n+checked against the primary source, then codex, then a Sonnet pass instructed to\n+refute). **No verdict, status, or computed value changes** \u2014 the conservative\n+behaviour was and remains correct. Only th"
-              },
-              {
-                "filename": "R/check.R",
-                "status": "modified",
-                "additions": 53,
-                "deletions": 15,
-                "patch": "@@ -4057,6 +4057,11 @@ compute_and_compare_one <- function(row,\n   # reported as the effect size of a plain t-test. A beta from a multi-predictor\n   # / mediation model is not recoverable from the t-statistic alone, so it is\n   # left unmatched rather than cross-matched to a Cohen's d variant.\n+  # (Scope note, 2026-08-05 audit: this sentence is accurate BECAUSE it is\n+  # qualified to multi-predictor / mediation models. A SIMPLE-regression beta\n+  # equals r = t/sqrt(t^2 + df) and IS recoverabl"
-              },
-              {
-                "filename": "R/parse.R",
-                "status": "modified",
-                "additions": 28,
-                "deletions": 5,
-                "patch": "@@ -3063,9 +3063,19 @@ parse_text <- function(text, context_window_size = 2) {\n   match_len <- attr(mm, \"match.length\")\n \n   # Effect / test tokens that mark a co-located frequentist result (guard 2). The\n-  # \"= .0NN\" alternative catches a docpluck-stripped eta glyph (\"F(2,998)=..., =\n-  # .008\") whose eta symbol has no ToUnicode mapping and prints as a nameless\n-  # \"= .0NN\". Case-insensitive.\n+  # \"= .NN\" alternative catches a docpluck-stripped eta symbol (\"F(2,998)=..., =\n+  # .008\") that pr"
-              },
-              {
-                "filename": "tests/testthat/test-coverage-stage1-gap3-cohens-h-chisq.R",
-                "status": "modified",
-                "additions": 20,
-                "deletions": 5,
-                "patch": "@@ -6,8 +6,17 @@\n # reported h against it (matched_variant = \"phi\", matched_value ~ 0.59 vs a\n # reported h of -0.26) -- a meaningless cross-family comparison, plus a spurious\n # CI mismatch (the h CI compared against a phi CI) that pushed status to WARN.\n-# h is a function of two specific proportions and is NOT recoverable from the\n-# chi-square statistic, so the honest outcome is \"recognised, cannot verify\".\n+# h depends on two specific proportions that this chi-square does not pin down,\n+# so"
-              },
-              {
-                "filename": "tests/testthat/test-v054-beta-on-ttest.R",
-                "status": "modified",
-                "additions": 13,
-                "deletions": 4,
-                "patch": "@@ -4,8 +4,8 @@\n # (beta) reported as the effect size of a t-test -- \"(\u03b2 = 0.83, t(261) = 5.82,\n # p < .001)\" -- was cross-matched against the t-test's Cohen's d variants\n # (matched_variant = d_ind_equalN / gav / drm). A beta is not a Cohen's d; a\n-# multi-predictor / mediation beta is not recoverable from the t-statistic\n-# alone, so matching it to a computed d is \"garbage statistics\" (design\n+# multi-predictor / mediation beta is not a function of the t-statistic,\n+# so matching it to a compu"
-              },
-              {
-                "filename": "tests/testthat/test-v0618-ci-without-effect-disclosure.R",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 2,
-                "patch": "@@ -6,8 +6,11 @@\n #\n # WHAT WENT WRONG\n #\n-# On that paper the partial-eta-squared glyph has no ToUnicode mapping in the\n-# source PDF, so the body text arrives as a nameless \"F(2, 998) = 3.91,\n+# On that paper the partial-eta-squared symbol is drawn as filled vector curves\n+# with no character object in the source PDF (mechanism corrected 2026-08-05 by\n+# triple-verification re-audit; this comment previously said \"has no ToUnicode\n+# mapping\", which is refuted -- it is ink, not badly-encoded te"
-              },
-              {
-                "filename": "tests/testthat/test-v067-docpluck-v2498-eta2-r.R",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 2,
-                "patch": "@@ -1,8 +1,10 @@\n # v0.6.7: consume docpluck v2.4.98 typed table fields.\n #\n #   DP-3: docpluck now TYPES the partial-eta^2 column as `fields.eta2` on a\n-#   structurally-identified F-test/ANOVA table (the body-text glyph stays\n-#   stripped -- no ToUnicode CMap -- so the table is the only recoverable source).\n+#   structurally-identified F-test/ANOVA table (the body-text symbol stays\n+#   stripped -- it is drawn as filled vector curves with no char object, NOT a\n+#   missing ToUnicode CMap; mec"
-              }
-            ]
-          },
-          "diff_summary": "This commit, 'sync from escicheckapp@c75d418 (effectcheck v0.6.19) (#33)', updates the 'effectcheck' package to version 0.6.19, incorporating changes that address and correct two previously shipped \"cannot verify\" messages that incorrectly claimed mathematical impossibility, as well as other modifications to the package's code and documentation."
-        },
-        {
-          "sha": "c8a6866",
-          "message": "sync from escicheckapp@27bde0c (effectcheck v0.6.18) (#32)",
-          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-05",
-          "url": "https://github.com/giladfeldman/escicheck/commit/c8a6866cb39c8d06325fb263c216e0ea468a2e83",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "dc414b7",
-          "message": "sync from escicheckapp@127d3cd (effectcheck v0.6.17) (#31)",
-          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-04",
-          "url": "https://github.com/giladfeldman/escicheck/commit/dc414b7fcb4d15b4cd47d7439eb467194365d387",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "2f90c11",
-          "message": "sync from escicheckapp@4e5ce94 (effectcheck v0.6.17) (#30)",
-          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-04",
-          "url": "https://github.com/giladfeldman/escicheck/commit/2f90c1127508769a75df97e3cce244369841d1b6",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "5316ab6",
-          "message": "sync from escicheckapp@aa67618 (effectcheck v0.6.16) (#29)",
-          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-04",
-          "url": "https://github.com/giladfeldman/escicheck/commit/5316ab62fe3a7475a1ad0cc4ab7d3b23587351b7",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "75b5e20",
-          "message": "sync from escicheckapp@3b8d57f (effectcheck v0.6.15) (#28)",
-          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-04",
-          "url": "https://github.com/giladfeldman/escicheck/commit/75b5e20c8642cf9dd3592e94fbd63632441d1040",
           "type": "chore",
           "branch": "main",
           "diff": {}
@@ -8655,7 +8289,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.3.1",
@@ -8703,7 +8398,7 @@
       "topics": [],
       "pushed_at": "2026-08-04T15:12:55Z",
       "created_at": "2026-05-26",
-      "last_push_days": 0,
+      "last_push_days": 1,
       "default_branch": "main",
       "license": "",
       "branches": [
@@ -8721,7 +8416,7 @@
       ],
       "commits_30d": 10,
       "commits_7d": 10,
-      "commits_1d": 1,
+      "commits_1d": 0,
       "commits_90d": 13,
       "authors_30d": [
         "Shaheed Azaad"
@@ -8733,7 +8428,7 @@
       },
       "dormant_revived": false,
       "is_archived": false,
-      "summary": "The `main` branch was the focus of the recent work, where a commit was made to \"Avoid automatic Keychain access\", as per the commit message. \nAnother commit on the `main` branch addressed a specific issue with the \"win64 installer fix\", as stated in the commit message. \nNo other branches were worked on during this period, with all changes being made to the `main` branch. \nThe changes were focused on security and installer functionality, with no other areas of the codebase modified. \nThe commits suggest a focus on resolving specific issues rather than adding new features.",
+      "summary": "The `main` branch was the focus of the recent work, where a commit was made to \"Avoid automatic Keychain access\", as per the instructions to prevent unauthorized access. \nAnother commit on the `main` branch addressed a specific issue with the \"win64 installer fix\", which resolved a problem related to the installation process on 64-bit Windows systems. \nThese two commits were the only changes made, with no other branches or features modified during this time. \nThe changes were made by Shaheed Azaad on August 4, 2026. \nNo other branches were worked on during this period, with all changes confined to the `main` branch.",
       "prs": [],
       "open_prs_count": 0,
       "merged_prs_count": 0,
@@ -8957,7 +8652,7 @@
               }
             ]
           },
-          "diff_summary": "This commit, 'Avoid automatic Keychain access', updates the Auto Z-Curve package to version 0.11.2 and modifies the credential storage functionality to avoid automatic access to the operating system's Keychain, instead storing API key configuration separately."
+          "diff_summary": "This commit, 'Avoid automatic Keychain access', updates the Auto Z-Curve package to version 0.11.2 and modifies the credential storage functionality to avoid automatic access to the operating system's Keychain, instead requiring explicit user configuration to save API keys securely."
         },
         {
           "sha": "09891d3",
@@ -9064,6 +8759,94 @@
           "date": "2026-08-02",
           "url": "https://github.com/shaheedazaad/auto-zcurve/commit/5388eff23fba02f3d0aaef9d43fe8c5144c412cb",
           "type": "other",
+          "branch": "main",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "a4d6ec8",
+          "message": "Avoid automatic Keychain access",
+          "body": "",
+          "author": "Shaheed Azaad",
+          "author_login": "shaheedazaad",
+          "date": "2026-08-04",
+          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4d6ec84b42f896083556c753d2f57d31150d02e",
+          "type": "other",
+          "branch": "main",
+          "diff": {
+            "additions": 131,
+            "deletions": 31,
+            "files": [
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 1,
+                "patch": "@@ -80,7 +80,10 @@ Create a key in [Google AI Studio](https://aistudio.google.com/app/apikey).\n When \u201cRemember securely\u201d is selected, Auto Z-Curve uses the operating system\u2019s\n credential store through Python Keyring. If Linux has no usable secret-service\n backend, the app clearly marks the key as session-only. It never falls back to\n-a plaintext file.\n+a plaintext file. Saved keys are not read automatically when the app starts;\n+choose \u201cUnlock saved key\u201d when you want to use one. On macOS, the a"
+              },
+              {
+                "filename": "auto_zcurve/__init__.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,3 +1,3 @@\n \"\"\"Auto Z-Curve CLI package.\"\"\"\n \n-__version__ = \"0.11.1\"\n+__version__ = \"0.11.2\""
+              },
+              {
+                "filename": "auto_zcurve/credentials.py",
+                "status": "modified",
+                "additions": 19,
+                "deletions": 3,
+                "patch": "@@ -8,6 +8,7 @@\n SERVICE_NAME = \"auto-zcurve\"\n KEY_NAME = \"gemini_api_key\"\n LAST_PROJECT_KEY = \"last_project_dir\"\n+SAVED_API_KEY_KEY = \"saved_api_key_configured\"\n \n \n class CredentialStoreUnavailable(RuntimeError):\n@@ -93,6 +94,7 @@ def save_api_key(api_key: str) -> str:\n             \"The operating-system credential store rejected the key. \"\n             \"The key can still be used for this app session.\"\n         ) from exc\n+    _set_saved_api_key_configured(True)\n     return \"operating-system cr"
+              },
+              {
+                "filename": "auto_zcurve/static/app.js",
+                "status": "modified",
+                "additions": 17,
+                "deletions": 0,
+                "patch": "@@ -23,6 +23,23 @@\n     });\n   });\n \n+  document.querySelectorAll(\".js-load-credentials\").forEach((form) => {\n+    form.addEventListener(\"submit\", async (event) => {\n+      event.preventDefault();\n+      const message = form.querySelector(\".form-message\");\n+      message.textContent = \"Opening credential store\u2026\";\n+      try {\n+        await postForm(form.action, new FormData());\n+        message.textContent = \"Saved key unlocked for this session.\";\n+        message.className = \"form-message succ"
+              },
+              {
+                "filename": "auto_zcurve/templates/home.html",
+                "status": "modified",
+                "additions": 7,
+                "deletions": 4,
+                "patch": "@@ -85,17 +85,20 @@ <h2>Your projects</h2>\n         <p>Gemini is used only for structured extraction from PDFs. Credentials are not written to project or result files.</p>\n         <form class=\"configuration-form js-credentials\" action=\"/{{ token }}/credentials\">\n           <label for=\"api-key\">Gemini API key</label>\n-          <input id=\"api-key\" name=\"api_key\" type=\"password\" autocomplete=\"off\" placeholder=\"{% if has_saved_api_key %}\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022{% else %}Paste API key{% endif %}\">\n+          <"
+              },
+              {
+                "filename": "auto_zcurve/templates/project.html",
+                "status": "modified",
+                "additions": 7,
+                "deletions": 0,
+                "patch": "@@ -101,6 +101,13 @@ <h2>No report yet</h2>\n         <button class=\"button secondary\" type=\"submit\">Use key</button>\n         <p class=\"form-message\" role=\"status\"></p>\n       </form>\n+      {% if has_saved_api_key %}\n+      <form class=\"inline-key-form js-load-credentials\" action=\"/{{ token }}/credentials/load\">\n+        <button class=\"button secondary\" type=\"submit\">Unlock saved key</button>\n+        <p class=\"form-message\" role=\"status\"></p>\n+      </form>\n+      {% if is_macos %}<p class=\"no"
+              },
+              {
+                "filename": "auto_zcurve/tui.py",
+                "status": "modified",
+                "additions": 29,
+                "deletions": 9,
+                "patch": "@@ -11,7 +11,14 @@\n \n from .artifacts import read_zcurve_summary\n from .config import DEFAULTS, RunSettings, load_run_settings\n-from .credentials import delete_saved_api_key, load_last_project_dir, load_saved_api_key, save_api_key, save_last_project_dir\n+from .credentials import (\n+    delete_saved_api_key,\n+    load_last_project_dir,\n+    load_saved_api_key,\n+    saved_api_key_configured,\n+    save_api_key,\n+    save_last_project_dir,\n+)\n from .models import fallback_models, normalize_model_nam"
+              },
+              {
+                "filename": "auto_zcurve/user_facing.py",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 1,
+                "patch": "@@ -59,7 +59,10 @@ def _has_api_key(project_dir: Path, explicit_key: str | None) -> bool:\n     if os.environ.get(\"GEMINI_API_KEY\", \"\").strip():\n         return True\n \n-    return load_saved_api_key() is not None\n+    # Saved credentials are deliberately not read by passive readiness checks.\n+    # Loading a key may open an operating-system authorization dialog and must\n+    # follow an explicit user action.\n+    return False\n \n \n def check_project_readiness("
+              }
+            ]
+          },
+          "diff_summary": "This commit, 'Avoid automatic Keychain access', updates the Auto Z-Curve package to version 0.11.2 and modifies the credential storage functionality to avoid automatic access to the operating system's Keychain, instead requiring explicit user configuration to save API keys securely."
+        },
+        {
+          "sha": "09891d3",
+          "message": "win64 installer fix",
+          "body": "",
+          "author": "Shaheed Azaad",
+          "author_login": "shaheedazaad",
+          "date": "2026-08-04",
+          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/09891d37d1e844e14d80d53076df043ccf014133",
+          "type": "fix",
           "branch": "main",
           "diff": {}
         }
@@ -9684,7 +9467,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1778976000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1779580800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.2.0",
@@ -9734,7 +9578,7 @@
       "topics": [],
       "pushed_at": "2026-06-17T14:15:44Z",
       "created_at": "2026-05-04",
-      "last_push_days": 48,
+      "last_push_days": 49,
       "default_branch": "main",
       "license": "MIT",
       "branches": [
@@ -9786,11 +9630,11 @@
         },
         {
           "week": 1781481600,
-          "total": 0
+          "total": 1
         },
         {
           "week": 1782086400,
-          "total": 1
+          "total": 0
         },
         {
           "week": 1782691200,
@@ -10970,15 +10814,15 @@
         "date": "2026-07-31"
       }
     ],
-    "narrative": "Our community has seen significant progress across multiple projects, with notable updates in `scienceverse/metacheck`, `giladfeldman/docpluck`, `Davidvandijcke/coarse`, `JamieCummins/regcheck`, and `giladfeldman/escicheck`. The `scienceverse/metacheck` project now features a more streamlined import and export process, while `giladfeldman/docpluck` has updated documentation to reflect recent run outcomes and implemented fixes to normalize code. Meanwhile, `Davidvandijcke/coarse` has added funding links and a support button, and `JamieCummins/regcheck` has addressed bugs and improved its demo page. Additionally, `giladfeldman/escicheck` has been synced with the escicheckapp repository to ensure consistency across versions. These updates demonstrate the connections and collaborations within our community, and we celebrate the hard work and dedication of our contributors. As our projects continue to evolve, we look forward to seeing the impact of these changes and the new developments on the horizon."
+    "narrative": "Our open-source research community has been buzzing with activity across multiple projects. The `tenzing` project has seen updates to its site build and alert titles, with a new version `tenzing@0.4.1` being targeted, while `scrutiny` has had its `CITATION.cff` file updated and deployed to GitHub pages twice. Meanwhile, `oddpub` has added functionality to its ontogenerator for detecting \"nature das and cas\", and `auto-zcurve` has addressed issues with Keychain access and the win64 installer. These updates demonstrate the active maintenance and development of these projects, with connections between them highlighting the collaborative spirit of our community. Notably, the focus on updating documentation and fixing installation issues across projects showcases the community's commitment to usability and accessibility."
   },
   "aggregate": {
     "total_repos": 16,
     "total_stars": 691,
     "total_forks": 125,
-    "total_commits_30d": 147,
+    "total_commits_30d": 144,
     "total_commits_7d": 86,
-    "total_commits_1d": 44,
+    "total_commits_1d": 30,
     "active_repos_7d": 7,
     "dormant_revived": 1,
     "total_open_issues": 187,
