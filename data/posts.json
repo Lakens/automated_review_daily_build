@@ -1,5 +1,211 @@
 [
   {
+    "generated_at": "2026-08-07T07:20:00.457161+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-07-31T15:02:02Z",
+        "recent_commits": [
+          {
+            "sha": "e3ffb87",
+            "message": "Deploying to gh-pages from @ lhdjung/scrutiny@a81cd540332cf402c1ffc798f93534c31da17009 \ud83d\ude80",
+            "body": "",
+            "author": "lhdjung",
+            "date": "2026-07-31",
+            "url": "https://github.com/lhdjung/scrutiny/commit/e3ffb87d9fcc352f6b9d7c9d6f2999af855b918a",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "a81cd54",
+            "message": "Update CITATION.cff with `date-released`",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-07-31",
+            "url": "https://github.com/lhdjung/scrutiny/commit/a81cd540332cf402c1ffc798f93534c31da17009",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "e712643",
+            "message": "Deploying to gh-pages from @ lhdjung/scrutiny@0fd47d0e2ffee48a24c1806c4e4bcd2da5d4e238 \ud83d\ude80",
+            "body": "",
+            "author": "lhdjung",
+            "date": "2026-07-31",
+            "url": "https://github.com/lhdjung/scrutiny/commit/e712643053ce7380a06978d0e03371a08ecca07d",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "0fd47d0",
+            "message": "Update CITATION.cff",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-07-31",
+            "url": "https://github.com/lhdjung/scrutiny/commit/0fd47d0e2ffee48a24c1806c4e4bcd2da5d4e238",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-08-06T14:07:57Z",
+        "recent_commits": [
+          {
+            "sha": "9c8f020",
+            "message": "docs(lessons): L-010 \u2014 force-push does NOT clean PR refs, branches, or forks",
+            "body": "Post-purge audit against a FRESH MIRROR CLONE of the remote (not the\nlocal repo, which is the thing that was just rewritten) found two\nserver-side survivors of the force-push:\n\n1. Four stale remote branches, all fully merged into main, each still\n   pointing at unpurged history. Deleted.\n2. refs/pull/1/head -- a merged PR's ref. Git cannot delete these and\n   force-push does not touch them; GitHub pins the original commits\n   forever. It still serves 126 internal files, TODO.md among them,\n   confirmed readable via the contents API at the old SHA. Only GitHub\n   Support can purge it.\n\nmain and all 126 tags verified CLEAN. A normal clone would have reported\nthe whole repo clean -- refs/pull/* is only visible in a mirror clone,\nwhich is exactly why the verification must use one.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-06",
+            "url": "https://github.com/giladfeldman/docpluck/commit/9c8f020d126fb56440c4a064774e9ed0392492a1",
+            "type": "refactor",
+            "branch": "main"
+          },
+          {
+            "sha": "ba1cee4",
+            "message": "chore(security): de-reference purged internal docs from public source",
+            "body": "The 259-file history purge left 41 dangling citations in PUBLIC source\nfiles -- code comments pointing at docs/HANDOFF_*, docs/FINDINGS_*,\ndocs/superpowers/**, REPLY_FROM_*, and .claude/skills/** that no longer\nexist here. They were both broken references and a residual leak of\ninternal document names.\n\nRewritten to neutral markers, preserving the DATE where the filename\ncarried one (the part that is actually useful for git-blame).\n\nVerified the rewrite touched ONLY comments: `python -m compileall` clean,\nand the diff contains zero non-comment changed lines.\n\nAlso fixed, per LEAVE NOTHING BEHIND:\n- tools/fix_python_env.ps1 hardcoded a username and an absolute checkout\n  path as param defaults; now derived ($env:USERNAME, $PSScriptRoot's\n  parent), so it works from any clone -- and leaks neither.\n- tests/fixtures/structured/README.md and .gitignore still described the\n  corpus as living under ~/Dropbox/Vibe, a root abandoned 2026-08-03.\n  Now reference $VIBE_ROOT (default ~/Vibe), matching what conftest.py\n  actually resolves.\n\nAdds LESSONS.md L-010 recording why three prior cleanups missed all of\nthis: the checklist scanned for known-bad FILENAMES (a denylist cannot\ncatch a category that should not exist) and explicitly named these files\nas things to PRESERVE. Preserve is not the same as publish.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-06",
+            "url": "https://github.com/giladfeldman/docpluck/commit/ba1cee45c90d389caed78435a518c383a17c26a0",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "3a9264f",
+            "message": "fix(tests): canary provenance must SKIP, not ERROR, without canary.json",
+            "body": "canary.json lives under .claude/, which is deliberately untracked in this\nPUBLIC repo. A public clone therefore has no canary config, and\n_canary_papers() is called at COLLECTION time by the parametrize on\ntest_canary_pdf_is_byte_equal_to_pin -- so the missing file raised\nFileNotFoundError during collection and errored the whole module,\nincluding its three config-independent unit tests.\n\nMeasured in a clean public clone: 10 errors -> 3 passed, 3 skipped.\nVerified the real gate is NOT weakened: with canary.json present in the\nmaintainer tree, all 13 tests still run and pass.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-06",
+            "url": "https://github.com/giladfeldman/docpluck/commit/3a9264fd0cf687ccb9c7ce14c98fb149135bac93",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "b2032f4",
+            "message": "chore(security): gitignore all internal working material \u2014 public repo",
+            "body": "This repo is PUBLIC (MIT, github.com/giladfeldman/docpluck). It had\naccumulated 259 internal files: cross-project correspondence with\na downstream consumer/a downstream consumer/a downstream consumer/a downstream consumer, session handoffs/findings/triage\nlogs, agent skill definitions, plans and specs, and the backlog. Those\nleak local filesystem paths, private-repo (the consumer app) internals,\nunreleased plans, and other projects' architecture.\n\nReplaces the piecemeal per-file ignores with categorical rules covering\n.claude/, an internal design doc, docs/{HANDOFF,FINDINGS,TRIAGE,PROMPTS,\nITERATION,LIBRARY}_*, root {HANDOFF,HANDOVER,FINDINGS,TRIAGE}_*,\n{REQUEST,REQUESTS,REPLY,REPLIES,an internal update doc}_*, and the internal backlog.\n\nVerified: matches exactly 257 of 257 intended tracked files, zero\nover-match against the library, tests, scripts, tools, workflows, or the\npublic doc surface.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-06",
+            "url": "https://github.com/giladfeldman/docpluck/commit/b2032f4f38db4ae158014d6ec1fa2b933434afc5",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-07-23T04:38:31Z",
+        "recent_commits": [
+          {
+            "sha": "ea980fd",
+            "message": "Built site for tenzing@0.4.1: d271884",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-07-23",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "d271884",
+            "message": "Update success alert title in sweet_alert.js",
+            "body": "Update terminology from infosheet to contributors table",
+            "author": "Alex O. Holcombe",
+            "date": "2026-07-23",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
+            "type": "other",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-08-04T15:12:55Z",
+        "recent_commits": [
+          {
+            "sha": "a4d6ec8",
+            "message": "Avoid automatic Keychain access",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-08-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4d6ec84b42f896083556c753d2f57d31150d02e",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "09891d3",
+            "message": "win64 installer fix",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-08-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/09891d37d1e844e14d80d53076df043ccf014133",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-07-30T15:11:29Z",
+        "recent_commits": [
+          {
+            "sha": "ec80478",
+            "message": "nature das and cas detection",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-07-30",
+            "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-06T07:53:05Z",
+        "recent_commits": [
+          {
+            "sha": "0649db9",
+            "message": "sync from escicheckapp@54fcbf0 (effectcheck v0.6.19) (#34)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-06",
+            "url": "https://github.com/giladfeldman/escicheck/commit/0649db9f2c5e378ed88265f979425f541c370e34",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-08-07T02:40:03.142057+00:00",
     "narrative": "",
     "repos": [
@@ -17477,32 +17683,6 @@
             "date": "2026-06-17",
             "url": "https://github.com/giovannacdelsordo/output-it-forward/commit/71c2a30984dbad43dc7e52512883823ef0cac101",
             "type": "feat",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-07-15T13:41:16.959400+00:00",
-    "narrative": "Our community has been buzzing with activity, and we're excited to share some notable updates. The `quest-bih/oddpub` project has made significant progress, with a recent commit focused on debugging the open data detection database for 2023-2024 in the ontogenerator. This refinement will likely have a ripple effect, improving the accuracy of open data detection across related projects. As our community continues to collaborate and build upon each other's work, we celebrate the attention to detail and dedication to quality that this debugging effort represents. By addressing issues in the database, the `quest-bih/oddpub` team is paving the way for more reliable and efficient open data detection, which will ultimately benefit the broader research community. With this progress, we look forward to seeing the impact of this work on connected projects and initiatives.",
-    "repos": [
-      {
-        "owner": "quest-bih",
-        "repo": "oddpub",
-        "url": "https://github.com/quest-bih/oddpub",
-        "summary": "The `main` branch was worked on, where debugging was performed on the open data detection database for the years 2023-2024 in the ontogenerator. \nNo other branches were modified in this set of commits. \nThe specific focus was on debugging, as indicated by the commit message, which suggests that issues in the database were being addressed. \nThe ontogenerator is the specific module that received attention, implying that its functionality or accuracy in detecting open data was being refined. \nThere were no additions of new features or modules mentioned in the provided commit message. \nThe work was confined to a single commit, which targeted a particular aspect of the ontogenerator's operation.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-07-14T12:18:22Z",
-        "recent_commits": [
-          {
-            "sha": "f2850fe",
-            "message": "debugging open data detection db 2023-2024",
-            "body": "",
-            "author": "ontogenerator",
-            "date": "2026-07-14",
-            "url": "https://github.com/quest-bih/oddpub/commit/f2850fe422d79e01822dce59c7589a3cd332dcc8",
-            "type": "fix",
             "branch": "main"
           }
         ]
