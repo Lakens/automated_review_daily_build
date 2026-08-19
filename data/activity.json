@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-19T12:49:44.331466+00:00",
+  "generated_at": "2026-08-19T18:40:22.409694+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -34,7 +34,7 @@
       ],
       "pushed_at": "2026-08-18T16:36:36Z",
       "created_at": "2025-02-04",
-      "last_push_days": 0,
+      "last_push_days": 1,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -156,12 +156,12 @@
       ],
       "commits_30d": 105,
       "commits_7d": 68,
-      "commits_1d": 1,
-      "commits_90d": 288,
+      "commits_1d": 0,
+      "commits_90d": 287,
       "authors_30d": [
-        "Lisa DeBruine",
+        "Daniel Lakens",
         "Lakens",
-        "Daniel Lakens"
+        "Lisa DeBruine"
       ],
       "type_breakdown": {
         "other": 29,
@@ -586,7 +586,7 @@
       "commit_activity": [
         {
           "week": 1780272000,
-          "total": 41
+          "total": 36
         },
         {
           "week": 1780876800,
@@ -598,7 +598,7 @@
         },
         {
           "week": 1782086400,
-          "total": 7
+          "total": 8
         },
         {
           "week": 1782691200,
@@ -606,7 +606,7 @@
         },
         {
           "week": 1783296000,
-          "total": 19
+          "total": 18
         },
         {
           "week": 1783900800,
@@ -614,11 +614,11 @@
         },
         {
           "week": 1784505600,
-          "total": 5
+          "total": 6
         },
         {
           "week": 1785110400,
-          "total": 4
+          "total": 3
         },
         {
           "week": 1785715200,
@@ -633,7 +633,68 @@
           "total": 68
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1780185600,
+          "additions": 94439,
+          "deletions": -20955
+        },
+        {
+          "week": 1780790400,
+          "additions": 11815,
+          "deletions": -5234
+        },
+        {
+          "week": 1781395200,
+          "additions": 310,
+          "deletions": -2710
+        },
+        {
+          "week": 1782000000,
+          "additions": 77,
+          "deletions": -162
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 3830,
+          "deletions": -3815
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.1.0",
@@ -1055,6 +1116,143 @@
           "date": "2026-08-17",
           "url": "https://github.com/scienceverse/metacheck/commit/3c53de7785a2c757a1d0fbe1ac1829ed78161442",
           "type": "feat",
+          "branch": "dev",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "efedd30",
+          "message": "Fix ResearchBox file-link collapsing, Stata quoted-filename regex, and add cache param to reproducibility_check",
+          "body": "ResearchBox hrefs pointing at a specific file within a box were treated as\nseparate repos; they are now truncated to the box id. The unquoted-filename\ncapture regexes in code_file_refs() were matching inside already-quoted\nStata filenames that contain spaces, producing bogus extra references; they\nnow only run against lines without a quoted filename. reproducibility_check()\ngains a cache argument forwarded to data_check/code_check, and duplicate-file\nreporting now shows each mirror's location instead of just its (identical)\nbasename.",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-08-18",
+          "url": "https://github.com/scienceverse/metacheck/commit/efedd3044ac7fcb4d6244835e1954236cdd8fb4b",
+          "type": "fix",
+          "branch": "reproducibility_check",
+          "diff": {
+            "additions": 58,
+            "deletions": 9,
+            "files": [
+              {
+                "filename": "R/archive-researchbox.R",
+                "status": "modified",
+                "additions": 13,
+                "deletions": 0,
+                "patch": "@@ -50,8 +50,21 @@ rbox_links <- function(paper) {\n   # a bare body-text mention of the same repo commonly differ only by a\n   # trailing slash (captured by the \"/?\" above), and left un-normalized that\n   # turns one repo into two throughout repo_check.\n+  #\n+  # ResearchBox has since added URL forms that name a SPECIFIC FILE within a\n+  # box, not a separate box: \"2257.8\"/\"2257.9\" (a dotted box variant) and\n+  # \"2257/72\" (a numeric file id under the box). rb_bare_regex already stops\n+  # at th"
+              },
+              {
+                "filename": "R/code_check.R",
+                "status": "modified",
+                "additions": 13,
+                "deletions": 2,
+                "patch": "@@ -1745,11 +1745,22 @@ code_file_refs <- function(code_text,\n     Mplus = list() # FILE = \"...\" is always quoted; quoted-filename pattern suffices\n   )\n \n+  # Only run the unquoted-capture regexes against lines that do NOT already\n+  # have a quoted filename: they exist for barewords (`use myfile.dta`), but\n+  # applied to an already-quoted line (`insheet using \"07. Study 6\n+  # (Clean).csv\", clear`) the capture group `[^,\\s]+` stops at the quoted\n+  # name's first space and grabs a truncated f"
+              },
+              {
+                "filename": "inst/modules/reproducibility_check.R",
+                "status": "modified",
+                "additions": 32,
+                "deletions": 7,
+                "patch": "@@ -126,6 +126,14 @@\n #'   builds** \u2014 it copies the folder from `attr(result, \"sandbox\")` when\n #'   present, and silently omits it otherwise (it does not run\n #'   `reproducibility_check` itself, so it cannot force this for you).\n+#' @param cache if `TRUE`, forwarded to the internal `data_check`/`code_check`\n+#'   runs: files they download are kept in the persistent on-disk cache (see\n+#'   [repo_cache_dir()]) and reused on later runs instead of being\n+#'   re-downloaded. If `FALSE` (the defaul"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "b343a0e",
+          "message": "Normalize line endings repo-wide with a single text=auto rule",
+          "body": ".gitattributes previously forced LF only under tests/testthat/fixtures/,\nwhich also matched binary fixtures there (PDFs, a zip) and forced git to\ntreat them as text, and left every other CRLF-committed text file (e.g.\ndata-raw/demo/ground_truth/*.csv, tests/testthat/apis/**/*.html) subject to\neach contributor's local core.autocrlf, causing line-ending-only diffs on\ncheckout.\n\nReplace it with `* text=auto`: git decides text vs. binary from each file's\nactual content (the same detection diff/file use), not its extension or\npath, so a binary file with a misleading name (e.g. the zip archive stored\nas tests/testthat/apis/.../osfstorage-546010.R-FILE) is still handled\ncorrectly with no entry needed, and every genuine text file is stored and\nchecked out as LF regardless of the checkout platform.\n\nRenormalizes the 23 tracked text files that were actually stored with CRLF\n(verified byte-for-byte: only line-ending bytes changed, no content diff).",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-08-18",
+          "url": "https://github.com/scienceverse/metacheck/commit/b343a0e2eb4e0cc25a3afd9aaefd7ab778e78d3d",
+          "type": "other",
+          "branch": "reproducibility_check",
+          "diff": {}
+        },
+        {
+          "sha": "3cbe26b",
+          "message": "Fix reproducibility_check calling isTRUE_vec(), an undefined function",
+          "body": "isTRUE_vec() only exists in R/psychds-convert.R on the convert_psychds\nbranch, which this branch never merged, so both call sites errored with\n\"could not find function\". Both columns (code_check's parse_error,\nthis module's own via_archive) are already plain logical, so inline the\nequivalent !is.na(x) & x instead of porting the helper.",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-08-18",
+          "url": "https://github.com/scienceverse/metacheck/commit/3cbe26b8a228fd5c0282f8f3719b985999b5e8f2",
+          "type": "fix",
+          "branch": "reproducibility_check",
+          "diff": {}
+        },
+        {
+          "sha": "eff145a",
+          "message": "Add the missing .gitignore entry for pkgdown/assets/report-example.*",
+          "body": "The previous commit deleted these files and claimed they were\ngitignored going forward, but the .gitignore edit itself never got\nstaged. Adding it now so a regenerated report-example.html/.qmd\ndoesn't silently get re-tracked.",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-08-18",
+          "url": "https://github.com/scienceverse/metacheck/commit/eff145a51133bedf4adc72990444f8f68c94c362",
+          "type": "feat",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
+          "sha": "431e0c5",
+          "message": "Fix FLoRA_update() using the wrong osf_file_download mode",
+          "body": "Broke when mode = \"all\" became the default for whole-project\ndownloads: t4j8f is a single OSF file, not a project, so \"all\"'s\nskip-the-listing/download-archives-per-node approach is the wrong\nshape for it. This test is gated behind skip_if_quick() and so never\nran in normal test suite passes, which is why it went unnoticed.\nmode = \"select\" restores the old \"files\" behaviour (list, then fetch\nthe requested file), verified passing.",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-08-18",
+          "url": "https://github.com/scienceverse/metacheck/commit/431e0c553c1edb071504d66464ecdd176107c032",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
+          "sha": "1bda9ad",
+          "message": "Merge dev into additional_archives",
+          "body": "Reconciles this branch with dev after its content commits (the\nshiny_app addition, osf_app.R's library(metacheck) fix, the two\nMetacheck-description additions) were already cherry-picked in\nindividually. Remaining conflicts are all deletions this branch made\ndeliberately -- vignettes/ (superseded by the metacheck book) and\n_stuff/profile/cermine_example.xml (repo cleanup) -- kept deleted.\n.gitattributes keeps this branch's binary-fixture-by-default approach\nover dev's broader \"* text=auto\", since it fails safe for newly added\nfixture formats rather than requiring each one to be listed.\n\nNo R/, inst/modules/, or test content changes: dev's only two\nunmerged commits (logpath() fix, .gitattributes fix) are identical in\ncontent to commits already resolved from main earlier today.",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-08-18",
+          "url": "https://github.com/scienceverse/metacheck/commit/1bda9ade25b89635273880315fc258a3b4465b47",
+          "type": "other",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
+          "sha": "befd5d5",
+          "message": "Match main's Metacheck Manual navbar wording/URL",
+          "body": "main independently made the same navbar change (pointing at the\nmetacheck book instead of Get Started/Articles) with slightly\ndifferent wording and the correct https:// URL. Taking main's exact\nwording here avoids a needless merge conflict; this branch's newer\nreference-index content (no stale psychsci entry, no dead articles:\nsection, includes the Dataverse/Figshare/Dryad/ReShare/4TU entries)\nis kept as-is.",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-08-18",
+          "url": "https://github.com/scienceverse/metacheck/commit/befd5d52bc992126c2a6518f0671fa6bf39d8d7a",
+          "type": "other",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
+          "sha": "d12bf1d",
+          "message": "Fix remaining test warnings, including a cross-file llm_use() leak",
+          "body": "test-module-power.R's last test block set llm_use(TRUE) and never\nreset it, leaking that global option into every test file that ran\nafterward in the suite. test-module-repo_check.R and\ntest-repo-download.R were the two downstream files that triggered\nreal (unmocked) LLM network calls as a side effect, failing with\nconnection-refused and printing as warnings even though their actual\nassertions still passed. Fixed with withr::defer(llm_use(FALSE)) --\nplain on.exit() and withr::local_options() were both tried first and\nconfirmed, by direct testing, not to restore state correctly through\nthis project's custom test_that() wrapper in helper.R; withr::defer()\ndoes. Applied the same fix to test-llm.R and test-utils.R, which had\nthe same unrestored llm_use(TRUE) pattern.\n\ntest-archive-zenodo.R and test-repo-download.R had intentional\nfake-download-failure scenarios whose warnings were never wrapped in\nexpect_warning(), the same gap already fixed in\ntest-archive-dataverse.R -- applied consistently here too.\n\nFull suite: 0 failures, 0 warnings, 4280 passed.",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-08-18",
+          "url": "https://github.com/scienceverse/metacheck/commit/d12bf1d23c45929ea52b5ce3fb82f543e27b3ab9",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
+          "sha": "74c2d84",
+          "message": "Fix R CMD check warnings/notes and cross-test pollution from dead module imports",
+          "body": "R CMD check fixes:\n- .Rbuildignore: exclude .vscode, .comments, CLAUDE.md; delete stray\n  duplicate to_err_is_human.xml at repo root (real copy lives in\n  inst/demos/)\n- Non-ASCII characters warning: escape functional Unicode (Greek\n  statistical notation, math operators, box-drawing table borders, a\n  field-separator character, an NBSP constant, a BOM string) as \\uXXXX,\n  substitute purely decorative comment punctuation with ASCII, across\n  12 files\n- Undeclared imports warning: add SnowballC, data.table, officer,\n  pdftools, readxl, yaml to Suggests (already used via :: throughout)\n- Rd cross-references / Rd usage-section warnings: two roxygen blocks\n  had drifted onto the wrong function because a plain (non-roxygen)\n  comment sat between the doc block and its real target\n  (stat_results_long, data_read_head) -- moved each block to the\n  correct function; removed one duplicate leftover block; stripped six\n  dangling \\link{} references to functions that only exist on unmerged\n  branches\n- R code NOTE: qualify two bare ave() calls as stats::ave(), fix an NSE\n  binding in code_setwd(), port the missing .repro_split_args() helper\n  r-output.R was calling (only defined on the reproducibility_check\n  branch)\n- Avoid the \"assignments to the global environment\" NOTE in\n  .r_capture_runner() (a callr subprocess payload, not the user's\n  session) by capturing globalenv() into a variable first, which\n  R CMD check's static scan does not resolve\n\nTest suite fix:\n- Three modules (prereg_check.R, code_check.R, stat_effect_size.R)\n  declared roxygen @import for packages (httr, jsonlite, tidyr) they\n  never actually use. module_run() require()s every declared @import,\n  so running those modules' tests attached httr/jsonlite to the search\n  path ahead of metacheck, letting httr::verbose() and\n  jsonlite::validate() shadow metacheck::verbose()/validate() for every\n  test that ran afterward in the same session -- the reason two\n  unrelated test files only failed in full-suite runs, never in\n  isolation. Removed the three dead @import lines (a full sweep confirms\n  no other module has an unused import).",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-08-18",
+          "url": "https://github.com/scienceverse/metacheck/commit/74c2d846a029f8010cc1be38f7f093212a3ad3e2",
+          "type": "fix",
           "branch": "dev",
           "diff": {}
         }
@@ -1677,7 +1875,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.6.1.9000",
@@ -2387,7 +2646,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 24,
+          "deletions": -17
+        },
+        {
+          "week": 1784419200,
+          "additions": 1,
+          "deletions": -1
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.4.1",
@@ -2462,6 +2782,45 @@
           "branch": "master",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "ea980fd",
+          "message": "Built site for tenzing@0.4.1: d271884",
+          "body": "",
+          "author": "Anka",
+          "author_login": "",
+          "date": "2026-07-23",
+          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
+          "type": "other",
+          "branch": "gh-pages",
+          "diff": {
+            "additions": 1,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "pkgdown.yml",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -5,7 +5,7 @@ articles:\n   app_use: app_use.html\n   local_use: local_use.html\n   validation: validation.html\n-last_built: 2026-07-18T02:51Z\n+last_built: 2026-07-23T04:37Z\n urls:\n   reference: https://marton-balazs-kovacs.github.io/tenzing/reference\n   article: https://marton-balazs-kovacs.github.io/tenzing/articles"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "d271884",
+          "message": "Update success alert title in sweet_alert.js",
+          "body": "Update terminology from infosheet to contributors table",
+          "author": "Alex O. Holcombe",
+          "author_login": "alexholcombe",
+          "date": "2026-07-23",
+          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
+          "type": "other",
+          "branch": "master",
+          "diff": {}
+        }
       ]
     },
     {
@@ -2483,7 +2842,7 @@
       "topics": [],
       "pushed_at": "2026-08-18T14:51:48Z",
       "created_at": "2021-11-21",
-      "last_push_days": 0,
+      "last_push_days": 1,
       "default_branch": "main",
       "license": "NOASSERTION",
       "branches": [
@@ -2534,12 +2893,12 @@
         }
       ],
       "commits_30d": 119,
-      "commits_7d": 55,
-      "commits_1d": 3,
+      "commits_7d": 53,
+      "commits_1d": 0,
       "commits_90d": 119,
       "authors_30d": [
-        "lhdjung",
-        "Lukas Jung"
+        "Lukas Jung",
+        "lhdjung"
       ],
       "type_breakdown": {
         "other": 58,
@@ -3096,14 +3455,75 @@
         },
         {
           "week": 1786320000,
-          "total": 60
+          "total": 62
         },
         {
           "week": 1786924800,
-          "total": 55
+          "total": 53
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 383,
+          "deletions": -30
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.6.1",
@@ -3563,6 +3983,106 @@
           "branch": "polishing",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "ddb58e7",
+          "message": "Rewrite all other tests in the image of c3abc016614fab2685d16a39d2835a36c6624e3c",
+          "body": "* Mechanical syntax changes only\n* Main change: pipes instead of nested code\n* Also, some more empty lines for readability",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-08-18",
+          "url": "https://github.com/lhdjung/scrutiny/commit/ddb58e7da87e0eba8221cac0906ae35d9bbf63a0",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {
+            "additions": 677,
+            "deletions": 772,
+            "files": [
+              {
+                "filename": "tests/testthat/test-audit.R",
+                "status": "modified",
+                "additions": 5,
+                "deletions": 5,
+                "patch": "@@ -6,8 +6,8 @@ audit_grim <- audit(data_grim)\n \n test_that(\"`audit()` summarizes GRIM tests accurately\", {\n   expect_s3_class(audit_grim, \"data.frame\")\n-  expect_equal(as.numeric(audit_grim$all_cases - audit_grim$incons_cases),\n-               length(data_grim$consistency[data_grim$consistency]))\n+  as.numeric(audit_grim$all_cases - audit_grim$incons_cases) |>\n+    expect_equal(length(data_grim$consistency[data_grim$consistency]))\n })\n \n \n@@ -16,9 +16,9 @@ data_debit <- debit_map(pigs3, digits_"
+              },
+              {
+                "filename": "tests/testthat/test-debit.R",
+                "status": "modified",
+                "additions": 33,
+                "deletions": 48,
+                "patch": "@@ -38,15 +38,15 @@ rounding_methods <- c(\n \n test_that(\"`debit()` accepts every rounding method that `grim()` accepts\", {\n   for (r in rounding_methods) {\n-    debit(\n-      x = 0.53,\n-      sd = 0.50,\n-      n = 1683,\n-      digits_x = 2,\n-      digits_sd = 2,\n-      rounding = r,\n-      threshold = 6\n-    ) |>\n+      debit(\n+        x = 0.53,\n+        sd = 0.50,\n+        n = 1683,\n+        digits_x = 2,\n+        digits_sd = 2,\n+        rounding = r,\n+        threshold = 6\n+      ) |>\n       e"
+              },
+              {
+                "filename": "tests/testthat/test-decimal-places.R",
+                "status": "modified",
+                "additions": 26,
+                "deletions": 24,
+                "patch": "@@ -140,7 +140,7 @@ iris <- iris |>\n   dplyr::mutate(dplyr::across(everything(), as.character)) |>\n   dplyr::slice(1:5)\n \n-iris_counted <- decimal_places_df(iris[1:4])\n+iris_counted <- iris[1:4] |> decimal_places_df()\n \n test_that(\"\", {\n   iris_counted[[1]] |> expect_equal(as.integer(c(1, 1, 1, 1, 0)))\n@@ -164,25 +164,24 @@ test_that(\"`decimal_places_df()` throws a warning if and only if it should\", {\n # then not the decimal places of the number, so the exponent has to be applied.\n \n test_that(\""
+              },
+              {
+                "filename": "tests/testthat/test-digits-vectorized.R",
+                "status": "modified",
+                "additions": 26,
+                "deletions": 40,
+                "patch": "@@ -30,43 +30,35 @@ test_that(\"basic mappers take one `digits_*` value per row\", {\n \n   # `0.1` at one decimal place is not the same test as `0.10` at two:\n   expect_equal(per_row, c(TRUE, TRUE))\n-  expect_equal(grim_map(df_grim, digits_x = 2)$consistency, c(TRUE, FALSE))\n+  grim_map(df_grim, digits_x = 2)$consistency |> expect_equal(c(TRUE, FALSE))\n \n-  expect_equal(\n-    grimmer_map(df_grimmer, digits_x = c(1, 2), digits_sd = 2)$consistency,\n-    c(\n+  grimmer_map(df_grimmer, digits_x = c(1, 2"
+              },
+              {
+                "filename": "tests/testthat/test-disperse.R",
+                "status": "modified",
+                "additions": 5,
+                "deletions": 5,
+                "patch": "@@ -30,7 +30,7 @@ test_that(\"`dispersion` must consist of whole numbers\", {\n   # `n_change` used to be truncated toward zero by `as.integer()`, so a\n   # fractional step left `n` and `n_change` describing different things.\n   disperse(n = 10, dispersion = c(0.5, 1.5)) |> expect_error(\"whole numbers\")\n-  disperse(n = 10, dispersion = 1.5) |> expect_error(\"whole numbers\")\n+  disperse(n = 10, dispersion = 1.5)         |> expect_error(\"whole numbers\")\n })\n \n test_that(\"`n` and `n_change` agree\", {\n@"
+              },
+              {
+                "filename": "tests/testthat/test-error-digits.R",
+                "status": "modified",
+                "additions": 44,
+                "deletions": 55,
+                "patch": "@@ -21,97 +21,86 @@ msg_error <- function(expr) {\n \n \n test_that(\"a missing `digits_*` argument names the function that was called\", {\n-  expect_match(msg_error(grim(4.11, 40)), \"`grim(\", fixed = TRUE)\n-  expect_match(msg_error(grim_map(df_grim)), \"`grim_map(\", fixed = TRUE)\n-  expect_match(msg_error(grimmer_map(df_grimmer)), \"`grimmer_map(\", fixed = TRUE)\n-  expect_match(msg_error(debit(0.35, 0.18, 20)), \"`debit(\", fixed = TRUE)\n-  expect_match(msg_error(debit_map(df_debit)), \"`debit_map(\", fix"
+              },
+              {
+                "filename": "tests/testthat/test-function-factories-env.R",
+                "status": "modified",
+                "additions": 13,
+                "deletions": 16,
+                "patch": "@@ -53,7 +53,7 @@ inherits_from_scrutiny_ns <- function(fn) {\n \n test_that(\"factory-made functions are enclosed in scrutiny's namespace\", {\n   for (fn in fns_factory_made) {\n-    expect_true(inherits_from_scrutiny_ns(fn))\n+    fn |> inherits_from_scrutiny_ns() |> expect_true()\n   }\n })\n \n@@ -69,15 +69,14 @@ test_that(\"factory-made functions work outside of scrutiny's scope\", {\n   assign(\"df1\", tibble::tibble(y = 16:25, n = 3:12), envir = foreign)\n   assign(\"df2\", tibble::tibble(y1 = 16:18, y2 = "
+              },
+              {
+                "filename": "tests/testthat/test-function-map-total-n.R",
+                "status": "modified",
+                "additions": 22,
+                "deletions": 34,
+                "patch": "@@ -89,14 +89,14 @@ test_that(\"the column order of `data` makes no difference\", {\n   # silently skipped -- returning \"forth\" results labeled \"back\" -- whenever\n   # the key columns were not in the exact `y1, y2` order:\n   df1_reversed <- df1[c(\"y2\", \"y1\", \"n\")]\n-  expect_identical(schlim_map_total_n(df1_reversed), df1_tested)\n+  df1_reversed |> schlim_map_total_n() |> expect_identical(df1_tested)\n })\n \n test_that(\"the \\\"back\\\" direction really swaps the group pairings\", {\n   # `y1` values reappe"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "c3abc01",
+          "message": "Rewrite test-utils.R to model test style",
+          "body": "",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-08-18",
+          "url": "https://github.com/lhdjung/scrutiny/commit/c3abc016614fab2685d16a39d2835a36c6624e3c",
+          "type": "test",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "879c2ea",
+          "message": "Optimize testing helpers via constants and inlining",
+          "body": "* Also update tests and NEWS.md\n* Move pre-existing constants into the new aaa.R",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-08-18",
+          "url": "https://github.com/lhdjung/scrutiny/commit/879c2ea3caa987a2c4f959235723117f2d8d5fa0",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        }
       ]
     },
     {
@@ -3583,7 +4103,7 @@
       "topics": [],
       "pushed_at": "2026-07-30T15:11:29Z",
       "created_at": "2019-03-14",
-      "last_push_days": 19,
+      "last_push_days": 20,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -3854,11 +4374,11 @@
         },
         {
           "week": 1783900800,
-          "total": 2
+          "total": 3
         },
         {
           "week": 1784505600,
-          "total": 8
+          "total": 7
         },
         {
           "week": 1785110400,
@@ -3877,7 +4397,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 475,
+          "deletions": -258
+        },
+        {
+          "week": 1784419200,
+          "additions": 34,
+          "deletions": -7
+        },
+        {
+          "week": 1785024000,
+          "additions": 43,
+          "deletions": -10
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "7.3.0",
@@ -3959,6 +4540,47 @@
           "type": "other",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "ec80478",
+          "message": "nature das and cas detection",
+          "body": "",
+          "author": "ontogenerator",
+          "author_login": "",
+          "date": "2026-07-30",
+          "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
+          "type": "other",
+          "branch": "main",
+          "diff": {
+            "additions": 43,
+            "deletions": 10,
+            "files": [
+              {
+                "filename": "R/parse_pdf.R",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -298,7 +298,7 @@ Mode <- function(x) {\n \n   keyword_list <- .create_keyword_list()\n \n-  stopwords <- paste0(keyword_list$section_stopwords, \"|\\\\bauthor|\\\\bdata\")\n+  stopwords <- paste0(keyword_list$section_stopwords, \"|\\\\bauthor|\\\\bdata|\\\\bmethods\")\n \n   starts_with_section <- stringr::str_detect(\n     tolower(text_data$text[1]),"
+              },
+              {
+                "filename": "R/screen_text.R",
+                "status": "modified",
+                "additions": 41,
+                "deletions": 8,
+                "patch": "@@ -470,15 +470,40 @@\n     stringr::str_detect(\"(<section>|##+) r ?e ?f ?e ?r ?e ?n ?c ?e ?s(?! and notes)\") |>\n     which() - 1\n \n+  if (sum(line_before_refs) == 0) {\n+    # if no references detected but online content and nature portfolio\n+    if (all(c(any(stringr::str_detect(pdf_text_sentences, \"nature portfolio\")),\n+              any(stringr::str_detect(pdf_text_sentences, \"statements of data and code\"))))) {\n+      line_before_refs <- pdf_text_sentences |>\n+        stringr::str_detect(\"(<s"
+              },
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -111,7 +111,7 @@ The performance metrics for open code detection are given below:\n \n metric | estimate |\n -------|----------|\n-accuracy| 0.87 |\n+accuracy | 0.87 |\n sensitivity | 0.94 |\n specificity | 0.82 |\n positive predictive value | 0.79 |"
+              }
+            ]
+          },
+          "diff_summary": ""
         }
       ]
     },
@@ -4527,7 +5149,56 @@
           "html_url": "https://github.com/yihui"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        },
+        {
+          "week": 1782000000,
+          "total": 0
+        },
+        {
+          "week": 1782604800,
+          "total": 0
+        },
+        {
+          "week": 1783209600,
+          "total": 0
+        },
+        {
+          "week": 1783814400,
+          "total": 0
+        },
+        {
+          "week": 1784419200,
+          "total": 0
+        },
+        {
+          "week": 1785024000,
+          "total": 0
+        },
+        {
+          "week": 1785628800,
+          "total": 0
+        },
+        {
+          "week": 1786233600,
+          "total": 0
+        },
+        {
+          "week": 1786838400,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -4587,7 +5258,7 @@
       "topics": [],
       "pushed_at": "2026-08-07T17:59:58Z",
       "created_at": "2026-04-06",
-      "last_push_days": 11,
+      "last_push_days": 12,
       "default_branch": "main",
       "license": "MIT",
       "branches": [
@@ -4606,7 +5277,7 @@
       "commits_30d": 27,
       "commits_7d": 0,
       "commits_1d": 0,
-      "commits_90d": 107,
+      "commits_90d": 104,
       "authors_30d": [
         "Gilad Feldman"
       ],
@@ -4701,7 +5372,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 3801,
+          "deletions": -162
+        },
+        {
+          "week": 1781395200,
+          "additions": 4033,
+          "deletions": -381
+        },
+        {
+          "week": 1782000000,
+          "additions": 2004,
+          "deletions": -46
+        },
+        {
+          "week": 1782604800,
+          "additions": 6554,
+          "deletions": -301
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 6689,
+          "deletions": -755
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "PDF, DOCX, and HTML text extraction plus normalization for academic papers.\n\nThe full documentation lives in `docs/README.md`.\n\n\n```bash\npip install docpluck\n```\n\nOptional extras:\n\n```bash\npip install docpluck[docx]\npip install docpluck[html]\npip install docpluck[all]\n```\n\n\n`extract_pdf()` requires the `pdftotext` binary from Poppler.\n\n- Linux/WSL: `apt-get install poppler-utils`\n- macOS: `brew install poppler`\n- Windows: install Poppler and add its `bin` folder to `PATH`\n\n## Links\n\n- Full usage and API reference: `docs/README.md`\n- Normalization pipeline details: `docs/NORMALIZATION.md`\n- Ben",
@@ -5065,6 +5797,126 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "2185b00",
+          "message": "fix(qa): the corpus gate asks the custodian what it should cover, not the disk",
+          "body": "`scripts/verify_corpus.py` now gets everything from article-finder: the expected\npaper set, every PDF, and every baseline. No directory glob, no\n`../PDFextractor/test-pdfs` coupling, no `DOCPLUCK_SPIKE_BASELINE_DIR`, no\n`docs/superpowers/` default path. Papers are addressed by canonical key\n(`--paper 10.1177/19485506211056761`).\n\n**The coverage defect.** The gate derived its corpus from `glob(\"*.md\")` and\nprinted `N / N` where N was whatever it found -- so a half-present corpus\nreported a clean pass and a vanished one reported nothing at all. A denominator\ncomputed from the numerator can only ever say 100%. It now comes from\n`papers-with-view`, and three states are kept distinct:\n\n  nothing resolvable        SKIP,    exit 0   (this machine has no corpus)\n  some but not all          PARTIAL, exit 1   (the silent-shrink bug)\n  all resolved              PASS/WARN/FAIL\n\nNew `PDF_DRIFT` status: the repository's copy of a paper is not the\nmanifestation the baseline was built from. Rendering one and comparing it to a\nbaseline built from the other measures nothing, and would print the difference\nas a docpluck regression -- publisher PDF, arXiv preprint and PMC author\nmanuscript share a DOI but not bytes. It surfaced three such papers immediately.\n\n**Re-baselined onto the repository's own copies**, which removes PDF_DRIFT by\nconstruction: the artifact and the input the gate re-renders are now the same\nbytes. Done only after all 26 papers verified against the 2026-05-10 prototype\nbaseline with ZERO failures (23 in the corpus run, 3 individually once their\ndrift was diagnosed) -- a baseline captured from unverified output bakes in\nwhatever was wrong at capture time. The prototype set stays registered as\n`render-baseline__docpluck-splice-spike@2026.05.10` and is still selectable via\n`--baseline-view`.\n\nResult: 26 / 26 PASS, COVERAGE 26 / 26, exit 0.\n\nThree lookup bugs found and fixed on the way, each of which had made a real\npaper report as simply absent:\n\n- `10.1093/sf/soaf022` keys as `10.1093__sf__soaf022`; replacing only the FIRST\n  `__` produced a DOI matching nothing. Every `__` is an encoded `/`.\n- Two PDFs were ingested under a non-normalized mixed-case DOI, so the\n  lower-cased gold key could never find them. Fixed in `ingest-local-pdf.py`\n  (it now uses `_lib.normalize_doi` rather than a hand-rolled prefix strip), and\n  5 pre-existing unreachable index keys were normalized or removed.\n- `verified == 0` returned exit 0 as a clean SKIP even when every paper had\n  ERRORed or drifted -- a green run reported because everything failed. It now\n  skips only when nothing was ever attempted.\n\nAlso: LESSONS L-013, a CLAUDE.md hard rule, and the qa/review/iterate skills\nupdated to read the COVERAGE line rather than the PASS count, and to treat\nPDF_DRIFT as \"nothing was compared\" rather than as a render defect.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-07",
+          "url": "https://github.com/giladfeldman/docpluck/commit/2185b00f5f208e467cd85c6d90baad3142e068f6",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 356,
+            "deletions": 80,
+            "files": [
+              {
+                "filename": "CHANGELOG.md",
+                "status": "modified",
+                "additions": 39,
+                "deletions": 0,
+                "patch": "@@ -1,5 +1,44 @@\n # Changelog\n \n+## [Unreleased] - 2026-08-07\n+\n+**984 KB of published article text left this repo, and the gate that needed it kept its full strength.** No library code changed \u2014 `docpluck/` is untouched, so there is no version bump and no output change.\n+\n+### `tests/snapshots/*.txt` -> `tests/snapshots/checksums.json`\n+\n+Twelve files, 984 KB, were the byte-identical `extract_pdf()` output of real published papers: title, all authors, affiliations, full body. `apa_efendic_affec"
+              },
+              {
+                "filename": "CLAUDE.md",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 0,
+                "patch": "@@ -89,6 +89,7 @@ The most common failure mode is assuming the auto-bump landed when it silently m\n - **NEVER call the Anthropic API. ALL Claude model calls go through Claude Max via Claude Code.** Allowed: `Agent` tool in-session (with `model=\"sonnet\"` for the audit subagent); headless `claude -p --model sonnet` from `.git/hooks/*` and `tools/canary_audit.sh`; `mcp__scheduled-tasks__create_scheduled_task` invoking Claude Code. Forbidden: `import anthropic`, `ANTHROPIC_API_KEY` anywhere in this "
+              },
+              {
+                "filename": "LESSONS.md",
+                "status": "modified",
+                "additions": 70,
+                "deletions": 0,
+                "patch": "@@ -614,6 +614,76 @@ Cite: `docpluck/version.py`, `docpluck/batch.py`, `docpluck/normalize.py`\n \n ---\n \n+## L-013 \u2014 An allowlist of allowed PATHS cannot see disallowed CONTENT; and a force-push does not end a purge\n+\n+**Surface.** `tests/snapshots/*.txt` \u2014 12 files, 984 KB \u2014 were the byte-identical\n+`extract_pdf()` output of real published papers: title, all authors,\n+affiliations, full body. `apa_efendic_affect.txt` carried SAGE's own\n+`\u00d3 The Author(s) 2021 / Article reuse guidelines: sagepub.c"
+              },
+              {
+                "filename": "scripts/verify_corpus.py",
+                "status": "modified",
+                "additions": 246,
+                "deletions": 80,
+                "patch": "@@ -1,11 +1,34 @@\n-\"\"\"Corpus verifier: run v2.3.0 render against the spike's 26-paper corpus.\n+\"\"\"Corpus verifier: render the corpus and compare against a pinned baseline.\n+\n+Everything this needs comes from **article-finder**, the sole custodian of\n+papers and tool baselines. Nothing is located by globbing a directory and\n+nothing is read from a sibling repo:\n+\n+  - the EXPECTED PAPER SET is `papers-with-view <baseline view>`\n+  - each PDF is located by canonical key via `find-pdf.py` (cache on"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "2f203a3",
+          "message": "fix(tests): 984 KB of published article text left the repo; sha256 pins replace it",
+          "body": "`tests/snapshots/*.txt` were 12 byte-identical `extract_pdf()` outputs of real\npublished papers -- title, authors, affiliations, full body -- git-tracked and\nlive on a PUBLIC remote since 2026-05-07. `apa_efendic_affect.txt` carried\nSAGE's own reuse notice verbatim. Plaintext is *more* scrapable than the PDFs\nthis repo already refuses to commit.\n\nA sha256 asserts exactly the same byte-for-byte guarantee in ~1 KB and asserts\nnothing about anyone's copyright. `tests/snapshots/checksums.json` now pins the\ndigest, byte count and `method` per fixture; the pins were generated from the\nold `.txt` files and then re-derived from a live extraction run, which matched\ndigest-for-digest before anything was deleted.\n\nWhat a hash cannot do is print a diff, so that capability is restored rather\nthan dropped:\n\n  --snapshot-explain  dumps the actual text to tmp/ (gitignored) AND diffs it\n                      against the custodian's copy, fetched from article-finder\n                      by the paper's DOI\n  --snapshot-update   re-pins after an intentional extraction change\n\nThe 12 texts now live in article-finder as versioned tool artifacts\n(`extract-text__docpluck@2.4.126`), keyed by DOI, outside every repo. Verified\nend-to-end: with a pin deliberately corrupted, --snapshot-explain fetched the\ncustodian copy and produced a 0-byte diff (contents identical).\n\nAlso added, because the absence of each is what let this sit for three months:\n\n- `test_no_article_text_in_snapshot_dir` -- watched FAIL against the 12 real\n  files before they were removed. A shape check on the directory, not a\n  filename denylist: these files were named exactly like ordinary fixtures,\n  which is why three filename-based cleanup passes walked past them.\n- `test_checksums_cover_every_manifest_fixture` -- coverage is asserted, not\n  counted at runtime. The same defect class as the 24-skipped run this suite\n  shipped for four days.\n- `canonical_key` (the DOI) on every MANIFEST fixture.\n\nSwept the full 478-commit history with a new content-based detector\n(`article-finder/publication-text-scan.py`): these 12 files, in 28 blob\nrevisions, are the ONLY publication text this repo has ever held. No PDF was\never committed; `tests/golden/`, the manifest and `scripts/harness/` are clean.\n\nFull suite: 2088 passed, 166 skipped, 3 xfailed.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-07",
+          "url": "https://github.com/giladfeldman/docpluck/commit/2f203a30a7cd71f3cb8b924f3e6e798a829eda2f",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "48be7f9",
+          "message": "fix(tests): snapshot suite resolved fixtures under the pre-2026-08-03 Vibe root",
+          "body": "`test_v2_backwards_compat.py` hardcoded `$HOME/Dropbox/Vibe`. The portfolio\nmoved OUT of Dropbox on 2026-08-03 (Dropbox syncing a live .git corrupts\nrepos), so every fixture resolved to a path that no longer exists and all 12\nbyte-for-byte extraction tests SKIPPED \u2014 silently, reporting green.\n\nBefore: 24 skipped in 0.17s.  After: 25 passed in 201.80s.\n\nThis is verbatim the failure the portfolio hard rule warns about (\"a discovery\nhelper that returns empty when the root is wrong makes a broken run look like a\nclean one\" \u2014 the same rule notes the 2026-08-03 move went unnoticed for five\nweeks while weekly reviews 'passed'). Now resolves VIBE_ROOT then $HOME/Vibe,\nand a new test_fixture_root_exists FAILS when the root is absent. A missing\nindividual PDF stays a legitimate skip (not everyone has the closed-access\ncorpus); a missing ROOT is a broken configuration and must be visible.\n\nAll 12 snapshots still match byte-for-byte, so extract_pdf() output has not\ndrifted since 2026-05-07 \u2014 including across the 2026-05-14 poppler swap, on\nthese papers.\n\nNOT FIXED HERE, needs a user decision: those 12 snapshots are 984 KB of\npublished article text, git-tracked and live on the PUBLIC remote since\n7b04f8f. The test asserts byte-for-byte equality, which a sha256 gives\nidentically \u2014 so they can be replaced by ~1 KB of hashes with no loss except\ndiff context in the failure message. Purging the existing history requires a\nforce-push, which per LESSONS L-010 does not clean forks or PR refs.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-07",
+          "url": "https://github.com/giladfeldman/docpluck/commit/48be7f9e44eca8c87455c02e826cd5709b2a9cde",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "63b9ba3",
+          "message": "fix(qa): restore the corpus render gate, dead since the 2026-08-06 redaction",
+          "body": "`SPIKE_OUT_DIRS` held two identical literals reading \"an internal design\ndoc\". The de-referencing pass replaced the two real baseline paths with that\nplaceholder prose, so every run since printed \"ERROR: no spike baselines\nfound\" and exited 1 \u2014 while docpluck-qa check 7b documents that exact message\nas an expected clean skip on a fresh checkout. A CRITICAL render-regression\ngate was disabled for a week and its deadness read as normal. The 26 baseline\nfiles (7 + 19, the documented count) were on disk the whole time.\n\nResolved via DOCPLUCK_SPIKE_BASELINE_DIR with a runtime default. Missing\nfixture is now a loud SKIP (exit 0); baseline dirs that exist but hold no .md\nis a FAIL (exit 1). Conflating those two is what trained people to ignore the\nmessage \u2014 the same SKIP-vs-ERROR confusion already fixed once in\ntests/test_canary_provenance.py.\n\nRestored and run: 26 / 26 PASS at v2.4.126, so this release introduces no\nrender regression.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-07",
+          "url": "https://github.com/giladfeldman/docpluck/commit/63b9ba38cc442515c0b9f471c6f82ad4265e29cc",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "e58dee7",
+          "message": "fix: act on the final verification pass; package is now lint-clean",
+          "body": "An independent pass re-derived all eight behavioural claims in fresh\nprocesses against a real paper (identical version dict before vs after\nimporting every engine; 245ms/16ms; byte-identical default render at\n21776 chars vs standard 21777 and none 22487; 12/12 CLI sections carrying\nsubheadings; zero bare \"pdftotext\" literals). All eight held. It also found\nwhat follows.\n\nREPLY_FROM_DOCPLUCK_v2.4.126.md contained a FALSE claim: \"both consumer\nsurfaces now derive from the dataclass\" was true of the library CLI and\nfalse of the service, which still hand-enumerated nine keys and still\ndropped `subheadings`. Fixed the data loss rather than only the sentence \u2014\n`Section.subheadings` has existed since sectioning v1.6.1, so the service\ncan emit it against the CURRENT 2.4.125 pin; the switch to Section.to_dict()\nstays queued for after the bump. API.md's schema gains the key, and its\n`pages` row no longer implies PDF populates it (nothing does).\n\nThree code defects, each reproduced first:\n- batch.py imported `fields` and never used it.\n- sections/__init__.py annotated `normalization_level` with a forward ref to\n  a name imported only inside the function body, so\n  typing.get_type_hints(extract_sections) raised NameError. Module-level\n  import; verified no cycle (normalize's back-import is lazy, and importing\n  docpluck.sections first in a fresh process resolves).\n- an unused import in the test module.\n\nThen the lint the sweep implied, all pre-existing: three unused locals\nINSPECTED rather than deleted (an assigned-but-unused value in extraction\nlogic is the \"silently dropped computed value\" class \u2014 all three were\nvestigial, none was a lost value), one dead local in SectionedDocument.all()\nremoved after verifying every documented case still resolves, and four\nunused imports. `ruff --select F401,F811,F841` now passes clean over\ndocpluck/.\n\nFull suite 2061 passed / 0 failed, md5-verified against the tested tree.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-07",
+          "url": "https://github.com/giladfeldman/docpluck/commit/e58dee7ff4c2159c710fea20b9216d82593063a8",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "519c63f",
+          "message": "fix(provenance): four surfaces claimed what the call graph did not do",
+          "body": "Second, max-effort pass over the v2.4.126 work. The first pass fixed the\nreported bug; sweeping for the CLASS found three more library defects, and\nthree review rounds found more defects in the fix than the fix had found in\nthe code. Full suite 2061 passed / 0 failed (2015 baseline + 46 new).\n\nReceipt (get_version_info): 3 keys -> 18. Beyond the first pass it now also\nreports pdftotext_path (the exact binary, resolved once and used by the\nextraction call sites too, so the receipt cannot name a build that did not\nrun), pdfminer.six, pypdfium2, opencv, mammoth, beautifulsoup4, lxml --\ntwo of three input formats were unpinned entirely -- plus python_version\nand unicodedata_version, since normalize.py calls unicodedata.normalize.\nEngine versions come from installed distribution metadata, NOT the imported\nmodule's __version__: preferring the module made opencv_version read\n4.13.0.92 before `import cv2` and 4.13.0 after, one process, one install,\ntwo answers. Stated cost: a shadowing module is not detected.\n\nrender_pdf_to_markdown(normalization_level=) was a SILENT NO-OP -- accepted,\ndocumented as forwarded, discarded; none/standard/academic gave byte-identical\nmarkdown. extract_sections now takes the level and applies it. The default\nmoved standard->academic (what the code actually did) so output is unchanged\nfor callers who never passed it.\n\nSection.subheadings (v1.6.1) reached NO consumer -- the CLI and the service\nhad each independently enumerated the nine pre-v1.6.1 keys. Section.to_dict\n/ SectionedDocument.to_dict now derive from fields().\n\nappend_footnotes_section was dead twice over (zero call sites; unreachable\nprecondition) while docpluck-review SKILL.md described it as live. Removed.\n\nNot fixed, documented and queued: Section.pages is always () on every format\n(page mapping needs layout=, which the sections path deliberately omits per\nL-001; wiring it is a corpus-wide change needing its own gated cycle).\n\nPerf: count_greek_chars was 60x slower than a regex (247s vs 4s across the\nrequester's 8,431-doc corpus); a correctness fix then called\npackages_distributions() per engine (6-11s a call, uncached by the stdlib),\ntaking get_version_info() from ms to 24s. Now 122ms first call, 13ms after.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-07",
+          "url": "https://github.com/giladfeldman/docpluck/commit/519c63fa1dbc449f65e08fcdd018c667042938fc",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "2ae5d38",
+          "message": "feat(provenance): report every input that can change output (v2.4.126)",
+          "body": "MetaESCI asks A-1/A-2. A docpluck SHA did not pin extraction: the same SHA\n(a5c02ef) against the same PDF (10.1098/rsos.202336) produced 49,091 vs\n50,101 normalized chars across a poppler binary replacement, and\nget_version_info() reported three keys that were identical in both runs.\n\nFixes the class, not the symptom. get_version_info() now reports the\npdftotext binary version AND engine (poppler/xpdf differ behaviourally and\nshare a banner), poppler_version, pdfplumber, camelot, plus the in-repo\nsectioning_version and table_extraction_version that were exported and\nbumped independently of the package version but never on the receipt.\nNORMALIZATION_VERSION is now exported from the package top level.\n\nExtractionReport carries the same; ExtractionFileResult gains\nn_replacement_chars and n_greek_chars (A-2), measured on the normalized\noutput.\n\nSibling defects found by sweeping for the same shape:\n- NormalizationReport.to_dict() was silently dropping\n  column_interleave_pages, a populated field extract_columns documents as\n  the canonical source of that signal. Live, predates this change.\n- The per-file sidecar recorded ok:false on every SUCCESSFUL extraction,\n  and an elapsed_seconds:0.0 written before the timer stopped.\nAll three hand-enumerated serializers now derive from asdict().\n\nAlso: INBOX_* was missing from .gitignore's cross-project correspondence\nblock, so an inbox doc had been committed to this public repo (unpushed;\nthose commits were dropped). Duplicate L-010 heading renumbered.\n\n31 tests, all verified failing against the unfixed code first. Full suite\n2046 passed / 0 failed.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-07",
+          "url": "https://github.com/giladfeldman/docpluck/commit/2ae5d3839e049013f0aeab09ae15d50eb49a2e3d",
+          "type": "feat",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -5085,7 +5937,7 @@
       "topics": [],
       "pushed_at": "2025-11-13T15:11:14Z",
       "created_at": "2023-09-13",
-      "last_push_days": 278,
+      "last_push_days": 279,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -5157,7 +6009,56 @@
           "html_url": "https://github.com/ontogenerator"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        },
+        {
+          "week": 1782000000,
+          "total": 0
+        },
+        {
+          "week": 1782604800,
+          "total": 0
+        },
+        {
+          "week": 1783209600,
+          "total": 0
+        },
+        {
+          "week": 1783814400,
+          "total": 0
+        },
+        {
+          "week": 1784419200,
+          "total": 0
+        },
+        {
+          "week": 1785024000,
+          "total": 0
+        },
+        {
+          "week": 1785628800,
+          "total": 0
+        },
+        {
+          "week": 1786233600,
+          "total": 0
+        },
+        {
+          "week": 1786838400,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -5214,7 +6115,7 @@
       "topics": [],
       "pushed_at": "2025-10-06T14:57:42Z",
       "created_at": "2024-12-05",
-      "last_push_days": 316,
+      "last_push_days": 317,
       "default_branch": "master",
       "license": "GPL-3.0",
       "branches": [
@@ -5253,7 +6154,56 @@
           "html_url": "https://github.com/ontogenerator"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        },
+        {
+          "week": 1782000000,
+          "total": 0
+        },
+        {
+          "week": 1782604800,
+          "total": 0
+        },
+        {
+          "week": 1783209600,
+          "total": 0
+        },
+        {
+          "week": 1783814400,
+          "total": 0
+        },
+        {
+          "week": 1784419200,
+          "total": 0
+        },
+        {
+          "week": 1785024000,
+          "total": 0
+        },
+        {
+          "week": 1785628800,
+          "total": 0
+        },
+        {
+          "week": 1786233600,
+          "total": 0
+        },
+        {
+          "week": 1786838400,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -5558,8 +6508,8 @@
       "commits_1d": 0,
       "commits_90d": 84,
       "authors_30d": [
-        "Davidvandijcke",
-        "David Van Dijcke"
+        "David Van Dijcke",
+        "Davidvandijcke"
       ],
       "type_breakdown": {
         "fix": 3,
@@ -6097,7 +7047,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1780185600,
+          "additions": 769,
+          "deletions": -166
+        },
+        {
+          "week": 1780790400,
+          "additions": 2445,
+          "deletions": -291
+        },
+        {
+          "week": 1781395200,
+          "additions": 14811,
+          "deletions": -1044
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 2,
+          "deletions": -2
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 4647,
+          "deletions": -1276
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "Free, open-source AI academic paper reviewer that outperforms popular paid AI reviewers.\n\nYou provide your own API key and pay the LLM provider directly \u2014 typically **under $2 per review**.\n\nDon't want to run it locally? Use the [web interface](https://coarse.ink/) instead.\n\n\nGet an API key from [OpenRouter](https://openrouter.ai/keys) (free to sign up), then:\n\n```bash\nuvx coarse-ink review paper.pdf --api-key sk-or-v1-YOUR_KEY\n```\n\nThat's it. The review is written to `paper_review.md` in the current directory.\n\n\ncoarse requires Python 3.12+. If you don't have `uvx`, install [uv](https://docs.",
@@ -6291,184 +7302,6 @@
           "branch": "feat/latest-models-deep-literature",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "f054f42",
-          "message": "docs: add Buy Me a Coffee funding links",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/f054f4289ffa177b7723981892724b19e8d74eb9",
-          "type": "feat",
-          "branch": "dev",
-          "diff": {
-            "additions": 2,
-            "deletions": 0,
-            "files": [
-              {
-                "filename": ".github/FUNDING.yml",
-                "status": "added",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1 @@\n+buy_me_a_coffee: coarse"
-              },
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -5,6 +5,7 @@\n [![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fcoarse.ink%2Fapi%2Fdownloads)](https://pypistats.org/packages/coarse-ink)\n [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/downloads/)\n [![License](https://img.shields.io/github/license/Davidvandijcke/coarse)](LICENSE)\n+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-support-FFDD00?logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/coarse)\n"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "34b892d",
-          "message": "docs: add Buy Me a Coffee funding links",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/34b892d34d80ba3fecbb8bb95adf9ab757f13862",
-          "type": "feat",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "ac28c17",
-          "message": "feat(web): add Buy Me a Coffee support button",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/ac28c1728b05b82c30a8d64a41bb2e73db48dec4",
-          "type": "feat",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "00dce61",
-          "message": "Merge pull request #252 from Davidvandijcke/dev",
-          "body": "fix(security): harden release audit and workflows",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/00dce61fbd61dd04fb2d4ada45ed8b3156709ff6",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "def053b",
-          "message": "Merge pull request #251 from Davidvandijcke/codex/fix-release-audit",
-          "body": "fix(security): harden release audit and workflows",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/def053b58fabc853598bb8a2f56424d4a53e8a14",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "033647e",
-          "message": "fix(security): harden release audit and workflows",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/033647e83435a70af909a231cf296162d738d365",
-          "type": "fix",
-          "branch": "codex/fix-release-audit",
-          "diff": {}
-        },
-        {
-          "sha": "00c696c",
-          "message": "Merge pull request #249 from Davidvandijcke/dev",
-          "body": "release: v1.9.0 \u2014 frontier models and deep literature search",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/00c696c8b12d832d237d680f3e830b07d3a393ff",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "071c4f6",
-          "message": "Merge pull request #250 from Davidvandijcke/codex/sync-main-v1.9.0",
-          "body": "merge: reconcile main Fable hotfix into v1.9.0 release",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/071c4f6894e3c42049811c40b43a253d20e48953",
-          "type": "other",
-          "branch": "codex/fix-release-audit",
-          "diff": {}
-        },
-        {
-          "sha": "eabba85",
-          "message": "merge: reconcile main Fable hotfix into dev",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/eabba858fac56f4c9b002f1381f52bd61ebecb7e",
-          "type": "chore",
-          "branch": "codex/fix-release-audit",
-          "diff": {}
-        },
-        {
-          "sha": "30c85b2",
-          "message": "chore(release): prepare v1.9.0 (#248)",
-          "body": "",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/30c85b232f9d015b6cbf0f5022ef4e1877860fac",
-          "type": "chore",
-          "branch": "codex/fix-release-audit",
-          "diff": {}
-        },
-        {
-          "sha": "6324170",
-          "message": "chore(release): prepare v1.9.0",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/63241708368b4c733849cb340ef6d79594e6b49d",
-          "type": "chore",
-          "branch": "codex/release-v1.9.0",
-          "diff": {}
-        },
-        {
-          "sha": "3b236ea",
-          "message": "Refresh frontier models and add deep literature search (#247)",
-          "body": "* feat(review): refresh models and add deep literature search\n\n* fix(review): address pre-pr rollout findings",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/3b236ea11eeb5a073ff84c40bc1dac4ebb244439",
-          "type": "feat",
-          "branch": "codex/fix-release-audit",
-          "diff": {}
-        },
-        {
-          "sha": "c36a5eb",
-          "message": "fix(review): address pre-pr rollout findings",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-07-30",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/c36a5eb4354c76b5485f2f10fbe06e1a0d7a2437",
-          "type": "fix",
-          "branch": "feat/latest-models-deep-literature",
-          "diff": {}
-        }
       ]
     },
     {
@@ -6494,7 +7327,7 @@
       "topics": [],
       "pushed_at": "2026-07-14T15:54:41Z",
       "created_at": "2026-01-19",
-      "last_push_days": 35,
+      "last_push_days": 36,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -6624,15 +7457,15 @@
         },
         {
           "week": 1781481600,
-          "total": 20
+          "total": 25
         },
         {
           "week": 1782086400,
-          "total": 30
+          "total": 28
         },
         {
           "week": 1782691200,
-          "total": 23
+          "total": 20
         },
         {
           "week": 1783296000,
@@ -6663,7 +7496,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1780185600,
+          "additions": 5294,
+          "deletions": -1652
+        },
+        {
+          "week": 1780790400,
+          "additions": 9287,
+          "deletions": -7297
+        },
+        {
+          "week": 1781395200,
+          "additions": 23153,
+          "deletions": -2235
+        },
+        {
+          "week": 1782000000,
+          "additions": 3518,
+          "deletions": -454
+        },
+        {
+          "week": 1782604800,
+          "additions": 10467,
+          "deletions": -11292
+        },
+        {
+          "week": 1783209600,
+          "additions": 11793,
+          "deletions": -3988
+        },
+        {
+          "week": 1783814400,
+          "additions": 1488,
+          "deletions": -13427
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "AI-assisted comparison tool for preregistrations/clinical trial registrations/preclinical (animals) registrations and published papers. FastAPI serves the web UI and HTTP API; a CLI entrypoint enables backend-only runs with CSV-defined dimensions. Redis is used for task state when running via the web app.\n\nStatus: v1.0.0 (see [CHANGELOG.md](CHANGELOG.md)). AI judgements should be verified against the quoted sources in the report; accuracy notes live in the FAQ.\n\n- `app.py` / `backend/`: FastAPI app, routes, services (comparisons, embeddings, parsing).\n- `templates/` + `static/`: Frontend pages",
@@ -6689,7 +7583,7 @@
       "topics": [],
       "pushed_at": "2026-08-09T17:29:35Z",
       "created_at": "2026-01-28",
-      "last_push_days": 9,
+      "last_push_days": 10,
       "default_branch": "main",
       "license": "NOASSERTION",
       "branches": [
@@ -7012,7 +7906,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 682,
+          "deletions": -43
+        },
+        {
+          "week": 1782000000,
+          "additions": 2154,
+          "deletions": -50
+        },
+        {
+          "week": 1782604800,
+          "additions": 3579,
+          "deletions": -74
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 169,
+          "deletions": -6
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 8211,
+          "deletions": -275
+        },
+        {
+          "week": 1786233600,
+          "additions": 2565,
+          "deletions": -93
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.7.5",
@@ -7256,6 +8211,94 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "a96641b",
+          "message": "sync from escicheckapp@1bc688d (effectcheck v0.7.5) (#38)",
+          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-09",
+          "url": "https://github.com/giladfeldman/escicheck/commit/a96641b59ea6cc235ae7ef84c20c52e081fbd5ed",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 1815,
+            "deletions": 81,
+            "files": [
+              {
+                "filename": "DESCRIPTION",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,7 +1,7 @@\n Package: effectcheck\n Type: Package\n Title: Statistical Consistency Checker for Published Research Results\n-Version: 0.7.4\n+Version: 0.7.5\n Authors@R: c(person(given = \"Gilad\", family = \"Feldman\", role = c(\"aut\", \"cre\"),\n     email = \"giladfel@gmail.com\", comment = c(ORCID = \"0000-0003-2812-6599\")))\n Description: A conservative, assumption-aware statistical consistency checker"
+              },
+              {
+                "filename": "NEWS.md",
+                "status": "modified",
+                "additions": 324,
+                "deletions": 0,
+                "patch": "@@ -1,3 +1,327 @@\n+# effectcheck 0.7.5\n+\n+**A backlog item that would have shipped a feature doing nothing, a p-value\n+scraped off a figure legend, and a locale signal three rules computed and none\n+read.** v0.7.5 closes the 2026-08-09 handoff. Two of its defects were found by\n+*checking the premise before writing the code*, and one by verifying a fix\n+against the article text rather than against the test that had just gone green.\n+\n+## Issue C -- the resample count B, and the feature that would"
+              },
+              {
+                "filename": "R/check.R",
+                "status": "modified",
+                "additions": 237,
+                "deletions": 22,
+                "patch": "@@ -404,6 +404,9 @@ VARIANT_METADATA <- list(\n     resampling_method = NA_character_,\n     p_reported_is_resampling = FALSE,\n     resampling_B = NA_real_,\n+    resampling_B_source = NA_character_,\n+    p_reported_secondary = NA_real_,\n+    p_secondary_symbol = NA_character_,\n     resampling_p_below_floor = FALSE,\n     p_reported = as.numeric(g1(\"p_reported\", NA_real_)),\n     ciL_reported = as.numeric(g1(\"ciL_reported\", NA_real_)),\n@@ -899,6 +902,34 @@ compute_and_compare_one <- function(row,\n   "
+              },
+              {
+                "filename": "R/parse.R",
+                "status": "modified",
+                "additions": 587,
+                "deletions": 48,
+                "patch": "@@ -25,7 +25,7 @@ utils::globalVariables(c(\"p_reported\", \"test_type\"))\n #'\n #' @return Character scalar, e.g. \"1.0.0\".\n #' @keywords internal\n-normalization_spec_version <- function() \"1.3.0\"\n+normalization_spec_version <- function() \"1.4.0\"\n \n #' Spec rules S1-S4 -- spans where a comma between digits is a REAL comma\n #'\n@@ -202,6 +202,50 @@ infer_numeric_locale <- function(text) {\n   }\n }\n \n+#' Is the comma's role in this document still unestablished?\n+#'\n+#' v0.7.5. THE single predicate every "
+              },
+              {
+                "filename": "R/report.R",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 1,
+                "patch": "@@ -49,7 +49,8 @@\n     wts = \"Wald-type statistic (WTS)\",\n     ats = \"ANOVA-type statistic (ATS)\",\n     brunner_munzel = \"Brunner-Munzel test\",\n-    yuen = \"Yuen trimmed-mean t\"\n+    yuen = \"Yuen trimmed-mean t\",\n+    mean_diff_ci = \"Mean difference (estimate + CI + p)\"\n   )\n   if (type %in% names(lookup)) return(lookup[type])\n   type"
+              },
+              {
+                "filename": "cran-comments.md",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -26,7 +26,7 @@ defect.\n \n ## Test suite\n \n-1158 test_that blocks across 137 test files; all pass with 0 failures,\n+1187 test_that blocks across 141 test files; all pass with 0 failures,\n 0 errors, and 0 warnings (approx. 15 minutes under `R CMD check`).\n \n ## Breaking change since 0.2.3: file extraction removed in 0.4.0"
+              },
+              {
+                "filename": "inst/contracts/analysis-result.fixture.json",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -17,7 +17,7 @@\n     \"spearman\", \"kendall\", \"kendall_w\", \"dscf\", \"cochran_q\", \"binomial\",\n     \"RR\", \"rdpct\", \"md_hl\", \"interaction_p\", \"mediation_indirect\",\n     \"mcnemar_or\", \"bayes_factor\", \"hazard_ratio\", \"table_estimate\",\n-    \"d_reported_only\", \"wts\", \"ats\", \"brunner_munzel\", \"yuen\"\n+    \"d_reported_only\", \"wts\", \"ats\", \"brunner_munzel\", \"yuen\", \"mean_diff_ci\"\n   ],\n   \"sample\": {\n     \"source\": \"text\","
+              },
+              {
+                "filename": "inst/normalization-spec/SPEC.md",
+                "status": "modified",
+                "additions": 36,
+                "deletions": 1,
+                "patch": "@@ -1,6 +1,6 @@\n # Numeric separator normalization spec\n \n-**Spec version:** `1.0.0`\n+**Spec version:** `1.4.0`\n **Derived from:** docpluck `normalize.py` steps A3a + A3, as of docpluck v2.4.126\n **Status:** proposed to docpluck as the canonical definition (see\n `REQUEST_TO_DOCPLUCK_normalization_spec.md`). Until docpluck adopts it, this\n@@ -122,6 +122,41 @@ thousands group \u2014 there is nothing there to group \u2014 so no locale inference i\n needed and none is used. Requiring **no space** after the com"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "6bff8a3",
+          "message": "sync from escicheckapp@63da84b (effectcheck v0.7.4) (#37)",
+          "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-09",
+          "url": "https://github.com/giladfeldman/escicheck/commit/6bff8a3490a0f07616193e629cdc0732f7d1a6e3",
+          "type": "chore",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -7411,7 +8454,56 @@
           "html_url": "https://github.com/ingmarboeschen"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        },
+        {
+          "week": 1782000000,
+          "total": 0
+        },
+        {
+          "week": 1782604800,
+          "total": 0
+        },
+        {
+          "week": 1783209600,
+          "total": 0
+        },
+        {
+          "week": 1783814400,
+          "total": 0
+        },
+        {
+          "week": 1784419200,
+          "total": 0
+        },
+        {
+          "week": 1785024000,
+          "total": 0
+        },
+        {
+          "week": 1785628800,
+          "total": 0
+        },
+        {
+          "week": 1786233600,
+          "total": 0
+        },
+        {
+          "week": 1786838400,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -7590,7 +8682,68 @@
           "total": 1
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 15426,
+          "deletions": -580
+        },
+        {
+          "week": 1786233600,
+          "additions": 137,
+          "deletions": -34
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "Auto Z-Curve reads PDF articles, uses Google Gemini to extract focal\nstatistical results, and creates a z-curve analysis report with a plot, summary\nstatistics, and full disclosure table.\n\nThe default interface is a private browser app running only on your computer.\nYour PDFs, projects, and results stay local; only PDF extraction requests are\nsent to Gemini.\n\n**Note:** I have validated statistic extraction as part of a study, which is currently under peer review. The preprint citation is below, and details of the validation are in the supplemental material.\n\nAzaad, S. (2026). Empirically deriv",
@@ -7802,82 +8955,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "e20a3b1",
-          "message": "Release 0.11.3 with redesigned analysis summary",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-08-13",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/e20a3b12aa8ea38e826693f11abede65630940a4",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 116,
-            "deletions": 34,
-            "files": [
-              {
-                "filename": "auto_zcurve/__init__.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,3 +1,3 @@\n \"\"\"Auto Z-Curve CLI package.\"\"\"\n \n-__version__ = \"0.11.2\"\n+__version__ = \"0.11.3\""
-              },
-              {
-                "filename": "auto_zcurve/projects.py",
-                "status": "modified",
-                "additions": 10,
-                "deletions": 2,
-                "patch": "@@ -332,7 +332,10 @@ def project_snapshot(project: ManagedProject) -> dict:\n             }\n         )\n     settings = load_run_settings(project.path)\n+    successful_count = sum(item[\"status\"] == \"ok\" for item in articles)\n+    total_tokens = sum(item[\"total_tokens\"] for item in articles)\n     report = project.path / \"output\" / \"report.html\"\n+    zcurve_plot = project.path / \"output\" / \"zcurve_plot.png\"\n     zcurve_text = read_zcurve_summary(project.path) if report.is_file() else None\n     discl"
-              },
-              {
-                "filename": "auto_zcurve/static/app.css",
-                "status": "modified",
-                "additions": 25,
-                "deletions": 13,
-                "patch": "@@ -150,15 +150,26 @@ textarea { resize: vertical; line-height: 1.5; font-family: ui-monospace, SFMono\n .progress-area p { margin-bottom: 0; font-size: 11px; }\n .run-result { margin-top: 18px; padding: 13px; display: flex; gap: 10px; color: var(--green-dark); background: var(--green-soft); border-radius: 10px; }\n .result-check { width: 22px; height: 22px; display:grid;place-items:center;border-radius:50%;background:var(--green);color:white;font-size:12px; }.run-result p { margin:3px 0 0;font-siz"
-              },
-              {
-                "filename": "auto_zcurve/templates/project.html",
-                "status": "modified",
-                "additions": 33,
-                "deletions": 15,
-                "patch": "@@ -48,23 +48,41 @@ <h2>Analysis summary</h2>\n         </div>\n         <a class=\"button ghost\" href=\"/{{ token }}/projects/{{ project.id }}/report\" target=\"_blank\" rel=\"noopener\">Open full report \u2197</a>\n       </div>\n-      <div class=\"summary-stats\">\n-        <div><strong>{{ project.successful_count }}</strong><span>Articles processed</span></div>\n-        <div><strong>{{ project.report_summary.extracted_effects }}</strong><span>Extracted effects</span></div>\n-        <div><strong>{{ project.rep"
-              },
-              {
-                "filename": "auto_zcurve/web.py",
-                "status": "modified",
-                "additions": 12,
-                "deletions": 0,
-                "patch": "@@ -623,6 +623,17 @@ async def report(project_id: str):\n             raise HTTPException(status_code=404, detail=\"Report not found.\")\n         return FileResponse(path, media_type=\"text/html\")\n \n+    @app.get(f\"/{token}/projects/{{project_id}}/zcurve-plot\")\n+    async def zcurve_plot(project_id: str):\n+        try:\n+            project = runtime.project(project_id)\n+        except ProjectError as exc:\n+            raise HTTPException(status_code=404, detail=str(exc)) from exc\n+        path = pro"
-              },
-              {
-                "filename": "pixi.toml",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,6 +1,6 @@\n [workspace]\n name = \"auto-zcurve\"\n-version = \"0.11.2\"\n+version = \"0.11.3\"\n description = \"Local browser app for extracting PDF statistics and generating z-curve reports\"\n channels = [\"conda-forge\"]\n platforms = [\"osx-arm64\", \"osx-64\", \"win-64\", \"linux-64\"]"
-              },
-              {
-                "filename": "pyproject.toml",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -4,7 +4,7 @@ build-backend = \"setuptools.build_meta\"\n \n [project]\n name = \"auto-zcurve\"\n-version = \"0.11.2\"\n+version = \"0.11.3\"\n description = \"Local browser app and CLI for extracting statistics from PDFs and generating z-curve reports.\"\n readme = \"README.md\"\n requires-python = \">=3.9\""
-              },
-              {
-                "filename": "report/report_template.qmd",
-                "status": "modified",
-                "additions": 18,
-                "deletions": 0,
-                "patch": "@@ -95,6 +95,24 @@ zcurve_summary_text <- paste(\n )\n writeLines(zcurve_summary_text, file.path(output_dir, \"zcurve_summary.txt\"), useBytes = TRUE)\n \n+zcurve_plot_path <- file.path(output_dir, \"zcurve_plot.png\")\n+if (file.exists(zcurve_plot_path)) {\n+  unlink(zcurve_plot_path)\n+}\n+if (identical(zcurve_bundle$status, \"ok\")) {\n+  grDevices::png(\n+    filename = zcurve_plot_path,\n+    width = 1400,\n+    height = 980,\n+    res = 160,\n+    bg = \"white\"\n+  )\n+  tryCatch(\n+    plot(zcurve_bundle$fit, an"
-              }
-            ]
-          },
-          "diff_summary": ""
-        }
       ]
     },
     {
@@ -7902,7 +8979,7 @@
       ],
       "pushed_at": "2025-09-10T13:54:44Z",
       "created_at": "2024-05-24",
-      "last_push_days": 342,
+      "last_push_days": 343,
       "default_branch": "main",
       "license": "NOASSERTION",
       "branches": [
@@ -8445,7 +9522,56 @@
           "html_url": "https://github.com/aaronpeikert"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1780185600,
+          "total": 0
+        },
+        {
+          "week": 1780790400,
+          "total": 0
+        },
+        {
+          "week": 1781395200,
+          "total": 0
+        },
+        {
+          "week": 1782000000,
+          "total": 0
+        },
+        {
+          "week": 1782604800,
+          "total": 0
+        },
+        {
+          "week": 1783209600,
+          "total": 0
+        },
+        {
+          "week": 1783814400,
+          "total": 0
+        },
+        {
+          "week": 1784419200,
+          "total": 0
+        },
+        {
+          "week": 1785024000,
+          "total": 0
+        },
+        {
+          "week": 1785628800,
+          "total": 0
+        },
+        {
+          "week": 1786233600,
+          "total": 0
+        },
+        {
+          "week": 1786838400,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -8496,7 +9622,7 @@
       "topics": [],
       "pushed_at": "2026-06-17T14:15:44Z",
       "created_at": "2026-05-04",
-      "last_push_days": 62,
+      "last_push_days": 63,
       "default_branch": "main",
       "license": "MIT",
       "branches": [
@@ -8540,11 +9666,11 @@
         },
         {
           "week": 1781481600,
-          "total": 0
+          "total": 1
         },
         {
           "week": 1782086400,
-          "total": 1
+          "total": 0
         },
         {
           "week": 1782691200,
@@ -8579,7 +9705,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1780185600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1780790400,
+          "additions": 53,
+          "deletions": 0
+        },
+        {
+          "week": 1781395200,
+          "additions": 3,
+          "deletions": 0
+        },
+        {
+          "week": 1782000000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1782604800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783209600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\nOIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailoring the extension to your discipline requires no programming expertise, just edit a list.\n\nFollow this link: https://chr",
@@ -9178,7 +10365,7 @@
   "digest": {
     "week_start": "2026-08-12",
     "active_repos": 3,
-    "total_commits_7d": 124,
+    "total_commits_7d": 122,
     "dormant_revived": [],
     "new_releases": [
       {
@@ -9196,7 +10383,7 @@
       {
         "owner": "lhdjung",
         "repo": "scrutiny",
-        "commits": 55
+        "commits": 53
       },
       {
         "owner": "shaheedazaad",
@@ -9663,8 +10850,8 @@
     "total_stars": 695,
     "total_forks": 126,
     "total_commits_30d": 293,
-    "total_commits_7d": 124,
-    "total_commits_1d": 4,
+    "total_commits_7d": 122,
+    "total_commits_1d": 0,
     "active_repos_7d": 3,
     "dormant_revived": 0,
     "total_open_issues": 179,
