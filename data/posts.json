@@ -1,5 +1,221 @@
 [
   {
+    "generated_at": "2026-08-20T18:44:08.588650+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 8,
+        "pushed_at": "2026-08-20T16:07:54Z",
+        "recent_commits": [
+          {
+            "sha": "f599009",
+            "message": "chore: remove GitHub Actions entirely; the pin bump moves to a local script",
+            "body": "Owner directive 2026-08-20: \"remove any references to github actions or\nanything using it. I will never be paying to github to activate actions.\"\n\nDELETED \u2014 all three library workflows and the .github/ directory:\n  bump-app-pin.yml   test.yml   publish.yml\n(The app repo's verify-railway-deploy.yml and post-deploy-verify.yml go in the\nsame change, in that repo.)\n\nThis is a cost decision AND a correctness one. Two things happened the same day:\n\n  * The app repo's Actions were BILLING-BLOCKED (\"recent account payments have\n    failed or your spending limit needs to be increased\"), so\n    verify-railway-deploy.yml \u2014 the gate asserting production matched the pin \u2014\n    had silently not been running at all. A gate that cannot run is worse than\n    no gate: it looks like coverage.\n\n  * bump-app-pin.yml DOWNGRADED PRODUCTION. A history purge force-pushed tags\n    v2.4.134 and v2.4.135 together; both runs fired; the OLDER finished one\n    second later (14:56:57 vs 14:56:56) and won. Nothing failed. That is the\n    structural flaw of a remote trigger whose order nobody controls.\n\nREPLACEMENT \u2014 local, explicit, ordered:\n\n  bump-app-pin.yml       -> check_app_pin_sync.py --fix [--push]\n  test.yml               -> pytest + the pre-push canary hook + /docpluck-qa\n  publish.yml            -> python -m build && twine upload, run deliberately\n  verify-railway-deploy  -> deploy-drift-check.sh (already /ship Phase 0.5, and\n                            it is what caught the downgrade)\n  post-deploy-verify.yml -> the /post-deploy-verify skill\n\n`--fix` REFUSES to move the pin backwards \u2014 the guard the workflow never had.\nTested all three paths against a scratch repo: older refuses and leaves the file\nuntouched, equal no-ops, newer bumps and commits.\n\nENFORCED, not just documented (this session's own rule \u2014 if a check can be a\ntest, it must be a test): tests/test_public_repo_hygiene.py gains\ntest_no_github_actions_workflows_exist and\ntest_no_tracked_file_assumes_a_workflow_exists. The second one immediately\nfound a real dangling reference \u2014 scripts/check_docs_consistency.py read\n.github/workflows/test.yml to cross-check the Python version matrix, so it\nwould have crashed rather than passed. Repointed at `requires-python`, which is\nthe actual declaration and cannot vanish.\n\nAlso corrected while sweeping: check_app_pin_sync.py's MISMATCH message told\nthe reader to \"re-push the tag (re-fires the workflow)\" \u2014 advice that would now\ndo nothing.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/f599009bd7e687ca18829254a558dac4c4f1e2ac",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "9a3df5f",
+            "message": "fix(ci): the last red test asserted a corpus CI cannot have by design",
+            "body": "`test_fixture_root_exists` guards against a relocated portfolio turning 12\nsnapshot tests into a silent green no-op. Good guard \u2014 but it asserted\nunconditionally, and a CI runner has no corpus BY DESIGN: the PDFs are\nclosed-access and must never be committed (article-finder is their sole\ncustodian). So absence on CI is the expected state, not a broken config.\n\nNow scoped: skip when `CI` is set and no explicit `VIBE_ROOT` was given. An\nexplicit VIBE_ROOT still means \"I told you where it is\" and is checked even on\nCI. On a developer machine the guard is unchanged and still fails loudly.\n\nVerified both directions:\n  local (corpus present) -> 1 passed   (still asserts)\n  CI=true                -> 1 skipped  (with the reason stated)\n\nWith this and the two collection errors, the library suite should go green in\nCI for the first time since at least 2026-08-07.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/9a3df5f967a278fa06fe500c097f28172fa53c82",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "e735060",
+            "message": "fix(ci): CI has been red on every push since 2026-08-07 and nobody read it",
+            "body": "Two collection errors, neither caused by the change that surfaced them, both\nenvironmental, both making pytest report an INTERRUPTED run \u2014 so the whole\n2,798-test suite never executed in CI.\n\n1. `tests/test_provenance_completeness.py` imported `tomllib`, which is 3.11+,\n   while pyproject declares `requires-python = \">=3.10\"` and the CI matrix runs\n   3.10. Now falls back to the `tomli` backport (same API), added to the dev\n   extras under a `python_version < \"3.11\"` marker. A skip would have been a\n   coverage hole on the oldest interpreter we claim to support \u2014 precisely\n   where a provenance regression is most likely.\n\n2. `scripts/harness/corpus.py` raised FileNotFoundError at MODULE SCOPE when\n   the portfolio root was missing. `tests/test_harness_text_loss_reflow.py` is\n   a pure-logic test of `_fingerprint` and `check_text_loss` that touches no\n   corpus, but it imports the module transitively and therefore could not be\n   COLLECTED on any machine without the corpus \u2014 every CI runner.\n\n   The fail-loud behaviour is right and is UNCHANGED: `discover()`,\n   `build_manifest()` and `resolve()` each call `require_corpus_root()` first,\n   so a real run still fails immediately rather than silently discovering 0\n   documents. Only the import is now free.\n\nVerified by simulating a corpus-less machine:\n  VIBE_ROOT=<nonexistent> pytest tests/test_harness_text_loss_reflow.py -> 3 passed\n  VIBE_ROOT=<nonexistent> corpus.discover()                             -> raises, as required\n  pytest tests/test_provenance_completeness.py                          -> 46 passed\n\nA red gate nobody reads is the same defect as a check that never runs \u2014 see\nthis session's other findings.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/e735060deaaadf4e8130d973d771bd5c973f93e9",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "cdfafb9",
+            "message": "fix(ci): the auto-bump workflow could pin production BACKWARDS",
+            "body": "`bump-app-pin.yml` fires on any `v*.*.*` tag push and bumped the app's docpluck\npin to whatever tag fired it, with no check that the tag was NEWER than the pin\nalready in the file.\n\nFound the hard way, today. A history purge force-pushed v2.4.134 and v2.4.135\ntogether. Both runs fired; the v2.4.134 run finished last; production was\nsilently re-pinned to the OLDER library. Nothing failed \u2014 the workflow did\nexactly what it was written to do \u2014 and `check_app_pin_sync.py` was the only\nthing in the system that noticed.\n\nThe same race exists without a force-push: two tags pushed close together land\nin whatever order the runners finish.\n\nThe guard compares the incoming tag against the pin already in\n`service/requirements.txt` and no-ops unless it is strictly newer. Re-pushing an\nold tag is now safe.\n\nTested against the extracted step body, all three cases:\n  incoming v2.4.134 vs pin v2.4.135 -> REFUSES, pin unchanged\n  incoming v2.4.135 vs pin v2.4.135 -> no-op\n  incoming v2.4.136 vs pin v2.4.135 -> bumps\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/cdfafb91c4e873ff82e2c7c378f16e0f8ee2d89a",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "8f756da",
+            "message": "docs: scrub internal filenames, document three public APIs, fix a stale example",
+            "body": "PUBLIC files were citing files the public cannot fetch. 70 citations of\ninternal HANDOFF_/FINDINGS_/TRIAGE_/OUTBOX_/REPLY_ documents across\nCHANGELOG.md (51), LESSONS.md (18) and CLAUDE.md (1), plus references into\nother PRIVATE repos' internal layouts (`ESCIcheckapp/docs/...`,\n`CitationGuard/docs/...`). Each is replaced by what it actually was \u2014 \"an\ninternal handoff\", \"an internal findings note\" \u2014 so the sentence keeps its\nmeaning without publishing a filename or another project's structure.\n\nPATTERN references are deliberately preserved: `FINDINGS_*` in a .gitignore\ncitation and `docs/TRIAGE_<date>_...` in a naming convention describe the\nCONVENTION, not a file. A first pass scrubbed those too and turned two\nsentences into nonsense; the rule now requires a real date or a FROM_ segment\nbefore treating a token as a citation.\n\ndocs/README.md gained API entries for three public capabilities it had never\ndocumented: `extract_sections`, `symbol_contract()`/`explain_symbol()` \u2014 which\nSYMBOL_CONTRACT.md tells consumers is \"your interface\" \u2014 and table flattening,\nwhich the service exposes as `?flatten_tables_inline=true` while the library\nREADME mentioned it only in a telemetry-key table. Also fixed a\nreproducibility-receipt example still showing 2.4.134.\n\ndocs/BENCHMARKS_liteparse_2026-06.md no longer points at another project's\ninternal handoff.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/8f756da5526212744f308d931a26c3f6f04540b8",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "34a300d",
+            "message": "fix(public-repo): two internal registers were public, and the guard was a grep",
+            "body": "`docs/OVERHAUL_REGISTER.md` (94 KB) and\n`docs/INVENTORY_2026-08-14_notation_vs_repair.md` reached the PUBLIC remote on\n2026-08-19 and sat there for a day. They are internal working documents: they\nquote the owner's instructions verbatim, cite internal HANDOFF_/FINDINGS_/\nOUTBOX_ files, and name other private projects.\n\nThey slipped through because REGISTER and INVENTORY were naming conventions\nnobody had thought of yet \u2014 the same shape as INBOX_/OUTBOX_ in 2026-08-07 and\nas the 259 files in 2026-08-06.\n\nAlso found in the same pass: `tests/test_docx_omml_statistics_survive.py`\nhardcoded an absolute `<home>/Vibe/.../CitationGuard/...` path twice. Three\ndefects in one string literal \u2014 an absolute user path in a public repo, a\nprivate sibling project's internal layout, and a path that resolves on exactly\none machine, so everywhere else the tests it gated SKIPPED SILENTLY and the\nsuite read as green.\n\nTHE ACTUAL FIX IS NOT A BETTER GREP. Section 0 of /docpluck-cleanup has now\nfailed three times, and each time the remedy was \"add the prefix we just\nlearned about\" \u2014 which cannot work, because a denylist only covers the names\nsomeone already imagined, and because a grep is enforced when a human\nremembers to run it and reads its output.\n\nSo `tests/test_public_repo_hygiene.py` inverts the question and runs on every\npytest:\n\n  - test_every_tracked_file_is_on_the_public_allowlist  (what MAY be public)\n  - test_the_allowlist_names_only_files_that_exist\n  - test_no_absolute_user_path_in_any_tracked_file\n  - test_no_sibling_private_project_paths_in_tracked_source\n  - test_no_secret_values_in_tracked_files\n\nAll mutation-verified: restoring the original hardcoded path turns two red,\nand the allowlist test named both registers before they were untracked.\n\nUntracking is only half the fix \u2014 both files remain readable at every past\ncommit and at tags v2.4.134/v2.4.135 until a history purge lands. Local copies\npreserved under the gitignored archive/.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/34a300d7c72ac370a70c0a2b54700e051250e3ce",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "df9a9ca",
+            "message": "docs(lessons): L-051 \u2014 a release gate that only runs the library's own suite is blind to its consumers",
+            "body": "/ship 2026-08-20: library suite 2840 passed / 0 failed, then the docpluckapp\nservice suite gave 13 failed / 154 passed. Every failure asserted a rule docpluck\nhad deliberately retired (A2, A3, A5 v1.0 conventions). The library repo carries\nthe same normalization suite and its copy WAS updated as each rule retired; the\nsecond copy was not, and nothing compares them.\n\nRed against a healthy library for three releases \u2014 and the expensive failure mode\nis not the broken CI, it is that a suite reporting FAIL on a healthy tree trains\neveryone to skim past failures. That is the mechanism behind L-044.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/df9a9ca53f495fb7359b1bcec20f3657ec0c0c81",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "46a3bef",
+            "message": "docs: the consumer contract for cell_geometry, and close the stale G6a register row",
+            "body": "Found by /ship Phase 3 cleanup. v2.4.135 added a consumer-visible Table field and\nmade every Camelot cell bbox real, and neither the public README nor the consumer\ncontract in docs/SCOPE.md said so -- the two documents a consumer actually reads\nbefore integrating.\n\n* docs/README.md -- the tables example now prints `cell_geometry`, with the table\n  of values and the rule that matters: trust `cells[].bbox` only on `verified` or\n  `whitespace_native`. Also states what a verified bbox IS (the grid rectangle for\n  that row/column) and what it is NOT (a promise that `cells[i][\"text\"]` is\n  exactly the text inside it -- Camelot assigns a whole text object to one grid\n  cell even when its glyphs spill past that cell's edges).\n* docs/SCOPE.md -- the same, as a \"known channel\" entry beside the fused-cell and\n  raw_text-vs-cells guidance a consumer is already reading.\n* docs/OVERHAUL_REGISTER.md section G6 -- the G6a row still read \"Still OPEN after\n  v2.4.134\" while the A1/G6a closure sat at the end of the same file. A stale\n  status line in the register is exactly the failure the register exists to\n  prevent, and it is the third time in three days a stale claim in a project doc\n  was found being read as current.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/46a3befeafd657f85cb806d6c840fd1068692966",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-08-18T14:51:48Z",
+        "recent_commits": [
+          {
+            "sha": "ddb58e7",
+            "message": "Rewrite all other tests in the image of c3abc016614fab2685d16a39d2835a36c6624e3c",
+            "body": "* Mechanical syntax changes only\n* Main change: pipes instead of nested code\n* Also, some more empty lines for readability",
+            "author": "Lukas Jung",
+            "date": "2026-08-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/ddb58e7da87e0eba8221cac0906ae35d9bbf63a0",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "c3abc01",
+            "message": "Rewrite test-utils.R to model test style",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-08-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/c3abc016614fab2685d16a39d2835a36c6624e3c",
+            "type": "test",
+            "branch": "polishing"
+          },
+          {
+            "sha": "879c2ea",
+            "message": "Optimize testing helpers via constants and inlining",
+            "body": "* Also update tests and NEWS.md\n* Move pre-existing constants into the new aaa.R",
+            "author": "Lukas Jung",
+            "date": "2026-08-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/879c2ea3caa987a2c4f959235723117f2d8d5fa0",
+            "type": "other",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-07-23T04:38:31Z",
+        "recent_commits": [
+          {
+            "sha": "ea980fd",
+            "message": "Built site for tenzing@0.4.1: d271884",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-07-23",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "d271884",
+            "message": "Update success alert title in sweet_alert.js",
+            "body": "Update terminology from infosheet to contributors table",
+            "author": "Alex O. Holcombe",
+            "date": "2026-07-23",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
+            "type": "other",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-08-09T17:29:35Z",
+        "recent_commits": [
+          {
+            "sha": "a96641b",
+            "message": "sync from escicheckapp@1bc688d (effectcheck v0.7.5) (#38)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-09",
+            "url": "https://github.com/giladfeldman/escicheck/commit/a96641b59ea6cc235ae7ef84c20c52e081fbd5ed",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "6bff8a3",
+            "message": "sync from escicheckapp@63da84b (effectcheck v0.7.4) (#37)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-09",
+            "url": "https://github.com/giladfeldman/escicheck/commit/6bff8a3490a0f07616193e629cdc0732f7d1a6e3",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-07-30T15:11:29Z",
+        "recent_commits": [
+          {
+            "sha": "ec80478",
+            "message": "nature das and cas detection",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-07-30",
+            "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-08-20T12:51:15.911160+00:00",
     "narrative": "",
     "repos": [
@@ -27588,72 +27804,6 @@
             "url": "https://github.com/giladfeldman/escicheck/commit/e7b7351ee48e668b9eebe6a2697841f0c20f2b2d",
             "type": "chore",
             "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-07-29T08:46:18.124326+00:00",
-    "narrative": "It's been an exciting week in our open-source research community, with notable progress made in two key projects. The scienceverse/metacheck project saw significant enhancements to its data checking functionality, with Lakens adding \"stat output\" and making iterative improvements to the \"data_check\" branch. Meanwhile, the marton-balazs-kovacs/tenzing project received updates to both its website and alert functionality, with a new site build for version 0.4.1 and a refinement to the success alert title in the `sweet_alert.js` file. These developments demonstrate the community's commitment to improving research tools and highlight the connections between projects, such as the potential for metacheck's enhanced data checking to inform tenzing's alert functionality. As our projects continue to evolve, we celebrate the collaborative spirit and technical expertise that drive our community forward. With these updates, we're one step closer to creating a more robust and integrated research ecosystem.",
-    "repos": [
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Work was done on the \"data_check\" branch, where \"stat output\" was added by Lakens on July 29, 2026. \nOn July 28, 2026, Lakens made \"iterative improvements\" to the \"data_check\" branch. \nThe \"data_check\" branch was the sole focus of these changes, with no other branches mentioned. \nThe \"stat output\" addition and \"iterative improvements\" suggest that the focus was on enhancing the data checking functionality. \nNo other branches, such as a main or master branch, were mentioned in the provided commits.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-07-29T03:25:17Z",
-        "recent_commits": [
-          {
-            "sha": "43fbc68",
-            "message": "stat output",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-07-29",
-            "url": "https://github.com/scienceverse/metacheck/commit/43fbc68f39a7fe2880c650e0794a7f65b04aed28",
-            "type": "other",
-            "branch": "data_check"
-          },
-          {
-            "sha": "d40765f",
-            "message": "iterative improvements",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-07-28",
-            "url": "https://github.com/scienceverse/metacheck/commit/d40765f3186d50a7952c9a7aece6fd5bc4df25ef",
-            "type": "other",
-            "branch": "data_check"
-          }
-        ]
-      },
-      {
-        "owner": "marton-balazs-kovacs",
-        "repo": "tenzing",
-        "url": "https://github.com/marton-balazs-kovacs/tenzing",
-        "summary": "The `gh-pages` branch was updated with a commit that built the site for `tenzing@0.4.1`, as indicated by the commit message \"Anka: Built site for tenzing@0.4.1: d271884\". \nThe `master` branch was updated with a change to the `sweet_alert.js` file, specifically updating the success alert title, as stated in the commit message \"Alex O. Holcombe: Update success alert title in sweet_alert.js\". \nNo other branches were modified in this set of commits, with these two changes representing the entirety of the work done since the last update. \nThe `tenzing@0.4.1` site build on `gh-pages` and the `sweet_alert.js` update on `master` are the only modifications mentioned in the provided commit messages. \nThese commits suggest a focus on both the project's website and its alert functionality.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-07-23T04:38:31Z",
-        "recent_commits": [
-          {
-            "sha": "ea980fd",
-            "message": "Built site for tenzing@0.4.1: d271884",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-07-23",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "d271884",
-            "message": "Update success alert title in sweet_alert.js",
-            "body": "Update terminology from infosheet to contributors table",
-            "author": "Alex O. Holcombe",
-            "date": "2026-07-23",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
-            "type": "other",
-            "branch": "master"
           }
         ]
       }
