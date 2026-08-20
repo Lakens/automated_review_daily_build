@@ -1,5 +1,231 @@
 [
   {
+    "generated_at": "2026-08-20T06:49:25.664148+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 9,
+        "pushed_at": "2026-08-18T16:36:36Z",
+        "recent_commits": [
+          {
+            "sha": "efedd30",
+            "message": "Fix ResearchBox file-link collapsing, Stata quoted-filename regex, and add cache param to reproducibility_check",
+            "body": "ResearchBox hrefs pointing at a specific file within a box were treated as\nseparate repos; they are now truncated to the box id. The unquoted-filename\ncapture regexes in code_file_refs() were matching inside already-quoted\nStata filenames that contain spaces, producing bogus extra references; they\nnow only run against lines without a quoted filename. reproducibility_check()\ngains a cache argument forwarded to data_check/code_check, and duplicate-file\nreporting now shows each mirror's location instead of just its (identical)\nbasename.",
+            "author": "Lakens",
+            "date": "2026-08-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/efedd3044ac7fcb4d6244835e1954236cdd8fb4b",
+            "type": "fix",
+            "branch": "reproducibility_check"
+          },
+          {
+            "sha": "b343a0e",
+            "message": "Normalize line endings repo-wide with a single text=auto rule",
+            "body": ".gitattributes previously forced LF only under tests/testthat/fixtures/,\nwhich also matched binary fixtures there (PDFs, a zip) and forced git to\ntreat them as text, and left every other CRLF-committed text file (e.g.\ndata-raw/demo/ground_truth/*.csv, tests/testthat/apis/**/*.html) subject to\neach contributor's local core.autocrlf, causing line-ending-only diffs on\ncheckout.\n\nReplace it with `* text=auto`: git decides text vs. binary from each file's\nactual content (the same detection diff/file use), not its extension or\npath, so a binary file with a misleading name (e.g. the zip archive stored\nas tests/testthat/apis/.../osfstorage-546010.R-FILE) is still handled\ncorrectly with no entry needed, and every genuine text file is stored and\nchecked out as LF regardless of the checkout platform.\n\nRenormalizes the 23 tracked text files that were actually stored with CRLF\n(verified byte-for-byte: only line-ending bytes changed, no content diff).",
+            "author": "Lakens",
+            "date": "2026-08-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/b343a0e2eb4e0cc25a3afd9aaefd7ab778e78d3d",
+            "type": "other",
+            "branch": "reproducibility_check"
+          },
+          {
+            "sha": "3cbe26b",
+            "message": "Fix reproducibility_check calling isTRUE_vec(), an undefined function",
+            "body": "isTRUE_vec() only exists in R/psychds-convert.R on the convert_psychds\nbranch, which this branch never merged, so both call sites errored with\n\"could not find function\". Both columns (code_check's parse_error,\nthis module's own via_archive) are already plain logical, so inline the\nequivalent !is.na(x) & x instead of porting the helper.",
+            "author": "Lakens",
+            "date": "2026-08-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/3cbe26b8a228fd5c0282f8f3719b985999b5e8f2",
+            "type": "fix",
+            "branch": "reproducibility_check"
+          },
+          {
+            "sha": "eff145a",
+            "message": "Add the missing .gitignore entry for pkgdown/assets/report-example.*",
+            "body": "The previous commit deleted these files and claimed they were\ngitignored going forward, but the .gitignore edit itself never got\nstaged. Adding it now so a regenerated report-example.html/.qmd\ndoesn't silently get re-tracked.",
+            "author": "Lakens",
+            "date": "2026-08-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/eff145a51133bedf4adc72990444f8f68c94c362",
+            "type": "feat",
+            "branch": "dev"
+          },
+          {
+            "sha": "431e0c5",
+            "message": "Fix FLoRA_update() using the wrong osf_file_download mode",
+            "body": "Broke when mode = \"all\" became the default for whole-project\ndownloads: t4j8f is a single OSF file, not a project, so \"all\"'s\nskip-the-listing/download-archives-per-node approach is the wrong\nshape for it. This test is gated behind skip_if_quick() and so never\nran in normal test suite passes, which is why it went unnoticed.\nmode = \"select\" restores the old \"files\" behaviour (list, then fetch\nthe requested file), verified passing.",
+            "author": "Lakens",
+            "date": "2026-08-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/431e0c553c1edb071504d66464ecdd176107c032",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "1bda9ad",
+            "message": "Merge dev into additional_archives",
+            "body": "Reconciles this branch with dev after its content commits (the\nshiny_app addition, osf_app.R's library(metacheck) fix, the two\nMetacheck-description additions) were already cherry-picked in\nindividually. Remaining conflicts are all deletions this branch made\ndeliberately -- vignettes/ (superseded by the metacheck book) and\n_stuff/profile/cermine_example.xml (repo cleanup) -- kept deleted.\n.gitattributes keeps this branch's binary-fixture-by-default approach\nover dev's broader \"* text=auto\", since it fails safe for newly added\nfixture formats rather than requiring each one to be listed.\n\nNo R/, inst/modules/, or test content changes: dev's only two\nunmerged commits (logpath() fix, .gitattributes fix) are identical in\ncontent to commits already resolved from main earlier today.",
+            "author": "Lakens",
+            "date": "2026-08-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/1bda9ade25b89635273880315fc258a3b4465b47",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "befd5d5",
+            "message": "Match main's Metacheck Manual navbar wording/URL",
+            "body": "main independently made the same navbar change (pointing at the\nmetacheck book instead of Get Started/Articles) with slightly\ndifferent wording and the correct https:// URL. Taking main's exact\nwording here avoids a needless merge conflict; this branch's newer\nreference-index content (no stale psychsci entry, no dead articles:\nsection, includes the Dataverse/Figshare/Dryad/ReShare/4TU entries)\nis kept as-is.",
+            "author": "Lakens",
+            "date": "2026-08-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/befd5d52bc992126c2a6518f0671fa6bf39d8d7a",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "d12bf1d",
+            "message": "Fix remaining test warnings, including a cross-file llm_use() leak",
+            "body": "test-module-power.R's last test block set llm_use(TRUE) and never\nreset it, leaking that global option into every test file that ran\nafterward in the suite. test-module-repo_check.R and\ntest-repo-download.R were the two downstream files that triggered\nreal (unmocked) LLM network calls as a side effect, failing with\nconnection-refused and printing as warnings even though their actual\nassertions still passed. Fixed with withr::defer(llm_use(FALSE)) --\nplain on.exit() and withr::local_options() were both tried first and\nconfirmed, by direct testing, not to restore state correctly through\nthis project's custom test_that() wrapper in helper.R; withr::defer()\ndoes. Applied the same fix to test-llm.R and test-utils.R, which had\nthe same unrestored llm_use(TRUE) pattern.\n\ntest-archive-zenodo.R and test-repo-download.R had intentional\nfake-download-failure scenarios whose warnings were never wrapped in\nexpect_warning(), the same gap already fixed in\ntest-archive-dataverse.R -- applied consistently here too.\n\nFull suite: 0 failures, 0 warnings, 4280 passed.",
+            "author": "Lakens",
+            "date": "2026-08-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/d12bf1d23c45929ea52b5ce3fb82f543e27b3ab9",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "74c2d84",
+            "message": "Fix R CMD check warnings/notes and cross-test pollution from dead module imports",
+            "body": "R CMD check fixes:\n- .Rbuildignore: exclude .vscode, .comments, CLAUDE.md; delete stray\n  duplicate to_err_is_human.xml at repo root (real copy lives in\n  inst/demos/)\n- Non-ASCII characters warning: escape functional Unicode (Greek\n  statistical notation, math operators, box-drawing table borders, a\n  field-separator character, an NBSP constant, a BOM string) as \\uXXXX,\n  substitute purely decorative comment punctuation with ASCII, across\n  12 files\n- Undeclared imports warning: add SnowballC, data.table, officer,\n  pdftools, readxl, yaml to Suggests (already used via :: throughout)\n- Rd cross-references / Rd usage-section warnings: two roxygen blocks\n  had drifted onto the wrong function because a plain (non-roxygen)\n  comment sat between the doc block and its real target\n  (stat_results_long, data_read_head) -- moved each block to the\n  correct function; removed one duplicate leftover block; stripped six\n  dangling \\link{} references to functions that only exist on unmerged\n  branches\n- R code NOTE: qualify two bare ave() calls as stats::ave(), fix an NSE\n  binding in code_setwd(), port the missing .repro_split_args() helper\n  r-output.R was calling (only defined on the reproducibility_check\n  branch)\n- Avoid the \"assignments to the global environment\" NOTE in\n  .r_capture_runner() (a callr subprocess payload, not the user's\n  session) by capturing globalenv() into a variable first, which\n  R CMD check's static scan does not resolve\n\nTest suite fix:\n- Three modules (prereg_check.R, code_check.R, stat_effect_size.R)\n  declared roxygen @import for packages (httr, jsonlite, tidyr) they\n  never actually use. module_run() require()s every declared @import,\n  so running those modules' tests attached httr/jsonlite to the search\n  path ahead of metacheck, letting httr::verbose() and\n  jsonlite::validate() shadow metacheck::verbose()/validate() for every\n  test that ran afterward in the same session -- the reason two\n  unrelated test files only failed in full-suite runs, never in\n  isolation. Removed the three dead @import lines (a full sweep confirms\n  no other module has an unused import).",
+            "author": "Lakens",
+            "date": "2026-08-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/74c2d846a029f8010cc1be38f7f093212a3ad3e2",
+            "type": "fix",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-08-18T14:51:48Z",
+        "recent_commits": [
+          {
+            "sha": "ddb58e7",
+            "message": "Rewrite all other tests in the image of c3abc016614fab2685d16a39d2835a36c6624e3c",
+            "body": "* Mechanical syntax changes only\n* Main change: pipes instead of nested code\n* Also, some more empty lines for readability",
+            "author": "Lukas Jung",
+            "date": "2026-08-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/ddb58e7da87e0eba8221cac0906ae35d9bbf63a0",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "c3abc01",
+            "message": "Rewrite test-utils.R to model test style",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-08-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/c3abc016614fab2685d16a39d2835a36c6624e3c",
+            "type": "test",
+            "branch": "polishing"
+          },
+          {
+            "sha": "879c2ea",
+            "message": "Optimize testing helpers via constants and inlining",
+            "body": "* Also update tests and NEWS.md\n* Move pre-existing constants into the new aaa.R",
+            "author": "Lukas Jung",
+            "date": "2026-08-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/879c2ea3caa987a2c4f959235723117f2d8d5fa0",
+            "type": "other",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-07-23T04:38:31Z",
+        "recent_commits": [
+          {
+            "sha": "ea980fd",
+            "message": "Built site for tenzing@0.4.1: d271884",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-07-23",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "d271884",
+            "message": "Update success alert title in sweet_alert.js",
+            "body": "Update terminology from infosheet to contributors table",
+            "author": "Alex O. Holcombe",
+            "date": "2026-07-23",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
+            "type": "other",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-08-09T17:29:35Z",
+        "recent_commits": [
+          {
+            "sha": "a96641b",
+            "message": "sync from escicheckapp@1bc688d (effectcheck v0.7.5) (#38)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-09",
+            "url": "https://github.com/giladfeldman/escicheck/commit/a96641b59ea6cc235ae7ef84c20c52e081fbd5ed",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "6bff8a3",
+            "message": "sync from escicheckapp@63da84b (effectcheck v0.7.4) (#37)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-09",
+            "url": "https://github.com/giladfeldman/escicheck/commit/6bff8a3490a0f07616193e629cdc0732f7d1a6e3",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-07-30T15:11:29Z",
+        "recent_commits": [
+          {
+            "sha": "ec80478",
+            "message": "nature das and cas detection",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-07-30",
+            "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-08-20T01:11:54.651468+00:00",
     "narrative": "",
     "repos": [
@@ -27158,42 +27384,6 @@
             "url": "https://github.com/giladfeldman/escicheck/commit/e7b7351ee48e668b9eebe6a2697841f0c20f2b2d",
             "type": "chore",
             "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-07-28T19:29:18.851295+00:00",
-    "narrative": "Our community has been bustling with activity, and we're excited to share the latest updates with you. The `tenzing` project, led by marton-balazs-kovacs, has released version `0.4.1`, which is now live on the `gh-pages` branch. This milestone is a testament to the team's hard work, and we celebrate the progress made towards improving the tool. Notably, Alex O. Holcombe contributed to the `master` branch by updating the success alert title in `sweet_alert.js`, demonstrating the collaborative spirit of our community. As our projects continue to evolve, we're seeing valuable connections between them, and we look forward to exploring the potential synergies that emerge. With each new release and update, we're one step closer to advancing our shared goals in the scientific community.",
-    "repos": [
-      {
-        "owner": "marton-balazs-kovacs",
-        "repo": "tenzing",
-        "url": "https://github.com/marton-balazs-kovacs/tenzing",
-        "summary": "The `gh-pages` branch was updated with a commit that built the site for `tenzing@0.4.1`, as indicated by the commit message \"Anka: Built site for tenzing@0.4.1: d271884\". \nThe `master` branch received a change where Alex O. Holcombe updated the success alert title in `sweet_alert.js`. \nNo other branches were modified in this set of commits, which only included these two changes. \nThe `gh-pages` branch update was specifically for version `0.4.1` of `tenzing`. \nThe `master` branch change to `sweet_alert.js` was made by Alex O. Holcombe.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-07-23T04:38:31Z",
-        "recent_commits": [
-          {
-            "sha": "ea980fd",
-            "message": "Built site for tenzing@0.4.1: d271884",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-07-23",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "d271884",
-            "message": "Update success alert title in sweet_alert.js",
-            "body": "Update terminology from infosheet to contributors table",
-            "author": "Alex O. Holcombe",
-            "date": "2026-07-23",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
-            "type": "other",
-            "branch": "master"
           }
         ]
       }
