@@ -1,5 +1,291 @@
 [
   {
+    "generated_at": "2026-08-21T06:49:39.493666+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 15,
+        "pushed_at": "2026-08-21T05:54:53Z",
+        "recent_commits": [
+          {
+            "sha": "86c9e98",
+            "message": "docs(changelog): v2.4.136's measurements were the LAYOUT path, presented as universal",
+            "body": "The entry said \"16 papers gain page breaks; 2 footnote appendices restored\" with\nno indication of which callers see it. Two of those three claims do not reach the\nHTTP API at all, and the entry as written told consumers otherwise.\n\n`_f0_strip_running_and_footnotes` returns immediately without a `LayoutDoc`, and\nthe footnote appendix is F0's product. Enumerated rather than assumed:\n\n    batch.py:355              passes layout   -> full change\n    sections/__init__.py:116  passes layout   -> full change\n    service/app/main.py:532   NO layout       -> page breaks only\n    service/app/main.py:1007  NO layout       -> page breaks only\n\nRe-measured through the no-layout path the service actually runs: 12 of 26 papers\nchange (not 16), 0 appendices restored (not 2), and still 0 lines removed or\nadded. The API gains page boundaries and loses nothing; it gains no appendix.\n\nAND THE LARGER FINDING, pre-existing and not this release's doing: because the\nservice never computes a layout, F0 has NEVER run in production, and neither has\nany layout-gated repair -- W0h (dropped minus via cid glyph), W0m (beta-as-b via\nfont), W0p (superscript via size+baseline). Every API consumer has been receiving\ntext with running headers intact and those three repairs absent, while the same\ndocument through `extract_to_dir` is repaired. Two paths, one version, different\nnumbers.\n\nThis is the identical shape CLAUDE.md records for batch.py and marks FIXED in\nv2.4.128 -- the service was never checked. NOT fixed here: wiring a layout into\nthe service roughly doubles per-document cost and changes output for every\nconsumer at once, which is a deliberate decision, not a doc fix. Tracked in the\nhandoff and in both consumer notices.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-21",
+            "url": "https://github.com/giladfeldman/docpluck/commit/86c9e981c7becabfd27ff095b98911a75c0c9d6f",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "a1979ae",
+            "message": "release: v2.4.136 \u2014 a page NUMBER is furniture, a page BOUNDARY is structure",
+            "body": "Bumps __version__ + pyproject to 2.4.136 and promotes the CHANGELOG entry.\nNORMALIZATION_VERSION was already at 1.9.57 (cd89380), because the output\nchanged then and the version describing that output had to move with it.\n\nWHAT SHIPS. `_normalize_text` stripped standalone page numbers with\n`^\\s*\\d{1,3}\\s*$` under MULTILINE, and the whitespace class matches THE FORM\nFEED \u2014 so the rule could consume the page boundary beside the number it deleted.\nWrong since it was written, held latent by a running footer standing between the\ntwo. Two baseline papers were ALREADY broken at HEAD: 10.1016/j.jesp.2021.104154\nand 10.1016/j.joep.2020.102350 reported 15 and 18 footnotes through\nreport.footnote_texts while the returned string carried no appendix at all.\n\nCONSUMER-VISIBLE CHANGE, and consumers must be told: the `\\n\\f\\f\\n` marker that\nseparates the footnote appendix now actually appears on those papers. A consumer\nsplitting on it gets a body WITHOUT the footnotes where it previously got a body\nWITH them silently inlined. That is a correction, but it is a change.\n\nMeasured, 26-paper baseline vs a git worktree of the prior tree, separate\ninterpreters: 0 lines removed, 0 added; 16 papers gain page breaks (+1..+17);\n2 appendices restored (0 -> 1,288 and 0 -> 2,165 bytes); 0 papers worse.\n\ndocs/README.md's advertised `'version'` was updated \u2014 and it was the gate added\nin ab291c7 that caught it going stale, on its first real release. That gate now\nhas its own test (bc6b861), because it had none and had been edited twice in one\nsession.\n\nGATES, all on the shipping tree:\n  library suite      2864 passed, 27 skipped, 5 xfailed, 0 failed (1:25:37)\n  service suite      183 passed, 2 skipped\n  two-tree diff      0 lines removed/added across 26 papers\n  render-deletion    0 papers losing content, COVERAGE 26/26\n  non-statistic scan CLEAN, 0 defects, COVERAGE 40/40\n  corpus verifier    26/26 PASS, COVERAGE 26/26\n  concurrency (14e)  6x200, 2x429 service_busy, zero 502s, max 66s\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-21",
+            "url": "https://github.com/giladfeldman/docpluck/commit/a1979aeda597666707d297436e94008194809fd7",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "bc6b861",
+            "message": "test(gate): the docs-accuracy gate had no test, and was edited twice in one session",
+            "body": "`scripts/check_docs_consistency.py` asserts that the version numbers\n`docs/README.md` advertises still match the constants this package defines. It is\ninvoked by hand from handoffs and release checklists and by nothing automatic \u2014\nso it was changed twice today (2657047, ab291c7) with nothing pinning either\nchange, and the second of those changes existed only because the first had a gap\nnobody could have caught.\n\nA check that CAN be a test MUST be a test. A gate nobody runs is\nindistinguishable from a gate that passes, and this one guards a claim that\nreaches consumers: `docs/README.md` documents the provenance block\n`get_version_info()` returns.\n\nFive cases, each pinning a failure that actually happened or is about to:\n\n  * the gate PASSES on the committed tree\n  * a drifted PACKAGE version is caught \u2014 the one that goes stale on EVERY\n    release, uncovered until ab291c7\n  * a drifted PIPELINE version is caught \u2014 `table_extraction_version` sat at\n    '2.4.10' against a source 2.4.12 until it was spotted by eye\n  * a drifted NORMALIZATION version is caught\n  * the two deliberately-ungated keys are still NAMED in the gate, so the reason\n    for excluding them cannot be silently lost\n\nEach drift runs against a COPY of only the files the gate reads, in tmp \u2014 the\ntest never mutates the working tree, and does not drag the corpus along.\n\nMUTATION-VERIFIED IN TWO DIRECTIONS, because a test that has never failed against\nthe real defect proves nothing:\n\n  removing the package-version line   -> exactly 1 test fails\n  removing the whole sibling loop     -> 3 tests fail\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-21",
+            "url": "https://github.com/giladfeldman/docpluck/commit/bc6b861b423f6e123cfbb0307a7e290d063a8ea5",
+            "type": "test",
+            "branch": "main"
+          },
+          {
+            "sha": "ab291c7",
+            "message": "fix(gate): the version check missed the ONE version that goes stale every release",
+            "body": "Hard rule 23 says a universal-quantifier claim is only as good as the enumeration\nbehind it. The previous commit's message claimed the gate \"compares every\nadvertised pipeline version against its defining constant\". Enumerating the\nprovenance block in docs/README.md rather than trusting that sentence:\n\n    advertised   version, normalize_version, sectioning_version,\n                 table_extraction_version, python_version, unicodedata_version\n    covered      normalize_version, sectioning_version, table_extraction_version\n    UNCOVERED    version, python_version, unicodedata_version\n\nSix keys, not the five I had in mind -- `unicodedata_version` was not even on my\nlist. The claim was defensible for the three PIPELINE versions and silent about\nthe rest, which is exactly the shape rule 23 exists to catch.\n\n`version` is now covered, and it is the important one: it is the package version,\nso it goes stale on EVERY release, and docs/README.md advertises it as `2.4.135`.\nThe very next release would have made that doc wrong with nothing to say so.\n\n`python_version` and `unicodedata_version` are deliberately NOT gated, and the\ncode says why: they are runtime facts this repo does not define, so there is no\nconstant for them to drift from. Recording the reason matters more than the\nexclusion -- an unexplained gap reads as an oversight to the next maintainer.\n\nMutation-verified: setting __version__ = 2.4.136 fails with\n\"docs/README.md says version = '2.4.135' but docpluck/__init__.py defines\n__version__ = '2.4.136'\", and restoring it passes.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-21",
+            "url": "https://github.com/giladfeldman/docpluck/commit/ab291c78b9ed4fdff7d3097c015bb3261324ed1c",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "2657047",
+            "message": "fix(gate): the docs-consistency check verified ONE of the three versions it documents",
+            "body": "`docs/README.md` documents the provenance block a consumer receives -- package\nversion, `normalize_version`, `sectioning_version`, `table_extraction_version`.\nThe gate asserted the normalization version appears and checked nothing else, so\n`table_extraction_version: '2.4.10'` sat there against a source value of 2.4.12\nuntil it was noticed by eye while fixing an unrelated line.\n\nThat is the worse half of the defect: a reader comparing the documented\nprovenance against a real response finds a mismatch and has no way to know which\nside is wrong -- and the documented one is the one that looks authoritative.\n\nThe gate now compares every advertised pipeline version against its defining\nconstant, and reports DRIFT rather than demanding every doc name every version\n(it only asserts when the docs actually quote the key).\n\nMutation-verified: reintroducing '2.4.10' fails with\n\"docs/README.md says table_extraction_version = '2.4.10' but\ndocpluck/extract_structured.py defines TABLE_EXTRACTION_VERSION = '2.4.12'\".\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/265704769c200b989fc995b3c47f9f008475a675",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "cd89380",
+            "message": "chore(version): bump NORMALIZATION_VERSION to 1.9.57, and correct a stale doc",
+            "body": "The page-boundary fix changes normalize output on 16 of 26 baseline papers, so\nthe version that DESCRIBES that output has to move with it. Two runs producing\ndifferent text while reporting the same `normalize_version` is the defect this\nfield exists to prevent -- a consumer cannot tell them apart, and the provenance\nsays they are identical.\n\n`docs/check_docs_consistency.py` then caught `docs/README.md` still naming 1.9.56,\nwhich is the gate doing its job.\n\nALSO CORRECTED, found while fixing that: the same block in `docs/README.md`\nadvertised `table_extraction_version: '2.4.10'` against a source value of\n`2.4.12`. Nothing had flagged it -- the consistency gate checks the normalization\nversion and not this one -- so a reader comparing the documented provenance\nagainst a real response would have seen a mismatch and had no way to know which\nwas wrong.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/cd893802bd8cf3ad42be89853f7e788d19f02439",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "1dfc7ec",
+            "message": "fix(normalize): a page NUMBER is furniture, a page BOUNDARY is structure",
+            "body": "`_normalize_text` stripped standalone page numbers with\n\n    re.sub(r\"^\\s*\\d{1,3}\\s*$\", \"\", t, flags=re.MULTILINE)\n\nand under MULTILINE the whitespace class matches THE FORM FEED, so the rule could\nconsume the page boundary standing beside the number it was deleting. It had been\nwrong since it was written, and a running footer sitting between the two held it\nlatent. The moment anything stripped that footer, every form feed in the document\nwent with it -- and with them the `\\n\\f\\f\\n` marker that separates the footnote\nappendix, folding it back into the body where a consumer reads it as running text.\n\nTwo papers in the render baseline were ALREADY in that state at HEAD: they report\n15 and 18 footnotes through `report.footnote_texts` while the returned string\ncarries no appendix at all. Nothing had ever noticed, because nothing compared\nthe two.\n\nMEASURED, 26-paper baseline vs a `git worktree` of HEAD, extracted in separate\ninterpreters and diffed per field:\n\n    lines removed / added (full text)     0 / 0\n    papers gaining page breaks           16   (+1 to +17 each)\n    footnote appendices RESTORED          2   (0 -> 1,288 and 0 -> 2,165 bytes)\n    papers made worse on any metric        0\n\nThe rule is now `_strip_standalone_page_numbers()` -- a named function, so its\ntest pins THE SHIPPED RULE rather than a retyped copy of the pattern. The form\nfeed is CAPTURED and put back, not merely excluded from the class: a page number\nis often the first thing on a new page, so the line itself begins with the break,\nand excluding it stopped those lines matching at all ('496'..'502' reappeared in\nthe body of 10.1016/j.jesp.2009.12.010). `_drop()` in F0's strip loop keeps the\nsame promise from the other side -- the segment split attaches a separator to the\nline BEFORE it, so deleting a running footer deleted its page break too.\n\nAll three guards mutation-verified: the original defect fails two tests, the\n`[ \\t]` half-fix fails one, neutering `_drop()` fails one. That last became a\nreal test only after the fixture was corrected -- it first put the furniture at\nthe TOP of each page, so its separator was a newline, `_drop()` was never\nreached, and the test passed with the guard removed.\n\n`_key` is hoisted to module level and strips non-whitespace control characters\n(pdftotext emits a running header as FF + text + BACKSPACE). It is a correctness\nfix to a key BOTH channels use; it changes no measured output today and its test\nsays so plainly rather than implying a capability.\n\nALSO: tools/diag/fused_cell_geometry_scan.py, the FUSED-GRID detector register\nG6h was blocked on until v2.4.135 gave every Camelot cell a verified rectangle.\nValidated on the census's own known positives before any count was quoted --\n'104594' fires at 15.15 em (136.4 pt) between '4' and '5', '4.603.804.80' at\n12.22 em. 80 fused cells, 1.13% of 7,065 measured, against the text-only\ncensus's 34 (0.29%). Threshold measured, not chosen: 71,733 intra-cell gaps give\np50=0.00 p90=0.00 p99=0.33 em, so 0.75 sits in an empty band. It REFUSES any cell\nwhose recovered glyphs are not its own text (3,139 of 10,215) rather than folding\nthem into the denominator -- the first draft did not, and reported 17.3 em\n\"fusions\" that were column gutters between two cells.\n\nTWO REVERTS, both recorded because the reasoning is worth more than the code:\n\nW0g/W0b/W0d are untouched here, but W0g is now DECIDED for deletion in its own\nrelease: re-measured at 12 sites in 4 of 250 papers where the record said 4, and\nat least 7 rewrite a quantity that is non-negative by definition. Confirmed on\nthe rasterized page -- 10.1525/collabra.118835 p7 prints\n`hedges' g = -.17, SE = 0.11, ...` and W0g emits `SE = -0.11`.\n\nLESSONS L-052 (the boundary), L-053 (a normalised key collides, so only\nrepetition may bless it), L-054 (\"no statistical content removed\" is not \"no\ncontent removed\" -- a containment rule scored ZERO RISK over 30 papers while\ndeleting the table header `Rank` 19 times out of 19, because the safety metric\nonly counted removals that looked like statistics).\n\nGates: 2864 passed / 27 skipped / 5 xfailed / 0 failed (1:45:08); two-tree\ntext-channel diff clean on all 26 baseline papers.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/1dfc7ecefaf0bc848d88417ffc0ac738aa31807c",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "f599009",
+            "message": "chore: remove GitHub Actions entirely; the pin bump moves to a local script",
+            "body": "Owner directive 2026-08-20: \"remove any references to github actions or\nanything using it. I will never be paying to github to activate actions.\"\n\nDELETED \u2014 all three library workflows and the .github/ directory:\n  bump-app-pin.yml   test.yml   publish.yml\n(The app repo's verify-railway-deploy.yml and post-deploy-verify.yml go in the\nsame change, in that repo.)\n\nThis is a cost decision AND a correctness one. Two things happened the same day:\n\n  * The app repo's Actions were BILLING-BLOCKED (\"recent account payments have\n    failed or your spending limit needs to be increased\"), so\n    verify-railway-deploy.yml \u2014 the gate asserting production matched the pin \u2014\n    had silently not been running at all. A gate that cannot run is worse than\n    no gate: it looks like coverage.\n\n  * bump-app-pin.yml DOWNGRADED PRODUCTION. A history purge force-pushed tags\n    v2.4.134 and v2.4.135 together; both runs fired; the OLDER finished one\n    second later (14:56:57 vs 14:56:56) and won. Nothing failed. That is the\n    structural flaw of a remote trigger whose order nobody controls.\n\nREPLACEMENT \u2014 local, explicit, ordered:\n\n  bump-app-pin.yml       -> check_app_pin_sync.py --fix [--push]\n  test.yml               -> pytest + the pre-push canary hook + /docpluck-qa\n  publish.yml            -> python -m build && twine upload, run deliberately\n  verify-railway-deploy  -> deploy-drift-check.sh (already /ship Phase 0.5, and\n                            it is what caught the downgrade)\n  post-deploy-verify.yml -> the /post-deploy-verify skill\n\n`--fix` REFUSES to move the pin backwards \u2014 the guard the workflow never had.\nTested all three paths against a scratch repo: older refuses and leaves the file\nuntouched, equal no-ops, newer bumps and commits.\n\nENFORCED, not just documented (this session's own rule \u2014 if a check can be a\ntest, it must be a test): tests/test_public_repo_hygiene.py gains\ntest_no_github_actions_workflows_exist and\ntest_no_tracked_file_assumes_a_workflow_exists. The second one immediately\nfound a real dangling reference \u2014 scripts/check_docs_consistency.py read\n.github/workflows/test.yml to cross-check the Python version matrix, so it\nwould have crashed rather than passed. Repointed at `requires-python`, which is\nthe actual declaration and cannot vanish.\n\nAlso corrected while sweeping: check_app_pin_sync.py's MISMATCH message told\nthe reader to \"re-push the tag (re-fires the workflow)\" \u2014 advice that would now\ndo nothing.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/f599009bd7e687ca18829254a558dac4c4f1e2ac",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "9a3df5f",
+            "message": "fix(ci): the last red test asserted a corpus CI cannot have by design",
+            "body": "`test_fixture_root_exists` guards against a relocated portfolio turning 12\nsnapshot tests into a silent green no-op. Good guard \u2014 but it asserted\nunconditionally, and a CI runner has no corpus BY DESIGN: the PDFs are\nclosed-access and must never be committed (article-finder is their sole\ncustodian). So absence on CI is the expected state, not a broken config.\n\nNow scoped: skip when `CI` is set and no explicit `VIBE_ROOT` was given. An\nexplicit VIBE_ROOT still means \"I told you where it is\" and is checked even on\nCI. On a developer machine the guard is unchanged and still fails loudly.\n\nVerified both directions:\n  local (corpus present) -> 1 passed   (still asserts)\n  CI=true                -> 1 skipped  (with the reason stated)\n\nWith this and the two collection errors, the library suite should go green in\nCI for the first time since at least 2026-08-07.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/9a3df5f967a278fa06fe500c097f28172fa53c82",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "e735060",
+            "message": "fix(ci): CI has been red on every push since 2026-08-07 and nobody read it",
+            "body": "Two collection errors, neither caused by the change that surfaced them, both\nenvironmental, both making pytest report an INTERRUPTED run \u2014 so the whole\n2,798-test suite never executed in CI.\n\n1. `tests/test_provenance_completeness.py` imported `tomllib`, which is 3.11+,\n   while pyproject declares `requires-python = \">=3.10\"` and the CI matrix runs\n   3.10. Now falls back to the `tomli` backport (same API), added to the dev\n   extras under a `python_version < \"3.11\"` marker. A skip would have been a\n   coverage hole on the oldest interpreter we claim to support \u2014 precisely\n   where a provenance regression is most likely.\n\n2. `scripts/harness/corpus.py` raised FileNotFoundError at MODULE SCOPE when\n   the portfolio root was missing. `tests/test_harness_text_loss_reflow.py` is\n   a pure-logic test of `_fingerprint` and `check_text_loss` that touches no\n   corpus, but it imports the module transitively and therefore could not be\n   COLLECTED on any machine without the corpus \u2014 every CI runner.\n\n   The fail-loud behaviour is right and is UNCHANGED: `discover()`,\n   `build_manifest()` and `resolve()` each call `require_corpus_root()` first,\n   so a real run still fails immediately rather than silently discovering 0\n   documents. Only the import is now free.\n\nVerified by simulating a corpus-less machine:\n  VIBE_ROOT=<nonexistent> pytest tests/test_harness_text_loss_reflow.py -> 3 passed\n  VIBE_ROOT=<nonexistent> corpus.discover()                             -> raises, as required\n  pytest tests/test_provenance_completeness.py                          -> 46 passed\n\nA red gate nobody reads is the same defect as a check that never runs \u2014 see\nthis session's other findings.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/e735060deaaadf4e8130d973d771bd5c973f93e9",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "cdfafb9",
+            "message": "fix(ci): the auto-bump workflow could pin production BACKWARDS",
+            "body": "`bump-app-pin.yml` fires on any `v*.*.*` tag push and bumped the app's docpluck\npin to whatever tag fired it, with no check that the tag was NEWER than the pin\nalready in the file.\n\nFound the hard way, today. A history purge force-pushed v2.4.134 and v2.4.135\ntogether. Both runs fired; the v2.4.134 run finished last; production was\nsilently re-pinned to the OLDER library. Nothing failed \u2014 the workflow did\nexactly what it was written to do \u2014 and `check_app_pin_sync.py` was the only\nthing in the system that noticed.\n\nThe same race exists without a force-push: two tags pushed close together land\nin whatever order the runners finish.\n\nThe guard compares the incoming tag against the pin already in\n`service/requirements.txt` and no-ops unless it is strictly newer. Re-pushing an\nold tag is now safe.\n\nTested against the extracted step body, all three cases:\n  incoming v2.4.134 vs pin v2.4.135 -> REFUSES, pin unchanged\n  incoming v2.4.135 vs pin v2.4.135 -> no-op\n  incoming v2.4.136 vs pin v2.4.135 -> bumps\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/cdfafb91c4e873ff82e2c7c378f16e0f8ee2d89a",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "8f756da",
+            "message": "docs: scrub internal filenames, document three public APIs, fix a stale example",
+            "body": "PUBLIC files were citing files the public cannot fetch. 70 citations of\ninternal HANDOFF_/FINDINGS_/TRIAGE_/OUTBOX_/REPLY_ documents across\nCHANGELOG.md (51), LESSONS.md (18) and CLAUDE.md (1), plus references into\nother PRIVATE repos' internal layouts (`ESCIcheckapp/docs/...`,\n`CitationGuard/docs/...`). Each is replaced by what it actually was \u2014 \"an\ninternal handoff\", \"an internal findings note\" \u2014 so the sentence keeps its\nmeaning without publishing a filename or another project's structure.\n\nPATTERN references are deliberately preserved: `FINDINGS_*` in a .gitignore\ncitation and `docs/TRIAGE_<date>_...` in a naming convention describe the\nCONVENTION, not a file. A first pass scrubbed those too and turned two\nsentences into nonsense; the rule now requires a real date or a FROM_ segment\nbefore treating a token as a citation.\n\ndocs/README.md gained API entries for three public capabilities it had never\ndocumented: `extract_sections`, `symbol_contract()`/`explain_symbol()` \u2014 which\nSYMBOL_CONTRACT.md tells consumers is \"your interface\" \u2014 and table flattening,\nwhich the service exposes as `?flatten_tables_inline=true` while the library\nREADME mentioned it only in a telemetry-key table. Also fixed a\nreproducibility-receipt example still showing 2.4.134.\n\ndocs/BENCHMARKS_liteparse_2026-06.md no longer points at another project's\ninternal handoff.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/8f756da5526212744f308d931a26c3f6f04540b8",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "34a300d",
+            "message": "fix(public-repo): two internal registers were public, and the guard was a grep",
+            "body": "`docs/OVERHAUL_REGISTER.md` (94 KB) and\n`docs/INVENTORY_2026-08-14_notation_vs_repair.md` reached the PUBLIC remote on\n2026-08-19 and sat there for a day. They are internal working documents: they\nquote the owner's instructions verbatim, cite internal HANDOFF_/FINDINGS_/\nOUTBOX_ files, and name other private projects.\n\nThey slipped through because REGISTER and INVENTORY were naming conventions\nnobody had thought of yet \u2014 the same shape as INBOX_/OUTBOX_ in 2026-08-07 and\nas the 259 files in 2026-08-06.\n\nAlso found in the same pass: `tests/test_docx_omml_statistics_survive.py`\nhardcoded an absolute `<home>/Vibe/.../CitationGuard/...` path twice. Three\ndefects in one string literal \u2014 an absolute user path in a public repo, a\nprivate sibling project's internal layout, and a path that resolves on exactly\none machine, so everywhere else the tests it gated SKIPPED SILENTLY and the\nsuite read as green.\n\nTHE ACTUAL FIX IS NOT A BETTER GREP. Section 0 of /docpluck-cleanup has now\nfailed three times, and each time the remedy was \"add the prefix we just\nlearned about\" \u2014 which cannot work, because a denylist only covers the names\nsomeone already imagined, and because a grep is enforced when a human\nremembers to run it and reads its output.\n\nSo `tests/test_public_repo_hygiene.py` inverts the question and runs on every\npytest:\n\n  - test_every_tracked_file_is_on_the_public_allowlist  (what MAY be public)\n  - test_the_allowlist_names_only_files_that_exist\n  - test_no_absolute_user_path_in_any_tracked_file\n  - test_no_sibling_private_project_paths_in_tracked_source\n  - test_no_secret_values_in_tracked_files\n\nAll mutation-verified: restoring the original hardcoded path turns two red,\nand the allowlist test named both registers before they were untracked.\n\nUntracking is only half the fix \u2014 both files remain readable at every past\ncommit and at tags v2.4.134/v2.4.135 until a history purge lands. Local copies\npreserved under the gitignored archive/.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/34a300d7c72ac370a70c0a2b54700e051250e3ce",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "df9a9ca",
+            "message": "docs(lessons): L-051 \u2014 a release gate that only runs the library's own suite is blind to its consumers",
+            "body": "/ship 2026-08-20: library suite 2840 passed / 0 failed, then the docpluckapp\nservice suite gave 13 failed / 154 passed. Every failure asserted a rule docpluck\nhad deliberately retired (A2, A3, A5 v1.0 conventions). The library repo carries\nthe same normalization suite and its copy WAS updated as each rule retired; the\nsecond copy was not, and nothing compares them.\n\nRed against a healthy library for three releases \u2014 and the expensive failure mode\nis not the broken CI, it is that a suite reporting FAIL on a healthy tree trains\neveryone to skim past failures. That is the mechanism behind L-044.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/df9a9ca53f495fb7359b1bcec20f3657ec0c0c81",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "46a3bef",
+            "message": "docs: the consumer contract for cell_geometry, and close the stale G6a register row",
+            "body": "Found by /ship Phase 3 cleanup. v2.4.135 added a consumer-visible Table field and\nmade every Camelot cell bbox real, and neither the public README nor the consumer\ncontract in docs/SCOPE.md said so -- the two documents a consumer actually reads\nbefore integrating.\n\n* docs/README.md -- the tables example now prints `cell_geometry`, with the table\n  of values and the rule that matters: trust `cells[].bbox` only on `verified` or\n  `whitespace_native`. Also states what a verified bbox IS (the grid rectangle for\n  that row/column) and what it is NOT (a promise that `cells[i][\"text\"]` is\n  exactly the text inside it -- Camelot assigns a whole text object to one grid\n  cell even when its glyphs spill past that cell's edges).\n* docs/SCOPE.md -- the same, as a \"known channel\" entry beside the fused-cell and\n  raw_text-vs-cells guidance a consumer is already reading.\n* docs/OVERHAUL_REGISTER.md section G6 -- the G6a row still read \"Still OPEN after\n  v2.4.134\" while the A1/G6a closure sat at the end of the same file. A stale\n  status line in the register is exactly the failure the register exists to\n  prevent, and it is the third time in three days a stale claim in a project doc\n  was found being read as current.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-20",
+            "url": "https://github.com/giladfeldman/docpluck/commit/46a3befeafd657f85cb806d6c840fd1068692966",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-08-18T14:51:48Z",
+        "recent_commits": [
+          {
+            "sha": "ddb58e7",
+            "message": "Rewrite all other tests in the image of c3abc016614fab2685d16a39d2835a36c6624e3c",
+            "body": "* Mechanical syntax changes only\n* Main change: pipes instead of nested code\n* Also, some more empty lines for readability",
+            "author": "Lukas Jung",
+            "date": "2026-08-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/ddb58e7da87e0eba8221cac0906ae35d9bbf63a0",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "c3abc01",
+            "message": "Rewrite test-utils.R to model test style",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-08-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/c3abc016614fab2685d16a39d2835a36c6624e3c",
+            "type": "test",
+            "branch": "polishing"
+          },
+          {
+            "sha": "879c2ea",
+            "message": "Optimize testing helpers via constants and inlining",
+            "body": "* Also update tests and NEWS.md\n* Move pre-existing constants into the new aaa.R",
+            "author": "Lukas Jung",
+            "date": "2026-08-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/879c2ea3caa987a2c4f959235723117f2d8d5fa0",
+            "type": "other",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-07-23T04:38:31Z",
+        "recent_commits": [
+          {
+            "sha": "ea980fd",
+            "message": "Built site for tenzing@0.4.1: d271884",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-07-23",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "d271884",
+            "message": "Update success alert title in sweet_alert.js",
+            "body": "Update terminology from infosheet to contributors table",
+            "author": "Alex O. Holcombe",
+            "date": "2026-07-23",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
+            "type": "other",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-08-09T17:29:35Z",
+        "recent_commits": [
+          {
+            "sha": "a96641b",
+            "message": "sync from escicheckapp@1bc688d (effectcheck v0.7.5) (#38)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-09",
+            "url": "https://github.com/giladfeldman/escicheck/commit/a96641b59ea6cc235ae7ef84c20c52e081fbd5ed",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "6bff8a3",
+            "message": "sync from escicheckapp@63da84b (effectcheck v0.7.4) (#37)",
+            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-09",
+            "url": "https://github.com/giladfeldman/escicheck/commit/6bff8a3490a0f07616193e629cdc0732f7d1a6e3",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-07-30T15:11:29Z",
+        "recent_commits": [
+          {
+            "sha": "ec80478",
+            "message": "nature das and cas detection",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-07-30",
+            "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-08-21T01:15:04.921277+00:00",
     "narrative": "",
     "repos": [
@@ -27898,62 +28184,6 @@
             "url": "https://github.com/giladfeldman/escicheck/commit/e7b7351ee48e668b9eebe6a2697841f0c20f2b2d",
             "type": "chore",
             "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-07-29T19:20:07.566302+00:00",
-    "narrative": "It's been an exciting week in our open-source research community, with notable updates to both the `scienceverse/metacheck` and `marton-balazs-kovacs/tenzing` projects. The `metacheck` team made progress on the `data_check` branch, adding statistical output related to Lakens, which will enhance the tool's data analysis capabilities. Meanwhile, the `tenzing` project saw updates to both its `gh-pages` and `master` branches, including a site build for version `0.4.1` and a refinement to the success alert title in `sweet_alert.js`. These developments demonstrate the connections between our projects, as improved data analysis in `metacheck` can inform and enhance the work being done in `tenzing`. Overall, it's great to see our community members driving progress and collaborating across projects to advance open-source research.",
-    "repos": [
-      {
-        "owner": "marton-balazs-kovacs",
-        "repo": "tenzing",
-        "url": "https://github.com/marton-balazs-kovacs/tenzing",
-        "summary": "The `gh-pages` branch was updated with a commit that built the site for `tenzing@0.4.1`, as stated in the commit message \"Anka: Built site for tenzing@0.4.1: d271884\". \nThe `master` branch received a change where the success alert title in `sweet_alert.js` was updated, according to the commit message \"Alex O. Holcombe: Update success alert title in sweet_alert.js\". \nNo other branches were modified in these commits, which only include changes to the `gh-pages` and `master` branches. \nThe `gh-pages` commit was made by Anka, while the `master` commit was made by Alex O. Holcombe. \nThese commits were both made on the same day, July 23, 2026. \nThe specific version of `tenzing` that the `gh-pages` site was built for is `0.4.1`.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-07-23T04:38:31Z",
-        "recent_commits": [
-          {
-            "sha": "ea980fd",
-            "message": "Built site for tenzing@0.4.1: d271884",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-07-23",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "d271884",
-            "message": "Update success alert title in sweet_alert.js",
-            "body": "Update terminology from infosheet to contributors table",
-            "author": "Alex O. Holcombe",
-            "date": "2026-07-23",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
-            "type": "other",
-            "branch": "master"
-          }
-        ]
-      },
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "The `data_check` branch was worked on, where the commit added stat output, as indicated by the message \"Lakens: stat output\". \nNo other branches were modified in this set of commits. \nThis specific commit suggests that statistical output related to Lakens was added to the `data_check` branch. \nThere were no changes to existing features or modules mentioned in the provided commit messages. \nThe work was limited to a single commit on the `data_check` branch. \nNo other areas of work were affected by the commits since the last update.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-07-29T03:25:17Z",
-        "recent_commits": [
-          {
-            "sha": "43fbc68",
-            "message": "stat output",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-07-29",
-            "url": "https://github.com/scienceverse/metacheck/commit/43fbc68f39a7fe2880c650e0794a7f65b04aed28",
-            "type": "other",
-            "branch": "data_check"
           }
         ]
       }
