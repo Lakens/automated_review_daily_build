@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-27T21:52:03.500723+00:00",
+  "generated_at": "2026-08-28T09:03:58.886551+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -116,7 +116,7 @@
         {
           "name": "data_check",
           "last_commit": "2026-08-12",
-          "commits_30d": 7
+          "commits_30d": 6
         },
         {
           "name": "main",
@@ -149,18 +149,18 @@
           "commits_30d": 1
         }
       ],
-      "commits_30d": 119,
+      "commits_30d": 118,
       "commits_7d": 2,
       "commits_1d": 2,
       "commits_90d": 252,
       "authors_30d": [
-        "Daniel Lakens",
+        "Lisa DeBruine",
         "Lakens",
-        "Lisa DeBruine"
+        "Daniel Lakens"
       ],
       "type_breakdown": {
         "fix": 28,
-        "other": 33,
+        "other": 32,
         "test": 2,
         "feat": 26,
         "refactor": 2,
@@ -633,23 +633,23 @@
       "commit_activity": [
         {
           "week": 1780876800,
-          "total": 27
+          "total": 20
         },
         {
           "week": 1781481600,
-          "total": 28
+          "total": 25
         },
         {
           "week": 1782086400,
-          "total": 10
+          "total": 12
         },
         {
           "week": 1782691200,
-          "total": 4
+          "total": 3
         },
         {
           "week": 1783296000,
-          "total": 18
+          "total": 17
         },
         {
           "week": 1783900800,
@@ -680,68 +680,7 @@
           "total": 2
         }
       ],
-      "code_frequency": [
-        {
-          "week": 1780790400,
-          "additions": 11815,
-          "deletions": -5234
-        },
-        {
-          "week": 1781395200,
-          "additions": 310,
-          "deletions": -2710
-        },
-        {
-          "week": 1782000000,
-          "additions": 77,
-          "deletions": -162
-        },
-        {
-          "week": 1782604800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783209600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783814400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1784419200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785024000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785628800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786233600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786838400,
-          "additions": 3830,
-          "deletions": -3815
-        },
-        {
-          "week": 1787443200,
-          "additions": 0,
-          "deletions": 0
-        }
-      ],
+      "code_frequency": [],
       "star_history": [],
       "r_meta": {
         "version": "0.1.0",
@@ -1162,239 +1101,6 @@
           "author_login": "Lakens",
           "date": "2026-08-17",
           "url": "https://github.com/scienceverse/metacheck/commit/ad0650ae9578fa2aeb6bf2a6e0e4612c21a49412",
-          "type": "fix",
-          "branch": "convert_psychds",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "a8e020c",
-          "message": "Classify undefined-symbol, missing-input, and install-failure diagnostics in reproducibility_check",
-          "body": "Three module-report improvements: recognize \"could not find function\" errors alongside \"object not found\" (both feed undefined_var), and surface where an undefined symbol is actually defined elsewhere in the paper's own code as a likely sourcing/copy-paste gap; fall back to fuzzy basename matching (same stem, small edit distance) when a missing input file has no exact match, surfacing the near-match candidate; and categorize dependency install failures (compile failure, network, transitive dependency missing, CRAN-unavailable) instead of reporting only raw error text.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-27",
-          "url": "https://github.com/scienceverse/metacheck/commit/a8e020ca17c0e545bbd31c9fbc1d6bcfd067e618",
-          "type": "chore",
-          "branch": "reproducibility_check",
-          "diff": {
-            "additions": 230,
-            "deletions": 27,
-            "files": [
-              {
-                "filename": "R/reproducibility_check.R",
-                "status": "modified",
-                "additions": 156,
-                "deletions": 14,
-                "patch": "@@ -1053,19 +1053,53 @@ repro_defined_vars <- function(code_text_list) {\n #'   `file_name` column)\n #'\n #' @returns a data frame with `basename`, `status` (one of `in_repo_not_downloaded`,\n-#'   `withheld_size`, `absent`), and `detail` (a human-readable reason).\n+#'   `withheld_size`, `absent`), `detail` (a human-readable reason), and\n+#'   `similar_to` (a candidate near-match basename from the repository's file\n+#'   list, or `NA` \u2014 only ever set for `absent` rows; see below).\n #' @export\n repr"
-              },
-              {
-                "filename": "R/reproducibility_check_docker.R",
-                "status": "modified",
-                "additions": 26,
-                "deletions": 7,
-                "patch": "@@ -175,15 +175,16 @@ repro_docker_available <- function() {\n #' @returns a data frame with `package`, `source`, `installed` (logical),\n #'   `message` (error text on failure, else \"\"), `via_archive` (always FALSE\n #'   \u2014 the CRAN Archive retry [repro_install_deps()] does is not duplicated\n-#'   here; a package unavailable on live CRAN is simply recorded as failed) \u2014\n-#'   same columns as [repro_install_deps()] so callers do not need to branch\n-#'   on which backend ran.\n+#'   here; a package un"
-              },
-              {
-                "filename": "inst/modules/reproducibility_check.R",
-                "status": "modified",
-                "additions": 48,
-                "deletions": 6,
-                "patch": "@@ -1309,6 +1309,13 @@ reproducibility_check <- function(paper, local_path = NULL, local_only = FALSE,\n                              run_results$error_type == \"undefined_variable\", ,\n                              drop = FALSE]\n     reran <- FALSE\n+    # Where each pass-1 undefined symbol is actually defined, keyed on\n+    # \"<user_file>||<symbol>\" \u2014 kept around (not just used to decide whether to\n+    # reorder) so the FINAL report's undefined-variable table can say \"defined\n+    # in <file>\" ev"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "53cca60",
-          "message": "Add per-call LLM request timeout and module-output caching for reproducibility_check retests",
-          "body": "Bounds a stuck local Ollama call so it fails fast and retries instead of blocking silently for hours, and lets a solo reproducibility_check retest reuse a prior full build's saved data_check/code_check/psychds_check outputs (via tables_dir) instead of recomputing them.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-27",
-          "url": "https://github.com/scienceverse/metacheck/commit/53cca60fd6e533339d50f252987e683a2cd0cc3a",
-          "type": "feat",
-          "branch": "reproducibility_check",
-          "diff": {}
-        },
-        {
-          "sha": "21f8229",
-          "message": "Merge remote-tracking branch 'origin/dev' into pr-negative-p-values",
-          "body": "",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/21f82293af650394b04edc4700636b0759c6d9bc",
-          "type": "other",
-          "branch": "pr-negative-p-values",
-          "diff": {}
-        },
-        {
-          "sha": "2f93314",
-          "message": "Fix pre-merge line-ending index drift on study_1_script.do",
-          "body": "Same as convert_psychds/measures_module: .gitattributes forces\ntests/testthat/fixtures/** to text eol=lf, including this binary Stata .do\nfixture. Renormalizing here only so the working tree is clean before\nmerging dev, which replaces this rule with a correct one.",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/2f933148adb620c0267345e3d23f9424251ac517",
-          "type": "fix",
-          "branch": "pr-negative-p-values",
-          "diff": {}
-        },
-        {
-          "sha": "e111070",
-          "message": "Skip codebook_scales tests that require convert_psychds's psychds-convert.R",
-          "body": ".psychds_variable_measured() is defined only on the convert_psychds branch\n(R/psychds-convert.R does not exist here); these two tests reference it\ndirectly and errored with \"object not found\" on every run. Skipped with\nskip_if_not(exists(...)) rather than reimplementing untested logic blind --\nthey will run again once convert_psychds is merged in.",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/e1110701b71af240b6e28d69f6786ffff7e3e161",
-          "type": "other",
-          "branch": "measures_module",
-          "diff": {}
-        },
-        {
-          "sha": "71d011d",
-          "message": "Merge remote-tracking branch 'origin/dev' into measures_module",
-          "body": "# Conflicts:\n#\tDESCRIPTION",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/71d011d9197b697617e0e05f33386cb77143f5b4",
-          "type": "other",
-          "branch": "measures_module",
-          "diff": {}
-        },
-        {
-          "sha": "1bfe0bb",
-          "message": "Fix pre-merge line-ending index drift on study_1_script.do",
-          "body": "Same as convert_psychds (deca9cc's predecessor commit 786438f):\n.gitattributes forces tests/testthat/fixtures/** to text eol=lf, including\nthis binary Stata .do fixture. Renormalizing here only so the working tree\nis clean before merging dev, which replaces this rule with a correct one.",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/1bfe0bb495443adb38a5c60ac9e182bbf616ef45",
-          "type": "fix",
-          "branch": "measures_module",
-          "diff": {}
-        },
-        {
-          "sha": "deca9cc",
-          "message": "Fix convert_psychds() calling undefined behaverse paradata functions",
-          "body": ".bh_paradata_keys() and .osd_write_paradata() are defined in\nR/behaverse-convert.R, which only exists on the measures_module branch,\nnot merged here -- both call sites errored with \"could not find function\"\non every convert_psychds() run. Replaced with the empty-vector/empty-list\nvalues .osd_write_scales() and .psychds_rocrate_json() already document as\ntheir own \"no paradata\" defaults, so convert_psychds() runs standalone\nwith no paradata cross-referencing until that branch is merged in.",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/deca9ccc5bba95edf2554a1f0a177dec424dd528",
-          "type": "fix",
-          "branch": "convert_psychds",
-          "diff": {}
-        },
-        {
-          "sha": "374142f",
-          "message": "Merge remote-tracking branch 'origin/dev' into convert_psychds",
-          "body": "",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/374142f04c94818ad19b50a7bdd0075b48e894ee",
-          "type": "other",
-          "branch": "convert_psychds",
-          "diff": {}
-        },
-        {
-          "sha": "786438f",
-          "message": "Fix pre-merge line-ending index drift on study_1_script.do",
-          "body": ".gitattributes on this branch forces tests/testthat/fixtures/** to text\neol=lf, including this Stata .do fixture, which is binary content -- the\nsame class of CRLF-corruption bug dev's .gitattributes fix addressed.\nRenormalizing here only so the working tree is clean before merging dev,\nwhich replaces this rule with a correct one.",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/786438f451001c99a81b146ce1eff461956e97a6",
-          "type": "fix",
-          "branch": "convert_psychds",
-          "diff": {}
-        },
-        {
-          "sha": "88c3a9b",
-          "message": "Merge remote-tracking branch 'origin/dev' into reproducibility_check",
-          "body": "# Conflicts:\n#\t.gitattributes\n#\tDESCRIPTION\n#\tNAMESPACE\n#\tR/stato-map.R\n#\t_stuff/profile/cermine_example.xml",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/88c3a9b6c34fb169030fc2adbd164fb74497d325",
-          "type": "chore",
-          "branch": "reproducibility_check",
-          "diff": {}
-        },
-        {
-          "sha": "87da3b5",
-          "message": "Fix ResearchBox file-link collapsing and Stata quoted-filename regex",
-          "body": "ResearchBox hrefs pointing at a specific file within a box (e.g. a dotted\nbox variant or a numeric file id under the box) were treated as separate\nrepos; they are now truncated to the box id so all such links collapse to\nthe one box before repo_check sees them.\n\nThe unquoted-filename capture regexes in code_file_refs() were matching\ninside already-quoted Stata filenames that contain spaces, producing bogus\nextra references; they now only run against lines without a quoted\nfilename.\n\nPorted from the reproducibility_check branch (efedd30), which bundled these\nwith reproducibility_check()-specific changes that do not apply here since\nthat module isn't on dev yet.",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/87da3b5b98299f760aeec76d2cd5742a8352a32d",
-          "type": "fix",
-          "branch": "convert_psychds",
-          "diff": {}
-        },
-        {
-          "sha": "d6e02d7",
-          "message": "Report inaccessible OSF registration links instead of dropping them silently (#361)",
-          "body": "osf_type() already tells \"not a registration\" apart from \"a registration link that cannot be read\" (private, embargoed, withdrawn, or deleted), but prereg_check.R only ever used the former, so an inaccessible registration read identically to no registration being linked at all. Now tracked from both osf_type()'s \"inaccessible\" classification and a later fetch failure (osf_get_all_pages()'s osf_error attribute), and named in both summary_text and the full report.\n\nAdded a guard for the resulting zero-row edge case (every link inaccessible, no AsPredicted data) that would otherwise fall through to code assuming a paper_id column that is only added when prereg_info has rows.\n\nTests use testthat::with_mocked_bindings() rather than local_mocked_bindings(): the latter's deferred cleanup does not restore correctly through this project's custom test_that() wrapper in helper.R and leaks into whichever test runs next (same class of issue test-archive-osf.R's .osf_status_error test already flags for req_perform()).",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/d6e02d79fdd679f3ccc36bf643a280ada1d0e6e5",
-          "type": "other",
-          "branch": "convert_psychds",
-          "diff": {}
-        },
-        {
-          "sha": "92ef492",
-          "message": "Remove FLoRA_update() mock test and its oversized fixture (#364)",
-          "body": "The \"update\" test only asserted file.exists(path) on the download result, never its content or size, so its mock fixture recorded the real 5.6MB flora.csv as a 37MB text file checked into the repo for a test that needed none of it. It was also gated behind skip_if_quick(), so it never ran in a normal test pass. Not worth reconstructing a smaller fixture for; removed the test and both its fixtures (download body + guid listing).\n\nAlso confirms the mode = \"all\" default-change audit from #364: FLoRA_update() (R/db-replications.R) was the only affected caller, already fixed in 431e0c5. No other caller in R/, inst/app/, or tests/ relies on the old implicit default.",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/92ef492ce566b546f4973f5a13528f09ac0c1f99",
-          "type": "test",
-          "branch": "convert_psychds",
-          "diff": {}
-        },
-        {
-          "sha": "780d444",
-          "message": "Fix inconsistent quoting in ethics_check.R @details phrasing (#360)",
-          "body": "Pattern examples in the \"Patterns are designed to capture\" section used plain double quotes, which roxygen renders as literal quote-mark characters rather than a code span. Converted to backticks throughout the section for consistent rendering.",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/780d444db976448408d81596ffddeeeba22041c7",
-          "type": "fix",
-          "branch": "convert_psychds",
-          "diff": {}
-        },
-        {
-          "sha": "d85c274",
-          "message": "Improve GROBID/BIBR isalive error handling (#363)",
-          "body": ".grobid_isalive() and .bibr_isalive() discarded the real httr2 error and replaced it with a generic message, making transient failures hard to diagnose. Both now include conditionMessage(e) in the error, and retry on connection-level failure (not just HTTP transient responses) so a live server surviving a one-off blip doesn't fail the whole conversion.",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/d85c2742682c7a7f4e28a952eb77e17f98f2a2b5",
-          "type": "fix",
-          "branch": "convert_psychds",
-          "diff": {}
-        },
-        {
-          "sha": "012c40c",
-          "message": "Fix power.R optional enum fields rejecting null on Groq (#365)",
-          "body": "ellmer's ProviderOpenAICompatible adds \"null\" to a type_enum(required = FALSE) field's type but never adds null to its enum, so Groq's response-side validator rejects a genuinely null response even though its own request-side schema allows it. Adding NA to each optional enum's value vector matches power.json's null-inclusive enums and fixes the mismatch (confirmed live against Groq).",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-08-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/012c40c001092fd89e1a891c4f4a228e8a9a6c00",
           "type": "fix",
           "branch": "convert_psychds",
           "diff": {}
@@ -2018,68 +1724,7 @@
           "total": 0
         }
       ],
-      "code_frequency": [
-        {
-          "week": 1780790400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1781395200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1782000000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1782604800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783209600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783814400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1784419200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785024000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785628800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786233600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786838400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1787443200,
-          "additions": 0,
-          "deletions": 0
-        }
-      ],
+      "code_frequency": [],
       "star_history": [],
       "r_meta": {
         "version": "1.6.1.9000",
@@ -2133,7 +1778,7 @@
       ],
       "pushed_at": "2026-07-23T04:38:31Z",
       "created_at": "2020-04-19",
-      "last_push_days": 35,
+      "last_push_days": 36,
       "default_branch": "master",
       "license": "NOASSERTION",
       "branches": [
@@ -2775,68 +2420,7 @@
           "total": 0
         }
       ],
-      "code_frequency": [
-        {
-          "week": 1780790400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1781395200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1782000000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1782604800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783209600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783814400,
-          "additions": 24,
-          "deletions": -17
-        },
-        {
-          "week": 1784419200,
-          "additions": 1,
-          "deletions": -1
-        },
-        {
-          "week": 1785024000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785628800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786233600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786838400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1787443200,
-          "additions": 0,
-          "deletions": 0
-        }
-      ],
+      "code_frequency": [],
       "star_history": [],
       "r_meta": {
         "version": "0.4.1",
@@ -3515,68 +3099,7 @@
           "total": 0
         }
       ],
-      "code_frequency": [
-        {
-          "week": 1780790400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1781395200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1782000000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1782604800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783209600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783814400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1784419200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785024000,
-          "additions": 383,
-          "deletions": -30
-        },
-        {
-          "week": 1785628800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786233600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786838400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1787443200,
-          "additions": 0,
-          "deletions": 0
-        }
-      ],
+      "code_frequency": [],
       "star_history": [],
       "r_meta": {
         "version": "0.6.1",
@@ -4036,106 +3559,6 @@
           "branch": "polishing",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "ddb58e7",
-          "message": "Rewrite all other tests in the image of c3abc016614fab2685d16a39d2835a36c6624e3c",
-          "body": "* Mechanical syntax changes only\n* Main change: pipes instead of nested code\n* Also, some more empty lines for readability",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-08-18",
-          "url": "https://github.com/lhdjung/scrutiny/commit/ddb58e7da87e0eba8221cac0906ae35d9bbf63a0",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {
-            "additions": 677,
-            "deletions": 772,
-            "files": [
-              {
-                "filename": "tests/testthat/test-audit.R",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 5,
-                "patch": "@@ -6,8 +6,8 @@ audit_grim <- audit(data_grim)\n \n test_that(\"`audit()` summarizes GRIM tests accurately\", {\n   expect_s3_class(audit_grim, \"data.frame\")\n-  expect_equal(as.numeric(audit_grim$all_cases - audit_grim$incons_cases),\n-               length(data_grim$consistency[data_grim$consistency]))\n+  as.numeric(audit_grim$all_cases - audit_grim$incons_cases) |>\n+    expect_equal(length(data_grim$consistency[data_grim$consistency]))\n })\n \n \n@@ -16,9 +16,9 @@ data_debit <- debit_map(pigs3, digits_"
-              },
-              {
-                "filename": "tests/testthat/test-debit.R",
-                "status": "modified",
-                "additions": 33,
-                "deletions": 48,
-                "patch": "@@ -38,15 +38,15 @@ rounding_methods <- c(\n \n test_that(\"`debit()` accepts every rounding method that `grim()` accepts\", {\n   for (r in rounding_methods) {\n-    debit(\n-      x = 0.53,\n-      sd = 0.50,\n-      n = 1683,\n-      digits_x = 2,\n-      digits_sd = 2,\n-      rounding = r,\n-      threshold = 6\n-    ) |>\n+      debit(\n+        x = 0.53,\n+        sd = 0.50,\n+        n = 1683,\n+        digits_x = 2,\n+        digits_sd = 2,\n+        rounding = r,\n+        threshold = 6\n+      ) |>\n       e"
-              },
-              {
-                "filename": "tests/testthat/test-decimal-places.R",
-                "status": "modified",
-                "additions": 26,
-                "deletions": 24,
-                "patch": "@@ -140,7 +140,7 @@ iris <- iris |>\n   dplyr::mutate(dplyr::across(everything(), as.character)) |>\n   dplyr::slice(1:5)\n \n-iris_counted <- decimal_places_df(iris[1:4])\n+iris_counted <- iris[1:4] |> decimal_places_df()\n \n test_that(\"\", {\n   iris_counted[[1]] |> expect_equal(as.integer(c(1, 1, 1, 1, 0)))\n@@ -164,25 +164,24 @@ test_that(\"`decimal_places_df()` throws a warning if and only if it should\", {\n # then not the decimal places of the number, so the exponent has to be applied.\n \n test_that(\""
-              },
-              {
-                "filename": "tests/testthat/test-digits-vectorized.R",
-                "status": "modified",
-                "additions": 26,
-                "deletions": 40,
-                "patch": "@@ -30,43 +30,35 @@ test_that(\"basic mappers take one `digits_*` value per row\", {\n \n   # `0.1` at one decimal place is not the same test as `0.10` at two:\n   expect_equal(per_row, c(TRUE, TRUE))\n-  expect_equal(grim_map(df_grim, digits_x = 2)$consistency, c(TRUE, FALSE))\n+  grim_map(df_grim, digits_x = 2)$consistency |> expect_equal(c(TRUE, FALSE))\n \n-  expect_equal(\n-    grimmer_map(df_grimmer, digits_x = c(1, 2), digits_sd = 2)$consistency,\n-    c(\n+  grimmer_map(df_grimmer, digits_x = c(1, 2"
-              },
-              {
-                "filename": "tests/testthat/test-disperse.R",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 5,
-                "patch": "@@ -30,7 +30,7 @@ test_that(\"`dispersion` must consist of whole numbers\", {\n   # `n_change` used to be truncated toward zero by `as.integer()`, so a\n   # fractional step left `n` and `n_change` describing different things.\n   disperse(n = 10, dispersion = c(0.5, 1.5)) |> expect_error(\"whole numbers\")\n-  disperse(n = 10, dispersion = 1.5) |> expect_error(\"whole numbers\")\n+  disperse(n = 10, dispersion = 1.5)         |> expect_error(\"whole numbers\")\n })\n \n test_that(\"`n` and `n_change` agree\", {\n@"
-              },
-              {
-                "filename": "tests/testthat/test-error-digits.R",
-                "status": "modified",
-                "additions": 44,
-                "deletions": 55,
-                "patch": "@@ -21,97 +21,86 @@ msg_error <- function(expr) {\n \n \n test_that(\"a missing `digits_*` argument names the function that was called\", {\n-  expect_match(msg_error(grim(4.11, 40)), \"`grim(\", fixed = TRUE)\n-  expect_match(msg_error(grim_map(df_grim)), \"`grim_map(\", fixed = TRUE)\n-  expect_match(msg_error(grimmer_map(df_grimmer)), \"`grimmer_map(\", fixed = TRUE)\n-  expect_match(msg_error(debit(0.35, 0.18, 20)), \"`debit(\", fixed = TRUE)\n-  expect_match(msg_error(debit_map(df_debit)), \"`debit_map(\", fix"
-              },
-              {
-                "filename": "tests/testthat/test-function-factories-env.R",
-                "status": "modified",
-                "additions": 13,
-                "deletions": 16,
-                "patch": "@@ -53,7 +53,7 @@ inherits_from_scrutiny_ns <- function(fn) {\n \n test_that(\"factory-made functions are enclosed in scrutiny's namespace\", {\n   for (fn in fns_factory_made) {\n-    expect_true(inherits_from_scrutiny_ns(fn))\n+    fn |> inherits_from_scrutiny_ns() |> expect_true()\n   }\n })\n \n@@ -69,15 +69,14 @@ test_that(\"factory-made functions work outside of scrutiny's scope\", {\n   assign(\"df1\", tibble::tibble(y = 16:25, n = 3:12), envir = foreign)\n   assign(\"df2\", tibble::tibble(y1 = 16:18, y2 = "
-              },
-              {
-                "filename": "tests/testthat/test-function-map-total-n.R",
-                "status": "modified",
-                "additions": 22,
-                "deletions": 34,
-                "patch": "@@ -89,14 +89,14 @@ test_that(\"the column order of `data` makes no difference\", {\n   # silently skipped -- returning \"forth\" results labeled \"back\" -- whenever\n   # the key columns were not in the exact `y1, y2` order:\n   df1_reversed <- df1[c(\"y2\", \"y1\", \"n\")]\n-  expect_identical(schlim_map_total_n(df1_reversed), df1_tested)\n+  df1_reversed |> schlim_map_total_n() |> expect_identical(df1_tested)\n })\n \n test_that(\"the \\\"back\\\" direction really swaps the group pairings\", {\n   # `y1` values reappe"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "c3abc01",
-          "message": "Rewrite test-utils.R to model test style",
-          "body": "",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-08-18",
-          "url": "https://github.com/lhdjung/scrutiny/commit/c3abc016614fab2685d16a39d2835a36c6624e3c",
-          "type": "test",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "879c2ea",
-          "message": "Optimize testing helpers via constants and inlining",
-          "body": "* Also update tests and NEWS.md\n* Move pre-existing constants into the new aaa.R",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-08-18",
-          "url": "https://github.com/lhdjung/scrutiny/commit/879c2ea3caa987a2c4f959235723117f2d8d5fa0",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {}
-        }
       ]
     },
     {
@@ -4423,11 +3846,11 @@
         },
         {
           "week": 1783900800,
-          "total": 4
+          "total": 9
         },
         {
           "week": 1784505600,
-          "total": 6
+          "total": 1
         },
         {
           "week": 1785110400,
@@ -4450,68 +3873,7 @@
           "total": 0
         }
       ],
-      "code_frequency": [
-        {
-          "week": 1780790400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1781395200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1782000000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1782604800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783209600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783814400,
-          "additions": 475,
-          "deletions": -258
-        },
-        {
-          "week": 1784419200,
-          "additions": 34,
-          "deletions": -7
-        },
-        {
-          "week": 1785024000,
-          "additions": 43,
-          "deletions": -10
-        },
-        {
-          "week": 1785628800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786233600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786838400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1787443200,
-          "additions": 0,
-          "deletions": 0
-        }
-      ],
+      "code_frequency": [],
       "star_history": [],
       "r_meta": {
         "version": "7.3.0",
@@ -4543,47 +3905,6 @@
       "readme_excerpt": "ODDPub is a text mining algorithm that parses a set of publications and detects\nwhich publications disseminated Open Data or Open Code together with the\npublication. It is tailored towards biomedical literature.\n\n\nNico Riedel, Vladislav Nachev (vladislav.nachev@charite.de), Miriam Kip, Evgeny Bobrov (evgeny.bobrov@bih-charite.de) - QUEST Center for Transforming Biomedical Research, Berlin Institute of Health\n\n\nMore information on the development and validation of the algorithm can be found in the publication https://doi.org/10.5334/dsj-2020-042. The related training and validation datasets can",
       "scopus_citations": null,
       "recent_commits": [
-        {
-          "sha": "ec80478",
-          "message": "nature das and cas detection",
-          "body": "",
-          "author": "ontogenerator",
-          "author_login": "",
-          "date": "2026-07-30",
-          "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
-          "type": "other",
-          "branch": "main",
-          "diff": {
-            "additions": 43,
-            "deletions": 10,
-            "files": [
-              {
-                "filename": "R/parse_pdf.R",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -298,7 +298,7 @@ Mode <- function(x) {\n \n   keyword_list <- .create_keyword_list()\n \n-  stopwords <- paste0(keyword_list$section_stopwords, \"|\\\\bauthor|\\\\bdata\")\n+  stopwords <- paste0(keyword_list$section_stopwords, \"|\\\\bauthor|\\\\bdata|\\\\bmethods\")\n \n   starts_with_section <- stringr::str_detect(\n     tolower(text_data$text[1]),"
-              },
-              {
-                "filename": "R/screen_text.R",
-                "status": "modified",
-                "additions": 41,
-                "deletions": 8,
-                "patch": "@@ -470,15 +470,40 @@\n     stringr::str_detect(\"(<section>|##+) r ?e ?f ?e ?r ?e ?n ?c ?e ?s(?! and notes)\") |>\n     which() - 1\n \n+  if (sum(line_before_refs) == 0) {\n+    # if no references detected but online content and nature portfolio\n+    if (all(c(any(stringr::str_detect(pdf_text_sentences, \"nature portfolio\")),\n+              any(stringr::str_detect(pdf_text_sentences, \"statements of data and code\"))))) {\n+      line_before_refs <- pdf_text_sentences |>\n+        stringr::str_detect(\"(<s"
-              },
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -111,7 +111,7 @@ The performance metrics for open code detection are given below:\n \n metric | estimate |\n -------|----------|\n-accuracy| 0.87 |\n+accuracy | 0.87 |\n sensitivity | 0.94 |\n specificity | 0.82 |\n positive predictive value | 0.79 |"
-              }
-            ]
-          },
-          "diff_summary": ""
-        }
-      ],
-      "_new_commits": [
         {
           "sha": "ec80478",
           "message": "nature das and cas detection",
@@ -5190,56 +4511,7 @@
           "html_url": "https://github.com/yihui"
         }
       ],
-      "commit_activity": [
-        {
-          "week": 1780790400,
-          "total": 0
-        },
-        {
-          "week": 1781395200,
-          "total": 0
-        },
-        {
-          "week": 1782000000,
-          "total": 0
-        },
-        {
-          "week": 1782604800,
-          "total": 0
-        },
-        {
-          "week": 1783209600,
-          "total": 0
-        },
-        {
-          "week": 1783814400,
-          "total": 0
-        },
-        {
-          "week": 1784419200,
-          "total": 0
-        },
-        {
-          "week": 1785024000,
-          "total": 0
-        },
-        {
-          "week": 1785628800,
-          "total": 0
-        },
-        {
-          "week": 1786233600,
-          "total": 0
-        },
-        {
-          "week": 1786838400,
-          "total": 0
-        },
-        {
-          "week": 1787443200,
-          "total": 0
-        }
-      ],
+      "commit_activity": [],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -5316,7 +4588,7 @@
         }
       ],
       "commits_30d": 47,
-      "commits_7d": 5,
+      "commits_7d": 1,
       "commits_1d": 0,
       "commits_90d": 103,
       "authors_30d": [
@@ -5367,15 +4639,15 @@
       "commit_activity": [
         {
           "week": 1780876800,
-          "total": 8
+          "total": 9
         },
         {
           "week": 1781481600,
-          "total": 17
+          "total": 16
         },
         {
           "week": 1782086400,
-          "total": 7
+          "total": 8
         },
         {
           "week": 1782691200,
@@ -5383,7 +4655,7 @@
         },
         {
           "week": 1783296000,
-          "total": 16
+          "total": 15
         },
         {
           "week": 1783900800,
@@ -5407,75 +4679,14 @@
         },
         {
           "week": 1786924800,
-          "total": 15
+          "total": 19
         },
         {
           "week": 1787529600,
-          "total": 5
+          "total": 1
         }
       ],
-      "code_frequency": [
-        {
-          "week": 1780790400,
-          "additions": 3801,
-          "deletions": -162
-        },
-        {
-          "week": 1781395200,
-          "additions": 4033,
-          "deletions": -381
-        },
-        {
-          "week": 1782000000,
-          "additions": 2004,
-          "deletions": -46
-        },
-        {
-          "week": 1782604800,
-          "additions": 6554,
-          "deletions": -301
-        },
-        {
-          "week": 1783209600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783814400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1784419200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785024000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785628800,
-          "additions": 6689,
-          "deletions": -755
-        },
-        {
-          "week": 1786233600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786838400,
-          "additions": 22727,
-          "deletions": -1542
-        },
-        {
-          "week": 1787443200,
-          "additions": 0,
-          "deletions": 0
-        }
-      ],
+      "code_frequency": [],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "PDF, DOCX, and HTML text extraction plus normalization for academic papers.\n\nThe full documentation lives in `docs/README.md`.\n\n\n```bash\npip install docpluck\n```\n\nOptional extras:\n\n```bash\npip install docpluck[docx]\npip install docpluck[html]\npip install docpluck[all]\n```\n\n\n`extract_pdf()` requires the `pdftotext` binary from Poppler.\n\n- Linux/WSL: `apt-get install poppler-utils`\n- macOS: `brew install poppler`\n- Windows: install Poppler and add its `bin` folder to `PATH`\n\n## Links\n\n- Full usage and API reference: `docs/README.md`\n- Normalization pipeline details: `docs/NORMALIZATION.md`\n- Ben",
@@ -5903,6 +5114,130 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "56b67b0",
+          "message": "release: v2.4.137 \u2014 a fix in the COMPARISON KEY is not a fix in the SHIPPED string",
+          "body": "v1.9.57 diagnosed that one stray U+0008 BACKSPACE made a Frontiers running\nheader unequal to its layout-channel twin, and fixed it inside `_key()` \u2014 F0's\ncomparison key. The character stayed in the emitted text, where a completely\nunrelated rule landed on it one day later:\n`_prior_paragraph_is_sentence_terminated` walks back over whitespace and\nrequires what it finds to be in \".!?/\". On 10.3389/fvets.2025.1645266 the walk\nlanded on the BACKSPACE, discarded the `1 Introduction:` heading, and greedy\nspan-fill handed the preceding KEYWORDS span 69,849 characters \u2014 the whole\narticle. Found by an external benchmark, not by us.\n\n* C0 `_strip_furniture_controls` (NORMALIZATION_VERSION 1.9.58), run before F0\n  so the comparison key and the output are ONE rule. One character wide and\n  measured: all 33 corpus U+0008 sites are '.'+BS+newline, none are overstrike.\n  U+0002/03/04/07 are corrupted CONTENT glyphs (Schri<02>macher =\n  \"Schrittmacher\") and are COUNTED, not stripped, in the new\n  `NormalizationReport.residual_control_chars`.\n* The heading guard skips page breaks and control characters, and a canonical\n  heading carrying BOTH a line-initial section number AND a colon no longer\n  needs a terminated prior paragraph (SECTIONING_VERSION 1.2.5). Both halves\n  are required: `2 Literature search` on the same paper resolves canonically to\n  `references`, so a number-only escape would open back-matter mid-article.\n  Measured blast radius: 3 of 39 guard rejections were furniture; the escape\n  fires exactly once in 30 papers.\n* The boundary-truncation pass, unreachable since v1.6.1 (`_NO_TRUNCATE =\n  set(SectionLabel)` matched every label), is deleted.\n\nThe C0 strip ALONE does not fix that paper \u2014 the first probe said it did,\nbecause it stripped the character from an already-normalized string while the\nshipped order runs C0 before H0. Test the composition that ships (LESSONS\nL-055, L-056).\n\nArena effect, 30 held-out PMC papers: body-label slice 0.7681 -> 0.7911,\noracle 0.8038 -> 0.8140, collapses 5 -> 4, recall median 0.9862, 0 regressions.\n\nGates: 2,885 passed / 0 failed; non-statistic corpus scan CLEAN 60/60;\nrender-deletion 26/26 with 0 content lost; verify_corpus 26/26 COVERAGE 26/26;\nservice suite 183 passed; public-repo hygiene 11/11.",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-21",
+          "url": "https://github.com/giladfeldman/docpluck/commit/56b67b06d6a7c21f1fef88978b72ecc85820f8c2",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 587,
+            "deletions": 72,
+            "files": [
+              {
+                "filename": "CHANGELOG.md",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "CLAUDE.md",
+                "status": "modified",
+                "additions": 11,
+                "deletions": 1,
+                "patch": "@@ -203,8 +203,18 @@ These four skills span BOTH repos via absolute paths. Keep paths in sync if eith\n \n ## Key project docs (in `docs/`)\n \n+These are the ONLY files under `docs/` that are public \u2014 the list is the\n+allowlist in `/docpluck-cleanup` Section 0.1, and `tests/test_public_repo_hygiene.py`\n+enforces it. Everything else under `docs/` is internal by default and gitignored.\n+\n - `docs/README.md` \u2014 public-facing library README (renders on GitHub + PyPI).\n - `docs/BENCHMARKS.md` \u2014 extractio"
+              },
+              {
+                "filename": "LESSONS.md",
+                "status": "modified",
+                "additions": 55,
+                "deletions": 0,
+                "patch": "@@ -2233,3 +2233,58 @@ Two smaller things fell out of the same run, both worth keeping:\n **Detection:** for any change that deletes text, diff the FULL output of every\n corpus paper against a worktree of the last tag, list every removed line, and\n read them. If the list is too long to read, the change is too broad to ship.\n+\n+## L-055 \u2014 Cleaning a character in the key you COMPARE is not cleaning it in the string you SHIP\n+\n+**2026-08-21, `normalize.py` / `sections/annotators/text.py`, found by a"
+              },
+              {
+                "filename": "docpluck/__init__.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -94,7 +94,7 @@\n from .extract_structured import TABLE_EXTRACTION_VERSION, StructuredResult, extract_pdf_structured\n from .render import RenderReport, render_pdf_to_markdown\n \n-__version__ = \"2.4.136\"\n+__version__ = \"2.4.137\"\n __author__ = \"Gilad Feldman\"\n __license__ = \"MIT\"\n "
+              },
+              {
+                "filename": "docpluck/normalize.py",
+                "status": "modified",
+                "additions": 81,
+                "deletions": 2,
+                "patch": "@@ -24,7 +24,7 @@ class NormalizationLevel(str, Enum):\n     academic = \"academic\"\n \n \n-NORMALIZATION_VERSION = \"1.9.57\"  # v1.9.57 (2026-08-20): A PAGE NUMBER IS FURNITURE; A PAGE BOUNDARY IS STRUCTURE. The standalone-page-number strip was `^\\s*\\d{1,3}\\s*$` under MULTILINE, and the whitespace class matches THE FORM FEED - so the rule could consume the page break standing beside the number it deleted. Wrong since it was written, held latent by a running footer sitting between the two; anything th"
+              },
+              {
+                "filename": "docpluck/sections/__init__.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -13,7 +13,7 @@\n from .taxonomy import SectionLabel, Confidence, DetectedVia\n from .types import Section, SectionedDocument\n \n-SECTIONING_VERSION = \"1.2.4\"  # v1.2.4 (v2.4.124): the keywords-branch cut must leave keyword CONTENT behind. _synthesize_introduction_if_bloated_front_matter cut the keywords span at the FIRST blank-line paragraph break; Taylor & Francis serialises the block as KEYWORDS / blank / values, so that break sits between the LABEL and its own VALUES. xiao_2021_crsp therefore"
+              },
+              {
+                "filename": "docpluck/sections/annotators/text.py",
+                "status": "modified",
+                "additions": 94,
+                "deletions": 3,
+                "patch": "@@ -344,8 +344,35 @@ def _prior_paragraph_is_sentence_terminated(text: str, line_start: int) -> bool:\n     ``...Data curation;`` and ``acquisition; Preregistration...``, silently\n     splitting authorship credit across two sections.\n     \"\"\"\n+    # 2026-08-21: the walk skips PAGE BREAKS and non-whitespace CONTROL\n+    # characters as well as ordinary blanks, because neither is evidence that a\n+    # sentence was left unfinished.\n+    #\n+    # * ``\\f`` \u2014 F0 deliberately KEEPS the page boundary (L"
+              },
+              {
+                "filename": "docpluck/sections/core.py",
+                "status": "modified",
+                "additions": 30,
+                "deletions": 55,
+                "patch": "@@ -6,7 +6,9 @@\n from typing import Literal\n \n from .blocks import BlockHint\n-from .boundaries import is_section_boundary\n+# `is_section_boundary` is intentionally NOT imported: the boundary-truncation\n+# pass it served was unreachable and was deleted 2026-08-21 (see the note in\n+# `partition_into_sections`). The predicate itself is kept, tested, and unwired.\n from .taxonomy import (\n     SectionLabel, Confidence, DetectedVia, lookup_canonical_label\n )\n@@ -88,8 +90,13 @@ def partition_into_secti"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "86c9e98",
+          "message": "docs(changelog): v2.4.136's measurements were the LAYOUT path, presented as universal",
+          "body": "The entry said \"16 papers gain page breaks; 2 footnote appendices restored\" with\nno indication of which callers see it. Two of those three claims do not reach the\nHTTP API at all, and the entry as written told consumers otherwise.\n\n`_f0_strip_running_and_footnotes` returns immediately without a `LayoutDoc`, and\nthe footnote appendix is F0's product. Enumerated rather than assumed:\n\n    batch.py:355              passes layout   -> full change\n    sections/__init__.py:116  passes layout   -> full change\n    service/app/main.py:532   NO layout       -> page breaks only\n    service/app/main.py:1007  NO layout       -> page breaks only\n\nRe-measured through the no-layout path the service actually runs: 12 of 26 papers\nchange (not 16), 0 appendices restored (not 2), and still 0 lines removed or\nadded. The API gains page boundaries and loses nothing; it gains no appendix.\n\nAND THE LARGER FINDING, pre-existing and not this release's doing: because the\nservice never computes a layout, F0 has NEVER run in production, and neither has\nany layout-gated repair -- W0h (dropped minus via cid glyph), W0m (beta-as-b via\nfont), W0p (superscript via size+baseline). Every API consumer has been receiving\ntext with running headers intact and those three repairs absent, while the same\ndocument through `extract_to_dir` is repaired. Two paths, one version, different\nnumbers.\n\nThis is the identical shape CLAUDE.md records for batch.py and marks FIXED in\nv2.4.128 -- the service was never checked. NOT fixed here: wiring a layout into\nthe service roughly doubles per-document cost and changes output for every\nconsumer at once, which is a deliberate decision, not a doc fix. Tracked in the\nhandoff and in both consumer notices.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-21",
+          "url": "https://github.com/giladfeldman/docpluck/commit/86c9e981c7becabfd27ff095b98911a75c0c9d6f",
+          "type": "docs",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "a1979ae",
+          "message": "release: v2.4.136 \u2014 a page NUMBER is furniture, a page BOUNDARY is structure",
+          "body": "Bumps __version__ + pyproject to 2.4.136 and promotes the CHANGELOG entry.\nNORMALIZATION_VERSION was already at 1.9.57 (cd89380), because the output\nchanged then and the version describing that output had to move with it.\n\nWHAT SHIPS. `_normalize_text` stripped standalone page numbers with\n`^\\s*\\d{1,3}\\s*$` under MULTILINE, and the whitespace class matches THE FORM\nFEED \u2014 so the rule could consume the page boundary beside the number it deleted.\nWrong since it was written, held latent by a running footer standing between the\ntwo. Two baseline papers were ALREADY broken at HEAD: 10.1016/j.jesp.2021.104154\nand 10.1016/j.joep.2020.102350 reported 15 and 18 footnotes through\nreport.footnote_texts while the returned string carried no appendix at all.\n\nCONSUMER-VISIBLE CHANGE, and consumers must be told: the `\\n\\f\\f\\n` marker that\nseparates the footnote appendix now actually appears on those papers. A consumer\nsplitting on it gets a body WITHOUT the footnotes where it previously got a body\nWITH them silently inlined. That is a correction, but it is a change.\n\nMeasured, 26-paper baseline vs a git worktree of the prior tree, separate\ninterpreters: 0 lines removed, 0 added; 16 papers gain page breaks (+1..+17);\n2 appendices restored (0 -> 1,288 and 0 -> 2,165 bytes); 0 papers worse.\n\ndocs/README.md's advertised `'version'` was updated \u2014 and it was the gate added\nin ab291c7 that caught it going stale, on its first real release. That gate now\nhas its own test (bc6b861), because it had none and had been edited twice in one\nsession.\n\nGATES, all on the shipping tree:\n  library suite      2864 passed, 27 skipped, 5 xfailed, 0 failed (1:25:37)\n  service suite      183 passed, 2 skipped\n  two-tree diff      0 lines removed/added across 26 papers\n  render-deletion    0 papers losing content, COVERAGE 26/26\n  non-statistic scan CLEAN, 0 defects, COVERAGE 40/40\n  corpus verifier    26/26 PASS, COVERAGE 26/26\n  concurrency (14e)  6x200, 2x429 service_busy, zero 502s, max 66s\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-21",
+          "url": "https://github.com/giladfeldman/docpluck/commit/a1979aeda597666707d297436e94008194809fd7",
+          "type": "chore",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "bc6b861",
+          "message": "test(gate): the docs-accuracy gate had no test, and was edited twice in one session",
+          "body": "`scripts/check_docs_consistency.py` asserts that the version numbers\n`docs/README.md` advertises still match the constants this package defines. It is\ninvoked by hand from handoffs and release checklists and by nothing automatic \u2014\nso it was changed twice today (2657047, ab291c7) with nothing pinning either\nchange, and the second of those changes existed only because the first had a gap\nnobody could have caught.\n\nA check that CAN be a test MUST be a test. A gate nobody runs is\nindistinguishable from a gate that passes, and this one guards a claim that\nreaches consumers: `docs/README.md` documents the provenance block\n`get_version_info()` returns.\n\nFive cases, each pinning a failure that actually happened or is about to:\n\n  * the gate PASSES on the committed tree\n  * a drifted PACKAGE version is caught \u2014 the one that goes stale on EVERY\n    release, uncovered until ab291c7\n  * a drifted PIPELINE version is caught \u2014 `table_extraction_version` sat at\n    '2.4.10' against a source 2.4.12 until it was spotted by eye\n  * a drifted NORMALIZATION version is caught\n  * the two deliberately-ungated keys are still NAMED in the gate, so the reason\n    for excluding them cannot be silently lost\n\nEach drift runs against a COPY of only the files the gate reads, in tmp \u2014 the\ntest never mutates the working tree, and does not drag the corpus along.\n\nMUTATION-VERIFIED IN TWO DIRECTIONS, because a test that has never failed against\nthe real defect proves nothing:\n\n  removing the package-version line   -> exactly 1 test fails\n  removing the whole sibling loop     -> 3 tests fail\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-21",
+          "url": "https://github.com/giladfeldman/docpluck/commit/bc6b861b423f6e123cfbb0307a7e290d063a8ea5",
+          "type": "test",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "ab291c7",
+          "message": "fix(gate): the version check missed the ONE version that goes stale every release",
+          "body": "Hard rule 23 says a universal-quantifier claim is only as good as the enumeration\nbehind it. The previous commit's message claimed the gate \"compares every\nadvertised pipeline version against its defining constant\". Enumerating the\nprovenance block in docs/README.md rather than trusting that sentence:\n\n    advertised   version, normalize_version, sectioning_version,\n                 table_extraction_version, python_version, unicodedata_version\n    covered      normalize_version, sectioning_version, table_extraction_version\n    UNCOVERED    version, python_version, unicodedata_version\n\nSix keys, not the five I had in mind -- `unicodedata_version` was not even on my\nlist. The claim was defensible for the three PIPELINE versions and silent about\nthe rest, which is exactly the shape rule 23 exists to catch.\n\n`version` is now covered, and it is the important one: it is the package version,\nso it goes stale on EVERY release, and docs/README.md advertises it as `2.4.135`.\nThe very next release would have made that doc wrong with nothing to say so.\n\n`python_version` and `unicodedata_version` are deliberately NOT gated, and the\ncode says why: they are runtime facts this repo does not define, so there is no\nconstant for them to drift from. Recording the reason matters more than the\nexclusion -- an unexplained gap reads as an oversight to the next maintainer.\n\nMutation-verified: setting __version__ = 2.4.136 fails with\n\"docs/README.md says version = '2.4.135' but docpluck/__init__.py defines\n__version__ = '2.4.136'\", and restoring it passes.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-21",
+          "url": "https://github.com/giladfeldman/docpluck/commit/ab291c78b9ed4fdff7d3097c015bb3261324ed1c",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -5995,56 +5330,7 @@
           "html_url": "https://github.com/ontogenerator"
         }
       ],
-      "commit_activity": [
-        {
-          "week": 1780790400,
-          "total": 0
-        },
-        {
-          "week": 1781395200,
-          "total": 0
-        },
-        {
-          "week": 1782000000,
-          "total": 0
-        },
-        {
-          "week": 1782604800,
-          "total": 0
-        },
-        {
-          "week": 1783209600,
-          "total": 0
-        },
-        {
-          "week": 1783814400,
-          "total": 0
-        },
-        {
-          "week": 1784419200,
-          "total": 0
-        },
-        {
-          "week": 1785024000,
-          "total": 0
-        },
-        {
-          "week": 1785628800,
-          "total": 0
-        },
-        {
-          "week": 1786233600,
-          "total": 0
-        },
-        {
-          "week": 1786838400,
-          "total": 0
-        },
-        {
-          "week": 1787443200,
-          "total": 0
-        }
-      ],
+      "commit_activity": [],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -6140,56 +5426,7 @@
           "html_url": "https://github.com/ontogenerator"
         }
       ],
-      "commit_activity": [
-        {
-          "week": 1780790400,
-          "total": 0
-        },
-        {
-          "week": 1781395200,
-          "total": 0
-        },
-        {
-          "week": 1782000000,
-          "total": 0
-        },
-        {
-          "week": 1782604800,
-          "total": 0
-        },
-        {
-          "week": 1783209600,
-          "total": 0
-        },
-        {
-          "week": 1783814400,
-          "total": 0
-        },
-        {
-          "week": 1784419200,
-          "total": 0
-        },
-        {
-          "week": 1785024000,
-          "total": 0
-        },
-        {
-          "week": 1785628800,
-          "total": 0
-        },
-        {
-          "week": 1786233600,
-          "total": 0
-        },
-        {
-          "week": 1786838400,
-          "total": 0
-        },
-        {
-          "week": 1787443200,
-          "total": 0
-        }
-      ],
+      "commit_activity": [],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -6517,7 +5754,7 @@
       ],
       "commits_30d": 30,
       "commits_7d": 13,
-      "commits_1d": 13,
+      "commits_1d": 12,
       "commits_90d": 86,
       "authors_30d": [
         "David Van Dijcke",
@@ -6784,6 +6021,21 @@
       ],
       "open_issues": [
         {
+          "number": 255,
+          "title": "roadmap: evidence-first Deep Agent, Lean verification, and open evaluation",
+          "url": "https://github.com/Davidvandijcke/coarse/issues/255",
+          "state": "open",
+          "updated_at": "2026-08-28",
+          "created_at": "2026-08-27",
+          "labels": [
+            "enhancement",
+            "priority: medium",
+            "roadmap"
+          ],
+          "comments": 2,
+          "author": "Davidvandijcke"
+        },
+        {
           "number": 281,
           "title": "Codex handoff autolinks URL into Markdown, breaking exact coarse-review command",
           "url": "https://github.com/Davidvandijcke/coarse/issues/281",
@@ -6934,25 +6186,6 @@
           ],
           "comments": 2,
           "author": "Davidvandijcke"
-        },
-        {
-          "number": 150,
-          "title": "epic(llm): true reasoning-depth tiers and same-model max-effort support",
-          "url": "https://github.com/Davidvandijcke/coarse/issues/150",
-          "state": "open",
-          "updated_at": "2026-08-27",
-          "created_at": "2026-04-17",
-          "labels": [
-            "enhancement",
-            "area: pipeline",
-            "area: llm",
-            "priority: medium",
-            "roadmap",
-            "area: evaluation",
-            "experimental"
-          ],
-          "comments": 2,
-          "author": "Davidvandijcke"
         }
       ],
       "closed_issues_recent": [
@@ -7090,11 +6323,11 @@
         },
         {
           "week": 1781481600,
-          "total": 24
+          "total": 31
         },
         {
           "week": 1782086400,
-          "total": 7
+          "total": 0
         },
         {
           "week": 1782691200,
@@ -7114,15 +6347,15 @@
         },
         {
           "week": 1785110400,
-          "total": 12
+          "total": 14
         },
         {
           "week": 1785715200,
-          "total": 2
+          "total": 3
         },
         {
           "week": 1786320000,
-          "total": 3
+          "total": 0
         },
         {
           "week": 1786924800,
@@ -7561,226 +6794,6 @@
           "branch": "feat/latest-models-deep-literature",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "26532e1",
-          "message": "release: v1.9.2 (#286)",
-          "body": "Release the preview-validated extraction QA integrity fix, OpenRouter vision routing, cache migration, dependency audit repair, and documentation updates.",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-08-27",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/26532e1cb618d809d4fad70cce9ee001dcf15855",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 700,
-            "deletions": 152,
-            "files": [
-              {
-                "filename": ".claude/commands/dev-loop.md",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 2,
-                "patch": "@@ -27,7 +27,7 @@ The script `scripts/dev_runner.py` does the mechanical work (running `claude -p`\n \n Verify the project is ready:\n ```bash\n-cd \"/Users/davidvandijcke/University of Michigan Dropbox/David Van Dijcke/coarse\" && git status && head -5 docs/DEV_BACKLOG.md\n+cd \"/Users/davidvandijcke/University of Michigan Dropbox/David Van Dijcke/coarse\" && git status && head -5 docs/plans/DEV_BACKLOG.md\n ```\n \n ### Step 1: Preview\n@@ -97,7 +97,7 @@ Monitor the output. If implementation fails:\n \n Afte"
-              },
-              {
-                "filename": "CHANGELOG.md",
-                "status": "modified",
-                "additions": 12,
-                "deletions": 0,
-                "patch": "@@ -2,6 +2,18 @@\n \n ## Unreleased\n \n+## v1.9.2 \u2014 2026-08-27\n+\n+### Added\n+\n+- **New comprehensive architecture guide and component documentation.** Reorganized planning documentation into `docs/plans/`. Added `docs/architecture.md` featuring Mermaid subsystem component trees, review pipeline workflow diagram, Table of Contents sitemap, and quality/recall benchmark suite documentation. Added `docs/cli_reference.md` for CLI command and configuration details. Docs-only \u2014 no package change.\n+\n+### F"
-              },
-              {
-                "filename": "CLAUDE.md",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -60,6 +60,7 @@ src/coarse/\n \u251c\u2500\u2500 extraction_openrouter.py # OpenRouter OCR/file-parser transport and response parsing\n \u251c\u2500\u2500 extraction_qa.py         # Post-extraction QA via vision LLM (Gemini Flash)\n \u251c\u2500\u2500 headless_clients.py      # Claude/Codex/Gemini CLI-backed LLMClient replacements\n+\u251c\u2500\u2500 headless_prompt.py       # Fail-closed text-only serializer for headless CLI prompts\n \u251c\u2500\u2500 headless_review.py       # Shared entrypoint for headless CLI review runs\n \u251c\u2500\u2500 structure.py             # PaperText \u2192 "
-              },
-              {
-                "filename": "CONTRIBUTING.md",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -40,6 +40,7 @@ src/coarse/\n \u251c\u2500\u2500 extraction_qa.py         # Post-extraction QA via vision LLM (Gemini Flash)\n \u251c\u2500\u2500 garble.py                # OCR garble detection and normalization\n \u251c\u2500\u2500 headless_clients.py      # Claude/Codex/Gemini CLI-backed LLMClient replacements\n+\u251c\u2500\u2500 headless_prompt.py       # Fail-closed text-only serializer for headless CLI prompts\n \u251c\u2500\u2500 headless_review.py       # Shared entrypoint for headless CLI review runs\n \u251c\u2500\u2500 llm.py                   # litellm wrapper, structured out"
-              },
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 6,
-                "deletions": 5,
-                "patch": "@@ -60,10 +60,11 @@ Or run `coarse setup` to store keys in `~/.coarse/config.toml`.\n ## Use your coding-agent subscription\n \n If you already have a `claude`, `codex`, or `gemini` CLI logged into its subscription,\n-`coarse-review` routes every pipeline LLM call through the local CLI (`claude -p`,\n-`codex exec`, `gemini -p`) so reviews bill your Claude Max / ChatGPT Pro / Google AI Pro\n-subscription instead of a pay-per-token API. Only the ~$0.05\u20130.15 Mistral OCR step on\n-PDF sources still uses `O"
-              },
-              {
-                "filename": "docs/architecture.md",
-                "status": "added",
-                "additions": 214,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,214 @@\n+# System Architecture & Component Guide\n+\n+Welcome to the architectural documentation for `coarse-ink` (import name `coarse`). This document provides a high-level overview of system components, execution pipelines, data transformations, and subsystem interactions.\n+\n+## Table of Contents\n+\n+- [System Architecture & Component Guide](#system-architecture--component-guide)\n+  - [Table of Contents](#table-of-contents)\n+  - [High-Level Architecture](#high-level-architecture)\n+  - ["
-              },
-              {
-                "filename": "docs/cli_reference.md",
-                "status": "added",
-                "additions": 96,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,96 @@\n+# CLI Reference Manual\n+\n+Comprehensive command-line interface guide for `coarse-ink`.\n+\n+## Table of Contents\n+\n+- [CLI Reference Manual](#cli-reference-manual)\n+  - [Table of Contents](#table-of-contents)\n+  - [Overview](#overview)\n+  - [CLI Commands](#cli-commands)\n+    - [`coarse review`](#coarse-review)\n+    - [`coarse-review`](#coarse-review-1)\n+    - [`coarse attach`](#coarse-attach)\n+  - [Configuration](#configuration)\n+    - [Configuration File (`~/.coarse/config.toml`"
-              },
-              {
-                "filename": "docs/plans/DEV_BACKLOG.md",
-                "status": "renamed",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "a94846c",
-          "message": "chore(release): prepare v1.9.2 (#285)",
-          "body": "Bump package and handoff pins to 1.9.2 and finalize the release changelog after preview signoff.",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-08-27",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/a94846c2b8dbb3f20ade853d7a0120b7232d37df",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "605b77c",
-          "message": "chore(release): prepare v1.9.2",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-08-27",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/605b77c80bbce63b792871e165ad90082609b041",
-          "type": "chore",
-          "branch": "codex/release-v1.9.2-prep",
-          "diff": {}
-        },
-        {
-          "sha": "313cae3",
-          "message": "chore: sync v1.9.1 main back into dev (#284)",
-          "body": "Preserve main ancestry and reconcile v1.9.1 release changes with current dev before v1.9.2.",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-08-27",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/313cae3d292eca07b83116171f7747d564b2cc95",
-          "type": "chore",
-          "branch": "codex/release-v1.9.2-prep",
-          "diff": {}
-        },
-        {
-          "sha": "ecd8024",
-          "message": "merge: sync main v1.9.1 into dev",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-08-27",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/ecd80244a32c962ea5db80171b2abce93fe3d4e3",
-          "type": "other",
-          "branch": "codex/release-v1.9.2-prep",
-          "diff": {}
-        },
-        {
-          "sha": "57efbb1",
-          "message": "fix(extraction): force headless vision QA through OpenRouter (#283)",
-          "body": "Prevent stale direct-provider keys from diverting the dedicated vision-QA call away from the required OpenRouter path. Follow-up to #282 and #254.",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-08-27",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/57efbb19c686ed7b65f18541dbe823f4d8fe0274",
-          "type": "fix",
-          "branch": "codex/release-v1.9.2-prep",
-          "diff": {}
-        },
-        {
-          "sha": "36af75b",
-          "message": "fix(extraction): force headless vision QA through OpenRouter",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-08-27",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/36af75bf837371142ca0b5445750c755e44a85ab",
-          "type": "fix",
-          "branch": "codex/fix-headless-vision-openrouter",
-          "diff": {}
-        },
-        {
-          "sha": "e762bbe",
-          "message": "fix(extraction): preserve vision QA images in headless reviews (#282)",
-          "body": "Route extraction vision QA through the real multimodal client, fail closed on non-text headless prompts, invalidate legacy PDF caches, disclose the QA charge, and restore a clean web dependency audit. Fixes #254.",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-08-27",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/e762bbe2b5d5407e27a79b0147ee34a3f6d625a0",
-          "type": "fix",
-          "branch": "codex/fix-headless-vision-openrouter",
-          "diff": {}
-        },
-        {
-          "sha": "9447813",
-          "message": "fix(web): patch nanoid audit blocker",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-08-27",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/94478137ab8fedd5a2145ddda3feda5fb2710b83",
-          "type": "fix",
-          "branch": "codex/fix-headless-vision-qa-254",
-          "diff": {}
-        },
-        {
-          "sha": "e476f88",
-          "message": "fix(extraction): preserve vision QA images in headless reviews",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-08-27",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/e476f882c3dbeb156f23adcf475a059571619a67",
-          "type": "fix",
-          "branch": "codex/fix-headless-vision-qa-254",
-          "diff": {}
-        },
-        {
-          "sha": "ce0bac9",
-          "message": "chore(release): prepare v1.9.1",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-08-27",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/ce0bac90cf4f529ed0220900ea1c1c6b35d0ad97",
-          "type": "chore",
-          "branch": "codex/release-v1.9.2-prep",
-          "diff": {}
-        },
-        {
-          "sha": "8daf944",
-          "message": "fix(codex): honor model-specific max effort",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-08-27",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/8daf9441deec54ff4781d3868f0373bea683e89e",
-          "type": "fix",
-          "branch": "codex/release-v1.9.2-prep",
-          "diff": {}
-        },
-        {
-          "sha": "14d7992",
-          "message": "Merge pull request #253 from corybaird/docs/architecture-and-docs-improvements",
-          "body": "DOCS Reorganize documentation directory and add architecture guide",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-08-27",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/14d7992e43345d1a433828a301bb503ab799bc99",
-          "type": "other",
-          "branch": "codex/fix-headless-vision-openrouter",
-          "diff": {}
-        }
       ]
     },
     {
@@ -7835,7 +6848,7 @@
       "commits_30d": 0,
       "commits_7d": 0,
       "commits_1d": 0,
-      "commits_90d": 115,
+      "commits_90d": 114,
       "authors_30d": [],
       "type_breakdown": {},
       "dormant_revived": false,
@@ -7928,19 +6941,19 @@
       "commit_activity": [
         {
           "week": 1780876800,
-          "total": 13
+          "total": 14
         },
         {
           "week": 1781481600,
-          "total": 31
+          "total": 33
         },
         {
           "week": 1782086400,
-          "total": 15
+          "total": 12
         },
         {
           "week": 1782691200,
-          "total": 19
+          "total": 18
         },
         {
           "week": 1783296000,
@@ -7975,68 +6988,7 @@
           "total": 0
         }
       ],
-      "code_frequency": [
-        {
-          "week": 1780790400,
-          "additions": 9287,
-          "deletions": -7297
-        },
-        {
-          "week": 1781395200,
-          "additions": 23153,
-          "deletions": -2235
-        },
-        {
-          "week": 1782000000,
-          "additions": 3518,
-          "deletions": -454
-        },
-        {
-          "week": 1782604800,
-          "additions": 10467,
-          "deletions": -11292
-        },
-        {
-          "week": 1783209600,
-          "additions": 11793,
-          "deletions": -3988
-        },
-        {
-          "week": 1783814400,
-          "additions": 1488,
-          "deletions": -13427
-        },
-        {
-          "week": 1784419200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785024000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785628800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786233600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786838400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1787443200,
-          "additions": 0,
-          "deletions": 0
-        }
-      ],
+      "code_frequency": [],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "AI-assisted comparison tool for preregistrations/clinical trial registrations/preclinical (animals) registrations and published papers. FastAPI serves the web UI and HTTP API; a CLI entrypoint enables backend-only runs with CSV-defined dimensions. Redis is used for task state when running via the web app.\n\nStatus: v1.0.0 (see [CHANGELOG.md](CHANGELOG.md)). AI judgements should be verified against the quoted sources in the report; accuracy notes live in the FAQ.\n\n- `app.py` / `backend/`: FastAPI app, routes, services (comparisons, embeddings, parsing).\n- `templates/` + `static/`: Frontend pages",
@@ -8397,68 +7349,7 @@
           "total": 2
         }
       ],
-      "code_frequency": [
-        {
-          "week": 1780790400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1781395200,
-          "additions": 682,
-          "deletions": -43
-        },
-        {
-          "week": 1782000000,
-          "additions": 2154,
-          "deletions": -50
-        },
-        {
-          "week": 1782604800,
-          "additions": 3579,
-          "deletions": -74
-        },
-        {
-          "week": 1783209600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783814400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1784419200,
-          "additions": 169,
-          "deletions": -6
-        },
-        {
-          "week": 1785024000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785628800,
-          "additions": 8211,
-          "deletions": -275
-        },
-        {
-          "week": 1786233600,
-          "additions": 2565,
-          "deletions": -93
-        },
-        {
-          "week": 1786838400,
-          "additions": 1615,
-          "deletions": -41
-        },
-        {
-          "week": 1787443200,
-          "additions": 0,
-          "deletions": 0
-        }
-      ],
+      "code_frequency": [],
       "star_history": [],
       "r_meta": {
         "version": "0.7.7",
@@ -8686,6 +7577,66 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "f1142e5",
+          "message": "sync from escicheckapp@c50a57f (effectcheck v0.7.7) (#40)",
+          "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: c50a57f6843e7da0568effd8183f9fe00f2478c2\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-21",
+          "url": "https://github.com/giladfeldman/escicheck/commit/f1142e573aa9ea5a76ab37d5e39a187604d963c4",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 105,
+            "deletions": 3,
+            "files": [
+              {
+                "filename": "DESCRIPTION",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,7 +1,7 @@\n Package: effectcheck\n Type: Package\n Title: Statistical Consistency Checker for Published Research Results\n-Version: 0.7.6\n+Version: 0.7.7\n Authors@R: c(person(given = \"Gilad\", family = \"Feldman\", role = c(\"aut\", \"cre\"),\n     email = \"giladfel@gmail.com\", comment = c(ORCID = \"0000-0003-2812-6599\")))\n Description: A conservative, assumption-aware statistical consistency checker"
+              },
+              {
+                "filename": "NEWS.md",
+                "status": "modified",
+                "additions": 94,
+                "deletions": 0,
+                "patch": "@@ -1,3 +1,97 @@\n+# effectcheck 0.7.7\n+\n+**A retry that skipped its own second chance, a test that guarded a branch\n+production never runs, and a comparison endpoint that quietly published NA.**\n+No parser, effect-size or verdict logic changed in this release: every fix is in\n+the worker's transport and provenance plumbing, plus the release gates that were\n+supposed to catch these and did not.\n+\n+The occasion was the v0.7.6 consumer-readiness handoff, which listed three\n+changes that had shipped"
+              },
+              {
+                "filename": "R/check.R",
+                "status": "modified",
+                "additions": 5,
+                "deletions": 1,
+                "patch": "@@ -8344,7 +8344,11 @@ compute_and_compare_one <- function(row,\n #'   before v0.7.6 that rewrite was invisible downstream. Surfaced as the\n #'   document-level columns \\code{upstream_sign_rewrites} (integer; NA when no\n #'   report was supplied, 0 when one was supplied and reported none) and\n-#'   \\code{upstream_normalization_version}. Deliberately does NOT set\n+#'   \\code{upstream_normalization_version}. Treat the count as a LOWER BOUND:\n+#'   docpluck's own report assigns rather than accumulat"
+              },
+              {
+                "filename": "man/check_text.Rd",
+                "status": "modified",
+                "additions": 5,
+                "deletions": 1,
+                "patch": "@@ -99,7 +99,11 @@ sign-recovery rules can turn a printed \\code{SE = 0.199} into \\code{-0.199}, and\n before v0.7.6 that rewrite was invisible downstream. Surfaced as the\n document-level columns \\code{upstream_sign_rewrites} (integer; NA when no\n report was supplied, 0 when one was supplied and reported none) and\n-\\code{upstream_normalization_version}. Deliberately does NOT set\n+\\code{upstream_normalization_version}. Treat the count as a LOWER BOUND:\n+docpluck's own report assigns rather than acc"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "fa66eeb",
+          "message": "sync from escicheckapp@e233a48 (effectcheck v0.7.6) (#39)",
+          "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: e233a48445133e59459bceb54cffd5c3e1a46884\nPackage version: 0.7.6\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-08-21",
+          "url": "https://github.com/giladfeldman/escicheck/commit/fa66eeb147adcb41835141cbe8947be0edcfe082",
+          "type": "chore",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -8841,56 +7792,7 @@
           "html_url": "https://github.com/ingmarboeschen"
         }
       ],
-      "commit_activity": [
-        {
-          "week": 1780790400,
-          "total": 0
-        },
-        {
-          "week": 1781395200,
-          "total": 0
-        },
-        {
-          "week": 1782000000,
-          "total": 0
-        },
-        {
-          "week": 1782604800,
-          "total": 0
-        },
-        {
-          "week": 1783209600,
-          "total": 0
-        },
-        {
-          "week": 1783814400,
-          "total": 0
-        },
-        {
-          "week": 1784419200,
-          "total": 0
-        },
-        {
-          "week": 1785024000,
-          "total": 0
-        },
-        {
-          "week": 1785628800,
-          "total": 0
-        },
-        {
-          "week": 1786233600,
-          "total": 0
-        },
-        {
-          "week": 1786838400,
-          "total": 0
-        },
-        {
-          "week": 1787443200,
-          "total": 0
-        }
-      ],
+      "commit_activity": [],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -8956,7 +7858,7 @@
         }
       ],
       "commits_30d": 23,
-      "commits_7d": 5,
+      "commits_7d": 2,
       "commits_1d": 0,
       "commits_90d": 23,
       "authors_30d": [
@@ -9070,75 +7972,14 @@
         },
         {
           "week": 1786924800,
-          "total": 6
+          "total": 9
         },
         {
           "week": 1787529600,
-          "total": 5
+          "total": 2
         }
       ],
-      "code_frequency": [
-        {
-          "week": 1780790400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1781395200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1782000000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1782604800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783209600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783814400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1784419200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785024000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785628800,
-          "additions": 15426,
-          "deletions": -580
-        },
-        {
-          "week": 1786233600,
-          "additions": 137,
-          "deletions": -34
-        },
-        {
-          "week": 1786838400,
-          "additions": 8863,
-          "deletions": -2357
-        },
-        {
-          "week": 1787443200,
-          "additions": 0,
-          "deletions": 0
-        }
-      ],
+      "code_frequency": [],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "> [!TIP]\n> New to auto-zcurve? The [user guide](https://shaheedazaad.github.io/auto-zcurve/)\n> is written for researchers, not developers, and covers install, adding an\n> API key, running your first project, and reading the results.\n\nauto-zcurve reads PDF articles, uses a supported LLM provider to extract focal\nstatistical results, and creates a z-curve analysis report with a plot, summary\nstatistics, and full disclosure table.\n\nThe default interface is a private browser app running only on your computer.\nYour PDFs, projects, and results stay local; only the PDF or its locally parsed\ntext is s",
@@ -9481,6 +8322,82 @@
           "type": "other",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "25dceed",
+          "message": "Release 0.12.6",
+          "body": "Fixes the Gemini model catalog being restricted to a small hardcoded\nallowlist (any generateContent-capable model is now offered, and the\nsaved model text is no longer blanked out when it's not in the\ncatalog), fixes a duplicated/conflicting \"Effects of interest\"\nextraction-instructions section, and adds app-wide default models,\na read-only view of the default extraction instructions, provider-\nswitch model autofill, a Sources-tab landing for new projects, and\nthe rendered extraction instructions in the results ZIP.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+          "author": "Shaheed Azaad",
+          "author_login": "shaheedazaad",
+          "date": "2026-08-22",
+          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/25dceedf86930b5c8bb6e0c963adcc16eec65307",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 150,
+            "deletions": 42,
+            "files": [
+              {
+                "filename": "auto_zcurve/__init__.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,3 +1,3 @@\n \"\"\"auto-zcurve CLI package.\"\"\"\n \n-__version__ = \"0.12.5\"\n+__version__ = \"0.12.6\""
+              },
+              {
+                "filename": "auto_zcurve/config.py",
+                "status": "modified",
+                "additions": 26,
+                "deletions": 0,
+                "patch": "@@ -5,6 +5,7 @@\n from pathlib import Path\n \n from .credentials import credentials_dir\n+from .models import DEFAULT_MODEL, normalize_model_name\n from .providers import normalize_provider\n \n \n@@ -61,6 +62,23 @@ def normalize_service_tier(value: object) -> str:\n     return tier\n \n \n+def normalize_default_gemini_model(value: object) -> str:\n+    text = str(value or \"\").strip()\n+    if not text:\n+        return DEFAULT_MODEL\n+    try:\n+        return normalize_model_name(text, \"gemini\")\n+    except V"
+              },
+              {
+                "filename": "auto_zcurve/models.py",
+                "status": "modified",
+                "additions": 9,
+                "deletions": 6,
+                "patch": "@@ -135,10 +135,6 @@ def _supports_generate_content(model: object) -> bool:\n     return any(str(action).lower() == \"generatecontent\" for action in actions)\n \n \n-def _looks_like_document_model(name: str) -> bool:\n-    return name.lower() in MAIN_MODEL_SET\n-\n-\n def _list_gemini_models(api_key: str) -> list[ModelOption]:\n     try:\n         from google import genai\n@@ -152,7 +148,7 @@ def _list_gemini_models(api_key: str) -> list[ModelOption]:\n         if not name:\n             continue\n         cle"
+              },
+              {
+                "filename": "auto_zcurve/projects.py",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 3,
+                "patch": "@@ -339,7 +339,8 @@ def update_project_schema(\n     return {\"changed\": True, \"reset\": has_results}\n \n \n-def project_snapshot(project: ManagedProject) -> dict:\n+def project_snapshot(project: ManagedProject, default_model: str | None = None) -> dict:\n+    default_model = default_model or DEFAULT_MODEL\n     sources = sorted(project.path.joinpath(\"sources\").glob(\"*.pdf\"))\n     records = latest_by_source(load_extractions(project.path))\n \n@@ -383,7 +384,7 @@ def response_text(record: dict, key: str) -"
+              },
+              {
+                "filename": "auto_zcurve/prompts.py",
+                "status": "modified",
+                "additions": 7,
+                "deletions": 12,
+                "patch": "@@ -6,11 +6,7 @@\n \n \n def default_effect_definition() -> str:\n-    return (\n-        \"Extract each article's 'focal' effects. Focal effects are those that support \"\n-        \"the claims in either the title or abstract of the article (a non-focal effect, \"\n-        \"for example, would be a manipulation check).\"\n-    )\n+    return \"Include only tests that support the claims in the article's title and/or abstract.\"\n \n \n def render_text_template(text: str, values: dict[str, str]) -> str:\n@@ -31,13 +"
+              },
+              {
+                "filename": "auto_zcurve/static/app.js",
+                "status": "modified",
+                "additions": 16,
+                "deletions": 7,
+                "patch": "@@ -354,7 +354,8 @@\n \n     if (tabPanels.length) {\n       const hash = window.location.hash.replace(\"#\", \"\");\n-      activateTab(validTabs.includes(hash) ? hash : \"overview\");\n+      const hasResults = document.body.dataset.hasResults === \"true\";\n+      activateTab(validTabs.includes(hash) ? hash : (hasResults ? \"overview\" : \"sources\"));\n     }\n   }\n \n@@ -908,12 +909,14 @@\n       modelOptions.innerHTML = payload.map((item) => `<option value=\"${escapeHtml(item.id)}\">${escapeHtml(item.name)}</opti"
+              },
+              {
+                "filename": "auto_zcurve/templates/project.html",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 2,
+                "patch": "@@ -1,7 +1,7 @@\n {% extends \"base.html\" %}\n \n {% block title %}{{ project.name }} \u00b7 auto-zcurve{% endblock %}\n-{% block body_attributes %}data-project-id=\"{{ project.id }}\"{% endblock %}\n+{% block body_attributes %}data-project-id=\"{{ project.id }}\" data-has-results=\"{{ 'true' if project.has_analysis_results else 'false' }}\"{% endblock %}\n \n {% block page %}\n <div class=\"page\">\n@@ -159,6 +159,7 @@ <h2>Extraction instructions</h2>\n       <form class=\"js-instructions stack-sm\" action=\"/{{ token }}"
+              },
+              {
+                "filename": "auto_zcurve/templates/settings.html",
+                "status": "modified",
+                "additions": 22,
+                "deletions": 0,
+                "patch": "@@ -78,6 +78,16 @@ <h2>Execution</h2>\n             <input class=\"input\" id=\"max-upload-size\" name=\"max_upload_size_mb\" type=\"number\" min=\"1\" max=\"512\" value=\"{{ app_settings.max_upload_size_mb }}\" required>\n             <p>Megabytes. Applied when new files are uploaded.</p>\n           </div>\n+          <div class=\"field\">\n+            <label for=\"default-gemini-model\">Default Gemini model</label>\n+            <input class=\"input\" id=\"default-gemini-model\" name=\"default_gemini_model\" type=\"text\" "
+              }
+            ]
+          },
+          "diff_summary": ""
         }
       ]
     },
@@ -10049,56 +8966,7 @@
           "html_url": "https://github.com/aaronpeikert"
         }
       ],
-      "commit_activity": [
-        {
-          "week": 1780790400,
-          "total": 0
-        },
-        {
-          "week": 1781395200,
-          "total": 0
-        },
-        {
-          "week": 1782000000,
-          "total": 0
-        },
-        {
-          "week": 1782604800,
-          "total": 0
-        },
-        {
-          "week": 1783209600,
-          "total": 0
-        },
-        {
-          "week": 1783814400,
-          "total": 0
-        },
-        {
-          "week": 1784419200,
-          "total": 0
-        },
-        {
-          "week": 1785024000,
-          "total": 0
-        },
-        {
-          "week": 1785628800,
-          "total": 0
-        },
-        {
-          "week": 1786233600,
-          "total": 0
-        },
-        {
-          "week": 1786838400,
-          "total": 0
-        },
-        {
-          "week": 1787443200,
-          "total": 0
-        }
-      ],
+      "commit_activity": [],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {
@@ -10232,68 +9100,7 @@
           "total": 0
         }
       ],
-      "code_frequency": [
-        {
-          "week": 1780790400,
-          "additions": 53,
-          "deletions": 0
-        },
-        {
-          "week": 1781395200,
-          "additions": 3,
-          "deletions": 0
-        },
-        {
-          "week": 1782000000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1782604800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783209600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783814400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1784419200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785024000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785628800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786233600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786838400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1787443200,
-          "additions": 0,
-          "deletions": 0
-        }
-      ],
+      "code_frequency": [],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\nOIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailoring the extension to your discipline requires no programming expertise, just edit a list.\n\nFollow this link: https://chr",
@@ -10458,7 +9265,7 @@
       "location": null,
       "blog": "https://regcheck.app",
       "twitter": null,
-      "public_repos": 23,
+      "public_repos": 24,
       "followers": 23,
       "following": 14,
       "created_at": "2018-03-22",
@@ -10899,9 +9706,9 @@
     }
   ],
   "digest": {
-    "week_start": "2026-08-20",
+    "week_start": "2026-08-21",
     "active_repos": 5,
-    "total_commits_7d": 27,
+    "total_commits_7d": 20,
     "dormant_revived": [],
     "new_releases": [
       {
@@ -10917,16 +9724,6 @@
         "commits": 13
       },
       {
-        "owner": "giladfeldman",
-        "repo": "docpluck",
-        "commits": 5
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "commits": 5
-      },
-      {
         "owner": "scienceverse",
         "repo": "metacheck",
         "commits": 2
@@ -10935,6 +9732,16 @@
         "owner": "giladfeldman",
         "repo": "escicheck",
         "commits": 2
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "commits": 2
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "commits": 1
       }
     ],
     "highlights": [
@@ -11180,213 +9987,6 @@
         "type": "other",
         "author": "Shaheed Azaad",
         "date": "2026-08-21"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Merge remote-tracking branch 'origin/dev' into pr-negative-p-values",
-        "body": "",
-        "type": "other",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Fix pre-merge line-ending index drift on study_1_script.do",
-        "body": "Same as convert_psychds/measures_module: .gitattributes forces\ntests/testthat/fixtures/** to text eol=lf, including this binary Stata .do\nfixture. Renormalizing here only so the working tree is clean before\nmerging dev, which replaces this rule with a correct one.",
-        "type": "fix",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Skip codebook_scales tests that require convert_psychds's psychds-convert.R",
-        "body": ".psychds_variable_measured() is defined only on the convert_psychds branch\n(R/psychds-convert.R does not exist here); these two tests reference it\ndirectly and errored with \"object not found\" on every run. Skipped with\nskip_if_not(exists(...)) rather than reimplementing untested logic blind --\nthey will run again once convert_psychds is merged in.",
-        "type": "other",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Merge remote-tracking branch 'origin/dev' into measures_module",
-        "body": "# Conflicts:\n#\tDESCRIPTION",
-        "type": "other",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Fix pre-merge line-ending index drift on study_1_script.do",
-        "body": "Same as convert_psychds (deca9cc's predecessor commit 786438f):\n.gitattributes forces tests/testthat/fixtures/** to text eol=lf, including\nthis binary Stata .do fixture. Renormalizing here only so the working tree\nis clean before merging dev, which replaces this rule with a correct one.",
-        "type": "fix",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Fix convert_psychds() calling undefined behaverse paradata functions",
-        "body": ".bh_paradata_keys() and .osd_write_paradata() are defined in\nR/behaverse-convert.R, which only exists on the measures_module branch,\nnot merged here -- both call sites errored with \"could not find function\"\non every convert_psychds() run. Replaced with the empty-vector/empty-list\nvalues .osd_write_scales() and .psychds_rocrate_json() already document as\ntheir own \"no paradata\" defaults, so convert_psychds() runs standalone\nwith no paradata cross-referencing until that branch is merged in.",
-        "type": "fix",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Merge remote-tracking branch 'origin/dev' into convert_psychds",
-        "body": "",
-        "type": "other",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Fix pre-merge line-ending index drift on study_1_script.do",
-        "body": ".gitattributes on this branch forces tests/testthat/fixtures/** to text\neol=lf, including this Stata .do fixture, which is binary content -- the\nsame class of CRLF-corruption bug dev's .gitattributes fix addressed.\nRenormalizing here only so the working tree is clean before merging dev,\nwhich replaces this rule with a correct one.",
-        "type": "fix",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Merge remote-tracking branch 'origin/dev' into reproducibility_check",
-        "body": "# Conflicts:\n#\t.gitattributes\n#\tDESCRIPTION\n#\tNAMESPACE\n#\tR/stato-map.R\n#\t_stuff/profile/cermine_example.xml",
-        "type": "chore",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Fix ResearchBox file-link collapsing and Stata quoted-filename regex",
-        "body": "ResearchBox hrefs pointing at a specific file within a box (e.g. a dotted\nbox variant or a numeric file id under the box) were treated as separate\nrepos; they are now truncated to the box id so all such links collapse to\nthe one box before repo_check sees them.\n\nThe unquoted-filename capture regexes in code_file_refs() were matching\ninside already-quoted Stata filenames that contain spaces, producing bogus\nextra references; they now only run against lines without a quoted\nfilename.\n\nPorted from the reproducibility_check branch (efedd30), which bundled these\nwith reproducibility_check()-specific changes that do not apply here since\nthat module isn't on dev yet.",
-        "type": "fix",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Report inaccessible OSF registration links instead of dropping them silently (#361)",
-        "body": "osf_type() already tells \"not a registration\" apart from \"a registration link that cannot be read\" (private, embargoed, withdrawn, or deleted), but prereg_check.R only ever used the former, so an inaccessible registration read identically to no registration being linked at all. Now tracked from both osf_type()'s \"inaccessible\" classification and a later fetch failure (osf_get_all_pages()'s osf_error attribute), and named in both summary_text and the full report.\n\nAdded a guard for the resulting zero-row edge case (every link inaccessible, no AsPredicted data) that would otherwise fall through to code assuming a paper_id column that is only added when prereg_info has rows.\n\nTests use testthat::with_mocked_bindings() rather than local_mocked_bindings(): the latter's deferred cleanup does not restore correctly through this project's custom test_that() wrapper in helper.R and leaks into whichever test runs next (same class of issue test-archive-osf.R's .osf_status_error test already flags for req_perform()).",
-        "type": "other",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Remove FLoRA_update() mock test and its oversized fixture (#364)",
-        "body": "The \"update\" test only asserted file.exists(path) on the download result, never its content or size, so its mock fixture recorded the real 5.6MB flora.csv as a 37MB text file checked into the repo for a test that needed none of it. It was also gated behind skip_if_quick(), so it never ran in a normal test pass. Not worth reconstructing a smaller fixture for; removed the test and both its fixtures (download body + guid listing).\n\nAlso confirms the mode = \"all\" default-change audit from #364: FLoRA_update() (R/db-replications.R) was the only affected caller, already fixed in 431e0c5. No other caller in R/, inst/app/, or tests/ relies on the old implicit default.",
-        "type": "test",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Fix inconsistent quoting in ethics_check.R @details phrasing (#360)",
-        "body": "Pattern examples in the \"Patterns are designed to capture\" section used plain double quotes, which roxygen renders as literal quote-mark characters rather than a code span. Converted to backticks throughout the section for consistent rendering.",
-        "type": "fix",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Improve GROBID/BIBR isalive error handling (#363)",
-        "body": ".grobid_isalive() and .bibr_isalive() discarded the real httr2 error and replaced it with a generic message, making transient failures hard to diagnose. Both now include conditionMessage(e) in the error, and retry on connection-level failure (not just HTTP transient responses) so a live server surviving a one-off blip doesn't fail the whole conversion.",
-        "type": "fix",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Fix power.R optional enum fields rejecting null on Groq (#365)",
-        "body": "ellmer's ProviderOpenAICompatible adds \"null\" to a type_enum(required = FALSE) field's type but never adds null to its enum, so Groq's response-side validator rejects a genuinely null response even though its own request-side schema allows it. Adding NA to each optional enum's value vector matches power.json's null-inclusive enums and fixes the mismatch (confirmed live against Groq).",
-        "type": "fix",
-        "author": "Daniel Lakens",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "fix(gate): the docs-consistency check verified ONE of the three versions it documents",
-        "body": "`docs/README.md` documents the provenance block a consumer receives -- package\nversion, `normalize_version`, `sectioning_version`, `table_extraction_version`.\nThe gate asserted the normalization version appears and checked nothing else, so\n`table_extraction_version: '2.4.10'` sat there against a source value of 2.4.12\nuntil it was noticed by eye while fixing an unrelated line.\n\nThat is the worse half of the defect: a reader comparing the documented\nprovenance against a real response finds a mismatch and has no way to know which\nside is wrong -- and the documented one is the one that looks authoritative.\n\nThe gate now compares every advertised pipeline version against its defining\nconstant, and reports DRIFT rather than demanding every doc name every version\n(it only asserts when the docs actually quote the key).\n\nMutation-verified: reintroducing '2.4.10' fails with\n\"docs/README.md says table_extraction_version = '2.4.10' but\ndocpluck/extract_structured.py defines TABLE_EXTRACTION_VERSION = '2.4.12'\".\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-        "type": "fix",
-        "author": "Gilad Feldman",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "chore(version): bump NORMALIZATION_VERSION to 1.9.57, and correct a stale doc",
-        "body": "The page-boundary fix changes normalize output on 16 of 26 baseline papers, so\nthe version that DESCRIBES that output has to move with it. Two runs producing\ndifferent text while reporting the same `normalize_version` is the defect this\nfield exists to prevent -- a consumer cannot tell them apart, and the provenance\nsays they are identical.\n\n`docs/check_docs_consistency.py` then caught `docs/README.md` still naming 1.9.56,\nwhich is the gate doing its job.\n\nALSO CORRECTED, found while fixing that: the same block in `docs/README.md`\nadvertised `table_extraction_version: '2.4.10'` against a source value of\n`2.4.12`. Nothing had flagged it -- the consistency gate checks the normalization\nversion and not this one -- so a reader comparing the documented provenance\nagainst a real response would have seen a mismatch and had no way to know which\nwas wrong.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-        "type": "docs",
-        "author": "Gilad Feldman",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "fix(normalize): a page NUMBER is furniture, a page BOUNDARY is structure",
-        "body": "`_normalize_text` stripped standalone page numbers with\n\n    re.sub(r\"^\\s*\\d{1,3}\\s*$\", \"\", t, flags=re.MULTILINE)\n\nand under MULTILINE the whitespace class matches THE FORM FEED, so the rule could\nconsume the page boundary standing beside the number it was deleting. It had been\nwrong since it was written, and a running footer sitting between the two held it\nlatent. The moment anything stripped that footer, every form feed in the document\nwent with it -- and with them the `\\n\\f\\f\\n` marker that separates the footnote\nappendix, folding it back into the body where a consumer reads it as running text.\n\nTwo papers in the render baseline were ALREADY in that state at HEAD: they report\n15 and 18 footnotes through `report.footnote_texts` while the returned string\ncarries no appendix at all. Nothing had ever noticed, because nothing compared\nthe two.\n\nMEASURED, 26-paper baseline vs a `git worktree` of HEAD, extracted in separate\ninterpreters and diffed per field:\n\n    lines removed / added (full text)     0 / 0\n    papers gaining page breaks           16   (+1 to +17 each)\n    footnote appendices RESTORED          2   (0 -> 1,288 and 0 -> 2,165 bytes)\n    papers made worse on any metric        0\n\nThe rule is now `_strip_standalone_page_numbers()` -- a named function, so its\ntest pins THE SHIPPED RULE rather than a retyped copy of the pattern. The form\nfeed is CAPTURED and put back, not merely excluded from the class: a page number\nis often the first thing on a new page, so the line itself begins with the break,\nand excluding it stopped those lines matching at all ('496'..'502' reappeared in\nthe body of 10.1016/j.jesp.2009.12.010). `_drop()` in F0's strip loop keeps the\nsame promise from the other side -- the segment split attaches a separator to the\nline BEFORE it, so deleting a running footer deleted its page break too.\n\nAll three guards mutation-verified: the original defect fails two tests, the\n`[ \\t]` half-fix fails one, neutering `_drop()` fails one. That last became a\nreal test only after the fixture was corrected -- it first put the furniture at\nthe TOP of each page, so its separator was a newline, `_drop()` was never\nreached, and the test passed with the guard removed.\n\n`_key` is hoisted to module level and strips non-whitespace control characters\n(pdftotext emits a running header as FF + text + BACKSPACE). It is a correctness\nfix to a key BOTH channels use; it changes no measured output today and its test\nsays so plainly rather than implying a capability.\n\nALSO: tools/diag/fused_cell_geometry_scan.py, the FUSED-GRID detector register\nG6h was blocked on until v2.4.135 gave every Camelot cell a verified rectangle.\nValidated on the census's own known positives before any count was quoted --\n'104594' fires at 15.15 em (136.4 pt) between '4' and '5', '4.603.804.80' at\n12.22 em. 80 fused cells, 1.13% of 7,065 measured, against the text-only\ncensus's 34 (0.29%). Threshold measured, not chosen: 71,733 intra-cell gaps give\np50=0.00 p90=0.00 p99=0.33 em, so 0.75 sits in an empty band. It REFUSES any cell\nwhose recovered glyphs are not its own text (3,139 of 10,215) rather than folding\nthem into the denominator -- the first draft did not, and reported 17.3 em\n\"fusions\" that were column gutters between two cells.\n\nTWO REVERTS, both recorded because the reasoning is worth more than the code:\n\nW0g/W0b/W0d are untouched here, but W0g is now DECIDED for deletion in its own\nrelease: re-measured at 12 sites in 4 of 250 papers where the record said 4, and\nat least 7 rewrite a quantity that is non-negative by definition. Confirmed on\nthe rasterized page -- 10.1525/collabra.118835 p7 prints\n`hedges' g = -.17, SE = 0.11, ...` and W0g emits `SE = -0.11`.\n\nLESSONS L-052 (the boundary), L-053 (a normalised key collides, so only\nrepetition may bless it), L-054 (\"no statistical content removed\" is not \"no\ncontent removed\" -- a containment rule scored ZERO RISK over 30 papers while\ndeleting the table header `Rank` 19 times out of 19, because the safety metric\nonly counted removals that looked like statistics).\n\nGates: 2864 passed / 27 skipped / 5 xfailed / 0 failed (1:45:08); two-tree\ntext-channel diff clean on all 26 baseline papers.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-        "type": "fix",
-        "author": "Gilad Feldman",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "chore: remove GitHub Actions entirely; the pin bump moves to a local script",
-        "body": "Owner directive 2026-08-20: \"remove any references to github actions or\nanything using it. I will never be paying to github to activate actions.\"\n\nDELETED \u2014 all three library workflows and the .github/ directory:\n  bump-app-pin.yml   test.yml   publish.yml\n(The app repo's verify-railway-deploy.yml and post-deploy-verify.yml go in the\nsame change, in that repo.)\n\nThis is a cost decision AND a correctness one. Two things happened the same day:\n\n  * The app repo's Actions were BILLING-BLOCKED (\"recent account payments have\n    failed or your spending limit needs to be increased\"), so\n    verify-railway-deploy.yml \u2014 the gate asserting production matched the pin \u2014\n    had silently not been running at all. A gate that cannot run is worse than\n    no gate: it looks like coverage.\n\n  * bump-app-pin.yml DOWNGRADED PRODUCTION. A history purge force-pushed tags\n    v2.4.134 and v2.4.135 together; both runs fired; the OLDER finished one\n    second later (14:56:57 vs 14:56:56) and won. Nothing failed. That is the\n    structural flaw of a remote trigger whose order nobody controls.\n\nREPLACEMENT \u2014 local, explicit, ordered:\n\n  bump-app-pin.yml       -> check_app_pin_sync.py --fix [--push]\n  test.yml               -> pytest + the pre-push canary hook + /docpluck-qa\n  publish.yml            -> python -m build && twine upload, run deliberately\n  verify-railway-deploy  -> deploy-drift-check.sh (already /ship Phase 0.5, and\n                            it is what caught the downgrade)\n  post-deploy-verify.yml -> the /post-deploy-verify skill\n\n`--fix` REFUSES to move the pin backwards \u2014 the guard the workflow never had.\nTested all three paths against a scratch repo: older refuses and leaves the file\nuntouched, equal no-ops, newer bumps and commits.\n\nENFORCED, not just documented (this session's own rule \u2014 if a check can be a\ntest, it must be a test): tests/test_public_repo_hygiene.py gains\ntest_no_github_actions_workflows_exist and\ntest_no_tracked_file_assumes_a_workflow_exists. The second one immediately\nfound a real dangling reference \u2014 scripts/check_docs_consistency.py read\n.github/workflows/test.yml to cross-check the Python version matrix, so it\nwould have crashed rather than passed. Repointed at `requires-python`, which is\nthe actual declaration and cannot vanish.\n\nAlso corrected while sweeping: check_app_pin_sync.py's MISMATCH message told\nthe reader to \"re-push the tag (re-fires the workflow)\" \u2014 advice that would now\ndo nothing.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-        "type": "chore",
-        "author": "Gilad Feldman",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "fix(ci): the last red test asserted a corpus CI cannot have by design",
-        "body": "`test_fixture_root_exists` guards against a relocated portfolio turning 12\nsnapshot tests into a silent green no-op. Good guard \u2014 but it asserted\nunconditionally, and a CI runner has no corpus BY DESIGN: the PDFs are\nclosed-access and must never be committed (article-finder is their sole\ncustodian). So absence on CI is the expected state, not a broken config.\n\nNow scoped: skip when `CI` is set and no explicit `VIBE_ROOT` was given. An\nexplicit VIBE_ROOT still means \"I told you where it is\" and is checked even on\nCI. On a developer machine the guard is unchanged and still fails loudly.\n\nVerified both directions:\n  local (corpus present) -> 1 passed   (still asserts)\n  CI=true                -> 1 skipped  (with the reason stated)\n\nWith this and the two collection errors, the library suite should go green in\nCI for the first time since at least 2026-08-07.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-        "type": "fix",
-        "author": "Gilad Feldman",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "fix(ci): CI has been red on every push since 2026-08-07 and nobody read it",
-        "body": "Two collection errors, neither caused by the change that surfaced them, both\nenvironmental, both making pytest report an INTERRUPTED run \u2014 so the whole\n2,798-test suite never executed in CI.\n\n1. `tests/test_provenance_completeness.py` imported `tomllib`, which is 3.11+,\n   while pyproject declares `requires-python = \">=3.10\"` and the CI matrix runs\n   3.10. Now falls back to the `tomli` backport (same API), added to the dev\n   extras under a `python_version < \"3.11\"` marker. A skip would have been a\n   coverage hole on the oldest interpreter we claim to support \u2014 precisely\n   where a provenance regression is most likely.\n\n2. `scripts/harness/corpus.py` raised FileNotFoundError at MODULE SCOPE when\n   the portfolio root was missing. `tests/test_harness_text_loss_reflow.py` is\n   a pure-logic test of `_fingerprint` and `check_text_loss` that touches no\n   corpus, but it imports the module transitively and therefore could not be\n   COLLECTED on any machine without the corpus \u2014 every CI runner.\n\n   The fail-loud behaviour is right and is UNCHANGED: `discover()`,\n   `build_manifest()` and `resolve()` each call `require_corpus_root()` first,\n   so a real run still fails immediately rather than silently discovering 0\n   documents. Only the import is now free.\n\nVerified by simulating a corpus-less machine:\n  VIBE_ROOT=<nonexistent> pytest tests/test_harness_text_loss_reflow.py -> 3 passed\n  VIBE_ROOT=<nonexistent> corpus.discover()                             -> raises, as required\n  pytest tests/test_provenance_completeness.py                          -> 46 passed\n\nA red gate nobody reads is the same defect as a check that never runs \u2014 see\nthis session's other findings.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-        "type": "fix",
-        "author": "Gilad Feldman",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "fix(ci): the auto-bump workflow could pin production BACKWARDS",
-        "body": "`bump-app-pin.yml` fires on any `v*.*.*` tag push and bumped the app's docpluck\npin to whatever tag fired it, with no check that the tag was NEWER than the pin\nalready in the file.\n\nFound the hard way, today. A history purge force-pushed v2.4.134 and v2.4.135\ntogether. Both runs fired; the v2.4.134 run finished last; production was\nsilently re-pinned to the OLDER library. Nothing failed \u2014 the workflow did\nexactly what it was written to do \u2014 and `check_app_pin_sync.py` was the only\nthing in the system that noticed.\n\nThe same race exists without a force-push: two tags pushed close together land\nin whatever order the runners finish.\n\nThe guard compares the incoming tag against the pin already in\n`service/requirements.txt` and no-ops unless it is strictly newer. Re-pushing an\nold tag is now safe.\n\nTested against the extracted step body, all three cases:\n  incoming v2.4.134 vs pin v2.4.135 -> REFUSES, pin unchanged\n  incoming v2.4.135 vs pin v2.4.135 -> no-op\n  incoming v2.4.136 vs pin v2.4.135 -> bumps\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-        "type": "fix",
-        "author": "Gilad Feldman",
-        "date": "2026-08-20"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "docs: scrub internal filenames, document three public APIs, fix a stale example",
-        "body": "PUBLIC files were citing files the public cannot fetch. 70 citations of\ninternal HANDOFF_/FINDINGS_/TRIAGE_/OUTBOX_/REPLY_ documents across\nCHANGELOG.md (51), LESSONS.md (18) and CLAUDE.md (1), plus references into\nother PRIVATE repos' internal layouts (`ESCIcheckapp/docs/...`,\n`CitationGuard/docs/...`). Each is replaced by what it actually was \u2014 \"an\ninternal handoff\", \"an internal findings note\" \u2014 so the sentence keeps its\nmeaning without publishing a filename or another project's structure.\n\nPATTERN references are deliberately preserved: `FINDINGS_*` in a .gitignore\ncitation and `docs/TRIAGE_<date>_...` in a naming convention describe the\nCONVENTION, not a file. A first pass scrubbed those too and turned two\nsentences into nonsense; the rule now requires a real date or a FROM_ segment\nbefore treating a token as a citation.\n\ndocs/README.md gained API entries for three public capabilities it had never\ndocumented: `extract_sections`, `symbol_contract()`/`explain_symbol()` \u2014 which\nSYMBOL_CONTRACT.md tells consumers is \"your interface\" \u2014 and table flattening,\nwhich the service exposes as `?flatten_tables_inline=true` while the library\nREADME mentioned it only in a telemetry-key table. Also fixed a\nreproducibility-receipt example still showing 2.4.134.\n\ndocs/BENCHMARKS_liteparse_2026-06.md no longer points at another project's\ninternal handoff.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-        "type": "fix",
-        "author": "Gilad Feldman",
-        "date": "2026-08-20"
       }
     ],
     "narrative": ""
@@ -11395,9 +9995,9 @@
     "total_repos": 16,
     "total_stars": 700,
     "total_forks": 127,
-    "total_commits_30d": 352,
-    "total_commits_7d": 27,
-    "total_commits_1d": 15,
+    "total_commits_30d": 351,
+    "total_commits_7d": 20,
+    "total_commits_1d": 14,
     "active_repos_7d": 5,
     "dormant_revived": 0,
     "total_open_issues": 167,
