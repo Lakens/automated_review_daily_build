@@ -1,5 +1,101 @@
 [
   {
+    "generated_at": "2026-09-01T20:40:47.891220+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-09-01T09:47:38Z",
+        "recent_commits": [
+          {
+            "sha": "5434118",
+            "message": "Raise Dryad zip-vs-file threshold from 4 to 12 files",
+            "body": "Even at the original threshold of 4, the ZIP BUCKET'S HOURLY CAP\n(20/hour -- separate from, and much tighter than, the 100/day ceiling)\nwas still being tripped repeatedly. Confirmed live against the real\nCooper-validation corpus run: batch 29 hit the same 5-file dataset's\nzip request on three consecutive restarts, because restarting the\nscript does not reset the host's quota clock -- only real elapsed time\ndoes, and not enough had passed between attempts.\n\nRecomputed against the corpus data on disk at the time (873 Dryad\ndatasets): threshold 4 needs 190 zip requests corpus-wide, a 9.5/hour\naverage even under the best-case 2-day spread -- already exceeding the\n20/hour ceiling on average, before accounting for a real run's uneven,\nbursty pacing. Threshold 12 needs only 33 zip requests corpus-wide\n(1.6/hour average), a far larger safety margin against the hourly wall\nspecifically.\n\nThis trades away some of the daily-quota-optimality the original\nthreshold-sweep found (12 is not that sweep's minimum-day threshold,\n3-6 was) for practical hourly headroom that matters more once a real\nrun is actually hitting the hourly cap repeatedly.\n\nUpdated the \"still uses zip\" unit test from 8 to 16 files to stay above\nthe new threshold. Full file-level test-repo-download.R suite passes\nclean (FAIL 0 | WARN 0 | SKIP 1 | PASS 77).",
+            "author": "Lakens",
+            "date": "2026-09-01",
+            "url": "https://github.com/scienceverse/metacheck/commit/543411845da9ec70bee22ebdd5f85423695fa1a4",
+            "type": "other",
+            "branch": "fix-dryad-zip-vs-file-threshold"
+          },
+          {
+            "sha": "6b31567",
+            "message": "Make Dryad's zip-vs-file-by-file download choice quota-aware",
+            "body": "Dryad throttles zip downloads and per-file downloads through two\nindependent per-IP quota buckets with very different sizes (confirmed\n2026-09-01 against Dryad's own open-source rate-limit config,\ndatadryad/dryad-app config/initializers/rack_attack.rb +\nconfig/app_config.yml): zip_downloads_per_day = 100,\nfile_downloads_per_day = 500 -- 5x more headroom on the file bucket.\n\nThe existing zip-vs-file decision only weighed request-count efficiency\n(worth_it <- n_wanted > 50 || record_n <= 2*n_wanted), which picks zip\nfor nearly every real dataset since callers almost always want \"all of\nit\". That means every Dryad dataset routed through the strict 100/day\nzip bucket while the much larger 500/day file bucket sat unused.\n\nRecomputed against the real Cooper-validation corpus (768 Dryad\ndatasets, 2710 files, 26 completed batches): always-zip needs 8\ncalendar days minimum (768 requests / 100 per day); always-file needs\n6 (2710 / 500); routing small datasets (<=4 files) to the file bucket\nand only larger ones to the zip bucket needs 3 -- the minimum across\nevery threshold from 0-50 tested, because it's the point where both\nbuckets fill up on the same day instead of one sitting idle while the\nother alone is the bottleneck.\n\nAdded a `quota_worth_it <- n_wanted > 4L` gate ANDed onto the existing\nrequest-count check, Dryad-only. Not applied to OSF/Zenodo/Dataverse/\nGitHub/GitLab's identical-looking worth_it lines elsewhere in the same\nfile -- only Dryad's independent-stacked-throttle asymmetry has been\nconfirmed; changing the shared logic for hosts whose rate-limit\nbehaviour was never verified would be a separate, unjustified change.\n\nTwo new unit tests confirm a small Dryad dataset skips zip even though\nthe old request-count-only logic would have picked it, and a larger\none still uses zip. Full package test suite passes clean\n(FAIL 0 | WARN 0 | SKIP 68 | PASS 4327).",
+            "author": "Lakens",
+            "date": "2026-09-01",
+            "url": "https://github.com/scienceverse/metacheck/commit/6b31567906b6c02122a745517a5a3a88c9ea4a88",
+            "type": "other",
+            "branch": "fix-dryad-zip-vs-file-threshold"
+          }
+        ]
+      },
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-29T20:31:38Z",
+        "recent_commits": [
+          {
+            "sha": "6dfe35c",
+            "message": "Refactor function factory helpers",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-08-29",
+            "url": "https://github.com/lhdjung/scrutiny/commit/6dfe35c4e8b11ad63c4b2208f876dd8e65538c80",
+            "type": "refactor",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-31T21:45:53Z",
+        "recent_commits": [
+          {
+            "sha": "3f74204",
+            "message": "feat(llm): support openai/gpt-5.6-sol-pro on the direct OpenAI route (#288)",
+            "body": "* feat(llm): support openai/gpt-5.6-sol-pro on the direct OpenAI route (#1)\n\nThe -pro suffix is an OpenRouter-only variant ID; OpenAI's own API 404s\non it. With a direct OPENAI_API_KEY, LLMClient now rewrites the wire\nrequest to the real model gpt-5.6-sol plus a reasoning {\"mode\": \"pro\"}\nbody via the new DIRECT_REQUEST_MODEL_ALIASES table in models.py, and\nsuppresses the conflicting default reasoning_effort. The OpenRouter\nroute keeps sending the variant ID untouched. The variant's pricing and\n272k long-context tier are registered (identical to base Sol per\nOpenRouter, verified 2026-08-30) so the pre-flight cost gate no longer\nquotes $0.\n\nCo-authored-by: Claude Fable 5 <noreply@anthropic.com>\n\n* fix(llm): route Sol pro through Responses API\n\n---------\n\nCo-authored-by: Claude Fable 5 <noreply@anthropic.com>\nCo-authored-by: Davidvandijcke <david.van.dijcke@gmail.com>",
+            "author": "ciamac moallemi",
+            "date": "2026-08-31",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/3f742046fdbebb0648fd89c369e59f412709c355",
+            "type": "feat",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-28T15:19:13Z",
+        "recent_commits": [
+          {
+            "sha": "4ea4b3b",
+            "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
+            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 69c3964cbc6c5fa72e1928aa83f610425e07cd6d\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
+            "author": "Gilad Feldman",
+            "date": "2026-08-28",
+            "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-09-01T16:12:05.931388+00:00",
     "narrative": "",
     "repos": [
@@ -27598,192 +27694,6 @@
             "url": "https://github.com/scienceverse/metacheck/commit/2ed0b66ff304aee1abce787e22f6bb9bdd25f2d2",
             "type": "other",
             "branch": "data_check"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-08-08T18:42:17.899774+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "giladfeldman",
-        "repo": "docpluck",
-        "url": "https://github.com/giladfeldman/docpluck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 7,
-        "pushed_at": "2026-08-07T17:59:58Z",
-        "recent_commits": [
-          {
-            "sha": "2185b00",
-            "message": "fix(qa): the corpus gate asks the custodian what it should cover, not the disk",
-            "body": "`scripts/verify_corpus.py` now gets everything from article-finder: the expected\npaper set, every PDF, and every baseline. No directory glob, no\n`../PDFextractor/test-pdfs` coupling, no `DOCPLUCK_SPIKE_BASELINE_DIR`, no\n`docs/superpowers/` default path. Papers are addressed by canonical key\n(`--paper 10.1177/19485506211056761`).\n\n**The coverage defect.** The gate derived its corpus from `glob(\"*.md\")` and\nprinted `N / N` where N was whatever it found -- so a half-present corpus\nreported a clean pass and a vanished one reported nothing at all. A denominator\ncomputed from the numerator can only ever say 100%. It now comes from\n`papers-with-view`, and three states are kept distinct:\n\n  nothing resolvable        SKIP,    exit 0   (this machine has no corpus)\n  some but not all          PARTIAL, exit 1   (the silent-shrink bug)\n  all resolved              PASS/WARN/FAIL\n\nNew `PDF_DRIFT` status: the repository's copy of a paper is not the\nmanifestation the baseline was built from. Rendering one and comparing it to a\nbaseline built from the other measures nothing, and would print the difference\nas a docpluck regression -- publisher PDF, arXiv preprint and PMC author\nmanuscript share a DOI but not bytes. It surfaced three such papers immediately.\n\n**Re-baselined onto the repository's own copies**, which removes PDF_DRIFT by\nconstruction: the artifact and the input the gate re-renders are now the same\nbytes. Done only after all 26 papers verified against the 2026-05-10 prototype\nbaseline with ZERO failures (23 in the corpus run, 3 individually once their\ndrift was diagnosed) -- a baseline captured from unverified output bakes in\nwhatever was wrong at capture time. The prototype set stays registered as\n`render-baseline__docpluck-splice-spike@2026.05.10` and is still selectable via\n`--baseline-view`.\n\nResult: 26 / 26 PASS, COVERAGE 26 / 26, exit 0.\n\nThree lookup bugs found and fixed on the way, each of which had made a real\npaper report as simply absent:\n\n- `10.1093/sf/soaf022` keys as `10.1093__sf__soaf022`; replacing only the FIRST\n  `__` produced a DOI matching nothing. Every `__` is an encoded `/`.\n- Two PDFs were ingested under a non-normalized mixed-case DOI, so the\n  lower-cased gold key could never find them. Fixed in `ingest-local-pdf.py`\n  (it now uses `_lib.normalize_doi` rather than a hand-rolled prefix strip), and\n  5 pre-existing unreachable index keys were normalized or removed.\n- `verified == 0` returned exit 0 as a clean SKIP even when every paper had\n  ERRORed or drifted -- a green run reported because everything failed. It now\n  skips only when nothing was ever attempted.\n\nAlso: LESSONS L-013, a CLAUDE.md hard rule, and the qa/review/iterate skills\nupdated to read the COVERAGE line rather than the PASS count, and to treat\nPDF_DRIFT as \"nothing was compared\" rather than as a render defect.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/2185b00f5f208e467cd85c6d90baad3142e068f6",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "2f203a3",
-            "message": "fix(tests): 984 KB of published article text left the repo; sha256 pins replace it",
-            "body": "`tests/snapshots/*.txt` were 12 byte-identical `extract_pdf()` outputs of real\npublished papers -- title, authors, affiliations, full body -- git-tracked and\nlive on a PUBLIC remote since 2026-05-07. `apa_efendic_affect.txt` carried\nSAGE's own reuse notice verbatim. Plaintext is *more* scrapable than the PDFs\nthis repo already refuses to commit.\n\nA sha256 asserts exactly the same byte-for-byte guarantee in ~1 KB and asserts\nnothing about anyone's copyright. `tests/snapshots/checksums.json` now pins the\ndigest, byte count and `method` per fixture; the pins were generated from the\nold `.txt` files and then re-derived from a live extraction run, which matched\ndigest-for-digest before anything was deleted.\n\nWhat a hash cannot do is print a diff, so that capability is restored rather\nthan dropped:\n\n  --snapshot-explain  dumps the actual text to tmp/ (gitignored) AND diffs it\n                      against the custodian's copy, fetched from article-finder\n                      by the paper's DOI\n  --snapshot-update   re-pins after an intentional extraction change\n\nThe 12 texts now live in article-finder as versioned tool artifacts\n(`extract-text__docpluck@2.4.126`), keyed by DOI, outside every repo. Verified\nend-to-end: with a pin deliberately corrupted, --snapshot-explain fetched the\ncustodian copy and produced a 0-byte diff (contents identical).\n\nAlso added, because the absence of each is what let this sit for three months:\n\n- `test_no_article_text_in_snapshot_dir` -- watched FAIL against the 12 real\n  files before they were removed. A shape check on the directory, not a\n  filename denylist: these files were named exactly like ordinary fixtures,\n  which is why three filename-based cleanup passes walked past them.\n- `test_checksums_cover_every_manifest_fixture` -- coverage is asserted, not\n  counted at runtime. The same defect class as the 24-skipped run this suite\n  shipped for four days.\n- `canonical_key` (the DOI) on every MANIFEST fixture.\n\nSwept the full 478-commit history with a new content-based detector\n(`article-finder/publication-text-scan.py`): these 12 files, in 28 blob\nrevisions, are the ONLY publication text this repo has ever held. No PDF was\never committed; `tests/golden/`, the manifest and `scripts/harness/` are clean.\n\nFull suite: 2088 passed, 166 skipped, 3 xfailed.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/2f203a30a7cd71f3cb8b924f3e6e798a829eda2f",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "48be7f9",
-            "message": "fix(tests): snapshot suite resolved fixtures under the pre-2026-08-03 Vibe root",
-            "body": "`test_v2_backwards_compat.py` hardcoded `$HOME/Dropbox/Vibe`. The portfolio\nmoved OUT of Dropbox on 2026-08-03 (Dropbox syncing a live .git corrupts\nrepos), so every fixture resolved to a path that no longer exists and all 12\nbyte-for-byte extraction tests SKIPPED \u2014 silently, reporting green.\n\nBefore: 24 skipped in 0.17s.  After: 25 passed in 201.80s.\n\nThis is verbatim the failure the portfolio hard rule warns about (\"a discovery\nhelper that returns empty when the root is wrong makes a broken run look like a\nclean one\" \u2014 the same rule notes the 2026-08-03 move went unnoticed for five\nweeks while weekly reviews 'passed'). Now resolves VIBE_ROOT then $HOME/Vibe,\nand a new test_fixture_root_exists FAILS when the root is absent. A missing\nindividual PDF stays a legitimate skip (not everyone has the closed-access\ncorpus); a missing ROOT is a broken configuration and must be visible.\n\nAll 12 snapshots still match byte-for-byte, so extract_pdf() output has not\ndrifted since 2026-05-07 \u2014 including across the 2026-05-14 poppler swap, on\nthese papers.\n\nNOT FIXED HERE, needs a user decision: those 12 snapshots are 984 KB of\npublished article text, git-tracked and live on the PUBLIC remote since\n7b04f8f. The test asserts byte-for-byte equality, which a sha256 gives\nidentically \u2014 so they can be replaced by ~1 KB of hashes with no loss except\ndiff context in the failure message. Purging the existing history requires a\nforce-push, which per LESSONS L-010 does not clean forks or PR refs.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/48be7f9e44eca8c87455c02e826cd5709b2a9cde",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "63b9ba3",
-            "message": "fix(qa): restore the corpus render gate, dead since the 2026-08-06 redaction",
-            "body": "`SPIKE_OUT_DIRS` held two identical literals reading \"an internal design\ndoc\". The de-referencing pass replaced the two real baseline paths with that\nplaceholder prose, so every run since printed \"ERROR: no spike baselines\nfound\" and exited 1 \u2014 while docpluck-qa check 7b documents that exact message\nas an expected clean skip on a fresh checkout. A CRITICAL render-regression\ngate was disabled for a week and its deadness read as normal. The 26 baseline\nfiles (7 + 19, the documented count) were on disk the whole time.\n\nResolved via DOCPLUCK_SPIKE_BASELINE_DIR with a runtime default. Missing\nfixture is now a loud SKIP (exit 0); baseline dirs that exist but hold no .md\nis a FAIL (exit 1). Conflating those two is what trained people to ignore the\nmessage \u2014 the same SKIP-vs-ERROR confusion already fixed once in\ntests/test_canary_provenance.py.\n\nRestored and run: 26 / 26 PASS at v2.4.126, so this release introduces no\nrender regression.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/63b9ba38cc442515c0b9f471c6f82ad4265e29cc",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "e58dee7",
-            "message": "fix: act on the final verification pass; package is now lint-clean",
-            "body": "An independent pass re-derived all eight behavioural claims in fresh\nprocesses against a real paper (identical version dict before vs after\nimporting every engine; 245ms/16ms; byte-identical default render at\n21776 chars vs standard 21777 and none 22487; 12/12 CLI sections carrying\nsubheadings; zero bare \"pdftotext\" literals). All eight held. It also found\nwhat follows.\n\nREPLY_FROM_DOCPLUCK_v2.4.126.md contained a FALSE claim: \"both consumer\nsurfaces now derive from the dataclass\" was true of the library CLI and\nfalse of the service, which still hand-enumerated nine keys and still\ndropped `subheadings`. Fixed the data loss rather than only the sentence \u2014\n`Section.subheadings` has existed since sectioning v1.6.1, so the service\ncan emit it against the CURRENT 2.4.125 pin; the switch to Section.to_dict()\nstays queued for after the bump. API.md's schema gains the key, and its\n`pages` row no longer implies PDF populates it (nothing does).\n\nThree code defects, each reproduced first:\n- batch.py imported `fields` and never used it.\n- sections/__init__.py annotated `normalization_level` with a forward ref to\n  a name imported only inside the function body, so\n  typing.get_type_hints(extract_sections) raised NameError. Module-level\n  import; verified no cycle (normalize's back-import is lazy, and importing\n  docpluck.sections first in a fresh process resolves).\n- an unused import in the test module.\n\nThen the lint the sweep implied, all pre-existing: three unused locals\nINSPECTED rather than deleted (an assigned-but-unused value in extraction\nlogic is the \"silently dropped computed value\" class \u2014 all three were\nvestigial, none was a lost value), one dead local in SectionedDocument.all()\nremoved after verifying every documented case still resolves, and four\nunused imports. `ruff --select F401,F811,F841` now passes clean over\ndocpluck/.\n\nFull suite 2061 passed / 0 failed, md5-verified against the tested tree.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/e58dee7ff4c2159c710fea20b9216d82593063a8",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "519c63f",
-            "message": "fix(provenance): four surfaces claimed what the call graph did not do",
-            "body": "Second, max-effort pass over the v2.4.126 work. The first pass fixed the\nreported bug; sweeping for the CLASS found three more library defects, and\nthree review rounds found more defects in the fix than the fix had found in\nthe code. Full suite 2061 passed / 0 failed (2015 baseline + 46 new).\n\nReceipt (get_version_info): 3 keys -> 18. Beyond the first pass it now also\nreports pdftotext_path (the exact binary, resolved once and used by the\nextraction call sites too, so the receipt cannot name a build that did not\nrun), pdfminer.six, pypdfium2, opencv, mammoth, beautifulsoup4, lxml --\ntwo of three input formats were unpinned entirely -- plus python_version\nand unicodedata_version, since normalize.py calls unicodedata.normalize.\nEngine versions come from installed distribution metadata, NOT the imported\nmodule's __version__: preferring the module made opencv_version read\n4.13.0.92 before `import cv2` and 4.13.0 after, one process, one install,\ntwo answers. Stated cost: a shadowing module is not detected.\n\nrender_pdf_to_markdown(normalization_level=) was a SILENT NO-OP -- accepted,\ndocumented as forwarded, discarded; none/standard/academic gave byte-identical\nmarkdown. extract_sections now takes the level and applies it. The default\nmoved standard->academic (what the code actually did) so output is unchanged\nfor callers who never passed it.\n\nSection.subheadings (v1.6.1) reached NO consumer -- the CLI and the service\nhad each independently enumerated the nine pre-v1.6.1 keys. Section.to_dict\n/ SectionedDocument.to_dict now derive from fields().\n\nappend_footnotes_section was dead twice over (zero call sites; unreachable\nprecondition) while docpluck-review SKILL.md described it as live. Removed.\n\nNot fixed, documented and queued: Section.pages is always () on every format\n(page mapping needs layout=, which the sections path deliberately omits per\nL-001; wiring it is a corpus-wide change needing its own gated cycle).\n\nPerf: count_greek_chars was 60x slower than a regex (247s vs 4s across the\nrequester's 8,431-doc corpus); a correctness fix then called\npackages_distributions() per engine (6-11s a call, uncached by the stdlib),\ntaking get_version_info() from ms to 24s. Now 122ms first call, 13ms after.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/519c63fa1dbc449f65e08fcdd018c667042938fc",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "2ae5d38",
-            "message": "feat(provenance): report every input that can change output (v2.4.126)",
-            "body": "MetaESCI asks A-1/A-2. A docpluck SHA did not pin extraction: the same SHA\n(a5c02ef) against the same PDF (10.1098/rsos.202336) produced 49,091 vs\n50,101 normalized chars across a poppler binary replacement, and\nget_version_info() reported three keys that were identical in both runs.\n\nFixes the class, not the symptom. get_version_info() now reports the\npdftotext binary version AND engine (poppler/xpdf differ behaviourally and\nshare a banner), poppler_version, pdfplumber, camelot, plus the in-repo\nsectioning_version and table_extraction_version that were exported and\nbumped independently of the package version but never on the receipt.\nNORMALIZATION_VERSION is now exported from the package top level.\n\nExtractionReport carries the same; ExtractionFileResult gains\nn_replacement_chars and n_greek_chars (A-2), measured on the normalized\noutput.\n\nSibling defects found by sweeping for the same shape:\n- NormalizationReport.to_dict() was silently dropping\n  column_interleave_pages, a populated field extract_columns documents as\n  the canonical source of that signal. Live, predates this change.\n- The per-file sidecar recorded ok:false on every SUCCESSFUL extraction,\n  and an elapsed_seconds:0.0 written before the timer stopped.\nAll three hand-enumerated serializers now derive from asdict().\n\nAlso: INBOX_* was missing from .gitignore's cross-project correspondence\nblock, so an inbox doc had been committed to this public repo (unpushed;\nthose commits were dropped). Duplicate L-010 heading renumbered.\n\n31 tests, all verified failing against the unfixed code first. Full suite\n2046 passed / 0 failed.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/2ae5d3839e049013f0aeab09ae15d50eb49a2e3d",
-            "type": "feat",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "marton-balazs-kovacs",
-        "repo": "tenzing",
-        "url": "https://github.com/marton-balazs-kovacs/tenzing",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-07-23T04:38:31Z",
-        "recent_commits": [
-          {
-            "sha": "ea980fd",
-            "message": "Built site for tenzing@0.4.1: d271884",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-07-23",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "d271884",
-            "message": "Update success alert title in sweet_alert.js",
-            "body": "Update terminology from infosheet to contributors table",
-            "author": "Alex O. Holcombe",
-            "date": "2026-07-23",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
-            "type": "other",
-            "branch": "master"
-          }
-        ]
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-08-04T15:12:55Z",
-        "recent_commits": [
-          {
-            "sha": "a4d6ec8",
-            "message": "Avoid automatic Keychain access",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-08-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4d6ec84b42f896083556c753d2f57d31150d02e",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "09891d3",
-            "message": "win64 installer fix",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-08-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/09891d37d1e844e14d80d53076df043ccf014133",
-            "type": "fix",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "quest-bih",
-        "repo": "oddpub",
-        "url": "https://github.com/quest-bih/oddpub",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-07-30T15:11:29Z",
-        "recent_commits": [
-          {
-            "sha": "ec80478",
-            "message": "nature das and cas detection",
-            "body": "",
-            "author": "ontogenerator",
-            "date": "2026-07-30",
-            "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
-            "type": "other",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "escicheck",
-        "url": "https://github.com/giladfeldman/escicheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-07T13:16:26Z",
-        "recent_commits": [
-          {
-            "sha": "65405e0",
-            "message": "sync from escicheckapp@7bdc364 (effectcheck v0.6.20) (#35)",
-            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/escicheck/commit/65405e0e53c574a1b74b583edb7003efed461a93",
-            "type": "chore",
-            "branch": "main"
           }
         ]
       }
