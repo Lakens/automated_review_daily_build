@@ -1,5 +1,161 @@
 [
   {
+    "generated_at": "2026-09-01T03:35:48.220363+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 5,
+        "pushed_at": "2026-08-21T19:16:04Z",
+        "recent_commits": [
+          {
+            "sha": "56b67b0",
+            "message": "release: v2.4.137 \u2014 a fix in the COMPARISON KEY is not a fix in the SHIPPED string",
+            "body": "v1.9.57 diagnosed that one stray U+0008 BACKSPACE made a Frontiers running\nheader unequal to its layout-channel twin, and fixed it inside `_key()` \u2014 F0's\ncomparison key. The character stayed in the emitted text, where a completely\nunrelated rule landed on it one day later:\n`_prior_paragraph_is_sentence_terminated` walks back over whitespace and\nrequires what it finds to be in \".!?/\". On 10.3389/fvets.2025.1645266 the walk\nlanded on the BACKSPACE, discarded the `1 Introduction:` heading, and greedy\nspan-fill handed the preceding KEYWORDS span 69,849 characters \u2014 the whole\narticle. Found by an external benchmark, not by us.\n\n* C0 `_strip_furniture_controls` (NORMALIZATION_VERSION 1.9.58), run before F0\n  so the comparison key and the output are ONE rule. One character wide and\n  measured: all 33 corpus U+0008 sites are '.'+BS+newline, none are overstrike.\n  U+0002/03/04/07 are corrupted CONTENT glyphs (Schri<02>macher =\n  \"Schrittmacher\") and are COUNTED, not stripped, in the new\n  `NormalizationReport.residual_control_chars`.\n* The heading guard skips page breaks and control characters, and a canonical\n  heading carrying BOTH a line-initial section number AND a colon no longer\n  needs a terminated prior paragraph (SECTIONING_VERSION 1.2.5). Both halves\n  are required: `2 Literature search` on the same paper resolves canonically to\n  `references`, so a number-only escape would open back-matter mid-article.\n  Measured blast radius: 3 of 39 guard rejections were furniture; the escape\n  fires exactly once in 30 papers.\n* The boundary-truncation pass, unreachable since v1.6.1 (`_NO_TRUNCATE =\n  set(SectionLabel)` matched every label), is deleted.\n\nThe C0 strip ALONE does not fix that paper \u2014 the first probe said it did,\nbecause it stripped the character from an already-normalized string while the\nshipped order runs C0 before H0. Test the composition that ships (LESSONS\nL-055, L-056).\n\nArena effect, 30 held-out PMC papers: body-label slice 0.7681 -> 0.7911,\noracle 0.8038 -> 0.8140, collapses 5 -> 4, recall median 0.9862, 0 regressions.\n\nGates: 2,885 passed / 0 failed; non-statistic corpus scan CLEAN 60/60;\nrender-deletion 26/26 with 0 content lost; verify_corpus 26/26 COVERAGE 26/26;\nservice suite 183 passed; public-repo hygiene 11/11.",
+            "author": "Gilad Feldman",
+            "date": "2026-08-21",
+            "url": "https://github.com/giladfeldman/docpluck/commit/56b67b06d6a7c21f1fef88978b72ecc85820f8c2",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "86c9e98",
+            "message": "docs(changelog): v2.4.136's measurements were the LAYOUT path, presented as universal",
+            "body": "The entry said \"16 papers gain page breaks; 2 footnote appendices restored\" with\nno indication of which callers see it. Two of those three claims do not reach the\nHTTP API at all, and the entry as written told consumers otherwise.\n\n`_f0_strip_running_and_footnotes` returns immediately without a `LayoutDoc`, and\nthe footnote appendix is F0's product. Enumerated rather than assumed:\n\n    batch.py:355              passes layout   -> full change\n    sections/__init__.py:116  passes layout   -> full change\n    service/app/main.py:532   NO layout       -> page breaks only\n    service/app/main.py:1007  NO layout       -> page breaks only\n\nRe-measured through the no-layout path the service actually runs: 12 of 26 papers\nchange (not 16), 0 appendices restored (not 2), and still 0 lines removed or\nadded. The API gains page boundaries and loses nothing; it gains no appendix.\n\nAND THE LARGER FINDING, pre-existing and not this release's doing: because the\nservice never computes a layout, F0 has NEVER run in production, and neither has\nany layout-gated repair -- W0h (dropped minus via cid glyph), W0m (beta-as-b via\nfont), W0p (superscript via size+baseline). Every API consumer has been receiving\ntext with running headers intact and those three repairs absent, while the same\ndocument through `extract_to_dir` is repaired. Two paths, one version, different\nnumbers.\n\nThis is the identical shape CLAUDE.md records for batch.py and marks FIXED in\nv2.4.128 -- the service was never checked. NOT fixed here: wiring a layout into\nthe service roughly doubles per-document cost and changes output for every\nconsumer at once, which is a deliberate decision, not a doc fix. Tracked in the\nhandoff and in both consumer notices.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-21",
+            "url": "https://github.com/giladfeldman/docpluck/commit/86c9e981c7becabfd27ff095b98911a75c0c9d6f",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "a1979ae",
+            "message": "release: v2.4.136 \u2014 a page NUMBER is furniture, a page BOUNDARY is structure",
+            "body": "Bumps __version__ + pyproject to 2.4.136 and promotes the CHANGELOG entry.\nNORMALIZATION_VERSION was already at 1.9.57 (cd89380), because the output\nchanged then and the version describing that output had to move with it.\n\nWHAT SHIPS. `_normalize_text` stripped standalone page numbers with\n`^\\s*\\d{1,3}\\s*$` under MULTILINE, and the whitespace class matches THE FORM\nFEED \u2014 so the rule could consume the page boundary beside the number it deleted.\nWrong since it was written, held latent by a running footer standing between the\ntwo. Two baseline papers were ALREADY broken at HEAD: 10.1016/j.jesp.2021.104154\nand 10.1016/j.joep.2020.102350 reported 15 and 18 footnotes through\nreport.footnote_texts while the returned string carried no appendix at all.\n\nCONSUMER-VISIBLE CHANGE, and consumers must be told: the `\\n\\f\\f\\n` marker that\nseparates the footnote appendix now actually appears on those papers. A consumer\nsplitting on it gets a body WITHOUT the footnotes where it previously got a body\nWITH them silently inlined. That is a correction, but it is a change.\n\nMeasured, 26-paper baseline vs a git worktree of the prior tree, separate\ninterpreters: 0 lines removed, 0 added; 16 papers gain page breaks (+1..+17);\n2 appendices restored (0 -> 1,288 and 0 -> 2,165 bytes); 0 papers worse.\n\ndocs/README.md's advertised `'version'` was updated \u2014 and it was the gate added\nin ab291c7 that caught it going stale, on its first real release. That gate now\nhas its own test (bc6b861), because it had none and had been edited twice in one\nsession.\n\nGATES, all on the shipping tree:\n  library suite      2864 passed, 27 skipped, 5 xfailed, 0 failed (1:25:37)\n  service suite      183 passed, 2 skipped\n  two-tree diff      0 lines removed/added across 26 papers\n  render-deletion    0 papers losing content, COVERAGE 26/26\n  non-statistic scan CLEAN, 0 defects, COVERAGE 40/40\n  corpus verifier    26/26 PASS, COVERAGE 26/26\n  concurrency (14e)  6x200, 2x429 service_busy, zero 502s, max 66s\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-21",
+            "url": "https://github.com/giladfeldman/docpluck/commit/a1979aeda597666707d297436e94008194809fd7",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "bc6b861",
+            "message": "test(gate): the docs-accuracy gate had no test, and was edited twice in one session",
+            "body": "`scripts/check_docs_consistency.py` asserts that the version numbers\n`docs/README.md` advertises still match the constants this package defines. It is\ninvoked by hand from handoffs and release checklists and by nothing automatic \u2014\nso it was changed twice today (2657047, ab291c7) with nothing pinning either\nchange, and the second of those changes existed only because the first had a gap\nnobody could have caught.\n\nA check that CAN be a test MUST be a test. A gate nobody runs is\nindistinguishable from a gate that passes, and this one guards a claim that\nreaches consumers: `docs/README.md` documents the provenance block\n`get_version_info()` returns.\n\nFive cases, each pinning a failure that actually happened or is about to:\n\n  * the gate PASSES on the committed tree\n  * a drifted PACKAGE version is caught \u2014 the one that goes stale on EVERY\n    release, uncovered until ab291c7\n  * a drifted PIPELINE version is caught \u2014 `table_extraction_version` sat at\n    '2.4.10' against a source 2.4.12 until it was spotted by eye\n  * a drifted NORMALIZATION version is caught\n  * the two deliberately-ungated keys are still NAMED in the gate, so the reason\n    for excluding them cannot be silently lost\n\nEach drift runs against a COPY of only the files the gate reads, in tmp \u2014 the\ntest never mutates the working tree, and does not drag the corpus along.\n\nMUTATION-VERIFIED IN TWO DIRECTIONS, because a test that has never failed against\nthe real defect proves nothing:\n\n  removing the package-version line   -> exactly 1 test fails\n  removing the whole sibling loop     -> 3 tests fail\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-21",
+            "url": "https://github.com/giladfeldman/docpluck/commit/bc6b861b423f6e123cfbb0307a7e290d063a8ea5",
+            "type": "test",
+            "branch": "main"
+          },
+          {
+            "sha": "ab291c7",
+            "message": "fix(gate): the version check missed the ONE version that goes stale every release",
+            "body": "Hard rule 23 says a universal-quantifier claim is only as good as the enumeration\nbehind it. The previous commit's message claimed the gate \"compares every\nadvertised pipeline version against its defining constant\". Enumerating the\nprovenance block in docs/README.md rather than trusting that sentence:\n\n    advertised   version, normalize_version, sectioning_version,\n                 table_extraction_version, python_version, unicodedata_version\n    covered      normalize_version, sectioning_version, table_extraction_version\n    UNCOVERED    version, python_version, unicodedata_version\n\nSix keys, not the five I had in mind -- `unicodedata_version` was not even on my\nlist. The claim was defensible for the three PIPELINE versions and silent about\nthe rest, which is exactly the shape rule 23 exists to catch.\n\n`version` is now covered, and it is the important one: it is the package version,\nso it goes stale on EVERY release, and docs/README.md advertises it as `2.4.135`.\nThe very next release would have made that doc wrong with nothing to say so.\n\n`python_version` and `unicodedata_version` are deliberately NOT gated, and the\ncode says why: they are runtime facts this repo does not define, so there is no\nconstant for them to drift from. Recording the reason matters more than the\nexclusion -- an unexplained gap reads as an oversight to the next maintainer.\n\nMutation-verified: setting __version__ = 2.4.136 fails with\n\"docs/README.md says version = '2.4.135' but docpluck/__init__.py defines\n__version__ = '2.4.136'\", and restoring it passes.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
+            "author": "Gilad Feldman",
+            "date": "2026-08-21",
+            "url": "https://github.com/giladfeldman/docpluck/commit/ab291c78b9ed4fdff7d3097c015bb3261324ed1c",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-08-31T08:36:21Z",
+        "recent_commits": [
+          {
+            "sha": "251e47e",
+            "message": "Merge pull request #377 from scienceverse/fix-code-check-empty-sapply",
+            "body": "Fix code_check crash when every file in a batch fails to download",
+            "author": "Daniel Lakens",
+            "date": "2026-08-31",
+            "url": "https://github.com/scienceverse/metacheck/commit/251e47e432092009b056d8f678a617dca0a99d25",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "16e2492",
+            "message": "Fix code_check crash when every file in a batch fails to download",
+            "body": "Three related bugs in code_check.R, all triggered by the same real-world\ncondition: every code file for a paper fails to download (e.g. a Dryad\nrate limit genuinely exhausted mid-corpus-run), leaving code_files with\nno rows that ever reached the per-file try block, so several columns are\nabsent entirely rather than NA-filled.\n\n1. `sapply(code_files$library_max_between > 3, isTRUE)` on a zero-length\n   input silently returns list() instead of logical(0). Subscripting\n   code_files$file_name with that list() throws \"invalid subscript type\n   'list'\" -- this is what actually crashed batch 27 of the Cooper\n   validation corpus run. Fixed with vapply(), whose declared FUN.VALUE\n   always returns the right type regardless of input length.\n\n2. The comments-table block assumed `percentage_comment` always exists as\n   a column and threw \"undefined columns selected\" when it didn't. Now\n   guarded the same way n_analysed/comment_issue already handled it\n   (treat an absent column as nothing to report).\n\n3. The final summary_table `dplyr::summarise()` referenced code_abs_path,\n   loaded_files_missing, percentage_comment, and parse_error unguarded.\n   code_setwd already had an `if (col %in% names(code_files))` guard for\n   the same reason; the other four did not. Added the same guard to all\n   of them via a small has_col() helper.\n\nReproduced deterministically with a mocked download_repo_files() that\nalways fails, added as a regression test. Full package test suite passes\nclean (FAIL 0 | WARN 0 | SKIP 68 | PASS 4323).",
+            "author": "Lakens",
+            "date": "2026-08-31",
+            "url": "https://github.com/scienceverse/metacheck/commit/16e24923f913fef80567a08ca8c4eb4aa7cb3a0c",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "7436d43",
+            "message": "Merge pull request #376 from scienceverse/fix-ratelimit-aware-retry",
+            "body": "Wait for the real Dryad/Zenodo/GitHub/GitLab rate-limit reset instead of blind exponential backoff",
+            "author": "Daniel Lakens",
+            "date": "2026-08-31",
+            "url": "https://github.com/scienceverse/metacheck/commit/7436d438ed3576a20db50e84347af2766878e7ad",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "eebbcea",
+            "message": "Wait for the real rate-limit reset instead of blind exponential backoff",
+            "body": "Found while investigating a code_check crash in a real 1861-paper corpus\nrun: Dryad's file-download endpoint sends IETF-draft RateLimit-Limit/\nRateLimit-Remaining/RateLimit-Reset headers on a 429 -- confirmed live,\nthe limit is 100 requests/hour, reset on a fixed clock-hour boundary, and\nNOT raised by OAuth authentication (despite this session's earlier\ndryad_auth() work assuming it would be). The existing .storage_backoff()\nonly recognises the older Retry-After header, which Dryad never sends at\nall, so every retry did blind exponential backoff (2s/4s/8s.../30s cap)\nagainst a bucket that was provably empty until the next hour -- repeatedly\nre-triggering the same wasted retry storm for every file in every affected\ndataset, and very likely a major contributing factor to the heavy-429\nconditions that preceded the crash.\n\nThe same header family (or the older X-RateLimit-* convention) is\nconfirmed live on Zenodo, GitHub, and GitLab too -- all four backends this\nsession has touched -- so this is built as shared logic across every\ndownload call site, not a Dryad-specific patch. OSF/Figshare/Dataverse do\nnot expose it on the endpoints checked and are unaffected either way.\n\n- .rate_limit_wait(): reads either header family off a 429 response,\n  returns the real wait in seconds or NA if unconfirmed/absent.\n- .storage_retry_after_factory() / .storage_is_transient_factory(): wired\n  into req_retry()'s after/is_transient at every per-file download call\n  site (.download_one(), .download_many_parallel()), so a\n  confirmed-exhausted 429 waits for the REAL reset instead of blind\n  backoff.\n- .download_zip_to_cache() (the whole-dataset zip path) gains its own\n  rate-limit check too: previously a 429's small error-page body would\n  reach the streaming loop and either fail unzip() with a confusing\n  \"not a zip file\" error or (worse) get silently treated as if it were\n  real archive bytes. Now checks the status explicitly and waits for a\n  confirmed reset (one retry) before falling through to the caller's\n  file-by-file fallback.\n- req_retry()'s own waits are completely silent by default -- a\n  multi-minute-to-hour-long wait with zero console output looks identical\n  to a hung process. A message() now announces any wait over 5 seconds,\n  with the exact duration and how to skip it.\n- New skip_on_api_limit parameter on download_repo_files() (default\n  FALSE, i.e. always wait for the real reset -- explicit decision: the\n  goal is completeness, not speed, for an unattended corpus build). TRUE\n  gives up on a confirmed-exhausted request immediately instead, recorded\n  in the failed attribute with an \"API rate limit exhausted: \"-prefixed\n  message, filterable from every other kind of failure, so a caller can\n  retry those specific files later once the quota has reset.\n\n8 new unit tests in test-repo-download.R (1 skipped: an httr2\nlocal_mocked_responses()/req_retry() interaction confirmed to behave\nunreliably specifically under full-suite test ordering, not a bug in the\nfix -- covered instead by an adjacent test using the more reliable\nlocal_mocked_bindings() mock path; see that test's own comment). Full\npackage suite otherwise unaffected: FAIL 0 | WARN 0 | SKIP 68 | PASS 4314.",
+            "author": "Lakens",
+            "date": "2026-08-31",
+            "url": "https://github.com/scienceverse/metacheck/commit/eebbceaa889814c702e854891e69b5536c4c1433",
+            "type": "other",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-31T11:22:46Z",
+        "recent_commits": [
+          {
+            "sha": "2b30005",
+            "message": "documentation and version bump",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-08-31",
+            "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-22T10:29:03Z",
+        "recent_commits": [
+          {
+            "sha": "25dceed",
+            "message": "Release 0.12.6",
+            "body": "Fixes the Gemini model catalog being restricted to a small hardcoded\nallowlist (any generateContent-capable model is now offered, and the\nsaved model text is no longer blanked out when it's not in the\ncatalog), fixes a duplicated/conflicting \"Effects of interest\"\nextraction-instructions section, and adds app-wide default models,\na read-only view of the default extraction instructions, provider-\nswitch model autofill, a Sources-tab landing for new projects, and\nthe rendered extraction instructions in the results ZIP.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-08-22",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/25dceedf86930b5c8bb6e0c963adcc16eec65307",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-08-31T22:34:20.829037+00:00",
     "narrative": "",
     "repos": [
@@ -27928,242 +28084,6 @@
             "url": "https://github.com/giladfeldman/escicheck/commit/65405e0e53c574a1b74b583edb7003efed461a93",
             "type": "chore",
             "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-08-08T01:28:28.876375+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "Davidvandijcke",
-        "repo": "coarse",
-        "url": "https://github.com/Davidvandijcke/coarse",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 13,
-        "pushed_at": "2026-07-30T21:54:27Z",
-        "recent_commits": [
-          {
-            "sha": "f054f42",
-            "message": "docs: add Buy Me a Coffee funding links",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/f054f4289ffa177b7723981892724b19e8d74eb9",
-            "type": "feat",
-            "branch": "dev"
-          },
-          {
-            "sha": "34b892d",
-            "message": "docs: add Buy Me a Coffee funding links",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/34b892d34d80ba3fecbb8bb95adf9ab757f13862",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "ac28c17",
-            "message": "feat(web): add Buy Me a Coffee support button",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/ac28c1728b05b82c30a8d64a41bb2e73db48dec4",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "00dce61",
-            "message": "Merge pull request #252 from Davidvandijcke/dev",
-            "body": "fix(security): harden release audit and workflows",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/00dce61fbd61dd04fb2d4ada45ed8b3156709ff6",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "def053b",
-            "message": "Merge pull request #251 from Davidvandijcke/codex/fix-release-audit",
-            "body": "fix(security): harden release audit and workflows",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/def053b58fabc853598bb8a2f56424d4a53e8a14",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "033647e",
-            "message": "fix(security): harden release audit and workflows",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/033647e83435a70af909a231cf296162d738d365",
-            "type": "fix",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "00c696c",
-            "message": "Merge pull request #249 from Davidvandijcke/dev",
-            "body": "release: v1.9.0 \u2014 frontier models and deep literature search",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/00c696c8b12d832d237d680f3e830b07d3a393ff",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "071c4f6",
-            "message": "Merge pull request #250 from Davidvandijcke/codex/sync-main-v1.9.0",
-            "body": "merge: reconcile main Fable hotfix into v1.9.0 release",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/071c4f6894e3c42049811c40b43a253d20e48953",
-            "type": "other",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "eabba85",
-            "message": "merge: reconcile main Fable hotfix into dev",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/eabba858fac56f4c9b002f1381f52bd61ebecb7e",
-            "type": "chore",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "30c85b2",
-            "message": "chore(release): prepare v1.9.0 (#248)",
-            "body": "",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/30c85b232f9d015b6cbf0f5022ef4e1877860fac",
-            "type": "chore",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "6324170",
-            "message": "chore(release): prepare v1.9.0",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/63241708368b4c733849cb340ef6d79594e6b49d",
-            "type": "chore",
-            "branch": "codex/release-v1.9.0"
-          },
-          {
-            "sha": "3b236ea",
-            "message": "Refresh frontier models and add deep literature search (#247)",
-            "body": "* feat(review): refresh models and add deep literature search\n\n* fix(review): address pre-pr rollout findings",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/3b236ea11eeb5a073ff84c40bc1dac4ebb244439",
-            "type": "feat",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "c36a5eb",
-            "message": "fix(review): address pre-pr rollout findings",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/c36a5eb4354c76b5485f2f10fbe06e1a0d7a2437",
-            "type": "fix",
-            "branch": "feat/latest-models-deep-literature"
-          }
-        ]
-      },
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 6,
-        "pushed_at": "2026-07-14T15:54:41Z",
-        "recent_commits": [
-          {
-            "sha": "ffb127a",
-            "message": "update demo page; caught CLI bug",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-07-14",
-            "url": "https://github.com/JamieCummins/regcheck/commit/ffb127af3fa582b21ad7d14211f4392d00a61070",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "722db8f",
-            "message": "fix card preview bug",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-07-14",
-            "url": "https://github.com/JamieCummins/regcheck/commit/722db8ffb78e005a739e7849252421fe0e799358",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "4f8871e",
-            "message": "rename survey routes to avoid ad blocker interference",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-07-14",
-            "url": "https://github.com/JamieCummins/regcheck/commit/4f8871e153b1da9e92078254c71ce75a148dd943",
-            "type": "refactor",
-            "branch": "main"
-          },
-          {
-            "sha": "41a3c91",
-            "message": "fix: wizard incorrectly blocked by ad blockers",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-07-14",
-            "url": "https://github.com/JamieCummins/regcheck/commit/41a3c919db7c3487914670e13d9ed5f1370f52a2",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "dfc6177",
-            "message": "Update CHANGELOG.md",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-07-14",
-            "url": "https://github.com/JamieCummins/regcheck/commit/dfc61773855c60e9f25ee2b0f5969fc542db1056",
-            "type": "docs",
-            "branch": "main"
-          },
-          {
-            "sha": "483af6c",
-            "message": "handle iframe remenant issue",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-07-14",
-            "url": "https://github.com/JamieCummins/regcheck/commit/483af6cb25db3093b19ae080872eca3e68b5bdd0",
-            "type": "other",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-02T09:47:33Z",
-        "recent_commits": [
-          {
-            "sha": "2ed0b66",
-            "message": "Update code and output formats we process. Dedicated import and export of files",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-08-02",
-            "url": "https://github.com/scienceverse/metacheck/commit/2ed0b66ff304aee1abce787e22f6bb9bdd25f2d2",
-            "type": "other",
-            "branch": "data_check"
           }
         ]
       }
