@@ -1,5 +1,241 @@
 [
   {
+    "generated_at": "2026-09-08T03:04:55.541750+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 9,
+        "pushed_at": "2026-09-02T22:26:22Z",
+        "recent_commits": [
+          {
+            "sha": "b7d4ad5",
+            "message": "docs: README normalize_version example follows the 1.9.64 bump (docs-consistency gate was red on it)",
+            "body": "",
+            "author": "Gilad Feldman",
+            "date": "2026-09-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/b7d4ad59cbc6f289acaec3e205a0d0fb3ba92dd6",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "dda204b",
+            "message": "fix(version): git_state is probed per receipt \u2014 the lru_cache froze it for the process lifetime (102300Z amendment_1)",
+            "body": "The ask predicted this in writing: a dirty flag computed inside the cache\n'would pass its own test and still report a frozen answer in production.'\nShipped code cached it anyway (pair-coherence argument). Measured 2026-09-02,\nsingle process at eb3e84d: clean -> tree edited -> still clean. That is the\nHTTP consumption mode. Cache removed from the state only; the SHA stays\ncached by design (names the identity the process loaded; its staleness class\nis the app boundary's 'stale'). One porcelain subprocess per receipt.\n\nTests: tests/test_version_receipt_state_is_live.py, red first (2 failed at\n2b14d62), green after; live re-probe in one process: dirty -> dirty -> clean\nacross real tree edits.\n\nCANARY: version.py is not on the text-rendering path; the litmus render\nbyte-identity evidence for 2b14d62 (sha bc928949..., 119,051 bytes) stands.\nSKIP_CANARY bypasses the hook's nested-env limitation only.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/dda204b76dd18ebb971ec313349273885a60e58a",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "2b14d62",
+            "message": "Merge canary-gate-work: v2.4.138 release content \u2014 normalization 1.9.59\u21921.9.64",
+            "body": "Code is byte-identical to canary-gate-work tip 9291fc3 (main contributed only\nCHANGELOG restructuring: accf97a, e0b230c). CHANGELOG resolved to a single\n[2.4.138] section holding three strata newest-first: 1.9.62-1.9.64\n(page gate first-copy-keep, watermark arm coverage/modal/value-followed,\nchanges_made exact counts), the consult record + 1.9.60 design lineage with a\ndated tag-target-updated bridge (the 2026-08-30 'v2.4.138 = 1.9.59' tables\ndescribe the superseded plan of tagging at e0b230c), and the 2026-08-27\n1.9.59 stratum. Tails from [2.4.137] down verified identical in both parents\nbefore splicing.\n\nCANARY: docpluck/*.py in this merge tree == 9291fc3 == eb3e84d (verified by\ndiff --stat empty for docpluck/); the litmus render byte-identity evidence\n(sha bc928949..., 119,051 bytes) and docpluck-33's in-session Sonnet audit of\nthat render apply verbatim. SKIP_CANARY bypasses the hook's nested-env\nlimitation only.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/2b14d6255cf0b5d6dbd68010118e59a0a85f71d1",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "9291fc3",
+            "message": "fix(normalize): 1.9.64 \u2014 page_numbers_stripped is an exact count; headers_removed retired (closes the 114401Z residual)",
+            "body": "The v1.9.63 count= work fixed the sign/dash/quote family and left the two keys\nthe 2026-08-22 telemetry blocker was actually measured on still publishing\ncharacter deltas: page_numbers_stripped reported 2x for two-digit numbers and\n3x for three-digit (the ask's digit-count multiplier, reproduced today), and\nheaders_removed fired on zero-header documents because the S9 _track reused\nthe before snapshot captured for P0, republishing P0's page-number characters\nunder a second key. P0 now counts blanked lines (zip strict=True \u2014 the\nline-preserving construction is load-bearing and violations must be loud);\nthe S9 4-digit blanking counts its own blanked lines under\npage_numbers_stripped, the kind of thing it removes; headers_removed is\nretired (no site writes it truthfully; absent reads as 0 downstream, the true\nvalue). Text output byte-identical; observation only.\n\nTests: tests/test_page_number_telemetry_is_an_exact_count.py written RED\nfirst (6 failed on eb3e84d, incl. headers_removed:16 for 4 four-digit\nnumbers), green after; 54 pass across the telemetry/page-number/repeated-line\nneighborhood; corpus idempotency gate 1 passed 321s at eb3e84d, and the three\nnarrowed-band papers (ar_royal_society_rsos_140081, ieee_access_5,\nnat_comms_5) probed individually idempotent.\n\nCANARY: litmus render (10.1177/01461672251327169) byte-identical between\neb3e84d and this tree \u2014 sha bc928949b5d540aa..., 119,051 bytes, both renders\nlibrary_from_working_tree=true from their own trees. docpluck-33's in-session\nSonnet audit of this exact render earlier today (FAIL/14, all pre-existing,\nreconciled to ledger, 72 open) therefore covers this commit's render verbatim.\nSKIP_CANARY bypasses only the hook's nested-env limitation, not the audit.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/9291fc35019614c53531dc6324758d7fd25c6677",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "eb3e84d",
+            "message": "fix(normalize): 1.9.62-63 \u2014 the page gate keeps the FIRST copy of every repeated line, and the watermark arm returns gated on coverage + modal>=2 + not-value-followed",
+            "body": "The accumulated, verified 2026-08-29..09-01 work, committed as the exact tree that passed the full suite on 2026-09-02: 3,091 passed, 0 failed, 29 skipped, 10 xfailed (16,321s under 4-way load). Contents per CHANGELOG [Unreleased]: page-attribution map fixed (page counted before recording), P0q first-copy-keep with per-line telemetry, watermark arm reinstated behind page-coverage>=0.90 + modal-per-page>=2 + value-followed<0.50, section goldens regenerated for the restored trailing page boundary, request-09 fixtures repointed at the article repository, sectioning_text_id shipped, and four census diagnostics. Plus 2026-09-02: the changelog's 'v2.4.137 shipped ...39337 with no title' claim corrected (refuted by a render of the tag source \u2014 the no-title state was never tagged), and release-acceptance occurrence measurements added (jmf_1 headers: prod deletes 22 of 33 occurrences silently, this tree deletes none; ieee_access_5: prod deletes 5 of 5 'Number of trained architectures', this tree none).\n\nCANARY: the pre-commit hook's Sonnet audit cannot run nested (AUDIT_DEFERRED_TO_AGENT); per the script's own design the audit was dispatched in-session instead \u2014 Agent(model=sonnet), full read of render vs reading-gold, verdict FAIL with 14 findings at tmp/iterate + scratchpad ip_feldman_audit_verdict.json. Reconciliation: 4 findings match already-open ledger entries; 10 recorded as open in the ledger now (72 open); cross-version renders (HEAD 00c6adb, v2.4.137 tag archive) show ALL 14 pre-date this commit \u2014 12 exist in production, 2 (page-number leaks 18/19) enter with 9504ad9's deliberate v1.9.59 conservatism, in the documented safe direction. ZERO findings are introduced by this commit. SKIP_CANARY bypasses only the hook's nested-env limitation, not the audit.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/eb3e84d4f2f65a3f00f18aefdd1d4ab8f86aab8e",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "e0b230c",
+            "message": "docs(changelog): move the three sections that describe UNCOMMITTED code out of [2.4.138] and under [Unreleased]",
+            "body": "accf97a labelled them in place. A label does not travel with the content: the banner\nsits at line 5 and the first mislabelled section at line 102, so a reader arriving by\nanchor, by git diff, by a PyPI render or by a search hit lands ON the section with\nninety lines of context above that they never see. The warning only protected the\nreader who starts at the top, which is the one reader who least needs it.\ndocpluck-39's argument; I am adopting it.\n\nMOVED under `## [Unreleased] - normalization 1.9.60+ - NOT IN ANY RELEASE`, together\nwith the re-scoped 2026-08-27 consult block, which is a record about work in progress\nand now sits literally where it belongs:\n\n  - A repeated line is furniture because of WHERE ON THE PAGE it sits\n  - The page boundaries had to come back first \u2014 five steps were destroying them\n  - Delete furniture, never data \u2014 the strip now actually consults the guard\n\nKEPT under `## [2.4.138]`: `changes_made` counts minus signs by contract \u2014 the one\nsection of the four that the signal table shows actually shipped (changes_made_by_step\n4 on main against 5 in the tree).\n\nWhy it matters beyond tidiness: this is a public repo and a PyPI package. A researcher\nwho installs 2.4.138 and reads its notes would have believed they got the\npage-distribution gate and the page-boundary restoration. They did not. That is this\nproject's \"no pretending\" rule exactly \u2014 do not document a capability the code does not\nperform \u2014 and it is the same class as the defect the block itself was written about.\n\nTHE MOVE IS PROVEN WHOLESALE, NOT A REWRITE. The sections were relocated by slicing and\nreassembling lines, and the edit asserts `sorted(new) == sorted(old + [new_heading, \"\"])`\nbefore writing \u2014 a pure permutation plus exactly one heading and one blank. This matters\nbecause a serializer round-trip stripped 66 comment lines from another file tonight in a\ndiff that read as a tidy reformat, and near-equal insert/delete counts are that\nsignature. This diff is near-equal too, and the permutation assertion is why it is not\nthe same thing.\n\nALSO FIXED \u2014 A DEFECT I INTRODUCED IN accf97a. Nine lines of that commit carried literal\n`\\u2014`, `\\u2212` and `\\u2192` escapes instead of the characters, because I wrote them\ninside a Python raw string and they were never decoded. Now real em-dashes, minus signs\nand arrows. Control: the same search over ab8402c returns 5 pre-existing matches\nelsewhere in the file, so the 9 are attributable to accf97a and to nothing else.\n\nAND RE-POINTED THE BLOCK'S OWN DEICTICS. Eight lines said \"this release\" while the block\nnow sits under [Unreleased]; they name v2.4.138 explicitly instead. This is the rule the\nblock itself adds \u2014 a measurement in a release note must name its tree \u2014 applied to the\nblock. The one remaining \"this release\", at line 30, is inside the original 2026-08-27\nconsult prose and is deliberately untouched: it is a dated record of what its author\nmeant at the time.\n\nGates, pytest's own exit code captured to a file rather than read through a pipe:\ntests/test_docs_carry_no_raw_control_characters.py + tests/test_public_repo_hygiene.py\n-> 28 passed, exit 0. Independent byte scan: 628,781 bytes, 0 raw control bytes.\n\nDocs only. No source file touched.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/e0b230c30cb8f22e96028cae00a7d869b6b7b116",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "accf97a",
+            "message": "docs(changelog): the 2.4.138 tag block was right about the wrong tree \u2014 main IS its baseline, not its subject",
+            "body": "The \"UNRELEASED ... DO NOT TAG\" directive is REMOVED. The 2026-08-27 three-provider\nconsult finding it carried is KEPT, with its attribution and its measurements, and\nre-scoped to the code it actually describes.\n\nWHAT WAS WRONG: the block measured the then-working-tree against a worktree at\n047b4ca. 047b4ca is NORMALIZATION_VERSION 1.9.59 \u2014 which is what this release\ncontains. The block's own baseline is this release. The gate it condemns is 1.9.60+,\nwhich lives only in the uncommitted working tree and has never been committed.\n\nREFUTED FOR THE SHIPPED CODE, by two sessions counting different units and agreeing.\nOn 10.1001/jamanetworkopen.2023.39337, where the block predicted the article title\nwould reach the consumer 0 times:\n\n  raw extract_pdf (control)        13 occurrences\n  1.9.59 \u2014 this release            13 at standard AND academic  (docpluck-7a)\n  1.9.59 \u2014 this release            11 whole-line                (docpluck-39)\n  1.9.58 \u2014 what production serves  11 whole-line                (docpluck-39)\n  1.9.63 \u2014 uncommitted tree         1 whole-line                (docpluck-39)\n\nThis release behaves identically to what production already serves, so it cannot be\nshipping a paper with no title. The 1 in the uncommitted tree is the surviving title\nblock \u2014 the defect the block found, in the code that actually has it.\n\nMECHANISM, two-sided so a zero is not a broken grep (NORMALIZATION_VERSION matches 38\ntimes in both files): distinct_pages / max_per_page / _MIN_PAGES_FOR_FURNITURE are\n0/0/0 here against 3/6/2 in the tree; keep_page_break / page_break_residue /\nkeep_break_in_rejoin are 0/0/0 against 14/13/8; and _carries_statistical_content is\nnever CALLED here \u2014 its two appearances are both in comments \u2014 while the tree has a\nreal import and call. This release still uses the old line-index proxy.\n\nALSO RECORDED, and larger than the block: THREE OF THE FOUR SECTIONS UNDER [2.4.138]\nDESCRIBE UNCOMMITTED CODE. Only \"changes_made counts minus signs by contract\" shipped\nin 1.9.59. The other three are the design record for work in progress, and are now\nlabelled as such so nobody reads them as notes for what they installed.\n\nNOT REFUTED, AND SAID SO IN THE FILE: the block's other measurement \u2014 net -4,763\ncharacters over a strided 36-paper sample, 7 papers losing content \u2014 has NOT been\nre-measured. Only the headline paper was. The same polarity argument makes those very\nlikely properties of the uncommitted tree, but that is inference, not measurement, and\nthe page gate stays unsafe until someone counts them.\n\nHOW BOTH OF US GOT IT WRONG, kept in the file because it is cheaper to read than to\nrepeat: a session and the fleet conductor independently checked whether the FIX was\nabsent from main, found it was, and each concluded the DEFECT was present \u2014 halting the\nrelease. Those are different propositions and only the second licenses a stop. Neither\nasked the question the block itself named: render the paper and count. One render\nrefuted it. A warning names a subject and a remedy; confirming the remedy is missing is\nnot confirming the subject is there. The block also carried its number without naming\nthe commit it was taken on, so it silently re-pointed at whatever tree the reader stood\non \u2014 a measurement in a release note must name its tree.\n\nDocs only. No source file touched.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/accf97a217686b26d3cfc2a7fec7386e86d44ce0",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "00c6adb",
+            "message": "tests: pin the table channel destroying minus signs (repair cannot fire)",
+            "body": "REPRODUCED at 2.4.138 on 10.1016/j.joep.2020.102350, Camelot enabled, verified\nagainst the RASTERIZED PAGE rather than against another parser. Found by\narticlerepository-c0 in a 2.4.126 render-baseline; the load-bearing question --\n\"does CURRENT docpluck still do this?\" -- was filed COULD-NOT-VERIFY. It does.\n\n  rendered bytes 59703 \u00b7 NUL count 22\n  CONTROL, same code path, 10.5465/annals.2016.0011 : NUL count 0\n\np2 Table 1 prints   Cramer's V = 0.067 [-0.108, 0.218]      <- SPANS zero\ndocpluck emits      <td>[<NUL> 0.108, 0.218]</td>            <- reads as EXCLUDING zero\n\np4 Table 2 \"Comparison of differences across conditions\" prints\n  Tversky & Shafir, 1992 (between-subjects)  199  -1  -31  -30  213  14  31  17\ndocpluck emits the three SIGNED values as <NUL> 1 / <NUL> 31 / <NUL> 30 and the\nthree unsigned values intact. The row carries its own two-sided control. All 22\nNULs were checked against the page; every one sits where the paper prints a minus.\n\npdftotext recovers the glyph as U+2212, and docpluck's own BODY-TEXT channel gets\nit right -- the same document renders \"[- 0.108,\" in prose and \"[<NUL> 0.108,\" in\nthe table. One document, two channels, two different published values.\n\nROOT CAUSE -- THE REPAIR EXISTS AND CANNOT FIRE. cell_cleaning.py:113-118 already\ncarries it, and its comment names this exact case ('\"(cid:0) 31\" is -31'):\n\n    _html_escape(\"(cid:0) 31\")  -> \"-31\"       works\n    _html_escape(\"\\x00 31\")     -> \"\\x00 31\"   does nothing\n\nAsked of Camelot directly (page 4, flavor=stream): 21 raw cells carry a NUL and\nNONE carries \"(cid:0)\". Camelot emits the raw NUL on this path. The older\npdfminer-based spike baseline DID emit \"(cid:0)\", which is presumably why the\nrepair was written that way and why it has looked correct ever since. It is a\nrepair aimed at a representation that no longer arrives.\n\nPINNED, NOT FIXED. Five strict xfails; two controls pass. strict=True means a fix\nturns them XPASS, which pytest reports as a FAILURE -- so the defect cannot be\nfixed without updating this file. A record of a known defect, not a weakened gate.\n\nNot fixed in this commit for one reason, and it is not scope: a fix CHANGES SIGNS\nin the table channel, a full Camelot suite was already running on a frozen tree,\nand there is an 08:00 convergence stop. Landing a sign-changing edit that cannot\nbe verified by a full run is the \"a fix can be worse than the defect\" shape.\n\nTHE TRAP THE FIX MUST CLEAR, measured and pinned by the last test here: \\x00 is\nALSO docpluck's own fold sentinel (_MERGE_SEPARATOR = \"\\x00BR\\x00\"). A folded\nheader can put a DIGIT right after the closing NUL --\n  _html_escape(\"Replication\\x00BR\\x0095% CI\") -> \"Replication<br>95% CI\"\n-- so a naive \\x00-before-digit repair inside _html_escape would destroy the fold\nAND inject a minus that was never printed, turning a data-loss defect into a\ndata-fabrication one. Repair where the Camelot cell is FIRST READ, before any\nsentinel exists.\n\nNOT ESTABLISHED: prevalence (one paper, 22 sites -- proves the shape, not the\nrate); which versions are affected (2.4.126 and 2.4.138 both reproduce, everything\nbetween is presumed affected and unmeasured); whether U+FFFD reaches the same slot.\n\nFull diagnosis: docs/FINDINGS_2026-09-02_table_channel_destroys_minus_signs.md",
+            "author": "Gilad Feldman",
+            "date": "2026-09-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/00c6adb9ffd3609254ee1fbd708e43c8507e6f45",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "8cfc3e6",
+            "message": "tools+tests: 16 harness scripts imported the INSTALLED release, not the tree",
+            "body": "Python puts THE SCRIPT'S OWN DIRECTORY on sys.path[0], never the cwd, so a\nscript under tools/ or scripts/ has no route to the repo root and a bare\n`import docpluck` silently resolves to whatever is installed.\n\nMeasured 2026-09-01 on this tree, three arms:\n\n    python tools/<probe>.py         -> site-packages\\docpluck  2.4.137\n    python -c \"import docpluck\"     -> <repo>\\docpluck         2.4.138\n    python <probe-at-repo-root>.py  -> <repo>\\docpluck         2.4.138\n\nThe third arm is the control: it isolates the cause to the script's DIRECTORY\nrather than to \"running a script at all\". Arm two is structurally incapable of\nshowing the defect, which is why it survived -- the obvious check measures a\ndifferent thing.\n\nCensus of all 34 docpluck importers under tools/ + scripts/: 16 resolved the\ninstalled 2.4.137, INCLUDING scripts/verify_corpus.py, the 26-paper baseline\nthat gates every iterate cycle. A fix could be verified all night against a\nlibrary it had not touched, with every log line naming the tree.\n\nThis generalises W-0011 (52903fe), which repaired ONE script -- render_for_audit\n-- while the same defect sat in fifteen others.\n\nTHE FIX is keyed on the pyproject.toml marker rather than a parents[N] count:\ntools/*.py needs 1 and tools/diag/*.py needs 2, so a count encodes the file's\ncurrent location into its correctness and silently regresses the moment a file\nmoves -- regresses in the direction that resolves site-packages again.\n\nTHE GATE is now a test, not a one-off census: 16 failed -> 35 passed, watched\nred first. It runs each script for real under runpy with sys.path[0] set to the\nscript's own directory and halts at the moment docpluck is imported.\n\nFour earlier probe designs each made correctly-guarded scripts look defective:\n`python -c` has no __file__, so every Path(__file__).parents[N] guard raised\nNameError; line-slicing the prologue left a multi-line `from docpluck.x import (`\nunclosed; extending the block ran on into argparse; an empty argparse Namespace\nstub crashed four scripts that read their own options at module level. Each was\ncaught only because the test scores a failed MEASUREMENT as a failure, never as\na pass -- a skip, an N/A and an indeterminate are all green-shaped and none of\nthem is a measurement.\n\nNOT INCLUDED, deliberately. Three scripts also carry this fix in the working\ntree but are NOT in this commit, because each already held another stream's\nuncommitted work and committing them would sign it:\n  scripts/verify_corpus.py                       (+ a stdout/stderr reconfigure block)\n  tools/diag/form_feed_page_attribution_census.py   (untracked, page-gate stream)\n  tools/diag/repeated_line_gate_census.py            (untracked, page-gate stream)\nThe gate test will therefore report verify_corpus.py red on a fresh checkout.\nThat is accurate and visible rather than hidden, and the authorship decision is\nthe owner's.\n\nEVIDENTIARY CONSEQUENCE for anyone citing past measurements: every zero proved\nwith tools/diag/repair_site_scan.py before this commit describes released\n2.4.137, not this repository. Same for any prevalence figure from the two\ncensus scripts named above.\n\nSuite: 3060 passed / 13 failed (was 3024 / 14). All 13 pre-date this change:\nthe guard is provably inert under pytest (the repo root is already on sys.path,\nso the insert is a no-op) and tools/diag/_corpus.py, the only module the failing\ntests import from tools/, is untouched and not dirty.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-02",
+            "url": "https://github.com/giladfeldman/docpluck/commit/8cfc3e63a849ea448d3262513ff0d138b3eb98cb",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 5,
+        "pushed_at": "2026-09-06T20:19:46Z",
+        "recent_commits": [
+          {
+            "sha": "720bed6",
+            "message": "Fix zip download streaming to actually respect its own timeout",
+            "body": ".download_zip_to_cache()'s deadline check (Sys.time() > deadline) only\nran BETWEEN calls to httr2::resp_stream_raw(), never during one -- a\nsingle stalled read defeated the timeout entirely, since\nreq_perform_connection()'s default blocking=TRUE mode makes that read\nblock indefinitely rather than returning control to the loop.\n\nConfirmed live: a real ~65MB OSF Waterbutler zip download (326-file\nrepository, osf.io/wdzay) stalled mid-stream for 45+ minutes with the\nunderlying TCP connection sitting in CLOSE_WAIT (the remote had already\nclosed its side), consuming real CPU and growing memory the whole time,\nwith zero indication anything was wrong until the process was killed and\ninspected directly.\n\nFixed by opening the connection with blocking=FALSE, so a zero-length\nread genuinely means \"no data yet\" rather than blocking, and adding a\nshort Sys.sleep() on that branch so the loop still returns control to the\ndeadline check every iteration without busy-looping the CPU.\n\nAlso scales the timeout itself against the transfer's own expected size\n(the sum of the selected files' sizes, already computed by every call\nsite to decide zip-vs-file-by-file) at a conservative 200KB/s floor,\nextracted as its own testable .zip_timeout_for_size() helper -- a fixed\ntimeout is either too short for a large, honestly slow archive or too\nlong for a small stalled one to fail fast.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-06",
+            "url": "https://github.com/scienceverse/metacheck/commit/720bed64c185bd14047187944d6e8535549c97ba",
+            "type": "fix",
+            "branch": "repocheck_improvements"
+          },
+          {
+            "sha": "64b352a",
+            "message": "Classify genomic sequence files (FASTA/FASTQ) as data",
+            "body": "Confirmed against real corpus files (data_availability validation): a\npaper whose only listed files were sequencing data in FASTA/FASTQ\nformat (e.g. \"76_SE_0.01.fasta.gz\", \"thal_MK380719_TGCA.1.fq.gz\") had\nevery one of those files fall through to \"unknown\", since neither\n.ext_registry (data_classify_files()'s format lock) nor\nmetacheck::file_types (file_category()'s own lookup table) knew these\nextensions -- wrongly reading such a paper as having no data available\nat all, when real research data was genuinely present.\n\nAdds the bare extensions (fasta/fa/fq/fastq) to .ext_registry and their\ngzip-compressed forms (fasta.gz/fa.gz/fq.gz/fastq.gz -- the common\nconvention for these, since sequence files compress well) to\nfile_types, both as data_type \"data\". The compressed forms also\nrequired a new file_category() compound-type rule (ft_has(\"data\") &\nft_has(\"archive\")): a name like \"sample.fasta.gz\" matches both its own\ncompound data extension and the bare \"gz\" extension (typed \"archive\"),\nso its filetype comes out \"data;archive\" -- previously fell through to\nNA for any such compound, an existing latent gap this specific,\nnewly-possible compound now exposed. \".dat\" and a bare \".info\" stay\ndeliberately unlocked (too generic on their own to safely classify),\nso \"sample.dat.gz\" and similar remain \"unknown\" as before.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-06",
+            "url": "https://github.com/scienceverse/metacheck/commit/64b352ab4143917a73bc339e5c2b853ea6fd5b57",
+            "type": "other",
+            "branch": "repocheck_improvements"
+          },
+          {
+            "sha": "b454129",
+            "message": "Fix code_read() crash on empty files and code_setwd() string-literal blindness",
+            "body": "code_read() called readr::guess_encoding() unconditionally, which returns\na zero-row result for a genuinely empty (0-byte) file; the resulting NA\nencoding then crashed deep inside readr's own internals with the generic,\nmisleading message \"missing value where TRUE/FALSE needed\" -- confirmed\nagainst real 0-byte files in real GitHub repositories during the\ncode_check validation. A 0-byte local file now returns character(0)\ndirectly, before guess_encoding() is ever called; file.exists() is FALSE\nfor a remote URL, so this leaves code_read()'s URL path unaffected.\n\ncode_setwd() had no awareness of string-literal context, so a setwd(...)\nmentioned inside a string (e.g. a message() call telling a user to run\nsetwd() themselves) would be flagged as a live call. This reuses the same\nquote-tracking approach already implemented for\n.code_strip_inline_comment() (as a new, shared .code_pos_in_string()\nhelper) to skip a match that starts inside a string literal.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-06",
+            "url": "https://github.com/scienceverse/metacheck/commit/b454129f02d25cb8156fff79ea30457d54492e34",
+            "type": "fix",
+            "branch": "repocheck_improvements"
+          },
+          {
+            "sha": "33350b1",
+            "message": "Fix five code_check false positives/negatives found in corpus validation",
+            "body": "Each was confirmed against real files in a 400-paper corpus (see\ncode_check_validation.qmd):\n\n- Missing referenced files: the repo-listing comparison was\n  case-sensitive, wrongly flagging a file that exists under a different\n  letter case (e.g. code references \"REM_tools.r\", repo holds\n  \"REM_tools.R\") as missing.\n- Missing referenced files: vroom::vroom() was invisible to\n  code_file_refs()'s R reader-keyword list (it doesn't start with\n  \"read\"), so a missing file loaded only via vroom went undetected.\n- Absolute paths: a single-segment string starting with \"/\" (an HTTP\n  route like '/login', a paste0(var, \"/eti\") fragment) is now required\n  to have a second path segment before matching; an all-digit UNC\n  \"host\" (a sub()/gsub() backreference string like \"\\2\\1\") is no\n  longer mistaken for \\host\\share.\n- Comment density: a Python file documented only via docstrings read as\n  0% comments with no signal that real documentation was present.\n  code_line_stats() now also reports has_docstring, and the module's\n  report text notes when a \"no comments\" file actually has one.\n- Scattered library/import lines: docstring prose starting with\n  \"from \"/\"import \" (Python never strips triple-quoted strings as\n  comments) matched the old bare-keyword anchor, spuriously widening\n  the gap between real imports and triggering a false \"scattered\" flag.\n  The anchor now requires the full import shape.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-06",
+            "url": "https://github.com/scienceverse/metacheck/commit/33350b11b3b0485745d4d41741a5a68056172e7a",
+            "type": "fix",
+            "branch": "repocheck_improvements"
+          },
+          {
+            "sha": "5f1b869",
+            "message": "Retry zip_peek() through burst rate limits and cache it per session (#384)",
+            "body": "zip_peek()'s three HTTP calls (.http_range_tail(), .http_range_bytes(),\nand its own HEAD) had no retry, so a 429 was indistinguishable from\n\"host does not support ranges\" -- both silently returned NULL. A single\npipeline run peeks the SAME archive twice (once in repo_check to list\nmembers, again in download_repo_files()'s .zip_fetch_members() to fetch\none) with no throttle between them, so the second call was the one\nexposed to a burst refusal, exactly matching issue #384's non-deterministic\nfailure. Both calls now retry via the same\nis_transient/backoff/rate-limit-wait helpers download_repo_files() already\nuses for ordinary downloads, and a same-session cache (.zip_peek_cache)\nremoves the redundant second network call to the same URL entirely.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-06",
+            "url": "https://github.com/scienceverse/metacheck/commit/5f1b8693cd2e8bb2b80523673dfef90420a3e188",
+            "type": "other",
+            "branch": "repocheck_improvements"
+          }
+        ]
+      },
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-09-01T23:34:18Z",
+        "recent_commits": [
+          {
+            "sha": "6a1942c",
+            "message": "fix(security): close remaining high-risk findings",
+            "body": "",
+            "author": "Davidvandijcke",
+            "date": "2026-09-01",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/6a1942ccad41f2a92d4747416dbde2b7fb38c43a",
+            "type": "fix",
+            "branch": "codex/security-hardening-20260901"
+          },
+          {
+            "sha": "c0bfcea",
+            "message": "fix(cli): close subscription isolation gaps",
+            "body": "",
+            "author": "Davidvandijcke",
+            "date": "2026-09-01",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/c0bfcea2187d084c22cea2f3afb84d7aa3bc4022",
+            "type": "fix",
+            "branch": "codex/security-hardening-20260901"
+          }
+        ]
+      },
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-06T22:12:28Z",
+        "recent_commits": [
+          {
+            "sha": "981ce94",
+            "message": "No longer import corrr and ggrepel",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-09-06",
+            "url": "https://github.com/lhdjung/scrutiny/commit/981ce94748c7ccc5ae47e0c3e54f34b297e8c913",
+            "type": "other",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-31T11:22:46Z",
+        "recent_commits": [
+          {
+            "sha": "2b30005",
+            "message": "documentation and version bump",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-08-31",
+            "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-09-07T21:14:26.925005+00:00",
     "narrative": "",
     "repos": [
@@ -21967,492 +22203,6 @@
             "date": "2026-07-30",
             "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
             "type": "other",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-08-15T01:12:08.650158+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "lhdjung",
-        "repo": "scrutiny",
-        "url": "https://github.com/lhdjung/scrutiny",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 27,
-        "pushed_at": "2026-08-14T19:47:58Z",
-        "recent_commits": [
-          {
-            "sha": "3bd453f",
-            "message": "Complete oracle tests",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/3bd453ff828aeb17beda34cc37c32e95c2dacef3",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "6210bd5",
-            "message": "Harmonize `decimal_places()` and `decimal_places_scalar()`",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/6210bd569bdde275862b43778280efe9f81453d8",
-            "type": "chore",
-            "branch": "polishing"
-          },
-          {
-            "sha": "4d9e203",
-            "message": "Fix incorrect NEWS.md entries + comment",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/4d9e2039f9bacb033ca3d60bea9ba3d98a96eaf6",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "a76e605",
-            "message": "Turn `grim_total()` type-stable as double-valued",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/a76e6055ec441c017569bd82971261cfce51fb26",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "eece003",
-            "message": "Document the audit fixes in NEWS.md",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/eece00330bd2ddbe8a2931fcafc1cd00d28092ce",
-            "type": "docs",
-            "branch": "polishing"
-          },
-          {
-            "sha": "6f48f37",
-            "message": "Declare grDevices, grid, and utils in Imports",
-            "body": "All three are used with :: -- grim_plot() builds its gradient with the\nfirst two, check_args_disabled() looks up a package name with the third.",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/6f48f37a8138388de66a0dbb26241719c959a275",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "de6b28a",
-            "message": "Remove the stale duplicate `seealso` tag from the data docs",
-            "body": "`pigs5`'s entry was appended in a second `seealso` block, and roxygen2\nmerges the two, so `?pigs1`, `?pigs2`, and `?pigs3` each printed the same list\ntwice. Also link `pigs1`, as the other four already were.",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/de6b28a12c724a31f08f8e1eec58e58a3a8d741f",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "ec63659",
-            "message": "Order `audit_seq()`'s `\"hits\"` and `\"diff\"` columns by `var`",
-            "body": "Undoing the alphabetical order that `split()` imposes takes `rank()`, not\n`order()`; the two are inverses and agree only up to three variables that\ndon't form a cycle.",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/ec63659648dab8d919a04537a85811d03676fa5c",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "04753a8",
-            "message": "Swap group suffixes by name, not by character replacement",
-            "body": "`str_replace(\"1\", ...)` on the whole column name hit the wrong character\nfor a reported statistic called something like \"t1\", whose columns are\nt11 and t12.",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/04753a8e4611ee37fd8efe0eaf932294b03a7d0b",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "2b69c9d",
-            "message": "Don't overflow `grim_total()` past the integer range",
-            "body": "`as.integer(1e10)` is NA with a warning, so from `digits_x = 10` on the\ncount of possible inconsistencies came out as no count at all.",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/2b69c9d4acc424209c0c0863f632e70ad14313ba",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "8c81ec4",
-            "message": "Keep missing values missing in `restore_zeros()`",
-            "body": "`str_split_fixed()`` gives NA an empty mantissa, which counts as fewer\ndecimal places than the target, so `sprintf()` formatted it into the\nstring \"NA\".",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/8c81ec48c4113b92fc680acbc22de70799fca8a6",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "55f1540",
-            "message": "Check the lengths of all of `unround()`'s vectorized arguments",
-            "body": "A digits shorter than x was recycled silently, so the extra x values got\nthe wrong number of decimal places and hence the wrong bounds.",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/55f1540b44c1507902bf347ead86ad7033300a06",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "e385547",
-            "message": "Name the test in sequence mappers' consistency-column error",
-            "body": "check_mapper_input_colnames() was called without name_test, which it\nforwards to the check that builds the message, so cli failed on the\nmissing argument instead of saying what was wrong. Also read the\nrounding dot with [[ rather than $, which matches partially.",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/e385547da65faee66c5dc6443fbfa545a5c5869a",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "27c2042",
-            "message": "Count decimal places correctly in scientific notation",
-            "body": "R writes 0.0001 as \"1e-04\", so the digits after the decimal point are\nnot the decimal places of the number. decimal_places_scalar() sets the\nstep size in seq_disperse(), seq_endpoint(), and seq_distance(), all of\nwhich were silently wrong below 0.001.",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/27c2042a48c1e0008908b0edec269173cec9f65e",
-            "type": "chore",
-            "branch": "polishing"
-          },
-          {
-            "sha": "b022606",
-            "message": "Fix DEBIT at means of exactly 0 and 1",
-            "body": "The mean's rounding bounds reach outside the range that a mean of binary\ndata can occupy, where the SD is undefined, so the verdict came out NA\nfor a mean reported as 0.00 or 1.00 -- both of which are consistent.\nClamp the bounds to that range, and clamp a negative SD lower bound to\nzero as grimmer_scalar() already does.",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/b0226062acd0777d6c46672ae39ccaef00759b96",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "740ab49",
-            "message": "Update ignore dotfiles",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/740ab4925cded97b0a372a4cf8ebd9f4eb8dff7d",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "b62214b",
-            "message": "Clean up `audit_seq()`",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/b62214b722eccd97e1511fa862ecc54b333122ed",
-            "type": "refactor",
-            "branch": "polishing"
-          },
-          {
-            "sha": "920b3b0",
-            "message": "Make `function_map_seq()` more robust",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/920b3b02e9a58453999bbfa66c859eaf736179bc",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "d363b05",
-            "message": "Update GRIM stats docs",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/d363b059c52c9ad1e4c3d15701103d0bceda62ad",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "e029202",
-            "message": "Fix typos",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/e029202cbf9e5ae4266e65e10e55fa9fa90fef94",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "2671ab7",
-            "message": "Fix `grim_plot()` duplicate `@param digits` and `@return`",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/2671ab797c174108683746842a13d25538f67450",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "647b020",
-            "message": "Fix malformed error message in helper",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/647b02014fd77a4b8a44c8ad49b644a4cd04e5c1",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "1f0e520",
-            "message": "Fix `.args_disabled` bug in `function_map_seq()`",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/1f0e520598b737597823f44bc1b0aa05cc12a757",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "6c9c951",
-            "message": "Fix compound rounding method bug in `rounding_bias()`",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/6c9c95160c2785e626342b24d197d318cdc0c95d",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "dcb2003",
-            "message": "Fix `audit_seq()` argument replay",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/dcb2003e231743607905a81b9326469fabdb448c",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "82832f4",
-            "message": "Fix `items` bug in `function_map_seq()`",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/82832f4d4ecca989d4aced359c3fb8954513e954",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "69a2601",
-            "message": "Fix `\"back\"` swap in `function_map_total_n()`",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-14",
-            "url": "https://github.com/lhdjung/scrutiny/commit/69a26018414ae684ddde90c6918dcde795435ee0",
-            "type": "fix",
-            "branch": "polishing"
-          }
-        ]
-      },
-      {
-        "owner": "Davidvandijcke",
-        "repo": "coarse",
-        "url": "https://github.com/Davidvandijcke/coarse",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 13,
-        "pushed_at": "2026-07-30T21:54:27Z",
-        "recent_commits": [
-          {
-            "sha": "f054f42",
-            "message": "docs: add Buy Me a Coffee funding links",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/f054f4289ffa177b7723981892724b19e8d74eb9",
-            "type": "feat",
-            "branch": "dev"
-          },
-          {
-            "sha": "34b892d",
-            "message": "docs: add Buy Me a Coffee funding links",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/34b892d34d80ba3fecbb8bb95adf9ab757f13862",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "ac28c17",
-            "message": "feat(web): add Buy Me a Coffee support button",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/ac28c1728b05b82c30a8d64a41bb2e73db48dec4",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "00dce61",
-            "message": "Merge pull request #252 from Davidvandijcke/dev",
-            "body": "fix(security): harden release audit and workflows",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/00dce61fbd61dd04fb2d4ada45ed8b3156709ff6",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "def053b",
-            "message": "Merge pull request #251 from Davidvandijcke/codex/fix-release-audit",
-            "body": "fix(security): harden release audit and workflows",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/def053b58fabc853598bb8a2f56424d4a53e8a14",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "033647e",
-            "message": "fix(security): harden release audit and workflows",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/033647e83435a70af909a231cf296162d738d365",
-            "type": "fix",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "00c696c",
-            "message": "Merge pull request #249 from Davidvandijcke/dev",
-            "body": "release: v1.9.0 \u2014 frontier models and deep literature search",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/00c696c8b12d832d237d680f3e830b07d3a393ff",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "071c4f6",
-            "message": "Merge pull request #250 from Davidvandijcke/codex/sync-main-v1.9.0",
-            "body": "merge: reconcile main Fable hotfix into v1.9.0 release",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/071c4f6894e3c42049811c40b43a253d20e48953",
-            "type": "other",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "eabba85",
-            "message": "merge: reconcile main Fable hotfix into dev",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/eabba858fac56f4c9b002f1381f52bd61ebecb7e",
-            "type": "chore",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "30c85b2",
-            "message": "chore(release): prepare v1.9.0 (#248)",
-            "body": "",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/30c85b232f9d015b6cbf0f5022ef4e1877860fac",
-            "type": "chore",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "6324170",
-            "message": "chore(release): prepare v1.9.0",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/63241708368b4c733849cb340ef6d79594e6b49d",
-            "type": "chore",
-            "branch": "codex/release-v1.9.0"
-          },
-          {
-            "sha": "3b236ea",
-            "message": "Refresh frontier models and add deep literature search (#247)",
-            "body": "* feat(review): refresh models and add deep literature search\n\n* fix(review): address pre-pr rollout findings",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/3b236ea11eeb5a073ff84c40bc1dac4ebb244439",
-            "type": "feat",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "c36a5eb",
-            "message": "fix(review): address pre-pr rollout findings",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/c36a5eb4354c76b5485f2f10fbe06e1a0d7a2437",
-            "type": "fix",
-            "branch": "feat/latest-models-deep-literature"
-          }
-        ]
-      },
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 3,
-        "pushed_at": "2026-08-14T10:34:40Z",
-        "recent_commits": [
-          {
-            "sha": "7ee7cb2",
-            "message": "Merge pull request #359 from scienceverse/pr-osf-app",
-            "body": "Add an OSF download app, extend the report app, and fix several bugs",
-            "author": "Daniel Lakens",
-            "date": "2026-08-14",
-            "url": "https://github.com/scienceverse/metacheck/commit/7ee7cb2e44dd1332b523883fbe135bc66d76560b",
-            "type": "chore",
-            "branch": "dev"
-          },
-          {
-            "sha": "bb559f2",
-            "message": "Merge pull request #358 from scienceverse/pr-archive-cleanup",
-            "body": "Archive cleanups: ungate GitHub repository listing, remove dead cap-gate helpers",
-            "author": "Daniel Lakens",
-            "date": "2026-08-14",
-            "url": "https://github.com/scienceverse/metacheck/commit/bb559f2dcc6a58140a0adc541e3c776b8ea892b2",
-            "type": "refactor",
-            "branch": "dev"
-          },
-          {
-            "sha": "b689b34",
-            "message": "Add an OSF download app, extend the report app, and fix several bugs",
-            "body": "New osf_app(): enter an OSF user or project ID, search and tick the projects\nyou want, then download them. Run locally, metacheck downloads the files onto\nyour computer. Hosted, the browser fetches each archive straight from\nfiles.osf.io and saves it, so the server never stores or relays project files.\nThe OSF permits this cross-origin, but only for requests carrying an\nAuthorization header, so one is always sent (a placeholder when the visitor\nhas no token).\n\nreport_app(): data_check and codebook_check now run alongside repo_check and\ncode_check, grouped as repo_modules so the four cannot drift apart.\n\nBug fixes:\n* The report run read input$create_crossref, which no input ever set, so\n  CrossRef was never queried whatever the checkbox said. It is query_crossref.\n* A Windows path put a backslash-U sequence into the displayed R code, which\n  R cannot parse, so the code shown could not be run.\n* The shown R code did not drop ref_accuracy when CrossRef was off, unlike\n  the run it claimed to reproduce.\n* The OSF token was stored by an observer with ignoreInit = TRUE, which\n  discarded the first token typed, so private projects always failed.\n* A download into a folder that cannot be written to (C:/ without\n  administrator rights) is now refused with a message about saving rather\n  than reported as a download failure.\n\nBoth apps keep anonymous usage statistics (sessions, downloads or reports, and\nsizes) to support future grant applications. No identifier of any kind is\nrecorded and nothing is sent anywhere; only the hosted apps count.\n\ndata_check: the file tree is drawn as a tree again rather than a paginated\ntable, keeping the type icons, study and naming columns.",
-            "author": "Lakens",
-            "date": "2026-08-14",
-            "url": "https://github.com/scienceverse/metacheck/commit/b689b34443b43802660e757cbebf217f9210ae61",
-            "type": "fix",
-            "branch": "dev"
-          }
-        ]
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-13T12:43:16Z",
-        "recent_commits": [
-          {
-            "sha": "e20a3b1",
-            "message": "Release 0.11.3 with redesigned analysis summary",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-08-13",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/e20a3b12aa8ea38e826693f11abede65630940a4",
-            "type": "chore",
             "branch": "main"
           }
         ]
