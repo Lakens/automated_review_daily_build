@@ -1,5 +1,291 @@
 [
   {
+    "generated_at": "2026-09-11T20:35:13.366543+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 9,
+        "pushed_at": "2026-09-08T06:55:31Z",
+        "recent_commits": [
+          {
+            "sha": "0dc29d9",
+            "message": "docs(changelog): drop the absolute offsets \u2014 they do not transfer; keep the gap, which does",
+            "body": "843394a published `char 60080 intact / char 60155 destroyed` from a consumer's pre-fix store.\nThe labels were right, but the numbers should not have been published at all, and measuring it\nhere is what showed why:\n\n    consumer's 1.9.57 store   HapMap3 @ 60080   HapMap * @ 60155\n    my 1.9.65 re-extraction   HapMap3 @ 60110   HapMap3   @ 60185\n\nSAME PAPER, SAME TWO OCCURRENCES, DIFFERENT ABSOLUTE POSITIONS. An offset is a property of one\nextraction's exact text, not of the defect, so a consumer running `grep -ob` against its own\nstore would meet a discrepancy with an entirely mundane cause -- while already anxious about\ncorrupted data. Byte and character offsets differ AGAIN within a single file (43 bytes of\nmulti-byte UTF-8 upstream in that store, so `grep -ob` reports 60096 where python reports\n60080), which would force the unit to be stated as well.\n\nWHAT TRANSFERS IS THE GAP, and it is the load-bearing half: the two occurrences are 75 apart,\nIDENTICAL IN CHARACTERS AND IN BYTES, measured independently by both parties on two different\nextractions. The text between them is a single sentence boundary:\n\n    HapMap3 SNPs. Inclusion in the LD Score regression analysis was limited to\n\nSo \"same token, same paragraph, 75 apart, one rewritten and one not\" survives every way of\nmeasuring it, and that is the sentence a consumer needs. The counts (`HapMap3` = 1,\n`HapMap *` = 1 pre-fix) are the other durable part. The offsets were the most fragile thing in\nthe block and the only part nobody could reproduce.\n\nThe general point, worth more than this edit: A NUMBER THAT CANNOT BE REPRODUCED BY THE AUDIENCE\nIS NOT EVIDENCE TO THEM, IT IS AN INVITATION TO A CONTRADICTION. Publish the invariant, not the\ncoordinate.\n\nRaised by the consumer that supplied the original figures, who also corrected their own prose\n(they had described character offsets as byte offsets). Verified here rather than relayed.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/0dc29d9ee58aa8eb6bf6ec27c243a9445ba49591",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "843394a",
+            "message": "docs(changelog): the pre-fix half \u2014 2 in the source, 1 destroyed, 75 characters apart",
+            "body": "5036c9a reproduced the POST-fix side from the custody PDF (HapMap3 = 2 at normalization 1.9.65)\nand that settled whether the original claim held. It could not show what an AFFECTED file looks\nlike, because docpluck no longer produces one. The consumer supplied that half from its own\n1.9.57 store, with byte offsets and a control this time:\n\n    corpus-text__docpluck-norm@1.9.57.txt  (112,876 B)\n      char 60080  INTACT     \"...focusing on HapMap3 SNPs. Inclusion in the LD Score regression...\"\n      char 60155  DESTROYED  \"...limited to HapMap * SNPs with a minor allele frequency (MAF)...\"\n      HapMap3 = 1     HapMap * = 1     HapMap 3 = 0\n\nPut beside the post-fix measurement the whole picture is there: 2 occurrences in the source, 1\ndestroyed before the fix, 0 after.\n\nTHE TWO SURVIVORS ARE 75 CHARACTERS APART, IN CONSECUTIVE SENTENCES. That is the sharpest\nstatement of why a single site settles nothing: the same token, the same paragraph, one rewritten\nand one not. A scan that stops at the first hit reads whichever it happens to meet, and either\nanswer is defensible from the evidence it looked at.\n\nONE PRACTICAL SOFTENING, and it is the consumer's correction to my wording rather than mine: an\nintact sibling may sit nearby, so a consumer can SOMETIMES recover the original by scanning.\nRe-extraction at 1.9.65+ is the RELIABLE route, not the ONLY one. An intermediate revision of the\nnotice said \"only\", which overstates the damage and would send someone re-running a pipeline when\na grep would have answered it.\n\nFor the record on the exchange that produced this: their retraction and my re-correction crossed\nin flight, so their \"STOP, revert 0febe36\" arrived after 5036c9a had already reverted it. Both\nsides converged on the same reproduced answer independently, which is the useful property of\nhaving measured it rather than argued it.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/843394a028b037a9b565e0009d858f5209851a9c",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "5036c9a",
+            "message": "docs(changelog): withdraw yesterday's correction \u2014 I published a consumer's claim without reproducing it",
+            "body": "The paragraph added in 0febe36 said \"both forms coexist\" is not a general property of the W0k\ndamage, on a consumer's report that its copy of 10.1038/s41562-024-02076-3 held only the\ndestroyed form. Its author has withdrawn it. **The error on this side is that I edited a PUBLIC\ndocument on a relayed measurement I had not reproduced** -- and this project's own rule is that a\nreviewer's finding is a HYPOTHESIS until a local reproduction confirms it. Two hops, no\nverification, and it reached the public CHANGELOG and the notice every consumer is acting on.\n\nREPRODUCED NOW, at the source, which is what should have happened first:\n\n    10.1038/s41562-024-02076-3, re-extracted from the custody PDF at normalization 1.9.65\n      HapMap3  = 2       HapMap 3 = 0       HapMap * = 0\n        \"...focusing on HapMap3 SNPs. Inclusion in the LD Score regression...\"\n        \"...analysis was limited to HapMap3 SNPs with a minor allele frequency...\"\n\n    10.1073/pnas.2313604121, same method\n      Deposited 3 = 1    Deposited * = 0\n        \"Deposited 3 December 2022.\"\n\nBoth occurrences of the identifier are `HapMap3` in the source, and the pre-fix pipeline\ndestroyed exactly ONE of the two. So the ORIGINAL claim was right and is now measured rather than\nrelayed, and the date shape is independently confirmed rather than taken on trust.\n\nTHE RULE RUNS IN BOTH DIRECTIONS, and only one half was written down before: a single clean site\ncannot clear a document, AND a single destroyed site does not condemn one. Count every\noccurrence.\n\nHOW THE WRONG CLAIM WAS MANUFACTURED, because the mechanism is more useful than the correction.\nThe consumer verified with `grep -c 'HapMap 3'` -- WITH A SPACE -- against an intact form that\nhas none. They searched for a string that cannot exist, got 0, and read that zero as a finding.\n`HapMap 3` returns 0 against a fully intact file; the trap is now demonstrated rather than\npredicted, and it fired in the SAME message that flagged the no-space trap to others.\n\nTHE ASYMMETRY IS THE LESSON. Their 30-file statistics scan carried two-sided controls and held up\ncompletely. The claim that failed was a one-line verification grep, where nobody thinks to plant\na control. Knowing a failure mode by name does not prevent it; a control does, and effort tracks\nthe ceremony of the check rather than the weight of the conclusion drawn from it.\n\nNothing else in 0febe36 is affected: the date shape stands (verified above), and the measured\n\"no published statistic corrupted across 30 files\" result stands with its controls intact.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/5036c9a61dcffad2d8f1219b3774d3e0cf7be728",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "0febe36",
+            "message": "docs(changelog): \"both forms coexist\" is NOT general, and W0k also destroyed a bare DATE digit",
+            "body": "Two corrections to the 2.4.140 section, both from a consumer's own measurement rather than from\nthis repo, and both making the picture WORSE in one direction and better in another.\n\n1. THE RECOVERY CLAIM WAS TOO OPTIMISTIC. This file said `10.1038/s41562-024-02076-3` holds both\n   `HapMap3 SNPs.` intact and `HapMap *` destroyed, and drew \"a single clean site cannot clear a\n   document\". True of the copy examined here. But in the CONSUMER'S copy at normalization 1.9.57\n   the token is destroyed at EVERY occurrence -- `HapMap3` count 0, `HapMap 3` count 0 -- so\n   there is nothing in that file to recover from. \"Both forms coexist\" is a property of one\n   extraction, not of the defect. Re-extraction from the source PDF is then the only route, which\n   is a materially different instruction to give a consumer.\n\n2. A THIRD SHAPE, WITH A REAL DOI. `10.1073/pnas.2313604121` shipped `Deposited * December 2022.`\n   for `Deposited 3 December 2022.` -- a bare day-of-month digit with SPACES ON BOTH SIDES. Every\n   example previously recorded (HapMap3, ASL TO3, GRCh3, Material 3, x3) was a digit glued to a\n   word or an identifier, so a pattern anchored to that shape misses this class entirely. Verified\n   by re-extracting the custody PDF through a service at identity 2.4.141/3f035f5/clean, not by\n   pattern-matching. This meets the project's standing rule that a case comes from a real paper\n   with the DOI recorded, never from a constructed string.\n\n   Two grep traps follow and are now written down: the intact form is `HapMap3` with NO space, so\n   grepping `HapMap 3` returns 0 and reads as a failed fix; and the standalone-digit class needs\n   its own pattern.\n\n3. THE REASSURING HALF, AND IT IS MEASURED. Across that consumer's 30-file corpus NO PUBLISHED\n   STATISTIC was corrupted. The unambiguous signature is a star sandwiched between digits -- a\n   significance star can never sit there -- and it returned 0 sites in 30 files under a TWO-SIDED\n   control: planted `12*4` and `0.6*9` caught, planted `0.695***` and `0.34**` ignored, 1,094\n   asterisks counted to prove the files were read, and 0 surviving `\u00d7`/`\u2715`/`\u2a2f` glyphs to prove the\n   asterisk surface was complete rather than a subset. The damage class is identifiers, names and\n   dates -- not statistics.\n\nTHEIR PROCESS IS WORTH RECORDING AS MUCH AS THEIR RESULT. Their first scan flagged\n`240 participants * 8 items` as corruption and the NEGATIVE control caught it. A later pass\nreported \"0 corrupted statistics\" while its own POSITIVE control was dead -- the planted string\ncontained no genuine digit-star-digit, so the pattern had never been exercised and that zero was\nuntested rather than clean. Both are exactly the \"a zero is a claim about the instrument\" failure\nthis project keeps re-learning, caught here by controls rather than by luck.\n\nThe same consumer independently reproduced this release's \"PDF table output is byte-identical\"\nclaim: `flattened_row_count`, `flattened_row_field_keys` and `flattened_row_keys` unchanged\nacross table extraction 2.4.12 -> 2.4.14 on their PDF fixture.\n\nThe consumer notice carries all of the above.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/0febe36425fe1088d26f288b150df158d2536b56",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "0e160af",
+            "message": "docs: the two consumer CONTRACTS still said the removed rules were active and right",
+            "body": "`docs/NORMALIZATION.md` and `docs/SCOPE.md` are the files this project points consumers at --\nSYMBOL_CONTRACT.md opens with \"if you maintain a tool that parses docpluck's output, this page\nis your interface\" -- and both still listed W0i/W0k/W0l as live and classified them\n**TYPOGRAPHIC**. That classification is exactly what 2.4.140/141 overturned: the font declares\nthe slot as a digit in BOTH `/Differences` (`/three`) and `/ToUnicode` (U+0033), so the file is\ninternally consistent and consistently wrong and the only contradiction is with the printed\npage -- which a rule whose signature is `text: str` can never consult. Measured over 101 PDFs\nW0k fired on 5 papers and destroyed a real published token in 4.\n\nBoth entries are struck through rather than deleted. A consumer who read the old claim needs to\nfind it CORRECTED, not vanished, and the SCOPE.md entry now names the version boundary that\nlets them sort their own stored files: anything at `docpluck-norm@1.9.64` or earlier may hold a\ndestroyed token, anything at 1.9.65 cannot. The W0 step-order block gains the same note in\nplace, so a reader walking the pipeline does not silently wonder where those steps went.\n\nTWO SMALLER THINGS, found by running the gate rather than reading it:\n\n`docs/BENCHMARKS_docx_engines_2026-09.md` is tracked and PUBLIC but was missing from CLAUDE.md's\n\"Key project docs\" list -- the human-readable half of the public allowlist. The hygiene TEST\npassed because its machine half matches `BENCHMARKS*`, which is precisely how a list drifts:\nthe half nobody reads stays right and the half everybody reads goes stale.\n\n`## [Unreleased] - 2026-08-07` was the only remaining Unreleased heading and sat between 2.4.127\nand 2.4.126, so a reader scanning for pending work landed on a month-old shipped change. It\ncarried no version bump because no library code changed; retitled \"[No version bump]\" to say\nthat instead of implying it is still coming.\n\nGates: test_public_repo_hygiene, test_docs_consistency_gate,\ntest_the_package_version_is_in_the_changelog -- 19 passed. Custody scans (all three forms) and\nthe public-repo guard ran clean earlier in this session.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/0e160af830694eafe4be2686350a9172a6adbd5b",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "b528edb",
+            "message": "fix(pin): the bump commit carries the frontend mirror, or it does not happen",
+            "body": "`check_app_pin_sync.py --fix` rewrote service/requirements.txt and then staged\nthat ONE path. frontend/docpluck-pin.json is a committed mirror of the same pin\nand was never regenerated or added, so every --fix run pushed a master whose own\nsuite was red on frontend/src/lib/errors/docpluck-pin.test.ts.\n\nWHY THE MIRROR EXISTS: the documented CLI deploy is `cd frontend && vercel --prod`,\nwhich uploads ONLY frontend/ and therefore cannot read ../service/requirements.txt.\nWithout a fresh mirror that build falls back to the hand-maintained DOCPLUCK_VERSION\nenv var -- the 50-day-stale cache-key failure the derivation was built to remove.\n\nIT HAD ALREADY HAPPENED. 54c9a31 bumped the pin to v2.4.138 and stranded the mirror\nat 2.4.137. Nobody noticed until a QA session went looking an hour before this\nrelease -- because the failure is SILENT in this repo and lands as red tests in the\napp's suite, which this project does not run. Reported by the pdfextractor-65 and\ndocpluck-ef sessions; VERIFIED HERE AT THE SOURCE before acting on it (line 221 was\nthe function's only `git add`, and a two-sided grep found 8 hits for \"requirements\"\nagainst 0 for pin.json/frontend/mirror/sync-pin, so the instrument worked).\n\nTHE FIX CALLS THE EXISTING GENERATOR rather than writing the JSON in Python: one\nconcept, one implementation. A second copy of the mirror format here would drift\nfrom frontend/scripts/sync-docpluck-pin.mjs silently, which is the failure this\nproject's \"ONE CONCEPT, ONE TABLE\" rule exists to prevent. A missing `node` is a\nHARD FAILURE, never a skip -- skipping is the original defect wearing a green tick,\nand the resulting commit would push a red master.\n\nTESTS, watched RED FIRST against the unpatched function and re-verified red after\nthe third assertion was corrected: 3 failed / 0 passed unpatched, 3 passed patched.\nThe fixture copies the REAL generator instead of reimplementing it, and the\n\"both paths staged\" test asserts requirements.txt is present FIRST, as a control so\nthe mirror assertion cannot pass vacuously.\n\nONE THING WENT WRONG WRITING THEM, recorded because it is this repo's own recurring\ntrap: the missing-generator test first asked whether the mirror path appeared in\nHEAD's file list -- true of the FIXTURE'S base commit, so it failed against correct\ncode and would have been \"fixed\" by weakening it. It now compares the HEAD sha,\nwhich is the question that was meant: did this call create a commit at all?\n\nAND THE HARDCODED SIBLING NAME IS GONE. Locating the consumer checkout is now\nSTRUCTURAL -- the sibling whose service/requirements.txt carries a docpluck pin --\nwith $DOCPLUCK_APP_REPO and --app-repo as overrides. Two reasons, and the second is\nthe durable one: this repo is PUBLIC and a hardcoded name published the private\nconsumer's layout (the public-repo guard blocked the commit that merely MOVED the\nliteral, which is the gate working); and a name is the more fragile key anyway,\nsince relocating the checkout would have sent this gate at a path that does not\nexist. It returns None rather than a plausible-but-wrong path, so \"found nothing\"\ncannot be misread as \"checkout has moved\".\n\nSix tests. The resolver's own three are two-sided: a decoy sibling with the right\nSHAPE but no pin, sorted FIRST so a resolver that took the first match would fail;\na layout where nothing matches, asserting None rather than a guess; and the env\noverride. Verified at the REAL call site too -- running the gate resolves the\ncheckout and reads the pin from origin/master, which a wrong directory could not\ndo. That run also caught a NameError the refactor introduced (`lib_repo` was still\nused further down), which no unit test would have reached.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/b528edb4bb13a0dd2f03ee0522958a67e4eddea1",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "3f035f5",
+            "message": "release(2.4.141): v2.4.140 reached the remote one commit early, so the fix goes forward",
+            "body": "NO CODE CHANGE. `__version__`, `pyproject.toml` and the docs example move 2.4.140 -> 2.4.141;\nNORMALIZATION_VERSION stays 1.9.65 and TABLE_EXTRACTION_VERSION stays 2.4.14, because the\npipelines are unchanged.\n\nWHAT HAPPENED. `refs/tags/v2.4.140` is on github.com/giladfeldman/docpluck pointing at 6db1ac5\n-- one commit before 35eb788 corrected the two pipeline version strings. It was absent from\n`git ls-remote` at ~07:12 and present at ~07:47; the tag OBJECT (72e6d43, tagger date\n1788761740) is the one the previous session created yesterday, so the object is accounted for\nand only its arrival on the remote is not. The peer session live in this tree\n(docpluck-ef) confirms it pushed nothing -- no tag, no PyPI, no pin -- and my own push\nreported `! [rejected] v2.4.140 (already exists)`. GitHub's events API has not yet surfaced\ntoday's push. UNRESOLVED, and recorded as unresolved rather than guessed at.\n\nWHY IT MATTERS ENOUGH TO SPEND A VERSION NUMBER. v2.4.140 ships the W0i/W0k/W0l removal and\nthe DOCX header ceiling while DECLARING normalization 1.9.64 and table extraction 2.4.13. That\nis the exact condition 35eb788 exists to prevent: a consumer storing text keyed on\n`docpluck-norm@1.9.64` cannot tell whether the file predates or postdates the fix, and the\nretrospective grep in the consumer notice is the only instrument they have for finding\ndestroyed tokens (10.1038/s41562-024-02076-3 holds both `HapMap3 SNPs.` and `HapMap *`).\n\nWHY NOT FORCE-MOVE THE TAG. 2026-08-20: a history purge force-pushed v2.4.134 and v2.4.135\ntogether, the OLDER run finished one second later and won, and production was silently\ndowngraded. Re-pointing a public name is the move that produced that. Nothing has consumed\nv2.4.140 -- PyPI is still 2.4.135 and the app pin is still v2.4.138 -- so going forward costs\none version number and mutates nothing already published.\n\nGates: test_the_package_version_is_in_the_changelog (which exists because a bump once shipped\nwith no changelog section), test_docs_consistency_gate, test_public_repo_hygiene -- 19 passed.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/3f035f5a2ef5a485bcf85480dcdb7bce1dec47d3",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "8ec1bad",
+            "message": "fix(hygiene): two internal-process words in a PUBLIC repo's source comments",
+            "body": "`giladfeldman/docpluck` is public (`gh repo view --json isPrivate` -> false), and the\npublic-repo guard flagged two words on the two version-constant lines this release touched:\n\"ESCIcheck handoff 2026-06-25\" and \"found by a conductor fleet sweep\". A handoff and the\nconductor seat are internal coordination, not part of the published contract. Rewritten as\n\"ESCIcheck consumer request\" and \"a portfolio-wide sweep\" -- neither loses a fact.\n\nThe consumer NAMES on the same lines (effectcheck / escimate / scimeto) are deliberately kept:\nthey are already public in docs/SCOPE.md, docs/SYMBOL_CONTRACT.md and docs/README.md, where\nthey are the documented consumer contract. Removing them from a comment while the docs name\nthem would achieve nothing.\n\nNOT FIXED HERE, AND REPORTED RATHER THAN SILENTLY LEFT: a full-tree guard run finds 59\nblocking lines in the TRACKED, ALREADY-PUSHED CHANGELOG.md -- private sibling project names,\na conductor session id, internal document filenames and `~/Vibe` paths -- verified present in\n`origin/main:CHANGELOG.md` with a positive control, so this push does not create them. It is\npublished history, and the owner deferred the docpluck public-repo residue on 2026-09-05. It\nis not a release blocker; it is a decision.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/8ec1badab95de1998e4411fa668b6a0bee242f7a",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "35eb788",
+            "message": "release(2.4.140): both pipeline versions bump, because both pipelines' output changed",
+            "body": "NORMALIZATION_VERSION 1.9.64 -> 1.9.65 and TABLE_EXTRACTION_VERSION 2.4.13 -> 2.4.14, and the\nCHANGELOG's [Unreleased] block becomes the 2.4.140 release heading (2.4.139 was never tagged;\nits DOCX-tables work ships here).\n\nFOUND WHILE PREPARING THE TAG, AND IT IS A REAL DEFECT, NOT BOOKKEEPING. f169c3d unwired W0i,\nW0k and W0l from normalize_text and left NORMALIZATION_VERSION at 1.9.64; 2fa3ef7/f451b89\nchanged DOCX table content and left TABLE_EXTRACTION_VERSION at 2.4.13. Consumers store\nextracted output keyed on these strings -- one confirmed store is literally named\n`corpus-text__docpluck-norm@1.9.57.txt` -- so shipping changed output under an unchanged\nversion makes text produced BEFORE and AFTER the fixes indistinguishable in a consumer's\nrecords.\n\nThat is worst for exactly these two changes, because both are RETROSPECTIVE. The consumer\nnotice asks consumers to grep their stored extractions for destroyed tokens\n(10.1038/s41562-024-02076-3 holds both `HapMap3 SNPs.` and `HapMap *` in one file); without a\nversion bump they cannot tell which of their files predate the fix, so the grep is the only\ninstrument they have left.\n\nREMOVING A REWRITE STILL CHANGES OUTPUT. The normalization bump is for a release that only\ntakes rules away, and the table bump is for a release whose PDF table output is byte-identical\n-- DOCX changed, and one channel changing is enough.\n\nGates: tests/test_docs_consistency_gate.py (which drifts each constant and asserts the drift is\ncaught), test_provenance_completeness, test_w0k_must_not_destroy_real_digits -- 56 passed; plus\nthe five other version-referencing suites and the docx/public-hygiene gates -- 302 passed.\nOnly pin outside the two source constants was docs/README.md, updated in the same commit.\n\nThe pre-commit canary BLOCKED the first attempt on 4 \"new\" findings and that was a FALSE RED,\nverified rather than assumed: all four are in the ledger with status open, first_seen_sha\n7841a1d5123e (2026-09-04), and the canary render is byte-identical (bc928949b5d540aa) to the\npair already audited -- a two-version-string change cannot move a render. Re-running the\nclassifier by hand returns `total=4 new=0 known=4`. The pre-pass had read the ledger in a state\nwhere those four had been flipped RESOLVED (open went 65 -> 54 between yesterday's run and this\none) and re-reported them as new. Filed for the shared skill, not worked around here.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/35eb7885207930d2b56d04691cae06e1d90980e7",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 5,
+        "pushed_at": "2026-09-02T03:58:35Z",
+        "recent_commits": [
+          {
+            "sha": "7729a28",
+            "message": "Built site for tenzing@0.4.1: 5554f64",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "5554f64",
+            "message": "temporarily cmmment out new test that failed for Load instead of Upload",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
+            "type": "feat",
+            "branch": "master"
+          },
+          {
+            "sha": "e07088e",
+            "message": "move papaja UI output down, retitle affiliations page",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "e4217bd",
+            "message": "Built site for tenzing@0.4.1: 6944931",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "6944931",
+            "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
+            "body": "Reorder output actions and clarify URL loading",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-09-11T08:07:35Z",
+        "recent_commits": [
+          {
+            "sha": "79a4b43",
+            "message": "Detect and download from many more Dataverse, Figshare, and DSpace installations",
+            "body": "Dataverse: expanded the recognised-installation list from 50 to 121 hosts,\nsourced from the IQSS/dataverse-installations community registry and each\nverified live via its own GET /api/info/version.\n\nFigshare: added detection for 16 institutional addresses (e.g.\nfigshare.le.ac.uk, orda.shef.ac.uk) that are branded front ends for the real\nfigshare.com service, found via DataCite's client registry and confirmed\nlive -- no download-side changes needed, since all of them resolve through\nthe existing api.figshare.com backend.\n\nDSpace: generalized archive-psycharchives.R's legacy (<=6) REST API support\nfrom PsychArchives only to any host in the new .dspace_legacy_hosts() list\n(5 more found and verified live), with psycharchives_links/_info/_file_download\nkept fully backward compatible. Added archive-dspace7.R, a new implementation\nfor DSpace 7's differently-shaped REST API, covering 64 more installations\n(e.g. Cornell's eCommons, Georgia Tech's Digital Repository, ETH Zurich's\nResearch Collection) found and verified the same way.\n\nWired both DSpace paths into repo_check.R (repo_type \"dspace\"/\"dspace7\") and\nupdated its module-level documentation accordingly.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-11",
+            "url": "https://github.com/scienceverse/metacheck/commit/79a4b43a20b1700e325254ddcff002493c0c67bc",
+            "type": "other",
+            "branch": "add-dataverse-figshare-dspace-repo-support"
+          },
+          {
+            "sha": "02d90e3",
+            "message": "Add an opt-in capture_reasoning argument to llm()",
+            "body": "Some providers/models return their own chain-of-thought text alongside a\nstructured call's result (via ellmer's ContentThinking). Off by default;\nwhen enabled, the raw thinking text is added as a `.reasoning` column so it\ncan be inspected without changing any existing caller's output.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-11",
+            "url": "https://github.com/scienceverse/metacheck/commit/02d90e312cf18215b139c36e1fa53db5e7411bb5",
+            "type": "feat",
+            "branch": "housekeeping-llm-reasoning-and-data-check-fix"
+          }
+        ]
+      },
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-09-09T17:50:39Z",
+        "recent_commits": [
+          {
+            "sha": "72620b2",
+            "message": "Treat `list_min_distance_functions` like other constants",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-09-09",
+            "url": "https://github.com/lhdjung/scrutiny/commit/72620b2796b2d95fce0ce545ac4a27679a85b8f2",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "23404f6",
+            "message": "Refactor to simplify",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-09-09",
+            "url": "https://github.com/lhdjung/scrutiny/commit/23404f642574b29973f21e853e8acb3012ed338c",
+            "type": "refactor",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-10T17:12:08Z",
+        "recent_commits": [
+          {
+            "sha": "6ad905e",
+            "message": "fix: retry OpenRouter parser rate limits reported as HTTP 400",
+            "body": "",
+            "author": "Davidvandijcke",
+            "date": "2026-09-10",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/6ad905e9ea0aec76c97f9724aca86eaca76aea8b",
+            "type": "fix",
+            "branch": "codex/fix-ocr-296-audit-292"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-28T15:19:13Z",
+        "recent_commits": [
+          {
+            "sha": "4ea4b3b",
+            "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
+            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 69c3964cbc6c5fa72e1928aa83f610425e07cd6d\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
+            "author": "Gilad Feldman",
+            "date": "2026-08-28",
+            "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-10T06:52:07Z",
+        "recent_commits": [
+          {
+            "sha": "40676dd",
+            "message": "Release 0.12.7",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-09-10",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/40676dd45a817ba78070d6742d1018a5be451385",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-09-11T16:00:43.756812+00:00",
     "narrative": "",
     "repos": [
@@ -20177,502 +20463,6 @@
             "date": "2026-08-13",
             "url": "https://github.com/shaheedazaad/auto-zcurve/commit/e20a3b12aa8ea38e826693f11abede65630940a4",
             "type": "chore",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-08-18T18:44:23.715872+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "lhdjung",
-        "repo": "scrutiny",
-        "url": "https://github.com/lhdjung/scrutiny",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 22,
-        "pushed_at": "2026-08-18T14:51:48Z",
-        "recent_commits": [
-          {
-            "sha": "ddb58e7",
-            "message": "Rewrite all other tests in the image of c3abc016614fab2685d16a39d2835a36c6624e3c",
-            "body": "* Mechanical syntax changes only\n* Main change: pipes instead of nested code\n* Also, some more empty lines for readability",
-            "author": "Lukas Jung",
-            "date": "2026-08-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/ddb58e7da87e0eba8221cac0906ae35d9bbf63a0",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "c3abc01",
-            "message": "Rewrite test-utils.R to model test style",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/c3abc016614fab2685d16a39d2835a36c6624e3c",
-            "type": "test",
-            "branch": "polishing"
-          },
-          {
-            "sha": "879c2ea",
-            "message": "Optimize testing helpers via constants and inlining",
-            "body": "* Also update tests and NEWS.md\n* Move pre-existing constants into the new aaa.R",
-            "author": "Lukas Jung",
-            "date": "2026-08-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/879c2ea3caa987a2c4f959235723117f2d8d5fa0",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "da673ee",
-            "message": "Improve sequence mapper documentation",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/da673eef8da916eea03dd41735c55d4354feefb9",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "173adfd",
-            "message": "Add `vectorize_test()` and base `grim()`, `grimmer()`, and `debit()` on it, close #91",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/173adfdfc8635c85ae1b99b4a98bee3770d51840",
-            "type": "feat",
-            "branch": "polishing"
-          },
-          {
-            "sha": "0f91d83",
-            "message": "Update top-level files",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/0f91d8340f8105fb2920d08eedccfa76133bc97b",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "43349b6",
-            "message": "Remove outdated section in wrangling.Rmd",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/43349b664230beb15960d43179dca5ed0072e26a",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "b8fc076",
-            "message": "Make `grim_plot()` return its plot and report what it leaves out",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/b8fc0769927c7d0adab721b6184a07762d9e9144",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "3b7248a",
-            "message": "Agree on undecidable input; bound GRIMMER; deprecate grim(tolerance)",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/3b7248a5979af6a84683c06fe4e31b3d2592c8a2",
-            "type": "chore",
-            "branch": "polishing"
-          },
-          {
-            "sha": "9345d97",
-            "message": "Make the three mapper tiers behave alike",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/9345d972938567c84cda6d77706fa1d887f581e5",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "73074fb",
-            "message": "Remove outdated files",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/73074fb0515af41d9ff59c1ff3643298b696351e",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "69a13a0",
-            "message": "Document the second-pass audit fixes in NEWS.md",
-            "body": "Also corrects an existing entry that called `grim_plot()`'s mapping of the\n`\"ties_*\"` methods onto the background raster unconditionally exact. That\nholds for a non-negative mean; negative means are now plotted, and for them the\nraster is the mirrored method's.",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/69a13a0ddb597731fc9daaa89ac8f523b0c78ca0",
-            "type": "docs",
-            "branch": "polishing"
-          },
-          {
-            "sha": "43d1ed5",
-            "message": "Keep build artifacts out of the tarball, and refresh rotted URLs",
-            "body": "`vignettes/` shipped the LaTeX intermediates behind its two PDFs, about\n68 KB of .tex and .synctex.gz that are neither vignettes nor sources of one.\n\nR CMD check --as-cran flagged four URLs. http://www.prepubmed.org/sprite/ is a\ngenuine 404 -- the site root is up, the app page is gone -- so the sentence\nkeeps the fact and drops the link. The other three moved: two en.m.wikipedia.org\nlinks, github.com/ianhussey/tides (now strait), a Microsoft Excel support page,\nand a www.tidyverse.org blog post. Four more are reported 403 Forbidden --\nMedium, PeerJ, StackOverflow, MathWorks -- but all are live in a browser; that\nis anti-bot filtering, not rot, and is a candidate for cran-comments.md.",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/43d1ed5aadca1e4d2fcb4d8d711d20d9bc5f3f47",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "1065257",
-            "message": "Return zero rows from `unround()` for zero-length input",
-            "body": "Recycling stops at zero. Taking the maximum of all argument lengths ignored\nan empty argument and let the length-1 defaults set the row count, so\n`unround(character(0))` returned one row of missing values.",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/1065257fc5b4b20d5bf8cacb0079584e880528e0",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "c8cffa5",
-            "message": "Reject a fractional `dispersion` in `disperse()`",
-            "body": "`dispersion` counts whole units away from `n`, and `n` is a group size.\nA fractional step was accepted and then quietly mangled: `n` moved by the\nfractional amount while `n_change` was truncated toward zero, so\n`disperse(n = 10, dispersion = c(0.5, 1.5))` reported changes of 0 and 1 for\ngroup sizes of 9.5 and 8.5.",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/c8cffa59e69cee170d5400b8e1a89087a3d14bc4",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "33c2486",
-            "message": "Validate `threshold` in `round_up_from()` and `round_down_from()`",
-            "body": "`reround()`, `unround()`, and `rounding_offsets()` all route through\n`check_threshold_valid()`. The two functions that actually act on `threshold`\ndid not, so the same invalid argument was an error through one door and silent\nnonsense through another: `round_up_from(4.28, 1, threshold = 0)` returned 4.3,\nrounding like `round_ceiling()`, and a negative threshold was accepted too.",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/33c2486a9cc652dd1f50a1fea6ff71d49ba3f0c2",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "8ac3604",
-            "message": "Return `NA` from `grim_probability()` where there is nothing to test",
-            "body": "A non-positive `n` leaves nothing to test, which `grim()` reports as NA,\nbut the formula returned 1.03 for n = -3 -- so `grim_map()` displayed a\nprobability above 1 next to a verdict of NA, stating two incompatible things\nabout one row. `grim_ratio()` is unchanged; it is documented as the unclamped\none.",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/8ac3604d2e6487c2f1d5e5a9558fc9c6bfa70ce6",
-            "type": "test",
-            "branch": "polishing"
-          },
-          {
-            "sha": "c0904ba",
-            "message": "Ignore undecidable cases in `audit()` summaries",
-            "body": "`audit_cols_minimal()` has always counted inconsistencies with\n`na.rm = TRUE`, because a case the test could not decide is not an inconsistent\none. The summaries built on top of it did not, so a single missing `n` turned\n`mean_grim_prob` -- and `incons_to_prob`, derived from it -- into NA for the\nwhole table. Same for `mean_x` and `mean_sd` in the DEBIT method.",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/c0904bae34d29e924e22dcdcaa94f9d880fed42d",
-            "type": "chore",
-            "branch": "polishing"
-          },
-          {
-            "sha": "2d98c9e",
-            "message": "Fix `grim_plot()` dropping data, and drop its dead version branch",
-            "body": "The axis bounds were scale limits, which discard a tile as soon as one of\nits edges falls outside. A mean of 5.00 has a fractional portion of exactly 0,\nso its tile reached half its height below the axis and was dropped whole --\n`pigs1` contains such a value, so the plot in the package's own examples had\nbeen showing eleven of its twelve value sets. They are coordinate limits now,\nwhich clip instead of discarding.\n\nNegative means are plotted at the fractional portion of their absolute value,\nso -2.51 is drawn at 0.51, in the same place as 2.51. GRIM's granularity is\nsymmetric around zero. Previously such a value fell outside the axis and was\ndropped without a word. The new `Negative means` section explains the one\nthing the sign still affects: for a one-directional `rounding` method the\nraster behind a negative value is the mirrored method's. The tile's color is\nunaffected, coming from the `consistency` column.\n\nThe blanket `suppressWarnings()` around the final `print()` is gone; it had\nhidden both of the above. `show_raster = FALSE` works again -- the plot object\nwas only created inside the branch that draws the raster, so the documented\nargument failed with \"object 'p' not found\". A zero-row `data` is now an\nexplained error instead of R's \"missing value where TRUE/FALSE needed\".\n\nThe data is drawn by one `geom_tile()` call using `linewidth`. There were two,\nchosen at run time on `utils::packageVersion(\"ggplot2\") >= \"3.4\"`; DESCRIPTION\nhas required ggplot2 (>= 3.4.0) ever since, so the `size` branch was\nunreachable and its deprecation warning was being suppressed.",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/2d98c9e26d451c7bc976e948f13cbce3b2ee1718",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "f5619e2",
-            "message": "Fix DEBIT's false alarm at a reported mean of 0.50",
-            "body": "`debit_scalar()` reconstructed the SD at the two bounds of the mean's\nrounding interval and concluded that every SD in between was reachable. That is\nan intermediate-value argument and it needs monotonicity, which\n`sd_binary_mean_n()` does not have: it is a downward parabola peaking at a mean\nof 0.5. An interval containing 0.5 reaches SDs above both endpoints, and for a\nmean of exactly 0.50 the interval is symmetric around the peak, so both\nendpoints give the same SD and the attainable band collapsed to a point.\n`debit(x = 0.50, sd = 0.503, n = 100, digits_x = 2, digits_sd = 3)` was FALSE\nfor 50 ones and 50 zeros. The peak is now evaluated too. The error only ever\nturned TRUE into FALSE, so nothing that used to pass now fails.\n\nAlso rejects a `formula` other than \"mean_n\" with the package's own error. The\nothers need a group size DEBIT is not given, so they reached\n`reconstruct_sd()` and failed with R's \"argument \\\"group_0\\\" is missing\",\nabout an argument the user never saw.",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/f5619e211002ad7ee91fa161d10da8f27b04efc6",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "4ac58f7",
-            "message": "Resolve sequence-mapper dispersion limits per variable",
-            "body": "`out_min = \"auto\"` meant one decimal unit above zero for every dispersed\nvariable, though it was written for `n`. For a negative reported mean it\nremoved the whole lower half of the sequence, and 0 -- a legal mean, SD, and\nproportion -- was out of reach everywhere. `function_map_seq()` gains\n`.var_bounds`, and \"auto\" now resolves through it per variable: `n` keeps a\nfloor of 1 whether declared or not, GRIMMER's `sd` gets 0, DEBIT's `x` and\n`sd` get [0, 1], and a mean is unbounded. `.out_max` defaults to \"auto\" for\nthe same reason. This also fixes `debit_map_seq()` failing outright whenever a\nreported value sat close enough to 0 or 1 for the dispersion to cross it.\n\n`reverse_map_seq()` no longer infers the reported value from the shape of the\nsequence -- the midpoint of its gap, or its median if it had none. That is only\nvalid for a complete sequence: once a limit had truncated one side, the gap\ndisappeared and the median branch returned a plausible wrong number, so\n`audit_seq()` on a reported mean of -2.51 gave -2.48 and the opposite verdict.\nThe value now comes from the `diff_var` column, which records how many steps\neach row sits from it. `index_case_interpolate()` is replaced by\n`index_case_from_diff()`, which errors rather than guessing when a group's\nrows disagree.\n\nThe \"no inconsistent cases\" warning now always names `include_consistent`. It\nnamed the R argument only when `interactive()` was TRUE and otherwise told the\nuser to untick a checkbox in the Shiny app -- so scripts, R Markdown, and test\nruns got the checkbox message.",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/4ac58f762a3a8ff018ee6767d6de51b7e03c18b9",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "1210394",
-            "message": "Drop zero steps in `seq_disperse()`'s `dispersion`",
-            "body": "A value in `dispersion` is a number of steps taken both up and down from\n`from`, so a step of 0 is `from` itself, once in each direction. Whether\n`from` belongs in its own sequence is what `include_reported` decides, so a\nzero step added it two more times: `seq_disperse(4.02, dispersion = 0)` was\nthree copies of \"4.02\", and `grim_map_seq(dispersion = c(0, 1, 2))` returned\nthe reported case twice, which `audit_seq()` counted twice.\n\nAlso documents what `out_min = \"auto\"` suits and what to pass instead. It\nresolves to one decimal unit above zero, which is right for a count and wrong\nfor anything that can reach zero or go negative.",
-            "author": "Lukas Jung",
-            "date": "2026-08-15",
-            "url": "https://github.com/lhdjung/scrutiny/commit/1210394c6c699351a37f61e50f6c15877960eb64",
-            "type": "other",
-            "branch": "polishing"
-          }
-        ]
-      },
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 9,
-        "pushed_at": "2026-08-18T16:36:36Z",
-        "recent_commits": [
-          {
-            "sha": "efedd30",
-            "message": "Fix ResearchBox file-link collapsing, Stata quoted-filename regex, and add cache param to reproducibility_check",
-            "body": "ResearchBox hrefs pointing at a specific file within a box were treated as\nseparate repos; they are now truncated to the box id. The unquoted-filename\ncapture regexes in code_file_refs() were matching inside already-quoted\nStata filenames that contain spaces, producing bogus extra references; they\nnow only run against lines without a quoted filename. reproducibility_check()\ngains a cache argument forwarded to data_check/code_check, and duplicate-file\nreporting now shows each mirror's location instead of just its (identical)\nbasename.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/efedd3044ac7fcb4d6244835e1954236cdd8fb4b",
-            "type": "fix",
-            "branch": "reproducibility_check"
-          },
-          {
-            "sha": "b343a0e",
-            "message": "Normalize line endings repo-wide with a single text=auto rule",
-            "body": ".gitattributes previously forced LF only under tests/testthat/fixtures/,\nwhich also matched binary fixtures there (PDFs, a zip) and forced git to\ntreat them as text, and left every other CRLF-committed text file (e.g.\ndata-raw/demo/ground_truth/*.csv, tests/testthat/apis/**/*.html) subject to\neach contributor's local core.autocrlf, causing line-ending-only diffs on\ncheckout.\n\nReplace it with `* text=auto`: git decides text vs. binary from each file's\nactual content (the same detection diff/file use), not its extension or\npath, so a binary file with a misleading name (e.g. the zip archive stored\nas tests/testthat/apis/.../osfstorage-546010.R-FILE) is still handled\ncorrectly with no entry needed, and every genuine text file is stored and\nchecked out as LF regardless of the checkout platform.\n\nRenormalizes the 23 tracked text files that were actually stored with CRLF\n(verified byte-for-byte: only line-ending bytes changed, no content diff).",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/b343a0e2eb4e0cc25a3afd9aaefd7ab778e78d3d",
-            "type": "other",
-            "branch": "reproducibility_check"
-          },
-          {
-            "sha": "3cbe26b",
-            "message": "Fix reproducibility_check calling isTRUE_vec(), an undefined function",
-            "body": "isTRUE_vec() only exists in R/psychds-convert.R on the convert_psychds\nbranch, which this branch never merged, so both call sites errored with\n\"could not find function\". Both columns (code_check's parse_error,\nthis module's own via_archive) are already plain logical, so inline the\nequivalent !is.na(x) & x instead of porting the helper.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/3cbe26b8a228fd5c0282f8f3719b985999b5e8f2",
-            "type": "fix",
-            "branch": "reproducibility_check"
-          },
-          {
-            "sha": "eff145a",
-            "message": "Add the missing .gitignore entry for pkgdown/assets/report-example.*",
-            "body": "The previous commit deleted these files and claimed they were\ngitignored going forward, but the .gitignore edit itself never got\nstaged. Adding it now so a regenerated report-example.html/.qmd\ndoesn't silently get re-tracked.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/eff145a51133bedf4adc72990444f8f68c94c362",
-            "type": "feat",
-            "branch": "dev"
-          },
-          {
-            "sha": "431e0c5",
-            "message": "Fix FLoRA_update() using the wrong osf_file_download mode",
-            "body": "Broke when mode = \"all\" became the default for whole-project\ndownloads: t4j8f is a single OSF file, not a project, so \"all\"'s\nskip-the-listing/download-archives-per-node approach is the wrong\nshape for it. This test is gated behind skip_if_quick() and so never\nran in normal test suite passes, which is why it went unnoticed.\nmode = \"select\" restores the old \"files\" behaviour (list, then fetch\nthe requested file), verified passing.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/431e0c553c1edb071504d66464ecdd176107c032",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "1bda9ad",
-            "message": "Merge dev into additional_archives",
-            "body": "Reconciles this branch with dev after its content commits (the\nshiny_app addition, osf_app.R's library(metacheck) fix, the two\nMetacheck-description additions) were already cherry-picked in\nindividually. Remaining conflicts are all deletions this branch made\ndeliberately -- vignettes/ (superseded by the metacheck book) and\n_stuff/profile/cermine_example.xml (repo cleanup) -- kept deleted.\n.gitattributes keeps this branch's binary-fixture-by-default approach\nover dev's broader \"* text=auto\", since it fails safe for newly added\nfixture formats rather than requiring each one to be listed.\n\nNo R/, inst/modules/, or test content changes: dev's only two\nunmerged commits (logpath() fix, .gitattributes fix) are identical in\ncontent to commits already resolved from main earlier today.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/1bda9ade25b89635273880315fc258a3b4465b47",
-            "type": "other",
-            "branch": "dev"
-          },
-          {
-            "sha": "befd5d5",
-            "message": "Match main's Metacheck Manual navbar wording/URL",
-            "body": "main independently made the same navbar change (pointing at the\nmetacheck book instead of Get Started/Articles) with slightly\ndifferent wording and the correct https:// URL. Taking main's exact\nwording here avoids a needless merge conflict; this branch's newer\nreference-index content (no stale psychsci entry, no dead articles:\nsection, includes the Dataverse/Figshare/Dryad/ReShare/4TU entries)\nis kept as-is.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/befd5d52bc992126c2a6518f0671fa6bf39d8d7a",
-            "type": "other",
-            "branch": "dev"
-          },
-          {
-            "sha": "d12bf1d",
-            "message": "Fix remaining test warnings, including a cross-file llm_use() leak",
-            "body": "test-module-power.R's last test block set llm_use(TRUE) and never\nreset it, leaking that global option into every test file that ran\nafterward in the suite. test-module-repo_check.R and\ntest-repo-download.R were the two downstream files that triggered\nreal (unmocked) LLM network calls as a side effect, failing with\nconnection-refused and printing as warnings even though their actual\nassertions still passed. Fixed with withr::defer(llm_use(FALSE)) --\nplain on.exit() and withr::local_options() were both tried first and\nconfirmed, by direct testing, not to restore state correctly through\nthis project's custom test_that() wrapper in helper.R; withr::defer()\ndoes. Applied the same fix to test-llm.R and test-utils.R, which had\nthe same unrestored llm_use(TRUE) pattern.\n\ntest-archive-zenodo.R and test-repo-download.R had intentional\nfake-download-failure scenarios whose warnings were never wrapped in\nexpect_warning(), the same gap already fixed in\ntest-archive-dataverse.R -- applied consistently here too.\n\nFull suite: 0 failures, 0 warnings, 4280 passed.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/d12bf1d23c45929ea52b5ce3fb82f543e27b3ab9",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "74c2d84",
-            "message": "Fix R CMD check warnings/notes and cross-test pollution from dead module imports",
-            "body": "R CMD check fixes:\n- .Rbuildignore: exclude .vscode, .comments, CLAUDE.md; delete stray\n  duplicate to_err_is_human.xml at repo root (real copy lives in\n  inst/demos/)\n- Non-ASCII characters warning: escape functional Unicode (Greek\n  statistical notation, math operators, box-drawing table borders, a\n  field-separator character, an NBSP constant, a BOM string) as \\uXXXX,\n  substitute purely decorative comment punctuation with ASCII, across\n  12 files\n- Undeclared imports warning: add SnowballC, data.table, officer,\n  pdftools, readxl, yaml to Suggests (already used via :: throughout)\n- Rd cross-references / Rd usage-section warnings: two roxygen blocks\n  had drifted onto the wrong function because a plain (non-roxygen)\n  comment sat between the doc block and its real target\n  (stat_results_long, data_read_head) -- moved each block to the\n  correct function; removed one duplicate leftover block; stripped six\n  dangling \\link{} references to functions that only exist on unmerged\n  branches\n- R code NOTE: qualify two bare ave() calls as stats::ave(), fix an NSE\n  binding in code_setwd(), port the missing .repro_split_args() helper\n  r-output.R was calling (only defined on the reproducibility_check\n  branch)\n- Avoid the \"assignments to the global environment\" NOTE in\n  .r_capture_runner() (a callr subprocess payload, not the user's\n  session) by capturing globalenv() into a variable first, which\n  R CMD check's static scan does not resolve\n\nTest suite fix:\n- Three modules (prereg_check.R, code_check.R, stat_effect_size.R)\n  declared roxygen @import for packages (httr, jsonlite, tidyr) they\n  never actually use. module_run() require()s every declared @import,\n  so running those modules' tests attached httr/jsonlite to the search\n  path ahead of metacheck, letting httr::verbose() and\n  jsonlite::validate() shadow metacheck::verbose()/validate() for every\n  test that ran afterward in the same session -- the reason two\n  unrelated test files only failed in full-suite runs, never in\n  isolation. Removed the three dead @import lines (a full sweep confirms\n  no other module has an unused import).",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/74c2d846a029f8010cc1be38f7f093212a3ad3e2",
-            "type": "fix",
-            "branch": "dev"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "docpluck",
-        "url": "https://github.com/giladfeldman/docpluck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 7,
-        "pushed_at": "2026-08-07T17:59:58Z",
-        "recent_commits": [
-          {
-            "sha": "2185b00",
-            "message": "fix(qa): the corpus gate asks the custodian what it should cover, not the disk",
-            "body": "`scripts/verify_corpus.py` now gets everything from article-finder: the expected\npaper set, every PDF, and every baseline. No directory glob, no\n`../PDFextractor/test-pdfs` coupling, no `DOCPLUCK_SPIKE_BASELINE_DIR`, no\n`docs/superpowers/` default path. Papers are addressed by canonical key\n(`--paper 10.1177/19485506211056761`).\n\n**The coverage defect.** The gate derived its corpus from `glob(\"*.md\")` and\nprinted `N / N` where N was whatever it found -- so a half-present corpus\nreported a clean pass and a vanished one reported nothing at all. A denominator\ncomputed from the numerator can only ever say 100%. It now comes from\n`papers-with-view`, and three states are kept distinct:\n\n  nothing resolvable        SKIP,    exit 0   (this machine has no corpus)\n  some but not all          PARTIAL, exit 1   (the silent-shrink bug)\n  all resolved              PASS/WARN/FAIL\n\nNew `PDF_DRIFT` status: the repository's copy of a paper is not the\nmanifestation the baseline was built from. Rendering one and comparing it to a\nbaseline built from the other measures nothing, and would print the difference\nas a docpluck regression -- publisher PDF, arXiv preprint and PMC author\nmanuscript share a DOI but not bytes. It surfaced three such papers immediately.\n\n**Re-baselined onto the repository's own copies**, which removes PDF_DRIFT by\nconstruction: the artifact and the input the gate re-renders are now the same\nbytes. Done only after all 26 papers verified against the 2026-05-10 prototype\nbaseline with ZERO failures (23 in the corpus run, 3 individually once their\ndrift was diagnosed) -- a baseline captured from unverified output bakes in\nwhatever was wrong at capture time. The prototype set stays registered as\n`render-baseline__docpluck-splice-spike@2026.05.10` and is still selectable via\n`--baseline-view`.\n\nResult: 26 / 26 PASS, COVERAGE 26 / 26, exit 0.\n\nThree lookup bugs found and fixed on the way, each of which had made a real\npaper report as simply absent:\n\n- `10.1093/sf/soaf022` keys as `10.1093__sf__soaf022`; replacing only the FIRST\n  `__` produced a DOI matching nothing. Every `__` is an encoded `/`.\n- Two PDFs were ingested under a non-normalized mixed-case DOI, so the\n  lower-cased gold key could never find them. Fixed in `ingest-local-pdf.py`\n  (it now uses `_lib.normalize_doi` rather than a hand-rolled prefix strip), and\n  5 pre-existing unreachable index keys were normalized or removed.\n- `verified == 0` returned exit 0 as a clean SKIP even when every paper had\n  ERRORed or drifted -- a green run reported because everything failed. It now\n  skips only when nothing was ever attempted.\n\nAlso: LESSONS L-013, a CLAUDE.md hard rule, and the qa/review/iterate skills\nupdated to read the COVERAGE line rather than the PASS count, and to treat\nPDF_DRIFT as \"nothing was compared\" rather than as a render defect.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/2185b00f5f208e467cd85c6d90baad3142e068f6",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "2f203a3",
-            "message": "fix(tests): 984 KB of published article text left the repo; sha256 pins replace it",
-            "body": "`tests/snapshots/*.txt` were 12 byte-identical `extract_pdf()` outputs of real\npublished papers -- title, authors, affiliations, full body -- git-tracked and\nlive on a PUBLIC remote since 2026-05-07. `apa_efendic_affect.txt` carried\nSAGE's own reuse notice verbatim. Plaintext is *more* scrapable than the PDFs\nthis repo already refuses to commit.\n\nA sha256 asserts exactly the same byte-for-byte guarantee in ~1 KB and asserts\nnothing about anyone's copyright. `tests/snapshots/checksums.json` now pins the\ndigest, byte count and `method` per fixture; the pins were generated from the\nold `.txt` files and then re-derived from a live extraction run, which matched\ndigest-for-digest before anything was deleted.\n\nWhat a hash cannot do is print a diff, so that capability is restored rather\nthan dropped:\n\n  --snapshot-explain  dumps the actual text to tmp/ (gitignored) AND diffs it\n                      against the custodian's copy, fetched from article-finder\n                      by the paper's DOI\n  --snapshot-update   re-pins after an intentional extraction change\n\nThe 12 texts now live in article-finder as versioned tool artifacts\n(`extract-text__docpluck@2.4.126`), keyed by DOI, outside every repo. Verified\nend-to-end: with a pin deliberately corrupted, --snapshot-explain fetched the\ncustodian copy and produced a 0-byte diff (contents identical).\n\nAlso added, because the absence of each is what let this sit for three months:\n\n- `test_no_article_text_in_snapshot_dir` -- watched FAIL against the 12 real\n  files before they were removed. A shape check on the directory, not a\n  filename denylist: these files were named exactly like ordinary fixtures,\n  which is why three filename-based cleanup passes walked past them.\n- `test_checksums_cover_every_manifest_fixture` -- coverage is asserted, not\n  counted at runtime. The same defect class as the 24-skipped run this suite\n  shipped for four days.\n- `canonical_key` (the DOI) on every MANIFEST fixture.\n\nSwept the full 478-commit history with a new content-based detector\n(`article-finder/publication-text-scan.py`): these 12 files, in 28 blob\nrevisions, are the ONLY publication text this repo has ever held. No PDF was\never committed; `tests/golden/`, the manifest and `scripts/harness/` are clean.\n\nFull suite: 2088 passed, 166 skipped, 3 xfailed.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/2f203a30a7cd71f3cb8b924f3e6e798a829eda2f",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "48be7f9",
-            "message": "fix(tests): snapshot suite resolved fixtures under the pre-2026-08-03 Vibe root",
-            "body": "`test_v2_backwards_compat.py` hardcoded `$HOME/Dropbox/Vibe`. The portfolio\nmoved OUT of Dropbox on 2026-08-03 (Dropbox syncing a live .git corrupts\nrepos), so every fixture resolved to a path that no longer exists and all 12\nbyte-for-byte extraction tests SKIPPED \u2014 silently, reporting green.\n\nBefore: 24 skipped in 0.17s.  After: 25 passed in 201.80s.\n\nThis is verbatim the failure the portfolio hard rule warns about (\"a discovery\nhelper that returns empty when the root is wrong makes a broken run look like a\nclean one\" \u2014 the same rule notes the 2026-08-03 move went unnoticed for five\nweeks while weekly reviews 'passed'). Now resolves VIBE_ROOT then $HOME/Vibe,\nand a new test_fixture_root_exists FAILS when the root is absent. A missing\nindividual PDF stays a legitimate skip (not everyone has the closed-access\ncorpus); a missing ROOT is a broken configuration and must be visible.\n\nAll 12 snapshots still match byte-for-byte, so extract_pdf() output has not\ndrifted since 2026-05-07 \u2014 including across the 2026-05-14 poppler swap, on\nthese papers.\n\nNOT FIXED HERE, needs a user decision: those 12 snapshots are 984 KB of\npublished article text, git-tracked and live on the PUBLIC remote since\n7b04f8f. The test asserts byte-for-byte equality, which a sha256 gives\nidentically \u2014 so they can be replaced by ~1 KB of hashes with no loss except\ndiff context in the failure message. Purging the existing history requires a\nforce-push, which per LESSONS L-010 does not clean forks or PR refs.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/48be7f9e44eca8c87455c02e826cd5709b2a9cde",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "63b9ba3",
-            "message": "fix(qa): restore the corpus render gate, dead since the 2026-08-06 redaction",
-            "body": "`SPIKE_OUT_DIRS` held two identical literals reading \"an internal design\ndoc\". The de-referencing pass replaced the two real baseline paths with that\nplaceholder prose, so every run since printed \"ERROR: no spike baselines\nfound\" and exited 1 \u2014 while docpluck-qa check 7b documents that exact message\nas an expected clean skip on a fresh checkout. A CRITICAL render-regression\ngate was disabled for a week and its deadness read as normal. The 26 baseline\nfiles (7 + 19, the documented count) were on disk the whole time.\n\nResolved via DOCPLUCK_SPIKE_BASELINE_DIR with a runtime default. Missing\nfixture is now a loud SKIP (exit 0); baseline dirs that exist but hold no .md\nis a FAIL (exit 1). Conflating those two is what trained people to ignore the\nmessage \u2014 the same SKIP-vs-ERROR confusion already fixed once in\ntests/test_canary_provenance.py.\n\nRestored and run: 26 / 26 PASS at v2.4.126, so this release introduces no\nrender regression.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/63b9ba38cc442515c0b9f471c6f82ad4265e29cc",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "e58dee7",
-            "message": "fix: act on the final verification pass; package is now lint-clean",
-            "body": "An independent pass re-derived all eight behavioural claims in fresh\nprocesses against a real paper (identical version dict before vs after\nimporting every engine; 245ms/16ms; byte-identical default render at\n21776 chars vs standard 21777 and none 22487; 12/12 CLI sections carrying\nsubheadings; zero bare \"pdftotext\" literals). All eight held. It also found\nwhat follows.\n\nREPLY_FROM_DOCPLUCK_v2.4.126.md contained a FALSE claim: \"both consumer\nsurfaces now derive from the dataclass\" was true of the library CLI and\nfalse of the service, which still hand-enumerated nine keys and still\ndropped `subheadings`. Fixed the data loss rather than only the sentence \u2014\n`Section.subheadings` has existed since sectioning v1.6.1, so the service\ncan emit it against the CURRENT 2.4.125 pin; the switch to Section.to_dict()\nstays queued for after the bump. API.md's schema gains the key, and its\n`pages` row no longer implies PDF populates it (nothing does).\n\nThree code defects, each reproduced first:\n- batch.py imported `fields` and never used it.\n- sections/__init__.py annotated `normalization_level` with a forward ref to\n  a name imported only inside the function body, so\n  typing.get_type_hints(extract_sections) raised NameError. Module-level\n  import; verified no cycle (normalize's back-import is lazy, and importing\n  docpluck.sections first in a fresh process resolves).\n- an unused import in the test module.\n\nThen the lint the sweep implied, all pre-existing: three unused locals\nINSPECTED rather than deleted (an assigned-but-unused value in extraction\nlogic is the \"silently dropped computed value\" class \u2014 all three were\nvestigial, none was a lost value), one dead local in SectionedDocument.all()\nremoved after verifying every documented case still resolves, and four\nunused imports. `ruff --select F401,F811,F841` now passes clean over\ndocpluck/.\n\nFull suite 2061 passed / 0 failed, md5-verified against the tested tree.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/e58dee7ff4c2159c710fea20b9216d82593063a8",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "519c63f",
-            "message": "fix(provenance): four surfaces claimed what the call graph did not do",
-            "body": "Second, max-effort pass over the v2.4.126 work. The first pass fixed the\nreported bug; sweeping for the CLASS found three more library defects, and\nthree review rounds found more defects in the fix than the fix had found in\nthe code. Full suite 2061 passed / 0 failed (2015 baseline + 46 new).\n\nReceipt (get_version_info): 3 keys -> 18. Beyond the first pass it now also\nreports pdftotext_path (the exact binary, resolved once and used by the\nextraction call sites too, so the receipt cannot name a build that did not\nrun), pdfminer.six, pypdfium2, opencv, mammoth, beautifulsoup4, lxml --\ntwo of three input formats were unpinned entirely -- plus python_version\nand unicodedata_version, since normalize.py calls unicodedata.normalize.\nEngine versions come from installed distribution metadata, NOT the imported\nmodule's __version__: preferring the module made opencv_version read\n4.13.0.92 before `import cv2` and 4.13.0 after, one process, one install,\ntwo answers. Stated cost: a shadowing module is not detected.\n\nrender_pdf_to_markdown(normalization_level=) was a SILENT NO-OP -- accepted,\ndocumented as forwarded, discarded; none/standard/academic gave byte-identical\nmarkdown. extract_sections now takes the level and applies it. The default\nmoved standard->academic (what the code actually did) so output is unchanged\nfor callers who never passed it.\n\nSection.subheadings (v1.6.1) reached NO consumer -- the CLI and the service\nhad each independently enumerated the nine pre-v1.6.1 keys. Section.to_dict\n/ SectionedDocument.to_dict now derive from fields().\n\nappend_footnotes_section was dead twice over (zero call sites; unreachable\nprecondition) while docpluck-review SKILL.md described it as live. Removed.\n\nNot fixed, documented and queued: Section.pages is always () on every format\n(page mapping needs layout=, which the sections path deliberately omits per\nL-001; wiring it is a corpus-wide change needing its own gated cycle).\n\nPerf: count_greek_chars was 60x slower than a regex (247s vs 4s across the\nrequester's 8,431-doc corpus); a correctness fix then called\npackages_distributions() per engine (6-11s a call, uncached by the stdlib),\ntaking get_version_info() from ms to 24s. Now 122ms first call, 13ms after.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/519c63fa1dbc449f65e08fcdd018c667042938fc",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "2ae5d38",
-            "message": "feat(provenance): report every input that can change output (v2.4.126)",
-            "body": "MetaESCI asks A-1/A-2. A docpluck SHA did not pin extraction: the same SHA\n(a5c02ef) against the same PDF (10.1098/rsos.202336) produced 49,091 vs\n50,101 normalized chars across a poppler binary replacement, and\nget_version_info() reported three keys that were identical in both runs.\n\nFixes the class, not the symptom. get_version_info() now reports the\npdftotext binary version AND engine (poppler/xpdf differ behaviourally and\nshare a banner), poppler_version, pdfplumber, camelot, plus the in-repo\nsectioning_version and table_extraction_version that were exported and\nbumped independently of the package version but never on the receipt.\nNORMALIZATION_VERSION is now exported from the package top level.\n\nExtractionReport carries the same; ExtractionFileResult gains\nn_replacement_chars and n_greek_chars (A-2), measured on the normalized\noutput.\n\nSibling defects found by sweeping for the same shape:\n- NormalizationReport.to_dict() was silently dropping\n  column_interleave_pages, a populated field extract_columns documents as\n  the canonical source of that signal. Live, predates this change.\n- The per-file sidecar recorded ok:false on every SUCCESSFUL extraction,\n  and an elapsed_seconds:0.0 written before the timer stopped.\nAll three hand-enumerated serializers now derive from asdict().\n\nAlso: INBOX_* was missing from .gitignore's cross-project correspondence\nblock, so an inbox doc had been committed to this public repo (unpushed;\nthose commits were dropped). Duplicate L-010 heading renumbered.\n\n31 tests, all verified failing against the unfixed code first. Full suite\n2046 passed / 0 failed.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-07",
-            "url": "https://github.com/giladfeldman/docpluck/commit/2ae5d3839e049013f0aeab09ae15d50eb49a2e3d",
-            "type": "feat",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "marton-balazs-kovacs",
-        "repo": "tenzing",
-        "url": "https://github.com/marton-balazs-kovacs/tenzing",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-07-23T04:38:31Z",
-        "recent_commits": [
-          {
-            "sha": "ea980fd",
-            "message": "Built site for tenzing@0.4.1: d271884",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-07-23",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "d271884",
-            "message": "Update success alert title in sweet_alert.js",
-            "body": "Update terminology from infosheet to contributors table",
-            "author": "Alex O. Holcombe",
-            "date": "2026-07-23",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
-            "type": "other",
-            "branch": "master"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "escicheck",
-        "url": "https://github.com/giladfeldman/escicheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-08-09T17:29:35Z",
-        "recent_commits": [
-          {
-            "sha": "a96641b",
-            "message": "sync from escicheckapp@1bc688d (effectcheck v0.7.5) (#38)",
-            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-09",
-            "url": "https://github.com/giladfeldman/escicheck/commit/a96641b59ea6cc235ae7ef84c20c52e081fbd5ed",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "6bff8a3",
-            "message": "sync from escicheckapp@63da84b (effectcheck v0.7.4) (#37)",
-            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-09",
-            "url": "https://github.com/giladfeldman/escicheck/commit/6bff8a3490a0f07616193e629cdc0732f7d1a6e3",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "quest-bih",
-        "repo": "oddpub",
-        "url": "https://github.com/quest-bih/oddpub",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-07-30T15:11:29Z",
-        "recent_commits": [
-          {
-            "sha": "ec80478",
-            "message": "nature das and cas detection",
-            "body": "",
-            "author": "ontogenerator",
-            "date": "2026-07-30",
-            "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
-            "type": "other",
             "branch": "main"
           }
         ]
