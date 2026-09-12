@@ -1,5 +1,141 @@
 [
   {
+    "generated_at": "2026-09-12T03:08:56.866728+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 10,
+        "pushed_at": "2026-09-11T20:50:08Z",
+        "recent_commits": [
+          {
+            "sha": "e8541bf",
+            "message": "fix(normalize): W0g comes out of both text channels \u2014 a CI does not tell you which statistic it belongs to",
+            "body": "`W0g_dropped_minus_ci_pairing` re-signed a bare positive decimal whenever a bracket in the\nsame record made the arithmetic work. IT NEVER CHECKED WHICH STATISTIC THE BRACKET\nDESCRIBED. On `korbmacher_2022_kruger` the page prints, and pdftotext delivers verbatim:\n\n    r(223) = -0.13 (p = .0498, 95% CI [-0.26, -0.0002])\n\nThe interval is `r`'s. W0g took the nearest bare positive decimal in the record \u2014 the\nP-VALUE \u2014 and published `p = -.0498`. A probability cannot be negative. The same paper\nyields `p = -.05` from the second occurrence of the shape.\n\nAND IT WAS IN THE SHIPPED OUTPUT, not merely in a re-normalization. The handoff that\nscoped this work recorded it as pass-2 only, which reads as an idempotency curiosity. The\nrender channel called W0g over markdown `normalize_text` had ALREADY normalized, so that\ncall was itself a second pass: `render_pdf_to_markdown` emitted both fabricated values on\nthe FIRST render. Raw pdftotext escapes only because it delivers the bracket with EN\nDASHES, which W0g's pattern does not match; S5 makes them ASCII and the next pass fires.\n\nTHE WIDER COST, confirmed against the rasterized page: over 250 papers W0g fired 12 times\nin 4, and at least 7 of those rewrote a quantity that is non-negative by definition \u2014\n`SE = 0.11` -> `SE = -0.11`, `p = .90` -> `p = -.90`. `10.1525/collabra.118835` p7 prints\n`(hedges' g = -.17, SE = 0.11, 95%CI = [-0.38, 0.04], p = .12)`: a negative estimate with a\nPOSITIVE standard error, the paper's house style on that page. There was no corruption to\nrepair.\n\nTHE THREE TIERS directive names CI CONTAINMENT verbatim as forbidden evidence, and W0g is\nCI containment by name. Its signature is `text: str`, so it can never consult the rendered\npage. CHECK THE SIGNATURE BEFORE YOU CHECK THE LOGIC. A \"skip the token after `p =`\" guard\nwould fix one paper and not the class: the rule cannot tell which statistic an interval\ndescribes, because that is a fact about the SENTENCE.\n\nBOTH CHANNELS, and only two exist. Verified by grep rather than assumed from this repo's\nusual three-channel phrasing: W0g was never wired into `tables/cell_cleaning.py`.\n\nW0b, W0d, W0q, W0h AND W0m ARE DELIBERATELY UNTOUCHED. A FAMILY VERDICT MUST BE TESTED PER\nMEMBER. CLAUDE.md twice records \"W0b/W0d/W0g fire 0 times in 226 papers\" and that line is\nWRONG for the first two \u2014 they fire on `efendic_2022_affect` and recover 62 real minus\nsigns correctly, `r = 2.74 [20.92, 20.30]` back to `r = -.74 [-0.92, -0.30]`. Sweeping the\nfamily out together would have destroyed published values. A control test pins them.\n\nG5c2 IS NOW IDEMPOTENT BY CONSTRUCTION, and that was the whole of the remaining corpus\ngate. `_rejoin_split_numbered_headings` emits `N. <Heading>`, and its own output was\neligible as its own INPUT: the stacked-orphan guard only saw a BARE `^N.$`, and\n`lookup_canonical_label` strips one leading number, so `6. References` still qualified as a\ntarget and a stray `3.` above it was glued on. `3. 6. References` resolves to None, so the\npartitioner LOSES the heading. All four remaining non-idempotent papers were this one\nshape \u2014 efendic_2022_affect, am_sociol_rev_4, nat_comms_3, bmc_med_4 \u2014 with DIGIT COUNTS\nIDENTICAL across all four, which is why no digit-delta check could ever have found it.\n\nTHE RATCHET WAS NOT RAISED. It stays at 0 and the corpus gate now passes on its own terms:\n5 non-idempotent papers -> 0, by fixing the causes. The owner was offered a named-defect\nlist and a raise to 4 and chose to fix the cause before releasing.\n\n`NORMALIZATION_VERSION` 1.9.65 -> 1.9.66. It MUST bump even though this only REMOVES a\nrewrite: consumers store extracted text keyed on that string, so leaving it would make text\nproduced before and after indistinguishable in their store. `TABLE_EXTRACTION_VERSION`\nstays at 2.4.14 \u2014 no table code changed.\n\nTwo test files, both watched RED first (8 failures on G5c2, 2 on W0g, controls passing) and\nboth asserting through `normalize_text` / `render_pdf_to_markdown`, never the raw function:\na test that calls a deliberately-kept definition keeps failing after its call sites are\ngone, because it measures the definition rather than the product. That trap cost a cycle on\nthe W0k removal.\n\nTwo instrument defects were found and fixed while writing them, both recorded in the files\nbecause both are this repo's own recurring traps: the stacked-heading detector first used\n`\\s+`, which matches a NEWLINE, so it spanned the three CORRECT lines and reported a defect\non a repaired paper; and it ended in `\\S`, which matched a run of bare list numbers. A\nrender-chain gate that asserted a magic `len(names) >= 50` now asserts that two independent\nderivations of the chain AGREE, because a fixed floor can only ever be too low to catch a\nblinding or tripped by a deliberate retirement \u2014 and it was the second.\n\nThree stale imports of the already-retired W0k/W0l rules are dropped from render.py. They\nhad sat unused since f169c3d; an unused import of a retired rule reads as though the rule\nwere still in the pipeline.\n\nVerified: full suite 3209 passed / 0 failed; render_deletion_scan 26/26 papers 0 content\nlost; repair_site_scan 120/120; article custody 0 leaks in all three forms; a three-provider\nconsult round (anthropic/openai/xai, 3 answered 0 refused, all passing the read-the-code\nchallenge) returned 0 findings. The one adjacent case it raised \u2014 a DOTLESS numbering\nconvention can still stack \u2014 was measured at 0 occurrences in 101 papers against a\ntwo-sided control and deliberately left unfixed rather than widened on a constructed string.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-11",
+            "url": "https://github.com/giladfeldman/docpluck/commit/e8541bfb49adc88f45fdfdee3e094595cdc01457",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "0dc29d9",
+            "message": "docs(changelog): drop the absolute offsets \u2014 they do not transfer; keep the gap, which does",
+            "body": "843394a published `char 60080 intact / char 60155 destroyed` from a consumer's pre-fix store.\nThe labels were right, but the numbers should not have been published at all, and measuring it\nhere is what showed why:\n\n    consumer's 1.9.57 store   HapMap3 @ 60080   HapMap * @ 60155\n    my 1.9.65 re-extraction   HapMap3 @ 60110   HapMap3   @ 60185\n\nSAME PAPER, SAME TWO OCCURRENCES, DIFFERENT ABSOLUTE POSITIONS. An offset is a property of one\nextraction's exact text, not of the defect, so a consumer running `grep -ob` against its own\nstore would meet a discrepancy with an entirely mundane cause -- while already anxious about\ncorrupted data. Byte and character offsets differ AGAIN within a single file (43 bytes of\nmulti-byte UTF-8 upstream in that store, so `grep -ob` reports 60096 where python reports\n60080), which would force the unit to be stated as well.\n\nWHAT TRANSFERS IS THE GAP, and it is the load-bearing half: the two occurrences are 75 apart,\nIDENTICAL IN CHARACTERS AND IN BYTES, measured independently by both parties on two different\nextractions. The text between them is a single sentence boundary:\n\n    HapMap3 SNPs. Inclusion in the LD Score regression analysis was limited to\n\nSo \"same token, same paragraph, 75 apart, one rewritten and one not\" survives every way of\nmeasuring it, and that is the sentence a consumer needs. The counts (`HapMap3` = 1,\n`HapMap *` = 1 pre-fix) are the other durable part. The offsets were the most fragile thing in\nthe block and the only part nobody could reproduce.\n\nThe general point, worth more than this edit: A NUMBER THAT CANNOT BE REPRODUCED BY THE AUDIENCE\nIS NOT EVIDENCE TO THEM, IT IS AN INVITATION TO A CONTRADICTION. Publish the invariant, not the\ncoordinate.\n\nRaised by the consumer that supplied the original figures, who also corrected their own prose\n(they had described character offsets as byte offsets). Verified here rather than relayed.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/0dc29d9ee58aa8eb6bf6ec27c243a9445ba49591",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "843394a",
+            "message": "docs(changelog): the pre-fix half \u2014 2 in the source, 1 destroyed, 75 characters apart",
+            "body": "5036c9a reproduced the POST-fix side from the custody PDF (HapMap3 = 2 at normalization 1.9.65)\nand that settled whether the original claim held. It could not show what an AFFECTED file looks\nlike, because docpluck no longer produces one. The consumer supplied that half from its own\n1.9.57 store, with byte offsets and a control this time:\n\n    corpus-text__docpluck-norm@1.9.57.txt  (112,876 B)\n      char 60080  INTACT     \"...focusing on HapMap3 SNPs. Inclusion in the LD Score regression...\"\n      char 60155  DESTROYED  \"...limited to HapMap * SNPs with a minor allele frequency (MAF)...\"\n      HapMap3 = 1     HapMap * = 1     HapMap 3 = 0\n\nPut beside the post-fix measurement the whole picture is there: 2 occurrences in the source, 1\ndestroyed before the fix, 0 after.\n\nTHE TWO SURVIVORS ARE 75 CHARACTERS APART, IN CONSECUTIVE SENTENCES. That is the sharpest\nstatement of why a single site settles nothing: the same token, the same paragraph, one rewritten\nand one not. A scan that stops at the first hit reads whichever it happens to meet, and either\nanswer is defensible from the evidence it looked at.\n\nONE PRACTICAL SOFTENING, and it is the consumer's correction to my wording rather than mine: an\nintact sibling may sit nearby, so a consumer can SOMETIMES recover the original by scanning.\nRe-extraction at 1.9.65+ is the RELIABLE route, not the ONLY one. An intermediate revision of the\nnotice said \"only\", which overstates the damage and would send someone re-running a pipeline when\na grep would have answered it.\n\nFor the record on the exchange that produced this: their retraction and my re-correction crossed\nin flight, so their \"STOP, revert 0febe36\" arrived after 5036c9a had already reverted it. Both\nsides converged on the same reproduced answer independently, which is the useful property of\nhaving measured it rather than argued it.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/843394a028b037a9b565e0009d858f5209851a9c",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "5036c9a",
+            "message": "docs(changelog): withdraw yesterday's correction \u2014 I published a consumer's claim without reproducing it",
+            "body": "The paragraph added in 0febe36 said \"both forms coexist\" is not a general property of the W0k\ndamage, on a consumer's report that its copy of 10.1038/s41562-024-02076-3 held only the\ndestroyed form. Its author has withdrawn it. **The error on this side is that I edited a PUBLIC\ndocument on a relayed measurement I had not reproduced** -- and this project's own rule is that a\nreviewer's finding is a HYPOTHESIS until a local reproduction confirms it. Two hops, no\nverification, and it reached the public CHANGELOG and the notice every consumer is acting on.\n\nREPRODUCED NOW, at the source, which is what should have happened first:\n\n    10.1038/s41562-024-02076-3, re-extracted from the custody PDF at normalization 1.9.65\n      HapMap3  = 2       HapMap 3 = 0       HapMap * = 0\n        \"...focusing on HapMap3 SNPs. Inclusion in the LD Score regression...\"\n        \"...analysis was limited to HapMap3 SNPs with a minor allele frequency...\"\n\n    10.1073/pnas.2313604121, same method\n      Deposited 3 = 1    Deposited * = 0\n        \"Deposited 3 December 2022.\"\n\nBoth occurrences of the identifier are `HapMap3` in the source, and the pre-fix pipeline\ndestroyed exactly ONE of the two. So the ORIGINAL claim was right and is now measured rather than\nrelayed, and the date shape is independently confirmed rather than taken on trust.\n\nTHE RULE RUNS IN BOTH DIRECTIONS, and only one half was written down before: a single clean site\ncannot clear a document, AND a single destroyed site does not condemn one. Count every\noccurrence.\n\nHOW THE WRONG CLAIM WAS MANUFACTURED, because the mechanism is more useful than the correction.\nThe consumer verified with `grep -c 'HapMap 3'` -- WITH A SPACE -- against an intact form that\nhas none. They searched for a string that cannot exist, got 0, and read that zero as a finding.\n`HapMap 3` returns 0 against a fully intact file; the trap is now demonstrated rather than\npredicted, and it fired in the SAME message that flagged the no-space trap to others.\n\nTHE ASYMMETRY IS THE LESSON. Their 30-file statistics scan carried two-sided controls and held up\ncompletely. The claim that failed was a one-line verification grep, where nobody thinks to plant\na control. Knowing a failure mode by name does not prevent it; a control does, and effort tracks\nthe ceremony of the check rather than the weight of the conclusion drawn from it.\n\nNothing else in 0febe36 is affected: the date shape stands (verified above), and the measured\n\"no published statistic corrupted across 30 files\" result stands with its controls intact.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/5036c9a61dcffad2d8f1219b3774d3e0cf7be728",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "0febe36",
+            "message": "docs(changelog): \"both forms coexist\" is NOT general, and W0k also destroyed a bare DATE digit",
+            "body": "Two corrections to the 2.4.140 section, both from a consumer's own measurement rather than from\nthis repo, and both making the picture WORSE in one direction and better in another.\n\n1. THE RECOVERY CLAIM WAS TOO OPTIMISTIC. This file said `10.1038/s41562-024-02076-3` holds both\n   `HapMap3 SNPs.` intact and `HapMap *` destroyed, and drew \"a single clean site cannot clear a\n   document\". True of the copy examined here. But in the CONSUMER'S copy at normalization 1.9.57\n   the token is destroyed at EVERY occurrence -- `HapMap3` count 0, `HapMap 3` count 0 -- so\n   there is nothing in that file to recover from. \"Both forms coexist\" is a property of one\n   extraction, not of the defect. Re-extraction from the source PDF is then the only route, which\n   is a materially different instruction to give a consumer.\n\n2. A THIRD SHAPE, WITH A REAL DOI. `10.1073/pnas.2313604121` shipped `Deposited * December 2022.`\n   for `Deposited 3 December 2022.` -- a bare day-of-month digit with SPACES ON BOTH SIDES. Every\n   example previously recorded (HapMap3, ASL TO3, GRCh3, Material 3, x3) was a digit glued to a\n   word or an identifier, so a pattern anchored to that shape misses this class entirely. Verified\n   by re-extracting the custody PDF through a service at identity 2.4.141/3f035f5/clean, not by\n   pattern-matching. This meets the project's standing rule that a case comes from a real paper\n   with the DOI recorded, never from a constructed string.\n\n   Two grep traps follow and are now written down: the intact form is `HapMap3` with NO space, so\n   grepping `HapMap 3` returns 0 and reads as a failed fix; and the standalone-digit class needs\n   its own pattern.\n\n3. THE REASSURING HALF, AND IT IS MEASURED. Across that consumer's 30-file corpus NO PUBLISHED\n   STATISTIC was corrupted. The unambiguous signature is a star sandwiched between digits -- a\n   significance star can never sit there -- and it returned 0 sites in 30 files under a TWO-SIDED\n   control: planted `12*4` and `0.6*9` caught, planted `0.695***` and `0.34**` ignored, 1,094\n   asterisks counted to prove the files were read, and 0 surviving `\u00d7`/`\u2715`/`\u2a2f` glyphs to prove the\n   asterisk surface was complete rather than a subset. The damage class is identifiers, names and\n   dates -- not statistics.\n\nTHEIR PROCESS IS WORTH RECORDING AS MUCH AS THEIR RESULT. Their first scan flagged\n`240 participants * 8 items` as corruption and the NEGATIVE control caught it. A later pass\nreported \"0 corrupted statistics\" while its own POSITIVE control was dead -- the planted string\ncontained no genuine digit-star-digit, so the pattern had never been exercised and that zero was\nuntested rather than clean. Both are exactly the \"a zero is a claim about the instrument\" failure\nthis project keeps re-learning, caught here by controls rather than by luck.\n\nThe same consumer independently reproduced this release's \"PDF table output is byte-identical\"\nclaim: `flattened_row_count`, `flattened_row_field_keys` and `flattened_row_keys` unchanged\nacross table extraction 2.4.12 -> 2.4.14 on their PDF fixture.\n\nThe consumer notice carries all of the above.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/0febe36425fe1088d26f288b150df158d2536b56",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "0e160af",
+            "message": "docs: the two consumer CONTRACTS still said the removed rules were active and right",
+            "body": "`docs/NORMALIZATION.md` and `docs/SCOPE.md` are the files this project points consumers at --\nSYMBOL_CONTRACT.md opens with \"if you maintain a tool that parses docpluck's output, this page\nis your interface\" -- and both still listed W0i/W0k/W0l as live and classified them\n**TYPOGRAPHIC**. That classification is exactly what 2.4.140/141 overturned: the font declares\nthe slot as a digit in BOTH `/Differences` (`/three`) and `/ToUnicode` (U+0033), so the file is\ninternally consistent and consistently wrong and the only contradiction is with the printed\npage -- which a rule whose signature is `text: str` can never consult. Measured over 101 PDFs\nW0k fired on 5 papers and destroyed a real published token in 4.\n\nBoth entries are struck through rather than deleted. A consumer who read the old claim needs to\nfind it CORRECTED, not vanished, and the SCOPE.md entry now names the version boundary that\nlets them sort their own stored files: anything at `docpluck-norm@1.9.64` or earlier may hold a\ndestroyed token, anything at 1.9.65 cannot. The W0 step-order block gains the same note in\nplace, so a reader walking the pipeline does not silently wonder where those steps went.\n\nTWO SMALLER THINGS, found by running the gate rather than reading it:\n\n`docs/BENCHMARKS_docx_engines_2026-09.md` is tracked and PUBLIC but was missing from CLAUDE.md's\n\"Key project docs\" list -- the human-readable half of the public allowlist. The hygiene TEST\npassed because its machine half matches `BENCHMARKS*`, which is precisely how a list drifts:\nthe half nobody reads stays right and the half everybody reads goes stale.\n\n`## [Unreleased] - 2026-08-07` was the only remaining Unreleased heading and sat between 2.4.127\nand 2.4.126, so a reader scanning for pending work landed on a month-old shipped change. It\ncarried no version bump because no library code changed; retitled \"[No version bump]\" to say\nthat instead of implying it is still coming.\n\nGates: test_public_repo_hygiene, test_docs_consistency_gate,\ntest_the_package_version_is_in_the_changelog -- 19 passed. Custody scans (all three forms) and\nthe public-repo guard ran clean earlier in this session.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/0e160af830694eafe4be2686350a9172a6adbd5b",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "b528edb",
+            "message": "fix(pin): the bump commit carries the frontend mirror, or it does not happen",
+            "body": "`check_app_pin_sync.py --fix` rewrote service/requirements.txt and then staged\nthat ONE path. frontend/docpluck-pin.json is a committed mirror of the same pin\nand was never regenerated or added, so every --fix run pushed a master whose own\nsuite was red on frontend/src/lib/errors/docpluck-pin.test.ts.\n\nWHY THE MIRROR EXISTS: the documented CLI deploy is `cd frontend && vercel --prod`,\nwhich uploads ONLY frontend/ and therefore cannot read ../service/requirements.txt.\nWithout a fresh mirror that build falls back to the hand-maintained DOCPLUCK_VERSION\nenv var -- the 50-day-stale cache-key failure the derivation was built to remove.\n\nIT HAD ALREADY HAPPENED. 54c9a31 bumped the pin to v2.4.138 and stranded the mirror\nat 2.4.137. Nobody noticed until a QA session went looking an hour before this\nrelease -- because the failure is SILENT in this repo and lands as red tests in the\napp's suite, which this project does not run. Reported by the pdfextractor-65 and\ndocpluck-ef sessions; VERIFIED HERE AT THE SOURCE before acting on it (line 221 was\nthe function's only `git add`, and a two-sided grep found 8 hits for \"requirements\"\nagainst 0 for pin.json/frontend/mirror/sync-pin, so the instrument worked).\n\nTHE FIX CALLS THE EXISTING GENERATOR rather than writing the JSON in Python: one\nconcept, one implementation. A second copy of the mirror format here would drift\nfrom frontend/scripts/sync-docpluck-pin.mjs silently, which is the failure this\nproject's \"ONE CONCEPT, ONE TABLE\" rule exists to prevent. A missing `node` is a\nHARD FAILURE, never a skip -- skipping is the original defect wearing a green tick,\nand the resulting commit would push a red master.\n\nTESTS, watched RED FIRST against the unpatched function and re-verified red after\nthe third assertion was corrected: 3 failed / 0 passed unpatched, 3 passed patched.\nThe fixture copies the REAL generator instead of reimplementing it, and the\n\"both paths staged\" test asserts requirements.txt is present FIRST, as a control so\nthe mirror assertion cannot pass vacuously.\n\nONE THING WENT WRONG WRITING THEM, recorded because it is this repo's own recurring\ntrap: the missing-generator test first asked whether the mirror path appeared in\nHEAD's file list -- true of the FIXTURE'S base commit, so it failed against correct\ncode and would have been \"fixed\" by weakening it. It now compares the HEAD sha,\nwhich is the question that was meant: did this call create a commit at all?\n\nAND THE HARDCODED SIBLING NAME IS GONE. Locating the consumer checkout is now\nSTRUCTURAL -- the sibling whose service/requirements.txt carries a docpluck pin --\nwith $DOCPLUCK_APP_REPO and --app-repo as overrides. Two reasons, and the second is\nthe durable one: this repo is PUBLIC and a hardcoded name published the private\nconsumer's layout (the public-repo guard blocked the commit that merely MOVED the\nliteral, which is the gate working); and a name is the more fragile key anyway,\nsince relocating the checkout would have sent this gate at a path that does not\nexist. It returns None rather than a plausible-but-wrong path, so \"found nothing\"\ncannot be misread as \"checkout has moved\".\n\nSix tests. The resolver's own three are two-sided: a decoy sibling with the right\nSHAPE but no pin, sorted FIRST so a resolver that took the first match would fail;\na layout where nothing matches, asserting None rather than a guess; and the env\noverride. Verified at the REAL call site too -- running the gate resolves the\ncheckout and reads the pin from origin/master, which a wrong directory could not\ndo. That run also caught a NameError the refactor introduced (`lib_repo` was still\nused further down), which no unit test would have reached.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/b528edb4bb13a0dd2f03ee0522958a67e4eddea1",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "3f035f5",
+            "message": "release(2.4.141): v2.4.140 reached the remote one commit early, so the fix goes forward",
+            "body": "NO CODE CHANGE. `__version__`, `pyproject.toml` and the docs example move 2.4.140 -> 2.4.141;\nNORMALIZATION_VERSION stays 1.9.65 and TABLE_EXTRACTION_VERSION stays 2.4.14, because the\npipelines are unchanged.\n\nWHAT HAPPENED. `refs/tags/v2.4.140` is on github.com/giladfeldman/docpluck pointing at 6db1ac5\n-- one commit before 35eb788 corrected the two pipeline version strings. It was absent from\n`git ls-remote` at ~07:12 and present at ~07:47; the tag OBJECT (72e6d43, tagger date\n1788761740) is the one the previous session created yesterday, so the object is accounted for\nand only its arrival on the remote is not. The peer session live in this tree\n(docpluck-ef) confirms it pushed nothing -- no tag, no PyPI, no pin -- and my own push\nreported `! [rejected] v2.4.140 (already exists)`. GitHub's events API has not yet surfaced\ntoday's push. UNRESOLVED, and recorded as unresolved rather than guessed at.\n\nWHY IT MATTERS ENOUGH TO SPEND A VERSION NUMBER. v2.4.140 ships the W0i/W0k/W0l removal and\nthe DOCX header ceiling while DECLARING normalization 1.9.64 and table extraction 2.4.13. That\nis the exact condition 35eb788 exists to prevent: a consumer storing text keyed on\n`docpluck-norm@1.9.64` cannot tell whether the file predates or postdates the fix, and the\nretrospective grep in the consumer notice is the only instrument they have for finding\ndestroyed tokens (10.1038/s41562-024-02076-3 holds both `HapMap3 SNPs.` and `HapMap *`).\n\nWHY NOT FORCE-MOVE THE TAG. 2026-08-20: a history purge force-pushed v2.4.134 and v2.4.135\ntogether, the OLDER run finished one second later and won, and production was silently\ndowngraded. Re-pointing a public name is the move that produced that. Nothing has consumed\nv2.4.140 -- PyPI is still 2.4.135 and the app pin is still v2.4.138 -- so going forward costs\none version number and mutates nothing already published.\n\nGates: test_the_package_version_is_in_the_changelog (which exists because a bump once shipped\nwith no changelog section), test_docs_consistency_gate, test_public_repo_hygiene -- 19 passed.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/3f035f5a2ef5a485bcf85480dcdb7bce1dec47d3",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "8ec1bad",
+            "message": "fix(hygiene): two internal-process words in a PUBLIC repo's source comments",
+            "body": "`giladfeldman/docpluck` is public (`gh repo view --json isPrivate` -> false), and the\npublic-repo guard flagged two words on the two version-constant lines this release touched:\n\"ESCIcheck handoff 2026-06-25\" and \"found by a conductor fleet sweep\". A handoff and the\nconductor seat are internal coordination, not part of the published contract. Rewritten as\n\"ESCIcheck consumer request\" and \"a portfolio-wide sweep\" -- neither loses a fact.\n\nThe consumer NAMES on the same lines (effectcheck / escimate / scimeto) are deliberately kept:\nthey are already public in docs/SCOPE.md, docs/SYMBOL_CONTRACT.md and docs/README.md, where\nthey are the documented consumer contract. Removing them from a comment while the docs name\nthem would achieve nothing.\n\nNOT FIXED HERE, AND REPORTED RATHER THAN SILENTLY LEFT: a full-tree guard run finds 59\nblocking lines in the TRACKED, ALREADY-PUSHED CHANGELOG.md -- private sibling project names,\na conductor session id, internal document filenames and `~/Vibe` paths -- verified present in\n`origin/main:CHANGELOG.md` with a positive control, so this push does not create them. It is\npublished history, and the owner deferred the docpluck public-repo residue on 2026-09-05. It\nis not a release blocker; it is a decision.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/8ec1badab95de1998e4411fa668b6a0bee242f7a",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "35eb788",
+            "message": "release(2.4.140): both pipeline versions bump, because both pipelines' output changed",
+            "body": "NORMALIZATION_VERSION 1.9.64 -> 1.9.65 and TABLE_EXTRACTION_VERSION 2.4.13 -> 2.4.14, and the\nCHANGELOG's [Unreleased] block becomes the 2.4.140 release heading (2.4.139 was never tagged;\nits DOCX-tables work ships here).\n\nFOUND WHILE PREPARING THE TAG, AND IT IS A REAL DEFECT, NOT BOOKKEEPING. f169c3d unwired W0i,\nW0k and W0l from normalize_text and left NORMALIZATION_VERSION at 1.9.64; 2fa3ef7/f451b89\nchanged DOCX table content and left TABLE_EXTRACTION_VERSION at 2.4.13. Consumers store\nextracted output keyed on these strings -- one confirmed store is literally named\n`corpus-text__docpluck-norm@1.9.57.txt` -- so shipping changed output under an unchanged\nversion makes text produced BEFORE and AFTER the fixes indistinguishable in a consumer's\nrecords.\n\nThat is worst for exactly these two changes, because both are RETROSPECTIVE. The consumer\nnotice asks consumers to grep their stored extractions for destroyed tokens\n(10.1038/s41562-024-02076-3 holds both `HapMap3 SNPs.` and `HapMap *` in one file); without a\nversion bump they cannot tell which of their files predate the fix, so the grep is the only\ninstrument they have left.\n\nREMOVING A REWRITE STILL CHANGES OUTPUT. The normalization bump is for a release that only\ntakes rules away, and the table bump is for a release whose PDF table output is byte-identical\n-- DOCX changed, and one channel changing is enough.\n\nGates: tests/test_docs_consistency_gate.py (which drifts each constant and asserts the drift is\ncaught), test_provenance_completeness, test_w0k_must_not_destroy_real_digits -- 56 passed; plus\nthe five other version-referencing suites and the docx/public-hygiene gates -- 302 passed.\nOnly pin outside the two source constants was docs/README.md, updated in the same commit.\n\nThe pre-commit canary BLOCKED the first attempt on 4 \"new\" findings and that was a FALSE RED,\nverified rather than assumed: all four are in the ledger with status open, first_seen_sha\n7841a1d5123e (2026-09-04), and the canary render is byte-identical (bc928949b5d540aa) to the\npair already audited -- a two-version-string change cannot move a render. Re-running the\nclassifier by hand returns `total=4 new=0 known=4`. The pre-pass had read the ledger in a state\nwhere those four had been flipped RESOLVED (open went 65 -> 54 between yesterday's run and this\none) and re-reported them as new. Filed for the shared skill, not worked around here.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-08",
+            "url": "https://github.com/giladfeldman/docpluck/commit/35eb7885207930d2b56d04691cae06e1d90980e7",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-31T11:22:46Z",
+        "recent_commits": [
+          {
+            "sha": "2b30005",
+            "message": "documentation and version bump",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-08-31",
+            "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-09-11T20:35:13.366543+00:00",
     "narrative": "",
     "repos": [
@@ -20297,172 +20433,6 @@
             "date": "2026-07-30",
             "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
             "type": "other",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-08-19T01:11:59.776900+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "Davidvandijcke",
-        "repo": "coarse",
-        "url": "https://github.com/Davidvandijcke/coarse",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 13,
-        "pushed_at": "2026-07-30T21:54:27Z",
-        "recent_commits": [
-          {
-            "sha": "f054f42",
-            "message": "docs: add Buy Me a Coffee funding links",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/f054f4289ffa177b7723981892724b19e8d74eb9",
-            "type": "feat",
-            "branch": "dev"
-          },
-          {
-            "sha": "34b892d",
-            "message": "docs: add Buy Me a Coffee funding links",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/34b892d34d80ba3fecbb8bb95adf9ab757f13862",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "ac28c17",
-            "message": "feat(web): add Buy Me a Coffee support button",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/ac28c1728b05b82c30a8d64a41bb2e73db48dec4",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "00dce61",
-            "message": "Merge pull request #252 from Davidvandijcke/dev",
-            "body": "fix(security): harden release audit and workflows",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/00dce61fbd61dd04fb2d4ada45ed8b3156709ff6",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "def053b",
-            "message": "Merge pull request #251 from Davidvandijcke/codex/fix-release-audit",
-            "body": "fix(security): harden release audit and workflows",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/def053b58fabc853598bb8a2f56424d4a53e8a14",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "033647e",
-            "message": "fix(security): harden release audit and workflows",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/033647e83435a70af909a231cf296162d738d365",
-            "type": "fix",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "00c696c",
-            "message": "Merge pull request #249 from Davidvandijcke/dev",
-            "body": "release: v1.9.0 \u2014 frontier models and deep literature search",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/00c696c8b12d832d237d680f3e830b07d3a393ff",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "071c4f6",
-            "message": "Merge pull request #250 from Davidvandijcke/codex/sync-main-v1.9.0",
-            "body": "merge: reconcile main Fable hotfix into v1.9.0 release",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/071c4f6894e3c42049811c40b43a253d20e48953",
-            "type": "other",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "eabba85",
-            "message": "merge: reconcile main Fable hotfix into dev",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/eabba858fac56f4c9b002f1381f52bd61ebecb7e",
-            "type": "chore",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "30c85b2",
-            "message": "chore(release): prepare v1.9.0 (#248)",
-            "body": "",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/30c85b232f9d015b6cbf0f5022ef4e1877860fac",
-            "type": "chore",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "6324170",
-            "message": "chore(release): prepare v1.9.0",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/63241708368b4c733849cb340ef6d79594e6b49d",
-            "type": "chore",
-            "branch": "codex/release-v1.9.0"
-          },
-          {
-            "sha": "3b236ea",
-            "message": "Refresh frontier models and add deep literature search (#247)",
-            "body": "* feat(review): refresh models and add deep literature search\n\n* fix(review): address pre-pr rollout findings",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/3b236ea11eeb5a073ff84c40bc1dac4ebb244439",
-            "type": "feat",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "c36a5eb",
-            "message": "fix(review): address pre-pr rollout findings",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/c36a5eb4354c76b5485f2f10fbe06e1a0d7a2437",
-            "type": "fix",
-            "branch": "feat/latest-models-deep-literature"
-          }
-        ]
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-13T12:43:16Z",
-        "recent_commits": [
-          {
-            "sha": "e20a3b1",
-            "message": "Release 0.11.3 with redesigned analysis summary",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-08-13",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/e20a3b12aa8ea38e826693f11abede65630940a4",
-            "type": "chore",
             "branch": "main"
           }
         ]

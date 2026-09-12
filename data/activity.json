@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T20:35:13.380182+00:00",
+  "generated_at": "2026-09-12T03:08:56.880291+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -123,7 +123,7 @@
         {
           "name": "add-dataverse-figshare-dspace-repo-support",
           "last_commit": "2026-09-11",
-          "commits_30d": 99
+          "commits_30d": 98
         },
         {
           "name": "convert_psychds",
@@ -166,7 +166,7 @@
           "commits_30d": 2
         }
       ],
-      "commits_30d": 130,
+      "commits_30d": 129,
       "commits_7d": 22,
       "commits_1d": 2,
       "commits_90d": 227,
@@ -177,7 +177,7 @@
       "type_breakdown": {
         "other": 35,
         "fix": 42,
-        "chore": 22,
+        "chore": 21,
         "feat": 25,
         "test": 2,
         "refactor": 2,
@@ -1201,94 +1201,6 @@
           "branch": "add-dataverse-figshare-dspace-repo-support",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "79a4b43",
-          "message": "Detect and download from many more Dataverse, Figshare, and DSpace installations",
-          "body": "Dataverse: expanded the recognised-installation list from 50 to 121 hosts,\nsourced from the IQSS/dataverse-installations community registry and each\nverified live via its own GET /api/info/version.\n\nFigshare: added detection for 16 institutional addresses (e.g.\nfigshare.le.ac.uk, orda.shef.ac.uk) that are branded front ends for the real\nfigshare.com service, found via DataCite's client registry and confirmed\nlive -- no download-side changes needed, since all of them resolve through\nthe existing api.figshare.com backend.\n\nDSpace: generalized archive-psycharchives.R's legacy (<=6) REST API support\nfrom PsychArchives only to any host in the new .dspace_legacy_hosts() list\n(5 more found and verified live), with psycharchives_links/_info/_file_download\nkept fully backward compatible. Added archive-dspace7.R, a new implementation\nfor DSpace 7's differently-shaped REST API, covering 64 more installations\n(e.g. Cornell's eCommons, Georgia Tech's Digital Repository, ETH Zurich's\nResearch Collection) found and verified the same way.\n\nWired both DSpace paths into repo_check.R (repo_type \"dspace\"/\"dspace7\") and\nupdated its module-level documentation accordingly.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-09-11",
-          "url": "https://github.com/scienceverse/metacheck/commit/79a4b43a20b1700e325254ddcff002493c0c67bc",
-          "type": "other",
-          "branch": "add-dataverse-figshare-dspace-repo-support",
-          "diff": {
-            "additions": 817,
-            "deletions": 56,
-            "files": [
-              {
-                "filename": "NAMESPACE",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 0,
-                "patch": "@@ -123,6 +123,9 @@ export(dryad_file_download)\n export(dryad_info)\n export(dryad_links)\n export(dryad_pat)\n+export(dspace7_file_download)\n+export(dspace7_links)\n+export(dspace_links)\n export(email)\n export(expand_text)\n export(export_jasp_html)"
-              },
-              {
-                "filename": "R/archive-dataverse.R",
-                "status": "modified",
-                "additions": 112,
-                "deletions": 18,
-                "patch": "@@ -25,23 +25,38 @@\n # unrecognised URL -- there is no false-positive risk from under-listing, only\n # a missed repository).\n #\n-# The European block below (2026-08-16) was sourced from the crowdsourced\n-# IQSS/dataverse-installations list (github.com/IQSS/dataverse-installations,\n-# data/data.json) and individually verified live against each host's own\n-# GET /api/info/version -- the endpoint every real Dataverse installation\n-# answers -- rather than trusted as listed. That list is not fully r"
-              },
-              {
-                "filename": "R/archive-dspace7.R",
-                "status": "added",
-                "additions": 354,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,354 @@\n+# DSpace 7 replaced the legacy /rest/ REST API used by\n+# archive-psycharchives.R's .dspace_legacy_*() functions with a differently\n+# shaped HAL-JSON API under /server/api/ -- an installation running DSpace 7\n+# or later does not answer /rest/ at all, so it needs its own implementation\n+# rather than a `host` parameter on the legacy one.\n+#\n+# Verified live 2026-09-11 against repository.gatech.edu (Georgia Tech Digital\n+# Repository, item uuid bac086e5-c606-474b-af1e-4a612269"
-              },
-              {
-                "filename": "R/archive-figshare.R",
-                "status": "modified",
-                "additions": 82,
-                "deletions": 8,
-                "patch": "@@ -19,7 +19,64 @@\n # files, files[].id/name/size/download_url/computed_md5) as api.figshare.com,\n # just at a different host and accepting either a numeric id or a uuid for the\n # same article. See archive-4tu.R for the thin researchdata4tu_*() wrappers\n-# that call these functions with host = \"data.4tu.nl\".\n+# that call these functions with host = \"data.4tu.nl\". Searched DataCite's\n+# client registry (api.datacite.org/clients?query=djehuty) 2026-09-11 for any\n+# other institution running the s"
-              },
-              {
-                "filename": "R/archive-psycharchives.R",
-                "status": "modified",
-                "additions": 126,
-                "deletions": 17,
-                "patch": "@@ -9,19 +9,118 @@\n # Access control is handled for us by the API: a restricted item's protected\n # bitstreams simply do not appear in /bitstreams, so listing only ever yields\n # publicly retrievable files.\n+#\n+# PsychArchives is not the only installation of this API: any DSpace <=6\n+# installation exposes the identical /rest/ shape. The functions below\n+# (.psycharchives_rest, .psycharchives_info, and therefore the exported\n+# psycharchives_info()/psycharchives_file_download()) take/derive a `h"
-              },
-              {
-                "filename": "inst/modules/repo_check.R",
-                "status": "modified",
-                "additions": 55,
-                "deletions": 12,
-                "patch": "@@ -4,7 +4,7 @@\n #' This module retrieves information from repositories.\n #'\n #' @details\n-#' The Repository Check module lists files on the OSF, GitHub, ResearchBox, PsychArchives, Zenodo, Dataverse, Figshare, Dryad, ReShare, and 4TU.ResearchData based on links in the manuscript.\n+#' The Repository Check module lists files on the OSF, GitHub, ResearchBox, DSpace (PsychArchives and other legacy- and DSpace 7-based installations), Zenodo, Dataverse, Figshare, Dryad, ReShare, and 4TU.ResearchData "
-              },
-              {
-                "filename": "man/dspace7_file_download.Rd",
-                "status": "added",
-                "additions": 23,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,23 @@\n+% Generated by roxygen2: do not edit by hand\n+% Please edit documentation in R/archive-dspace7.R\n+\\name{dspace7_file_download}\n+\\alias{dspace7_file_download}\n+\\title{Retrieve public file list from a DSpace 7+ installation by URL}\n+\\usage{\n+dspace7_file_download(dspace7_url, pb = NULL)\n+}\n+\\arguments{\n+\\item{dspace7_url}{a vector of DSpace 7 item URLs}\n+\n+\\item{pb}{a progress bar passed from another function}\n+}\n+\\value{\n+a data frame of file information (one row per public file"
-              },
-              {
-                "filename": "man/dspace7_links.Rd",
-                "status": "added",
-                "additions": 30,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,30 @@\n+% Generated by roxygen2: do not edit by hand\n+% Please edit documentation in R/archive-dspace7.R\n+\\name{dspace7_links}\n+\\alias{dspace7_links}\n+\\title{Find DSpace 7+ Links in Papers}\n+\\usage{\n+dspace7_links(paper)\n+}\n+\\arguments{\n+\\item{paper}{a paper object or paperlist object}\n+}\n+\\value{\n+a table with the DSpace 7 url in the first (href) column\n+}\n+\\description{\n+Get all links to any of the DSpace 7 (or later) installations in\n+\\code{.dspace7_hosts()} -- see the note at the t"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "02d90e3",
-          "message": "Add an opt-in capture_reasoning argument to llm()",
-          "body": "Some providers/models return their own chain-of-thought text alongside a\nstructured call's result (via ellmer's ContentThinking). Off by default;\nwhen enabled, the raw thinking text is added as a `.reasoning` column so it\ncan be inspected without changing any existing caller's output.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-09-11",
-          "url": "https://github.com/scienceverse/metacheck/commit/02d90e312cf18215b139c36e1fa53db5e7411bb5",
-          "type": "feat",
-          "branch": "housekeeping-llm-reasoning-and-data-check-fix",
-          "diff": {}
-        }
       ]
     },
     {
@@ -2121,9 +2033,9 @@
       "commits_1d": 0,
       "commits_90d": 15,
       "authors_30d": [
-        "Alex O. Holcombe",
         "Anka",
-        "Floze"
+        "Floze",
+        "Alex O. Holcombe"
       ],
       "type_breakdown": {
         "other": 3,
@@ -2655,11 +2567,11 @@
         },
         {
           "week": 1783900800,
-          "total": 0
+          "total": 7
         },
         {
           "week": 1784505600,
-          "total": 9
+          "total": 2
         },
         {
           "week": 1785110400,
@@ -2870,81 +2782,6 @@
           "author_login": "floze-the-genius",
           "date": "2026-08-14",
           "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/41b4f900f8fb6b3a6ebe7d2d61e8501623c4f1a1",
-          "type": "fix",
-          "branch": "master",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "7729a28",
-          "message": "Built site for tenzing@0.4.1: 5554f64",
-          "body": "",
-          "author": "Anka",
-          "author_login": "",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
-          "type": "other",
-          "branch": "gh-pages",
-          "diff": {
-            "additions": 1,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "pkgdown.yml",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -5,7 +5,7 @@ articles:\n   app_use: app_use.html\n   local_use: local_use.html\n   validation: validation.html\n-last_built: 2026-09-02T03:43Z\n+last_built: 2026-09-02T03:57Z\n urls:\n   reference: https://marton-balazs-kovacs.github.io/tenzing/reference\n   article: https://marton-balazs-kovacs.github.io/tenzing/articles"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "5554f64",
-          "message": "temporarily cmmment out new test that failed for Load instead of Upload",
-          "body": "",
-          "author": "Alex O. Holcombe",
-          "author_login": "alexholcombe",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
-          "type": "feat",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "e07088e",
-          "message": "move papaja UI output down, retitle affiliations page",
-          "body": "",
-          "author": "Alex O. Holcombe",
-          "author_login": "alexholcombe",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "e4217bd",
-          "message": "Built site for tenzing@0.4.1: 6944931",
-          "body": "",
-          "author": "Anka",
-          "author_login": "",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
-          "type": "other",
-          "branch": "gh-pages",
-          "diff": {}
-        },
-        {
-          "sha": "6944931",
-          "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
-          "body": "Reorder output actions and clarify URL loading",
-          "author": "Alex O. Holcombe",
-          "author_login": "alexholcombe",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
           "type": "fix",
           "branch": "master",
           "diff": {}
@@ -3568,11 +3405,11 @@
         },
         {
           "week": 1787529600,
-          "total": 14
+          "total": 15
         },
         {
           "week": 1788134400,
-          "total": 3
+          "total": 2
         },
         {
           "week": 1788739200,
@@ -4065,59 +3902,6 @@
           "branch": "polishing",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "72620b2",
-          "message": "Treat `list_min_distance_functions` like other constants",
-          "body": "",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-09-09",
-          "url": "https://github.com/lhdjung/scrutiny/commit/72620b2796b2d95fce0ce545ac4a27679a85b8f2",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {
-            "additions": 65,
-            "deletions": 71,
-            "files": [
-              {
-                "filename": "R/aaa.R",
-                "status": "modified",
-                "additions": 64,
-                "deletions": 0,
-                "patch": "@@ -75,3 +75,67 @@ PATTERN_NAME_TEST_FN <- \"^(grim|grimmer|debit)\"\n \n # Used in `grim_plot()` if `digits > 2`\n TIBBLE_FRAC_N_ZERO <- tibble::new_tibble(list(frac = 0, n = 0L), nrow = 1L)\n+\n+\n+# List of minimal-distance functions for `audit_seq()`\n+#\n+# The functions collected in `LIST_MIN_DISTANCE_FUNCTIONS` are mapped in one\n+# particular place within `audit_seq()` and shouldn't really be used elsewhere.\n+#\n+# Instead of being individually defined as named functions or being used as\n+# anonymou"
-              },
-              {
-                "filename": "R/audit.R",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 2,
-                "patch": "@@ -174,12 +174,11 @@ audit_seq <- function(data) {\n     ) |>\n     tidyr::unnest(cols = everything())\n \n-  # Go to utils.R to see the `list_min_distance_functions` object.\n   cols_diff <- df_nested |>\n     dplyr::mutate(\n       dplyr::across(\n         .cols = everything(),\n-        .fns = list_min_distance_functions,\n+        .fns = LIST_MIN_DISTANCE_FUNCTIONS,\n         .names = \"diff_{.col}{fun_names}\"\n       ),\n       .keep = \"none\""
-              },
-              {
-                "filename": "R/utils.R",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 69,
-                "patch": "@@ -1954,75 +1954,6 @@ audit_summary_stats <- function(data, selection, total = FALSE) {\n }\n \n \n-#' List of minimal-distance functions for `audit_seq()`\n-#'\n-#' @description The functions collected in `list_min_distance_functions` are\n-#'   mapped in one particular place within `audit_seq()` and shouldn't really be\n-#'   used elsewhere.\n-#'\n-#'   Instead of being individually defined as named functions or being used as\n-#'   anonymous functions directly inside of `audit_seq()`, they are stored i"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "23404f6",
-          "message": "Refactor to simplify",
-          "body": "",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-09-09",
-          "url": "https://github.com/lhdjung/scrutiny/commit/23404f642574b29973f21e853e8acb3012ed338c",
-          "type": "refactor",
-          "branch": "polishing",
-          "diff": {}
-        }
       ]
     },
     {
@@ -4584,6 +4368,40 @@
           "type": "test",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "2b30005",
+          "message": "documentation and version bump",
+          "body": "",
+          "author": "ontogenerator",
+          "author_login": "",
+          "date": "2026-08-31",
+          "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 45,
+            "deletions": 3,
+            "files": [
+              {
+                "filename": "DESCRIPTION",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,7 +1,7 @@\n Package: oddpub\n Type: Package\n Title: Detection of Open Data & Open Code statements in biomedical publications\n-Version: 7.3.0\n+Version: 7.4.0\n Authors@R: \n     c(person(\"Nico\", \"Riedel\",\n     role = \"aut\"),"
+              },
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 44,
+                "deletions": 2,
+                "patch": "@@ -90,14 +90,56 @@ Additionally returns the identified Open Data/Code categories,\n as well as the detected sentences, which can be deactivated using the\n additional parameter ```detected_sentences = FALSE```.\n \n-The output data frame can be exported to csv, with the help of the `readr`\n-package.\n+The output data frame can be exported to csv, with the help of the `write_csv` \n+function from the `readr` package.\n \n ```r\n write_csv(open_data_results, \"path/to/output/folder/open_data_results.csv\") "
+              }
+            ]
+          },
+          "diff_summary": ""
         }
       ]
     },
@@ -5316,38 +5134,38 @@
       "subscribers_count": 0,
       "language": "Python",
       "languages_breakdown": {
-        "Python": 3865465,
+        "Python": 3897233,
         "PowerShell": 2000
       },
       "topics": [],
-      "pushed_at": "2026-09-08T06:55:31Z",
+      "pushed_at": "2026-09-11T20:50:08Z",
       "created_at": "2026-04-06",
-      "last_push_days": 3,
+      "last_push_days": 0,
       "default_branch": "main",
       "license": "MIT",
       "branches": [
         {
           "name": "main",
-          "last_commit": "2026-09-08"
+          "last_commit": "2026-09-11"
         }
       ],
       "branch_activity": [
         {
           "name": "main",
-          "last_commit": "2026-09-08",
-          "commits_30d": 61
+          "last_commit": "2026-09-11",
+          "commits_30d": 62
         }
       ],
-      "commits_30d": 61,
-      "commits_7d": 23,
-      "commits_1d": 0,
-      "commits_90d": 131,
+      "commits_30d": 62,
+      "commits_7d": 24,
+      "commits_1d": 1,
+      "commits_90d": 132,
       "authors_30d": [
         "Gilad Feldman"
       ],
       "type_breakdown": {
+        "fix": 31,
         "docs": 10,
-        "fix": 30,
         "other": 5,
         "chore": 7,
         "test": 6,
@@ -5381,7 +5199,7 @@
       "contributors": [
         {
           "login": "giladfeldman",
-          "contributions": 345,
+          "contributions": 346,
           "avatar_url": "https://avatars.githubusercontent.com/u/22305310?v=4",
           "html_url": "https://github.com/giladfeldman"
         }
@@ -5393,11 +5211,11 @@
         },
         {
           "week": 1782691200,
-          "total": 14
+          "total": 21
         },
         {
           "week": 1783296000,
-          "total": 9
+          "total": 2
         },
         {
           "week": 1783900800,
@@ -5433,76 +5251,89 @@
         },
         {
           "week": 1788739200,
-          "total": 23
+          "total": 24
         }
       ],
-      "code_frequency": [
-        {
-          "week": 1782000000,
-          "additions": 2004,
-          "deletions": -46
-        },
-        {
-          "week": 1782604800,
-          "additions": 6554,
-          "deletions": -301
-        },
-        {
-          "week": 1783209600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1783814400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1784419200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785024000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785628800,
-          "additions": 6689,
-          "deletions": -755
-        },
-        {
-          "week": 1786233600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786838400,
-          "additions": 22727,
-          "deletions": -1542
-        },
-        {
-          "week": 1787443200,
-          "additions": 2460,
-          "deletions": -82
-        },
-        {
-          "week": 1788048000,
-          "additions": 10042,
-          "deletions": -350
-        },
-        {
-          "week": 1788652800,
-          "additions": 1125,
-          "deletions": -101
-        }
-      ],
+      "code_frequency": [],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "PDF, DOCX, and HTML text extraction plus normalization for academic papers.\n\nThe full documentation lives in `docs/README.md`.\n\n\n```bash\npip install docpluck\n```\n\nOptional extras:\n\n```bash\npip install docpluck[docx]\npip install docpluck[html]\npip install docpluck[all]\n```\n\n\n`extract_pdf()` requires the `pdftotext` binary from Poppler.\n\n- Linux/WSL: `apt-get install poppler-utils`\n- macOS: `brew install poppler`\n- Windows: install Poppler and add its `bin` folder to `PATH`\n\n## Links\n\n- Full usage and API reference: `docs/README.md`\n- Normalization pipeline details: `docs/NORMALIZATION.md`\n- Ben",
       "scopus_citations": null,
       "recent_commits": [
+        {
+          "sha": "e8541bf",
+          "message": "fix(normalize): W0g comes out of both text channels \u2014 a CI does not tell you which statistic it belongs to",
+          "body": "`W0g_dropped_minus_ci_pairing` re-signed a bare positive decimal whenever a bracket in the\nsame record made the arithmetic work. IT NEVER CHECKED WHICH STATISTIC THE BRACKET\nDESCRIBED. On `korbmacher_2022_kruger` the page prints, and pdftotext delivers verbatim:\n\n    r(223) = -0.13 (p = .0498, 95% CI [-0.26, -0.0002])\n\nThe interval is `r`'s. W0g took the nearest bare positive decimal in the record \u2014 the\nP-VALUE \u2014 and published `p = -.0498`. A probability cannot be negative. The same paper\nyields `p = -.05` from the second occurrence of the shape.\n\nAND IT WAS IN THE SHIPPED OUTPUT, not merely in a re-normalization. The handoff that\nscoped this work recorded it as pass-2 only, which reads as an idempotency curiosity. The\nrender channel called W0g over markdown `normalize_text` had ALREADY normalized, so that\ncall was itself a second pass: `render_pdf_to_markdown` emitted both fabricated values on\nthe FIRST render. Raw pdftotext escapes only because it delivers the bracket with EN\nDASHES, which W0g's pattern does not match; S5 makes them ASCII and the next pass fires.\n\nTHE WIDER COST, confirmed against the rasterized page: over 250 papers W0g fired 12 times\nin 4, and at least 7 of those rewrote a quantity that is non-negative by definition \u2014\n`SE = 0.11` -> `SE = -0.11`, `p = .90` -> `p = -.90`. `10.1525/collabra.118835` p7 prints\n`(hedges' g = -.17, SE = 0.11, 95%CI = [-0.38, 0.04], p = .12)`: a negative estimate with a\nPOSITIVE standard error, the paper's house style on that page. There was no corruption to\nrepair.\n\nTHE THREE TIERS directive names CI CONTAINMENT verbatim as forbidden evidence, and W0g is\nCI containment by name. Its signature is `text: str`, so it can never consult the rendered\npage. CHECK THE SIGNATURE BEFORE YOU CHECK THE LOGIC. A \"skip the token after `p =`\" guard\nwould fix one paper and not the class: the rule cannot tell which statistic an interval\ndescribes, because that is a fact about the SENTENCE.\n\nBOTH CHANNELS, and only two exist. Verified by grep rather than assumed from this repo's\nusual three-channel phrasing: W0g was never wired into `tables/cell_cleaning.py`.\n\nW0b, W0d, W0q, W0h AND W0m ARE DELIBERATELY UNTOUCHED. A FAMILY VERDICT MUST BE TESTED PER\nMEMBER. CLAUDE.md twice records \"W0b/W0d/W0g fire 0 times in 226 papers\" and that line is\nWRONG for the first two \u2014 they fire on `efendic_2022_affect` and recover 62 real minus\nsigns correctly, `r = 2.74 [20.92, 20.30]` back to `r = -.74 [-0.92, -0.30]`. Sweeping the\nfamily out together would have destroyed published values. A control test pins them.\n\nG5c2 IS NOW IDEMPOTENT BY CONSTRUCTION, and that was the whole of the remaining corpus\ngate. `_rejoin_split_numbered_headings` emits `N. <Heading>`, and its own output was\neligible as its own INPUT: the stacked-orphan guard only saw a BARE `^N.$`, and\n`lookup_canonical_label` strips one leading number, so `6. References` still qualified as a\ntarget and a stray `3.` above it was glued on. `3. 6. References` resolves to None, so the\npartitioner LOSES the heading. All four remaining non-idempotent papers were this one\nshape \u2014 efendic_2022_affect, am_sociol_rev_4, nat_comms_3, bmc_med_4 \u2014 with DIGIT COUNTS\nIDENTICAL across all four, which is why no digit-delta check could ever have found it.\n\nTHE RATCHET WAS NOT RAISED. It stays at 0 and the corpus gate now passes on its own terms:\n5 non-idempotent papers -> 0, by fixing the causes. The owner was offered a named-defect\nlist and a raise to 4 and chose to fix the cause before releasing.\n\n`NORMALIZATION_VERSION` 1.9.65 -> 1.9.66. It MUST bump even though this only REMOVES a\nrewrite: consumers store extracted text keyed on that string, so leaving it would make text\nproduced before and after indistinguishable in their store. `TABLE_EXTRACTION_VERSION`\nstays at 2.4.14 \u2014 no table code changed.\n\nTwo test files, both watched RED first (8 failures on G5c2, 2 on W0g, controls passing) and\nboth asserting through `normalize_text` / `render_pdf_to_markdown`, never the raw function:\na test that calls a deliberately-kept definition keeps failing after its call sites are\ngone, because it measures the definition rather than the product. That trap cost a cycle on\nthe W0k removal.\n\nTwo instrument defects were found and fixed while writing them, both recorded in the files\nbecause both are this repo's own recurring traps: the stacked-heading detector first used\n`\\s+`, which matches a NEWLINE, so it spanned the three CORRECT lines and reported a defect\non a repaired paper; and it ended in `\\S`, which matched a run of bare list numbers. A\nrender-chain gate that asserted a magic `len(names) >= 50` now asserts that two independent\nderivations of the chain AGREE, because a fixed floor can only ever be too low to catch a\nblinding or tripped by a deliberate retirement \u2014 and it was the second.\n\nThree stale imports of the already-retired W0k/W0l rules are dropped from render.py. They\nhad sat unused since f169c3d; an unused import of a retired rule reads as though the rule\nwere still in the pipeline.\n\nVerified: full suite 3209 passed / 0 failed; render_deletion_scan 26/26 papers 0 content\nlost; repair_site_scan 120/120; article custody 0 leaks in all three forms; a three-provider\nconsult round (anthropic/openai/xai, 3 answered 0 refused, all passing the read-the-code\nchallenge) returned 0 findings. The one adjacent case it raised \u2014 a DOTLESS numbering\nconvention can still stack \u2014 was measured at 0 occurrences in 101 papers against a\ntwo-sided control and deliberately left unfixed rather than widened on a constructed string.",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-09-11",
+          "url": "https://github.com/giladfeldman/docpluck/commit/e8541bfb49adc88f45fdfdee3e094595cdc01457",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 702,
+            "deletions": 45,
+            "files": [
+              {
+                "filename": "CHANGELOG.md",
+                "status": "modified",
+                "additions": 122,
+                "deletions": 0,
+                "patch": "@@ -1,5 +1,127 @@\n # Changelog\n \n+## [2.4.142] - 2026-09-08 - normalization 1.9.66 - table extraction 2.4.14\n+\n+### W0g is unwired: a confidence interval does not tell you which statistic it belongs to\n+\n+`W0g_dropped_minus_ci_pairing` (`recover_dropped_minus_via_ci_pairing`) re-signed a bare\n+positive decimal whenever a bracket in the same record made the arithmetic work. **It never\n+checked which statistic the bracket described.** It is removed from both of its text channels\n+-- `normalize_tex"
+              },
+              {
+                "filename": "docpluck/__init__.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -100,7 +100,7 @@\n from .extract_docx_structured import extract_docx_structured\n from .render import RenderReport, render_pdf_to_markdown\n \n-__version__ = \"2.4.141\"\n+__version__ = \"2.4.142\"\n __author__ = \"Gilad Feldman\"\n __license__ = \"MIT\"\n "
+              },
+              {
+                "filename": "docpluck/normalize.py",
+                "status": "modified",
+                "additions": 91,
+                "deletions": 19,
+                "patch": "@@ -25,7 +25,7 @@ class NormalizationLevel(str, Enum):\n     academic = \"academic\"\n \n \n-NORMALIZATION_VERSION = \"1.9.65\"  # v1.9.65 (2026-09-08): W0i, W0k and W0l are UNWIRED from all three default text channels -- normalize_text, the render markdown post-process and the table-cell path. They rewrote a printed digit 3 into a multiplication sign on inferential evidence alone, which the THREE TIERS directive classes as a FILE LIE and forbids correcting silently; measured over 101 PDFs W0k fired on "
+              },
+              {
+                "filename": "docpluck/render.py",
+                "status": "modified",
+                "additions": 26,
+                "deletions": 9,
+                "patch": "@@ -42,15 +42,20 @@\n     recover_corrupted_lt_operator,\n     recover_lt_as_b_operator,\n     recover_corrupted_minus_signs,\n-    recover_dropped_minus_via_ci_pairing,\n     recover_minus_via_ci_pairing,\n     recover_fffd_comparison_operators,\n     recover_prose_two_for_minus,\n     recover_pua_glyphs,\n-    recover_times_design_notation,\n-    recover_times_interaction_glyph_in_prose,\n-    recover_times_wrapped_interaction,\n )\n+# NOT IMPORTED, DELIBERATELY: `recover_dropped_minus_via_ci_pairing` (W0g"
+              },
+              {
+                "filename": "docs/NORMALIZATION.md",
+                "status": "modified",
+                "additions": 12,
+                "deletions": 8,
+                "patch": "@@ -458,7 +458,7 @@ consumers, not bookkeeping:\n | W0c / W0o | `<` as `\\` or as `b` (`\\.001`) | **TYPOGRAPHIC** | a literal backslash glued to a numeral is not text |\n | W0d | `2`-for-minus proven by point-estimate \u2208 CI | INFERENTIAL | |\n | W0e | Adobe-Symbol PUA codepoints | **TYPOGRAPHIC** | codepoint table |\n-| W0g | dropped minus proven by a CI bracket | INFERENTIAL | |\n+| ~~W0g~~ | dropped minus \"proven\" by a CI bracket | **INFERENTIAL \u2014 REMOVED in 2.4.142** | UNWIRED from both of its text "
+              },
+              {
+                "filename": "docs/README.md",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 2,
+                "patch": "@@ -546,9 +546,9 @@ all of them:\n from docpluck import get_version_info\n \n get_version_info()\n-# {'version': '2.4.141',            # docpluck itself\n+# {'version': '2.4.142',            # docpluck itself\n #  'git_sha': '\u2026',\n-#  'normalize_version': '1.9.65',   # in-repo pipeline versions, bumped\n+#  'normalize_version': '1.9.66',   # in-repo pipeline versions, bumped\n #  'sectioning_version': '1.2.5',   #   independently of the package version\n #  'table_extraction_version': '2.4.14',\n #  'pytho"
+              },
+              {
+                "filename": "pyproject.toml",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -4,7 +4,7 @@ build-backend = \"hatchling.build\"\n \n [project]\n name = \"docpluck\"\n-version = \"2.4.141\"\n+version = \"2.4.142\"\n description = \"PDF, DOCX, and HTML text extraction and normalization for academic papers\"\n readme = \"docs/README.md\"\n requires-python = \">=3.10\""
+              },
+              {
+                "filename": "tests/test_g5c2_must_not_stack_two_heading_numbers.py",
+                "status": "added",
+                "additions": 221,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,221 @@\n+r\"\"\"G5c2 must not glue a stray number onto a heading that already has one. RED as written.\n+\n+`G5c2_split_numbered_heading_rejoin` (`_rejoin_split_numbered_headings`, B5, 2026-05-22)\n+rejoins a section heading whose leading number pdftotext linearised onto its own line::\n+\n+    6.\n+                    ->   6. References\n+    References\n+\n+Correct, and it fires on pass 1. **Its output is then eligible as its own input.** On pass 2\n+the rejoined `6. References` is no longer a BA"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
         {
           "sha": "0dc29d9",
           "message": "docs(changelog): drop the absolute offsets \u2014 they do not transfer; keep the gap, which does",
@@ -5513,20 +5344,7 @@
           "url": "https://github.com/giladfeldman/docpluck/commit/0dc29d9ee58aa8eb6bf6ec27c243a9445ba49591",
           "type": "docs",
           "branch": "main",
-          "diff": {
-            "additions": 8,
-            "deletions": 3,
-            "files": [
-              {
-                "filename": "CHANGELOG.md",
-                "status": "modified",
-                "additions": 8,
-                "deletions": 3,
-                "patch": "@@ -94,9 +94,14 @@ until a local reproduction confirms it. Reproduced now, at the source:\n       \"...focusing on HapMap3 SNPs. Inclusion in the LD Score regression...\"\n       \"...analysis was limited to HapMap3 SNPs with a minor allele frequency...\"\n \n-The consumer's own 1.9.57 store supplies the other half, which docpluck cannot see: at char\n-60080 `HapMap3` INTACT and at char 60155 `HapMap *` DESTROYED \u2014 `HapMap3` = 1, `HapMap *` = 1 \u2014\n-**75 characters apart, in consecutive sentences.** So: 2 "
-              }
-            ]
-          },
-          "diff_summary": ""
+          "diff": {}
         },
         {
           "sha": "843394a",
@@ -5863,21 +5681,83 @@
           "type": "fix",
           "branch": "main",
           "diff": {}
-        },
-        {
-          "sha": "eb3e84d",
-          "message": "fix(normalize): 1.9.62-63 \u2014 the page gate keeps the FIRST copy of every repeated line, and the watermark arm returns gated on coverage + modal>=2 + not-value-followed",
-          "body": "The accumulated, verified 2026-08-29..09-01 work, committed as the exact tree that passed the full suite on 2026-09-02: 3,091 passed, 0 failed, 29 skipped, 10 xfailed (16,321s under 4-way load). Contents per CHANGELOG [Unreleased]: page-attribution map fixed (page counted before recording), P0q first-copy-keep with per-line telemetry, watermark arm reinstated behind page-coverage>=0.90 + modal-per-page>=2 + value-followed<0.50, section goldens regenerated for the restored trailing page boundary, request-09 fixtures repointed at the article repository, sectioning_text_id shipped, and four census diagnostics. Plus 2026-09-02: the changelog's 'v2.4.137 shipped ...39337 with no title' claim corrected (refuted by a render of the tag source \u2014 the no-title state was never tagged), and release-acceptance occurrence measurements added (jmf_1 headers: prod deletes 22 of 33 occurrences silently, this tree deletes none; ieee_access_5: prod deletes 5 of 5 'Number of trained architectures', this tree none).\n\nCANARY: the pre-commit hook's Sonnet audit cannot run nested (AUDIT_DEFERRED_TO_AGENT); per the script's own design the audit was dispatched in-session instead \u2014 Agent(model=sonnet), full read of render vs reading-gold, verdict FAIL with 14 findings at tmp/iterate + scratchpad ip_feldman_audit_verdict.json. Reconciliation: 4 findings match already-open ledger entries; 10 recorded as open in the ledger now (72 open); cross-version renders (HEAD 00c6adb, v2.4.137 tag archive) show ALL 14 pre-date this commit \u2014 12 exist in production, 2 (page-number leaks 18/19) enter with 9504ad9's deliberate v1.9.59 conservatism, in the documented safe direction. ZERO findings are introduced by this commit. SKIP_CANARY bypasses only the hook's nested-env limitation, not the audit.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-09-02",
-          "url": "https://github.com/giladfeldman/docpluck/commit/eb3e84d4f2f65a3f00f18aefdd1d4ab8f86aab8e",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
         }
       ],
       "_new_commits": [
+        {
+          "sha": "e8541bf",
+          "message": "fix(normalize): W0g comes out of both text channels \u2014 a CI does not tell you which statistic it belongs to",
+          "body": "`W0g_dropped_minus_ci_pairing` re-signed a bare positive decimal whenever a bracket in the\nsame record made the arithmetic work. IT NEVER CHECKED WHICH STATISTIC THE BRACKET\nDESCRIBED. On `korbmacher_2022_kruger` the page prints, and pdftotext delivers verbatim:\n\n    r(223) = -0.13 (p = .0498, 95% CI [-0.26, -0.0002])\n\nThe interval is `r`'s. W0g took the nearest bare positive decimal in the record \u2014 the\nP-VALUE \u2014 and published `p = -.0498`. A probability cannot be negative. The same paper\nyields `p = -.05` from the second occurrence of the shape.\n\nAND IT WAS IN THE SHIPPED OUTPUT, not merely in a re-normalization. The handoff that\nscoped this work recorded it as pass-2 only, which reads as an idempotency curiosity. The\nrender channel called W0g over markdown `normalize_text` had ALREADY normalized, so that\ncall was itself a second pass: `render_pdf_to_markdown` emitted both fabricated values on\nthe FIRST render. Raw pdftotext escapes only because it delivers the bracket with EN\nDASHES, which W0g's pattern does not match; S5 makes them ASCII and the next pass fires.\n\nTHE WIDER COST, confirmed against the rasterized page: over 250 papers W0g fired 12 times\nin 4, and at least 7 of those rewrote a quantity that is non-negative by definition \u2014\n`SE = 0.11` -> `SE = -0.11`, `p = .90` -> `p = -.90`. `10.1525/collabra.118835` p7 prints\n`(hedges' g = -.17, SE = 0.11, 95%CI = [-0.38, 0.04], p = .12)`: a negative estimate with a\nPOSITIVE standard error, the paper's house style on that page. There was no corruption to\nrepair.\n\nTHE THREE TIERS directive names CI CONTAINMENT verbatim as forbidden evidence, and W0g is\nCI containment by name. Its signature is `text: str`, so it can never consult the rendered\npage. CHECK THE SIGNATURE BEFORE YOU CHECK THE LOGIC. A \"skip the token after `p =`\" guard\nwould fix one paper and not the class: the rule cannot tell which statistic an interval\ndescribes, because that is a fact about the SENTENCE.\n\nBOTH CHANNELS, and only two exist. Verified by grep rather than assumed from this repo's\nusual three-channel phrasing: W0g was never wired into `tables/cell_cleaning.py`.\n\nW0b, W0d, W0q, W0h AND W0m ARE DELIBERATELY UNTOUCHED. A FAMILY VERDICT MUST BE TESTED PER\nMEMBER. CLAUDE.md twice records \"W0b/W0d/W0g fire 0 times in 226 papers\" and that line is\nWRONG for the first two \u2014 they fire on `efendic_2022_affect` and recover 62 real minus\nsigns correctly, `r = 2.74 [20.92, 20.30]` back to `r = -.74 [-0.92, -0.30]`. Sweeping the\nfamily out together would have destroyed published values. A control test pins them.\n\nG5c2 IS NOW IDEMPOTENT BY CONSTRUCTION, and that was the whole of the remaining corpus\ngate. `_rejoin_split_numbered_headings` emits `N. <Heading>`, and its own output was\neligible as its own INPUT: the stacked-orphan guard only saw a BARE `^N.$`, and\n`lookup_canonical_label` strips one leading number, so `6. References` still qualified as a\ntarget and a stray `3.` above it was glued on. `3. 6. References` resolves to None, so the\npartitioner LOSES the heading. All four remaining non-idempotent papers were this one\nshape \u2014 efendic_2022_affect, am_sociol_rev_4, nat_comms_3, bmc_med_4 \u2014 with DIGIT COUNTS\nIDENTICAL across all four, which is why no digit-delta check could ever have found it.\n\nTHE RATCHET WAS NOT RAISED. It stays at 0 and the corpus gate now passes on its own terms:\n5 non-idempotent papers -> 0, by fixing the causes. The owner was offered a named-defect\nlist and a raise to 4 and chose to fix the cause before releasing.\n\n`NORMALIZATION_VERSION` 1.9.65 -> 1.9.66. It MUST bump even though this only REMOVES a\nrewrite: consumers store extracted text keyed on that string, so leaving it would make text\nproduced before and after indistinguishable in their store. `TABLE_EXTRACTION_VERSION`\nstays at 2.4.14 \u2014 no table code changed.\n\nTwo test files, both watched RED first (8 failures on G5c2, 2 on W0g, controls passing) and\nboth asserting through `normalize_text` / `render_pdf_to_markdown`, never the raw function:\na test that calls a deliberately-kept definition keeps failing after its call sites are\ngone, because it measures the definition rather than the product. That trap cost a cycle on\nthe W0k removal.\n\nTwo instrument defects were found and fixed while writing them, both recorded in the files\nbecause both are this repo's own recurring traps: the stacked-heading detector first used\n`\\s+`, which matches a NEWLINE, so it spanned the three CORRECT lines and reported a defect\non a repaired paper; and it ended in `\\S`, which matched a run of bare list numbers. A\nrender-chain gate that asserted a magic `len(names) >= 50` now asserts that two independent\nderivations of the chain AGREE, because a fixed floor can only ever be too low to catch a\nblinding or tripped by a deliberate retirement \u2014 and it was the second.\n\nThree stale imports of the already-retired W0k/W0l rules are dropped from render.py. They\nhad sat unused since f169c3d; an unused import of a retired rule reads as though the rule\nwere still in the pipeline.\n\nVerified: full suite 3209 passed / 0 failed; render_deletion_scan 26/26 papers 0 content\nlost; repair_site_scan 120/120; article custody 0 leaks in all three forms; a three-provider\nconsult round (anthropic/openai/xai, 3 answered 0 refused, all passing the read-the-code\nchallenge) returned 0 findings. The one adjacent case it raised \u2014 a DOTLESS numbering\nconvention can still stack \u2014 was measured at 0 occurrences in 101 papers against a\ntwo-sided control and deliberately left unfixed rather than widened on a constructed string.",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-09-11",
+          "url": "https://github.com/giladfeldman/docpluck/commit/e8541bfb49adc88f45fdfdee3e094595cdc01457",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 702,
+            "deletions": 45,
+            "files": [
+              {
+                "filename": "CHANGELOG.md",
+                "status": "modified",
+                "additions": 122,
+                "deletions": 0,
+                "patch": "@@ -1,5 +1,127 @@\n # Changelog\n \n+## [2.4.142] - 2026-09-08 - normalization 1.9.66 - table extraction 2.4.14\n+\n+### W0g is unwired: a confidence interval does not tell you which statistic it belongs to\n+\n+`W0g_dropped_minus_ci_pairing` (`recover_dropped_minus_via_ci_pairing`) re-signed a bare\n+positive decimal whenever a bracket in the same record made the arithmetic work. **It never\n+checked which statistic the bracket described.** It is removed from both of its text channels\n+-- `normalize_tex"
+              },
+              {
+                "filename": "docpluck/__init__.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -100,7 +100,7 @@\n from .extract_docx_structured import extract_docx_structured\n from .render import RenderReport, render_pdf_to_markdown\n \n-__version__ = \"2.4.141\"\n+__version__ = \"2.4.142\"\n __author__ = \"Gilad Feldman\"\n __license__ = \"MIT\"\n "
+              },
+              {
+                "filename": "docpluck/normalize.py",
+                "status": "modified",
+                "additions": 91,
+                "deletions": 19,
+                "patch": "@@ -25,7 +25,7 @@ class NormalizationLevel(str, Enum):\n     academic = \"academic\"\n \n \n-NORMALIZATION_VERSION = \"1.9.65\"  # v1.9.65 (2026-09-08): W0i, W0k and W0l are UNWIRED from all three default text channels -- normalize_text, the render markdown post-process and the table-cell path. They rewrote a printed digit 3 into a multiplication sign on inferential evidence alone, which the THREE TIERS directive classes as a FILE LIE and forbids correcting silently; measured over 101 PDFs W0k fired on "
+              },
+              {
+                "filename": "docpluck/render.py",
+                "status": "modified",
+                "additions": 26,
+                "deletions": 9,
+                "patch": "@@ -42,15 +42,20 @@\n     recover_corrupted_lt_operator,\n     recover_lt_as_b_operator,\n     recover_corrupted_minus_signs,\n-    recover_dropped_minus_via_ci_pairing,\n     recover_minus_via_ci_pairing,\n     recover_fffd_comparison_operators,\n     recover_prose_two_for_minus,\n     recover_pua_glyphs,\n-    recover_times_design_notation,\n-    recover_times_interaction_glyph_in_prose,\n-    recover_times_wrapped_interaction,\n )\n+# NOT IMPORTED, DELIBERATELY: `recover_dropped_minus_via_ci_pairing` (W0g"
+              },
+              {
+                "filename": "docs/NORMALIZATION.md",
+                "status": "modified",
+                "additions": 12,
+                "deletions": 8,
+                "patch": "@@ -458,7 +458,7 @@ consumers, not bookkeeping:\n | W0c / W0o | `<` as `\\` or as `b` (`\\.001`) | **TYPOGRAPHIC** | a literal backslash glued to a numeral is not text |\n | W0d | `2`-for-minus proven by point-estimate \u2208 CI | INFERENTIAL | |\n | W0e | Adobe-Symbol PUA codepoints | **TYPOGRAPHIC** | codepoint table |\n-| W0g | dropped minus proven by a CI bracket | INFERENTIAL | |\n+| ~~W0g~~ | dropped minus \"proven\" by a CI bracket | **INFERENTIAL \u2014 REMOVED in 2.4.142** | UNWIRED from both of its text "
+              },
+              {
+                "filename": "docs/README.md",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 2,
+                "patch": "@@ -546,9 +546,9 @@ all of them:\n from docpluck import get_version_info\n \n get_version_info()\n-# {'version': '2.4.141',            # docpluck itself\n+# {'version': '2.4.142',            # docpluck itself\n #  'git_sha': '\u2026',\n-#  'normalize_version': '1.9.65',   # in-repo pipeline versions, bumped\n+#  'normalize_version': '1.9.66',   # in-repo pipeline versions, bumped\n #  'sectioning_version': '1.2.5',   #   independently of the package version\n #  'table_extraction_version': '2.4.14',\n #  'pytho"
+              },
+              {
+                "filename": "pyproject.toml",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -4,7 +4,7 @@ build-backend = \"hatchling.build\"\n \n [project]\n name = \"docpluck\"\n-version = \"2.4.141\"\n+version = \"2.4.142\"\n description = \"PDF, DOCX, and HTML text extraction and normalization for academic papers\"\n readme = \"docs/README.md\"\n requires-python = \">=3.10\""
+              },
+              {
+                "filename": "tests/test_g5c2_must_not_stack_two_heading_numbers.py",
+                "status": "added",
+                "additions": 221,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,221 @@\n+r\"\"\"G5c2 must not glue a stray number onto a heading that already has one. RED as written.\n+\n+`G5c2_split_numbered_heading_rejoin` (`_rejoin_split_numbered_headings`, B5, 2026-05-22)\n+rejoins a section heading whose leading number pdftotext linearised onto its own line::\n+\n+    6.\n+                    ->   6. References\n+    References\n+\n+Correct, and it fires on pass 1. **Its output is then eligible as its own input.** On pass 2\n+the rejoined `6. References` is no longer a BA"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
         {
           "sha": "0dc29d9",
           "message": "docs(changelog): drop the absolute offsets \u2014 they do not transfer; keep the gap, which does",
@@ -5888,20 +5768,7 @@
           "url": "https://github.com/giladfeldman/docpluck/commit/0dc29d9ee58aa8eb6bf6ec27c243a9445ba49591",
           "type": "docs",
           "branch": "main",
-          "diff": {
-            "additions": 8,
-            "deletions": 3,
-            "files": [
-              {
-                "filename": "CHANGELOG.md",
-                "status": "modified",
-                "additions": 8,
-                "deletions": 3,
-                "patch": "@@ -94,9 +94,14 @@ until a local reproduction confirms it. Reproduced now, at the source:\n       \"...focusing on HapMap3 SNPs. Inclusion in the LD Score regression...\"\n       \"...analysis was limited to HapMap3 SNPs with a minor allele frequency...\"\n \n-The consumer's own 1.9.57 store supplies the other half, which docpluck cannot see: at char\n-60080 `HapMap3` INTACT and at char 60155 `HapMap *` DESTROYED \u2014 `HapMap3` = 1, `HapMap *` = 1 \u2014\n-**75 characters apart, in consecutive sentences.** So: 2 "
-              }
-            ]
-          },
-          "diff_summary": ""
+          "diff": {}
         },
         {
           "sha": "843394a",
@@ -6760,9 +6627,9 @@
       "commits_90d": 86,
       "authors_30d": [
         "ciamac moallemi",
-        "Davidvandijcke",
         "Aditya Datta",
-        "David Van Dijcke"
+        "David Van Dijcke",
+        "Davidvandijcke"
       ],
       "type_breakdown": {
         "fix": 19,
@@ -7833,68 +7700,6 @@
           "branch": "codex/fix-headless-vision-openrouter",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "6ad905e",
-          "message": "fix: retry OpenRouter parser rate limits reported as HTTP 400",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-09-10",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/6ad905e9ea0aec76c97f9724aca86eaca76aea8b",
-          "type": "fix",
-          "branch": "codex/fix-ocr-296-audit-292",
-          "diff": {
-            "additions": 232,
-            "deletions": 8,
-            "files": [
-              {
-                "filename": "CHANGELOG.md",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 0,
-                "patch": "@@ -2,6 +2,10 @@\n \n ## Unreleased\n \n+### Fixed\n+\n+- Retry OpenRouter's specific HTTP 400 document-parser rate-limit response with bounded backoff, without retrying billed responses or ordinary invalid requests (#296). Retain sanitized provider diagnostics for OCR HTTP failures such as #296, and redact signed document URLs, inline PDF data, and API keys from extraction error logs. The existing fallback and retry policy are preserved.\n+\n ## v1.9.4 \u2014 2026-09-09\n \n ### Changed"
-              },
-              {
-                "filename": "docs/validation/issues-296-292-2026-09-10.md",
-                "status": "added",
-                "additions": 68,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,68 @@\n+# OCR rate-limit fix and Accelerate reassessment \u2014 2026-09-10\n+\n+## Issue #296\n+\n+Reproduced against the unmodified `google/gemini-3-flash-preview` request with\n+`file-parser` / `mistral-ocr`, using a three-page synthetic PDF. The same primary\n+request succeeded earlier in the session, including on the original release\n+smoke's `synthetic-paper.pdf` (3,272 extracted characters). This is intermittent,\n+not a consistently invalid model or PDF configuration.\n+\n+The failing provide"
-              },
-              {
-                "filename": "src/coarse/extraction.py",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 1,
-                "patch": "@@ -196,7 +196,9 @@ def extract_text(pdf_path: str | Path, use_cache: bool = True) -> PaperText:\n                 if summary:\n                     logger.warning(\"%s failed with API error: %s\", name, summary)\n                 raise ExtractionError(api_msg) from exc\n-            scrubbed = _scrub_secrets(str(exc))\n+            # HTTPError.__str__ omits the provider body (including the cause\n+            # of HTTP 400). Keep a bounded, scrubbed summary for diagnosis.\n+            scrubbed = _descr"
-              },
-              {
-                "filename": "src/coarse/extraction_openrouter.py",
-                "status": "modified",
-                "additions": 43,
-                "deletions": 7,
-                "patch": "@@ -37,6 +37,10 @@\n )\n \n _SECRET_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (\n+    # Providers may echo the PDF request in validation errors. Scrub before\n+    # truncation so neither signed URLs nor inline documents reach logs.\n+    (re.compile(r\"https?://[^\\s\\\"'<>]*\\?[^\\s\\\"'<>]*\"), \"[signed URL]\"),\n+    (re.compile(r\"data:[^\\s,;]+;base64,[a-zA-Z0-9+/=_-]+\"), \"[inline file]\"),\n     (re.compile(r\"Bearer\\s+\\S+\", re.IGNORECASE), \"Bearer [key]\"),\n     (re.compile(r\"sk-or-v1-[a-zA-Z0-9]{20,"
-              },
-              {
-                "filename": "tests/test_extraction.py",
-                "status": "modified",
-                "additions": 87,
-                "deletions": 0,
-                "patch": "@@ -1269,3 +1269,90 @@ def _boom(_path):\n     assert \"sk-or-v1-abcdef\" not in log_text\n     assert secret_bearer not in log_text\n     assert \"[key]\" in log_text\n+\n+\n+def test_ocr_400_logs_safe_provider_detail_and_preserves_fallback(minimal_pdf, caplog):\n+    secret = \"sk-or-v1-\" + \"s\" * 40\n+    signed_url = \"https://example.test/paper.pdf?token=private-download-token\"\n+    inline_file = \"data:application/pdf;base64,cHJpdmF0ZS1wYXBlcg==\"\n+    failed = _mock_error_response(\n+        400,\n+        "
-              },
-              {
-                "filename": "tests/test_extraction_openrouter.py",
-                "status": "modified",
-                "additions": 27,
-                "deletions": 0,
-                "patch": "@@ -297,3 +297,30 @@ def test_extract_openrouter_file_parser_clears_signed_url_after_reset(\n \n     file_data = post.call_args.kwargs[\"payload\"][\"messages\"][0][\"content\"][1][\"file\"][\"file_data\"]\n     assert file_data.startswith(\"data:application/pdf;base64,\")\n+\n+\n+@pytest.mark.parametrize(\"body_kind\", [\"error\", \"no_choices\", \"http_error\"])\n+def test_provider_diagnostics_scrub_before_truncating(body_kind, caplog):\n+    from coarse.extraction_openrouter import _describe_api_error, _parse_openrouter"
-              }
-            ]
-          },
-          "diff_summary": ""
-        }
       ]
     },
     {
@@ -8042,7 +7847,7 @@
       "commit_activity": [
         {
           "week": 1782086400,
-          "total": 10
+          "total": 7
         },
         {
           "week": 1782691200,
@@ -8701,75 +8506,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "4ea4b3b",
-          "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
-          "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 69c3964cbc6c5fa72e1928aa83f610425e07cd6d\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-28",
-          "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 317,
-            "deletions": 74,
-            "files": [
-              {
-                "filename": ".winbuilder-logs/README.md",
-                "status": "modified",
-                "additions": 82,
-                "deletions": 42,
-                "patch": "@@ -1,53 +1,93 @@\n-# Pre-submission check evidence \u2014 effectcheck 0.6.19\n+# Pre-submission check evidence \u2014 effectcheck\n \n-CRAN submissions are **closed 2026-08-05 \u2192 2026-08-19** (team vacation +\n-maintenance), so 0.6.19 was fully validated on 2026-08-06 and parked until the\n-window reopens. These logs are archived here because win-builder deletes its\n-result directories after ~72 hours.\n+## What these logs are\n \n-## Verdicts\n+Archived win-builder results, kept because win-builder deletes its own"
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 32,
-                "deletions": 2,
-                "patch": "@@ -70,8 +70,9 @@ hand and passed -- and scanning plumber 1.3.3, webutils 1.2.2 and httpuv 1.6.17\n symbol by symbol finds `\"FILES\"` **zero times**: nothing in the serving stack\n sets it. That test was green on a branch production never takes.\n \n-Package suite unchanged at 1231 `test_that` blocks / 3719 assertions / 0\n-failures; no package logic changed in this release.\n+Package suite **1232 `test_that` blocks / 3745 assertions / 0 failures**, across\n+144 files; no package *logic* changed in this"
-              },
-              {
-                "filename": "R/check.R",
-                "status": "modified",
-                "additions": 15,
-                "deletions": 5,
-                "patch": "@@ -8344,11 +8344,21 @@ compute_and_compare_one <- function(row,\n #'   before v0.7.6 that rewrite was invisible downstream. Surfaced as the\n #'   document-level columns \\code{upstream_sign_rewrites} (integer; NA when no\n #'   report was supplied, 0 when one was supplied and reported none) and\n-#'   \\code{upstream_normalization_version}. Treat the count as a LOWER BOUND:\n-#'   docpluck's own report assigns rather than accumulates that metric, and\n-#'   three of its rules write the same key, so a "
-              },
-              {
-                "filename": "cran-comments.md",
-                "status": "modified",
-                "additions": 27,
-                "deletions": 15,
-                "patch": "@@ -1,33 +1,45 @@\n ## Submission\n \n This is an update of 'effectcheck' from 0.2.3 (the current CRAN release) to\n-0.6.20. Development has been active across 0.2.4-0.6.20 -- new test types,\n+0.7.7. Development has been active across 0.2.4-0.7.7 -- new test types,\n nonparametric and regression support, confidence-interval computation, and\n many parser and consistency fixes -- and the most significant change is\n structural, in 0.4.0 (see \"Breaking change\" below). Every intervening version\n is docume"
-              },
-              {
-                "filename": "inst/docpluck-contract/boundary_contract_golden.json",
-                "status": "added",
-                "additions": 80,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,80 @@\n+{\n+  \"schema\": \"docpluck-boundary-contract/1\",\n+  \"consumer\": \"ESCImate worker -- worker/docpluck_client.R\",\n+  \"what_this_pins\": \"The field set and statistical-symbol surface docpluck returns for two committed fixtures, captured THROUGH THE PRODUCTION CLIENT. Refresh with: Rscript worker/tests/docpluck-contract.R --refresh\",\n+  \"captured_utc\": \"2026-08-22T08:38:56Z\",\n+  \"docpluck\": {\n+    \"docpluck_version\": \"2.4.137\",\n+    \"service_version\": \"1.6.0\",\n+    \"sectioning_version\""
-              },
-              {
-                "filename": "man/check_text.Rd",
-                "status": "modified",
-                "additions": 15,
-                "deletions": 5,
-                "patch": "@@ -99,11 +99,21 @@ sign-recovery rules can turn a printed \\code{SE = 0.199} into \\code{-0.199}, and\n before v0.7.6 that rewrite was invisible downstream. Surfaced as the\n document-level columns \\code{upstream_sign_rewrites} (integer; NA when no\n report was supplied, 0 when one was supplied and reported none) and\n-\\code{upstream_normalization_version}. Treat the count as a LOWER BOUND:\n-docpluck's own report assigns rather than accumulates that metric, and\n-three of its rules write the same key,"
-              },
-              {
-                "filename": "tests/testthat/test-v076-docpluck-consumer-canary.R",
-                "status": "modified",
-                "additions": 66,
-                "deletions": 5,
-                "patch": "@@ -26,17 +26,35 @@\n # anywhere -- that blind spot is real, is why the token-set hash below exists as\n # a separate tripwire, and is why this does not replace the corpus diff.\n \n-.canary_snapshot <- function() {\n-  p <- system.file(\"docpluck-contract\", \"symbol_contract_snapshot.json\",\n-                   package = \"effectcheck\")\n+.canary_contract_file <- function(name) {\n+  p <- system.file(\"docpluck-contract\", name, package = \"effectcheck\")\n   if (!nzchar(p) || !file.exists(p)) {\n-    p <- file"
-              }
-            ]
-          },
-          "diff_summary": ""
-        }
       ]
     },
     {
@@ -9206,11 +8942,11 @@
         },
         {
           "week": 1786924800,
-          "total": 9
+          "total": 10
         },
         {
           "week": 1787529600,
-          "total": 2
+          "total": 1
         },
         {
           "week": 1788134400,
@@ -9517,82 +9253,6 @@
           "type": "chore",
           "branch": "main",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "40676dd",
-          "message": "Release 0.12.7",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-09-10",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/40676dd45a817ba78070d6742d1018a5be451385",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 215,
-            "deletions": 67,
-            "files": [
-              {
-                "filename": "R/report.R",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 17,
-                "patch": "@@ -932,30 +932,15 @@ build_reference_table <- function(results, config) {\n   dplyr::distinct(refs)\n }\n \n-default_effect_definition <- function() {\n-  paste(\n-    \"Extract each article's 'focal' effects.\",\n-    \"Focal effects are those that support the claims in either the title or abstract of the article\",\n-    \"(a non-focal effect, for example, would be a manipulation check).\"\n-  )\n-}\n-\n-build_system_prompt <- function(config, instruction_path, effect_definition = NULL) {\n+build_system_prompt "
-              },
-              {
-                "filename": "auto_zcurve/__init__.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,3 +1,3 @@\n \"\"\"auto-zcurve CLI package.\"\"\"\n \n-__version__ = \"0.12.6\"\n+__version__ = \"0.12.7\""
-              },
-              {
-                "filename": "auto_zcurve/artifacts.py",
-                "status": "modified",
-                "additions": 69,
-                "deletions": 8,
-                "patch": "@@ -3,7 +3,9 @@\n import csv\n import hashlib\n import json\n+import os\n import re\n+import tempfile\n from datetime import datetime, timezone\n from pathlib import Path\n from typing import Any\n@@ -82,12 +84,75 @@ def extraction_record(result: ExtractionResult) -> dict[str, Any]:\n     }\n \n \n+def _atomic_json_dump(path: Path, value: Any) -> None:\n+    \"\"\"Write JSON without exposing a partially-written file to readers.\"\"\"\n+    path.parent.mkdir(parents=True, exist_ok=True)\n+    descriptor, temporary_name"
-              },
-              {
-                "filename": "auto_zcurve/cli.py",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 1,
-                "patch": "@@ -158,7 +158,6 @@ def _settings_from_args(\n         max_upload_size_mb=(\n             existing.max_upload_size_mb if existing else app_defaults.max_upload_size_mb\n         ),\n-        effect_definition=existing.effect_definition if existing else None,\n         pdf_parser=app_defaults.pdf_parser,\n         reasoning_effort=app_defaults.reasoning_effort,\n         service_tier=app_defaults.service_tier,"
-              },
-              {
-                "filename": "auto_zcurve/config.py",
-                "status": "modified",
-                "additions": 39,
-                "deletions": 3,
-                "patch": "@@ -99,7 +99,6 @@ class RunSettings:\n     parallel_requests: int = DEFAULTS[\"parallel_requests\"]\n     request_delay_sec: int = DEFAULTS[\"request_delay_sec\"]\n     max_upload_size_mb: int = DEFAULTS[\"max_upload_size_mb\"]\n-    effect_definition: str | None = None\n     provider: str = \"gemini\"\n     pdf_parser: str = DEFAULTS[\"pdf_parser\"]\n     reasoning_effort: str = DEFAULTS[\"reasoning_effort\"]\n@@ -189,6 +188,45 @@ def settings_path(project_dir: Path) -> Path:\n     return project_dir / \".auto_zcurv"
-              },
-              {
-                "filename": "auto_zcurve/gemini.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 2,
-                "patch": "@@ -125,7 +125,6 @@ def extract_pdf(\n     response_schema: dict[str, Any],\n     schema_config: ExtractionSchema,\n     instruction_path: Path,\n-    effect_definition: str | None,\n     request_timeout_sec: int = 600,\n     input_mode: str = \"native_pdf\",\n     context_length: int | None = None,\n@@ -141,7 +140,7 @@ def extract_pdf(\n         raise RuntimeError(\"google-genai is not installed.\") from exc\n \n     client = genai.Client(api_key=api_key)\n-    prompt = build_system_prompt(schema_config, instr"
-              },
-              {
-                "filename": "auto_zcurve/openrouter.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 2,
-                "patch": "@@ -290,7 +290,6 @@ def extract_pdf(\n     response_schema: dict[str, Any],\n     schema_config: ExtractionSchema,\n     instruction_path: Path,\n-    effect_definition: str | None,\n     request_timeout_sec: int = 600,\n     input_mode: str = \"native_pdf\",\n     context_length: int | None = None,\n@@ -299,7 +298,7 @@ def extract_pdf(\n     endpoint_order: tuple[str, ...] = (),\n ) -> ExtractionResult:\n     started = time.monotonic()\n-    prompt = build_system_prompt(schema_config, instruction_path, effec"
-              },
-              {
-                "filename": "auto_zcurve/projects.py",
-                "status": "modified",
-                "additions": 22,
-                "deletions": 2,
-                "patch": "@@ -18,7 +18,12 @@\n     read_disclosure_summary,\n     read_zcurve_summary,\n )\n-from .config import DEFAULTS, load_run_settings\n+from .config import (\n+    DEFAULTS,\n+    legacy_effect_definition,\n+    load_run_settings,\n+    remove_legacy_effect_definition,\n+)\n from .models import DEFAULT_MODEL, model_request_defaults\n from .paths import DEFAULT_INSTRUCTIONS, DEFAULT_SCHEMA\n from .schema import build_response_schema, parse_extraction_schema\n@@ -28,6 +33,10 @@\n SAFE_NAME_RE = re.compile(r\"[^A-Za-"
-              }
-            ]
-          },
-          "diff_summary": ""
         }
       ]
     },
@@ -10501,10 +10161,10 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/22305310?v=4",
       "html_url": "https://github.com/giladfeldman",
       "repos": {
-        "giladfeldman/docpluck": 345,
+        "giladfeldman/docpluck": 346,
         "giladfeldman/escicheck": 98
       },
-      "total_contributions": 443,
+      "total_contributions": 444,
       "name": "Gilad Feldman",
       "bio": null,
       "company": null,
@@ -11081,9 +10741,9 @@
     }
   ],
   "digest": {
-    "week_start": "2026-09-04",
+    "week_start": "2026-09-05",
     "active_repos": 5,
-    "total_commits_7d": 69,
+    "total_commits_7d": 70,
     "dormant_revived": [
       {
         "owner": "quest-bih",
@@ -11106,7 +10766,7 @@
       {
         "owner": "giladfeldman",
         "repo": "docpluck",
-        "commits": 23
+        "commits": 24
       },
       {
         "owner": "scienceverse",
@@ -11146,6 +10806,15 @@
         "body": "Some providers/models return their own chain-of-thought text alongside a\nstructured call's result (via ellmer's ContentThinking). Off by default;\nwhen enabled, the raw thinking text is added as a `.reasoning` column so it\ncan be inspected without changing any existing caller's output.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
         "type": "feat",
         "author": "Lakens",
+        "date": "2026-09-11"
+      },
+      {
+        "repo": "docpluck",
+        "owner": "giladfeldman",
+        "message": "fix(normalize): W0g comes out of both text channels \u2014 a CI does not tell you which statistic it belongs to",
+        "body": "`W0g_dropped_minus_ci_pairing` re-signed a bare positive decimal whenever a bracket in the\nsame record made the arithmetic work. IT NEVER CHECKED WHICH STATISTIC THE BRACKET\nDESCRIBED. On `korbmacher_2022_kruger` the page prints, and pdftotext delivers verbatim:\n\n    r(223) = -0.13 (p = .0498, 95% CI [-0.26, -0.0002])\n\nThe interval is `r`'s. W0g took the nearest bare positive decimal in the record \u2014 the\nP-VALUE \u2014 and published `p = -.0498`. A probability cannot be negative. The same paper\nyields `p = -.05` from the second occurrence of the shape.\n\nAND IT WAS IN THE SHIPPED OUTPUT, not merely in a re-normalization. The handoff that\nscoped this work recorded it as pass-2 only, which reads as an idempotency curiosity. The\nrender channel called W0g over markdown `normalize_text` had ALREADY normalized, so that\ncall was itself a second pass: `render_pdf_to_markdown` emitted both fabricated values on\nthe FIRST render. Raw pdftotext escapes only because it delivers the bracket with EN\nDASHES, which W0g's pattern does not match; S5 makes them ASCII and the next pass fires.\n\nTHE WIDER COST, confirmed against the rasterized page: over 250 papers W0g fired 12 times\nin 4, and at least 7 of those rewrote a quantity that is non-negative by definition \u2014\n`SE = 0.11` -> `SE = -0.11`, `p = .90` -> `p = -.90`. `10.1525/collabra.118835` p7 prints\n`(hedges' g = -.17, SE = 0.11, 95%CI = [-0.38, 0.04], p = .12)`: a negative estimate with a\nPOSITIVE standard error, the paper's house style on that page. There was no corruption to\nrepair.\n\nTHE THREE TIERS directive names CI CONTAINMENT verbatim as forbidden evidence, and W0g is\nCI containment by name. Its signature is `text: str`, so it can never consult the rendered\npage. CHECK THE SIGNATURE BEFORE YOU CHECK THE LOGIC. A \"skip the token after `p =`\" guard\nwould fix one paper and not the class: the rule cannot tell which statistic an interval\ndescribes, because that is a fact about the SENTENCE.\n\nBOTH CHANNELS, and only two exist. Verified by grep rather than assumed from this repo's\nusual three-channel phrasing: W0g was never wired into `tables/cell_cleaning.py`.\n\nW0b, W0d, W0q, W0h AND W0m ARE DELIBERATELY UNTOUCHED. A FAMILY VERDICT MUST BE TESTED PER\nMEMBER. CLAUDE.md twice records \"W0b/W0d/W0g fire 0 times in 226 papers\" and that line is\nWRONG for the first two \u2014 they fire on `efendic_2022_affect` and recover 62 real minus\nsigns correctly, `r = 2.74 [20.92, 20.30]` back to `r = -.74 [-0.92, -0.30]`. Sweeping the\nfamily out together would have destroyed published values. A control test pins them.\n\nG5c2 IS NOW IDEMPOTENT BY CONSTRUCTION, and that was the whole of the remaining corpus\ngate. `_rejoin_split_numbered_headings` emits `N. <Heading>`, and its own output was\neligible as its own INPUT: the stacked-orphan guard only saw a BARE `^N.$`, and\n`lookup_canonical_label` strips one leading number, so `6. References` still qualified as a\ntarget and a stray `3.` above it was glued on. `3. 6. References` resolves to None, so the\npartitioner LOSES the heading. All four remaining non-idempotent papers were this one\nshape \u2014 efendic_2022_affect, am_sociol_rev_4, nat_comms_3, bmc_med_4 \u2014 with DIGIT COUNTS\nIDENTICAL across all four, which is why no digit-delta check could ever have found it.\n\nTHE RATCHET WAS NOT RAISED. It stays at 0 and the corpus gate now passes on its own terms:\n5 non-idempotent papers -> 0, by fixing the causes. The owner was offered a named-defect\nlist and a raise to 4 and chose to fix the cause before releasing.\n\n`NORMALIZATION_VERSION` 1.9.65 -> 1.9.66. It MUST bump even though this only REMOVES a\nrewrite: consumers store extracted text keyed on that string, so leaving it would make text\nproduced before and after indistinguishable in their store. `TABLE_EXTRACTION_VERSION`\nstays at 2.4.14 \u2014 no table code changed.\n\nTwo test files, both watched RED first (8 failures on G5c2, 2 on W0g, controls passing) and\nboth asserting through `normalize_text` / `render_pdf_to_markdown`, never the raw function:\na test that calls a deliberately-kept definition keeps failing after its call sites are\ngone, because it measures the definition rather than the product. That trap cost a cycle on\nthe W0k removal.\n\nTwo instrument defects were found and fixed while writing them, both recorded in the files\nbecause both are this repo's own recurring traps: the stacked-heading detector first used\n`\\s+`, which matches a NEWLINE, so it spanned the three CORRECT lines and reported a defect\non a repaired paper; and it ended in `\\S`, which matched a run of bare list numbers. A\nrender-chain gate that asserted a magic `len(names) >= 50` now asserts that two independent\nderivations of the chain AGREE, because a fixed floor can only ever be too low to catch a\nblinding or tripped by a deliberate retirement \u2014 and it was the second.\n\nThree stale imports of the already-retired W0k/W0l rules are dropped from render.py. They\nhad sat unused since f169c3d; an unused import of a retired rule reads as though the rule\nwere still in the pipeline.\n\nVerified: full suite 3209 passed / 0 failed; render_deletion_scan 26/26 papers 0 content\nlost; repair_site_scan 120/120; article custody 0 leaks in all three forms; a three-provider\nconsult round (anthropic/openai/xai, 3 answered 0 refused, all passing the read-the-code\nchallenge) returned 0 findings. The one adjacent case it raised \u2014 a DOTLESS numbering\nconvention can still stack \u2014 was measured at 0 occurrences in 101 papers against a\ntwo-sided control and deliberately left unfixed rather than widened on a constructed string.",
+        "type": "fix",
+        "author": "Gilad Feldman",
         "date": "2026-09-11"
       },
       {
@@ -11570,15 +11239,6 @@
         "type": "fix",
         "author": "Lakens",
         "date": "2026-09-06"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Classify genomic sequence files (FASTA/FASTQ) as data",
-        "body": "Confirmed against real corpus files (data_availability validation): a\npaper whose only listed files were sequencing data in FASTA/FASTQ\nformat (e.g. \"76_SE_0.01.fasta.gz\", \"thal_MK380719_TGCA.1.fq.gz\") had\nevery one of those files fall through to \"unknown\", since neither\n.ext_registry (data_classify_files()'s format lock) nor\nmetacheck::file_types (file_category()'s own lookup table) knew these\nextensions -- wrongly reading such a paper as having no data available\nat all, when real research data was genuinely present.\n\nAdds the bare extensions (fasta/fa/fq/fastq) to .ext_registry and their\ngzip-compressed forms (fasta.gz/fa.gz/fq.gz/fastq.gz -- the common\nconvention for these, since sequence files compress well) to\nfile_types, both as data_type \"data\". The compressed forms also\nrequired a new file_category() compound-type rule (ft_has(\"data\") &\nft_has(\"archive\")): a name like \"sample.fasta.gz\" matches both its own\ncompound data extension and the bare \"gz\" extension (typed \"archive\"),\nso its filetype comes out \"data;archive\" -- previously fell through to\nNA for any such compound, an existing latent gap this specific,\nnewly-possible compound now exposed. \".dat\" and a bare \".info\" stay\ndeliberately unlocked (too generic on their own to safely classify),\nso \"sample.dat.gz\" and similar remain \"unknown\" as before.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-        "type": "other",
-        "author": "Lakens",
-        "date": "2026-09-06"
       }
     ],
     "narrative": ""
@@ -11588,8 +11248,8 @@
     "total_stars": 709,
     "total_forks": 131,
     "total_commits_30d": 328,
-    "total_commits_7d": 69,
-    "total_commits_1d": 2,
+    "total_commits_7d": 70,
+    "total_commits_1d": 3,
     "active_repos_7d": 5,
     "dormant_revived": 1,
     "total_open_issues": 181,
