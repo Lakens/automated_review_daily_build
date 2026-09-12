@@ -1,5 +1,101 @@
 [
   {
+    "generated_at": "2026-09-12T15:06:45.679382+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-09-12T12:09:07Z",
+        "recent_commits": [
+          {
+            "sha": "7df0e17",
+            "message": "Merge pull request #399 from scienceverse/housekeeping-llm-reasoning-and-data-check-fix",
+            "body": "Add an opt-in capture_reasoning argument to llm()",
+            "author": "Daniel Lakens",
+            "date": "2026-09-12",
+            "url": "https://github.com/scienceverse/metacheck/commit/7df0e1722e3de454b3141e794b146b0f58fd7cd6",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "62b90d3",
+            "message": "Merge pull request #400 from scienceverse/add-dataverse-figshare-dspace-repo-support",
+            "body": "Detect and download from many more Dataverse, Figshare, and DSpace installations",
+            "author": "Daniel Lakens",
+            "date": "2026-09-12",
+            "url": "https://github.com/scienceverse/metacheck/commit/62b90d35e74c4280da8fe11c92d9fdfeda789a99",
+            "type": "feat",
+            "branch": "dev"
+          },
+          {
+            "sha": "79a4b43",
+            "message": "Detect and download from many more Dataverse, Figshare, and DSpace installations",
+            "body": "Dataverse: expanded the recognised-installation list from 50 to 121 hosts,\nsourced from the IQSS/dataverse-installations community registry and each\nverified live via its own GET /api/info/version.\n\nFigshare: added detection for 16 institutional addresses (e.g.\nfigshare.le.ac.uk, orda.shef.ac.uk) that are branded front ends for the real\nfigshare.com service, found via DataCite's client registry and confirmed\nlive -- no download-side changes needed, since all of them resolve through\nthe existing api.figshare.com backend.\n\nDSpace: generalized archive-psycharchives.R's legacy (<=6) REST API support\nfrom PsychArchives only to any host in the new .dspace_legacy_hosts() list\n(5 more found and verified live), with psycharchives_links/_info/_file_download\nkept fully backward compatible. Added archive-dspace7.R, a new implementation\nfor DSpace 7's differently-shaped REST API, covering 64 more installations\n(e.g. Cornell's eCommons, Georgia Tech's Digital Repository, ETH Zurich's\nResearch Collection) found and verified the same way.\n\nWired both DSpace paths into repo_check.R (repo_type \"dspace\"/\"dspace7\") and\nupdated its module-level documentation accordingly.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-11",
+            "url": "https://github.com/scienceverse/metacheck/commit/79a4b43a20b1700e325254ddcff002493c0c67bc",
+            "type": "other",
+            "branch": "add-dataverse-figshare-dspace-repo-support"
+          },
+          {
+            "sha": "02d90e3",
+            "message": "Add an opt-in capture_reasoning argument to llm()",
+            "body": "Some providers/models return their own chain-of-thought text alongside a\nstructured call's result (via ellmer's ContentThinking). Off by default;\nwhen enabled, the raw thinking text is added as a `.reasoning` column so it\ncan be inspected without changing any existing caller's output.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-11",
+            "url": "https://github.com/scienceverse/metacheck/commit/02d90e312cf18215b139c36e1fa53db5e7411bb5",
+            "type": "feat",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-31T11:22:46Z",
+        "recent_commits": [
+          {
+            "sha": "2b30005",
+            "message": "documentation and version bump",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-08-31",
+            "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-11T20:50:08Z",
+        "recent_commits": [
+          {
+            "sha": "e8541bf",
+            "message": "fix(normalize): W0g comes out of both text channels \u2014 a CI does not tell you which statistic it belongs to",
+            "body": "`W0g_dropped_minus_ci_pairing` re-signed a bare positive decimal whenever a bracket in the\nsame record made the arithmetic work. IT NEVER CHECKED WHICH STATISTIC THE BRACKET\nDESCRIBED. On `korbmacher_2022_kruger` the page prints, and pdftotext delivers verbatim:\n\n    r(223) = -0.13 (p = .0498, 95% CI [-0.26, -0.0002])\n\nThe interval is `r`'s. W0g took the nearest bare positive decimal in the record \u2014 the\nP-VALUE \u2014 and published `p = -.0498`. A probability cannot be negative. The same paper\nyields `p = -.05` from the second occurrence of the shape.\n\nAND IT WAS IN THE SHIPPED OUTPUT, not merely in a re-normalization. The handoff that\nscoped this work recorded it as pass-2 only, which reads as an idempotency curiosity. The\nrender channel called W0g over markdown `normalize_text` had ALREADY normalized, so that\ncall was itself a second pass: `render_pdf_to_markdown` emitted both fabricated values on\nthe FIRST render. Raw pdftotext escapes only because it delivers the bracket with EN\nDASHES, which W0g's pattern does not match; S5 makes them ASCII and the next pass fires.\n\nTHE WIDER COST, confirmed against the rasterized page: over 250 papers W0g fired 12 times\nin 4, and at least 7 of those rewrote a quantity that is non-negative by definition \u2014\n`SE = 0.11` -> `SE = -0.11`, `p = .90` -> `p = -.90`. `10.1525/collabra.118835` p7 prints\n`(hedges' g = -.17, SE = 0.11, 95%CI = [-0.38, 0.04], p = .12)`: a negative estimate with a\nPOSITIVE standard error, the paper's house style on that page. There was no corruption to\nrepair.\n\nTHE THREE TIERS directive names CI CONTAINMENT verbatim as forbidden evidence, and W0g is\nCI containment by name. Its signature is `text: str`, so it can never consult the rendered\npage. CHECK THE SIGNATURE BEFORE YOU CHECK THE LOGIC. A \"skip the token after `p =`\" guard\nwould fix one paper and not the class: the rule cannot tell which statistic an interval\ndescribes, because that is a fact about the SENTENCE.\n\nBOTH CHANNELS, and only two exist. Verified by grep rather than assumed from this repo's\nusual three-channel phrasing: W0g was never wired into `tables/cell_cleaning.py`.\n\nW0b, W0d, W0q, W0h AND W0m ARE DELIBERATELY UNTOUCHED. A FAMILY VERDICT MUST BE TESTED PER\nMEMBER. CLAUDE.md twice records \"W0b/W0d/W0g fire 0 times in 226 papers\" and that line is\nWRONG for the first two \u2014 they fire on `efendic_2022_affect` and recover 62 real minus\nsigns correctly, `r = 2.74 [20.92, 20.30]` back to `r = -.74 [-0.92, -0.30]`. Sweeping the\nfamily out together would have destroyed published values. A control test pins them.\n\nG5c2 IS NOW IDEMPOTENT BY CONSTRUCTION, and that was the whole of the remaining corpus\ngate. `_rejoin_split_numbered_headings` emits `N. <Heading>`, and its own output was\neligible as its own INPUT: the stacked-orphan guard only saw a BARE `^N.$`, and\n`lookup_canonical_label` strips one leading number, so `6. References` still qualified as a\ntarget and a stray `3.` above it was glued on. `3. 6. References` resolves to None, so the\npartitioner LOSES the heading. All four remaining non-idempotent papers were this one\nshape \u2014 efendic_2022_affect, am_sociol_rev_4, nat_comms_3, bmc_med_4 \u2014 with DIGIT COUNTS\nIDENTICAL across all four, which is why no digit-delta check could ever have found it.\n\nTHE RATCHET WAS NOT RAISED. It stays at 0 and the corpus gate now passes on its own terms:\n5 non-idempotent papers -> 0, by fixing the causes. The owner was offered a named-defect\nlist and a raise to 4 and chose to fix the cause before releasing.\n\n`NORMALIZATION_VERSION` 1.9.65 -> 1.9.66. It MUST bump even though this only REMOVES a\nrewrite: consumers store extracted text keyed on that string, so leaving it would make text\nproduced before and after indistinguishable in their store. `TABLE_EXTRACTION_VERSION`\nstays at 2.4.14 \u2014 no table code changed.\n\nTwo test files, both watched RED first (8 failures on G5c2, 2 on W0g, controls passing) and\nboth asserting through `normalize_text` / `render_pdf_to_markdown`, never the raw function:\na test that calls a deliberately-kept definition keeps failing after its call sites are\ngone, because it measures the definition rather than the product. That trap cost a cycle on\nthe W0k removal.\n\nTwo instrument defects were found and fixed while writing them, both recorded in the files\nbecause both are this repo's own recurring traps: the stacked-heading detector first used\n`\\s+`, which matches a NEWLINE, so it spanned the three CORRECT lines and reported a defect\non a repaired paper; and it ended in `\\S`, which matched a run of bare list numbers. A\nrender-chain gate that asserted a magic `len(names) >= 50` now asserts that two independent\nderivations of the chain AGREE, because a fixed floor can only ever be too low to catch a\nblinding or tripped by a deliberate retirement \u2014 and it was the second.\n\nThree stale imports of the already-retired W0k/W0l rules are dropped from render.py. They\nhad sat unused since f169c3d; an unused import of a retired rule reads as though the rule\nwere still in the pipeline.\n\nVerified: full suite 3209 passed / 0 failed; render_deletion_scan 26/26 papers 0 content\nlost; repair_site_scan 120/120; article custody 0 leaks in all three forms; a three-provider\nconsult round (anthropic/openai/xai, 3 answered 0 refused, all passing the read-the-code\nchallenge) returned 0 findings. The one adjacent case it raised \u2014 a DOTLESS numbering\nconvention can still stack \u2014 was measured at 0 occurrences in 101 papers against a\ntwo-sided control and deliberately left unfixed rather than widened on a constructed string.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-11",
+            "url": "https://github.com/giladfeldman/docpluck/commit/e8541bfb49adc88f45fdfdee3e094595cdc01457",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-09-12T10:12:08.214973+00:00",
     "narrative": "",
     "repos": [
@@ -20147,172 +20243,6 @@
             "date": "2026-07-30",
             "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
             "type": "other",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-08-19T12:49:44.299345+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "Davidvandijcke",
-        "repo": "coarse",
-        "url": "https://github.com/Davidvandijcke/coarse",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 13,
-        "pushed_at": "2026-07-30T21:54:27Z",
-        "recent_commits": [
-          {
-            "sha": "f054f42",
-            "message": "docs: add Buy Me a Coffee funding links",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/f054f4289ffa177b7723981892724b19e8d74eb9",
-            "type": "feat",
-            "branch": "dev"
-          },
-          {
-            "sha": "34b892d",
-            "message": "docs: add Buy Me a Coffee funding links",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/34b892d34d80ba3fecbb8bb95adf9ab757f13862",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "ac28c17",
-            "message": "feat(web): add Buy Me a Coffee support button",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/ac28c1728b05b82c30a8d64a41bb2e73db48dec4",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "00dce61",
-            "message": "Merge pull request #252 from Davidvandijcke/dev",
-            "body": "fix(security): harden release audit and workflows",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/00dce61fbd61dd04fb2d4ada45ed8b3156709ff6",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "def053b",
-            "message": "Merge pull request #251 from Davidvandijcke/codex/fix-release-audit",
-            "body": "fix(security): harden release audit and workflows",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/def053b58fabc853598bb8a2f56424d4a53e8a14",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "033647e",
-            "message": "fix(security): harden release audit and workflows",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/033647e83435a70af909a231cf296162d738d365",
-            "type": "fix",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "00c696c",
-            "message": "Merge pull request #249 from Davidvandijcke/dev",
-            "body": "release: v1.9.0 \u2014 frontier models and deep literature search",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/00c696c8b12d832d237d680f3e830b07d3a393ff",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "071c4f6",
-            "message": "Merge pull request #250 from Davidvandijcke/codex/sync-main-v1.9.0",
-            "body": "merge: reconcile main Fable hotfix into v1.9.0 release",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/071c4f6894e3c42049811c40b43a253d20e48953",
-            "type": "other",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "eabba85",
-            "message": "merge: reconcile main Fable hotfix into dev",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/eabba858fac56f4c9b002f1381f52bd61ebecb7e",
-            "type": "chore",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "30c85b2",
-            "message": "chore(release): prepare v1.9.0 (#248)",
-            "body": "",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/30c85b232f9d015b6cbf0f5022ef4e1877860fac",
-            "type": "chore",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "6324170",
-            "message": "chore(release): prepare v1.9.0",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/63241708368b4c733849cb340ef6d79594e6b49d",
-            "type": "chore",
-            "branch": "codex/release-v1.9.0"
-          },
-          {
-            "sha": "3b236ea",
-            "message": "Refresh frontier models and add deep literature search (#247)",
-            "body": "* feat(review): refresh models and add deep literature search\n\n* fix(review): address pre-pr rollout findings",
-            "author": "David Van Dijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/3b236ea11eeb5a073ff84c40bc1dac4ebb244439",
-            "type": "feat",
-            "branch": "codex/fix-release-audit"
-          },
-          {
-            "sha": "c36a5eb",
-            "message": "fix(review): address pre-pr rollout findings",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-07-30",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/c36a5eb4354c76b5485f2f10fbe06e1a0d7a2437",
-            "type": "fix",
-            "branch": "feat/latest-models-deep-literature"
-          }
-        ]
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-13T12:43:16Z",
-        "recent_commits": [
-          {
-            "sha": "e20a3b1",
-            "message": "Release 0.11.3 with redesigned analysis summary",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-08-13",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/e20a3b12aa8ea38e826693f11abede65630940a4",
-            "type": "chore",
             "branch": "main"
           }
         ]
