@@ -1,5 +1,281 @@
 [
   {
+    "generated_at": "2026-09-13T11:13:09.068636+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 9,
+        "pushed_at": "2026-09-13T07:53:53Z",
+        "recent_commits": [
+          {
+            "sha": "cc58458",
+            "message": "Name the host in rate-limit wait messages",
+            "body": "A long rate-limit wait (up to hours) previously printed only \"the host's\nown reset\" with no way to tell which repository platform was actually\nthrottling -- confirmed live during the Cooper validation rerun, where a\n56-minute wait gave no indication whether it was Zenodo, Dryad, GitHub,\nor GitLab. Both call sites (the per-file retry path and the zip-download\npath) already have the response in scope, so the host is read off its\nrequest URL (httr2 has no resp_url_host(), so resp_url() is parsed with\nurl_parse() instead) and included in the message.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-13",
+            "url": "https://github.com/scienceverse/metacheck/commit/cc58458d5d2fa63adfd9e75b24a8152059d19591",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "654b80f",
+            "message": "Fix Zenodo crashes on unreadable records and list-column input, add docs",
+            "body": "Two real crashes remained after the earlier online()/%empty_or% fix\n(c0531ed): (1) a record .zenodo_info() could not read returned only\nzenodo_id+error, so a paper whose every Zenodo record was unreadable\nproduced a table with no doi/license columns at all -- as.character(NULL)\nis character(0), and data.frame() rejects mixing that with an n-row\ncolumn (\"arguments imply differing number of rows\"). .zenodo_unread()\nnow returns the full schema for an unreadable record, and .col_chr()\nguards repo_check()'s Zenodo metadata extraction the same way, including\nagainst a list-column element that as.character() silently mangles into\nthe literal string \"character(0)\" instead of erroring. (2)\ndata.frame(zenodo_url = <list>) silently explodes into one column per\nlist element rather than creating a zenodo_url column, which a list-\ncolumn repo_url arriving from repo_check() could trigger; as.character()\nbefore data.frame() fixes it.\n\nAlso documents .is_r_package_file() (missed in the earlier commit that\nadded it).\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-12",
+            "url": "https://github.com/scienceverse/metacheck/commit/654b80fa041c7ca1fa33e83c44acdee734345f4a",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "32b4cab",
+            "message": "Exclude R package source trees from repo_check's data/code listing",
+            "body": "An R package repository (DESCRIPTION + NAMESPACE, its R/, man/, tests/\netc. subdirectories) is reusable software infrastructure, not the\nstudy's own data or analysis code. Detect this fingerprint per\nrepo_url and drop those files from the file listing entirely, before\nclassification, so they never inflate files_n/files_code or appear in\ndownstream reports.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-12",
+            "url": "https://github.com/scienceverse/metacheck/commit/32b4cabb17b5e5d29a123cedeecd505d1e3da878",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "47b5187",
+            "message": "Fix reproducibility_check issues #388, #390-392, #394, #396",
+            "body": "- #388: classify Bioconductor-only packages (edgeR, DESeq2, phyloseq, ...) as\n  source = \"bioc\" in repro_dependencies() instead of falling through to\n  \"cran\", and install them via BiocManager::install() in repro_install_deps()\n  and its Docker equivalent.\n- #390: extend the undefined-variable corrective rerun to missing library()\n  calls. A \"could not find function \\\"X\\\"\" error with zero same-repo\n  definers is checked against a scoped candidate set (the paper's own\n  declared dependencies plus a small curated safe-list); an unambiguous\n  match is injected as a library() call and the script is rerun once.\n- #391: expose per-file modifications (path rewrites, setwd() removal, font\n  substitution, library() injections) as a `modifications` data frame in the\n  module's output, instead of only aggregate counts.\n- #392: fall back to normalised-basename matching for source() targets when\n  exact basename matching finds nothing, scoped to code-to-code references\n  only (not data files, per the issue's own evidence). Fuzzy matches are\n  flagged distinctly via a `fuzzy_sources` attribute, never silently treated\n  as exact.\n- #394/#396: sniff a .R/.Rmd file's actual content before treating a parse\n  failure as a code defect, distinguishing non-R content (JSON/HTML) and\n  JAGS/BUGS model definitions from genuine broken R code.\n\nSkipped #389/#393's auto-resolution/guessing scope and #395 (needs a change\nin the separate metacheck_docker_reproducibility repo).\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-12",
+            "url": "https://github.com/scienceverse/metacheck/commit/47b51871a55ce66c8dd3227fa27d531e7ed0fdd6",
+            "type": "fix",
+            "branch": "reproducibility_fixes"
+          },
+          {
+            "sha": "e8d97d2",
+            "message": "Fix pre-existing test suite failures unrelated to Zenodo/Mendeley/DataONE work",
+            "body": "Found while running the full suite: 15 failures, none in the files this\nbranch otherwise touches, confirmed against a clean origin/dev checkout.\n\n- data-manifest: the test itself was wrong, not the code -- it left a\n  paper's file with no file_location and no failed-download record, which\n  .data_check_write_manifest() correctly (per its own documented rules)\n  treats as an unreported failure. Fixed the test to actually simulate a\n  successful download, which is what it meant to test.\n- code_check manifest: a real cross-contamination bug -- jsonlite::toJSON()\n  renders an R NULL list element as \"{}\" rather than dropping it, so an\n  absent packages/files_failed section for one paper in a batch came back\n  as a non-NULL empty object instead of NULL when read back. Filtered NULLs\n  before writing, matching the convention .data_check_write_manifest()\n  already uses. Also added the code_install_packages column (#398) to two\n  tests never updated for it.\n- repo-download: the real cause of 9 failures -- testthat::local_mocked_\n  bindings() for httr2::req_perform/req_perform_parallel silently fails to\n  restore the original binding in this testthat 3.3.2 / withr 3.0.3 /\n  httr2 1.3.0 combination (confirmed with a canary: deferred cleanup fires\n  in general, this specific namespace restore just doesn't stick), so a\n  mock from one test broke every real download in every later test in the\n  file. Added an explicit, unconditional top-level restore after each risky\n  mock. One remaining failure was a tight 3s wall-clock threshold that's\n  simply slow on this machine; loosened it since the regression it guards\n  against (an O(n) scan over 20000 rows) would take far longer regardless.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-12",
+            "url": "https://github.com/scienceverse/metacheck/commit/e8d97d20d011cbe17a1cb1d98c6c7a90345b097f",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "cd7995c",
+            "message": "Add Mendeley Data and DataONE repository support",
+            "body": "Mendeley Data: detects 10.17632/ DOIs and data.mendeley.com URLs, queried\nvia the public, unauthenticated data.mendeley.com/public-api/datasets/<id>\nendpoint. Host-independent by design -- verified live that an institution's\nwhite-labelled front end (e.g. Washington University's \"Digital Commons\nData\") serves the exact same backend, so detection only needs the DOI, not\na host registry.\n\nDataONE: a federation of independently-run repositories (\"member nodes\"),\nnot one hosted service. Covers four verified hosts (Arctic Data Center,\nKNB, Taiwan Forestry Research Institute, Smithsonian Tropical Data Portal\n-- the latter two found via re3data.org), each confirmed live and each\nmounting the same underlying REST API at a different base path per\ninstallation. Parses each dataset's EML metadata document for its file\nlisting.\n\nBoth wired into repo_check.R the same way as the existing providers, and\ntested end-to-end against real live records through the full repo_check()\npipeline.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-12",
+            "url": "https://github.com/scienceverse/metacheck/commit/cd7995c015f0a2343a1afec24d6fb991be5a527c",
+            "type": "feat",
+            "branch": "dev"
+          },
+          {
+            "sha": "c0531ed",
+            "message": "Fix Zenodo online() DNS false-negatives and harden %||% against zero-length JSON fields",
+            "body": "online() previously failed a paper's entire Zenodo retrieval on a single\ntransient DNS lookup miss; it now retries. Zenodo also silently dropped\nrecords when a JSON field came back as a length-zero value (e.g. an empty\narray) rather than NULL, since %||% only guards against NULL -- this threw\n\"arguments imply differing number of rows\" inside a tryCatch that quietly\ndiscarded the whole record. Confirmed against real corpus failures.\n\nAdded %empty_or% (like %||%, but also catches length-zero values) and\napplied it everywhere the same bare-%||% gap existed: Dataverse, Dryad,\nDSpace7, Figshare, GitHub, GitLab, OSF, PsychArchives, and ReShare.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-12",
+            "url": "https://github.com/scienceverse/metacheck/commit/c0531edd2ed56592c3823e25f5a2d7056da998d1",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "7df0e17",
+            "message": "Merge pull request #399 from scienceverse/housekeeping-llm-reasoning-and-data-check-fix",
+            "body": "Add an opt-in capture_reasoning argument to llm()",
+            "author": "Daniel Lakens",
+            "date": "2026-09-12",
+            "url": "https://github.com/scienceverse/metacheck/commit/7df0e1722e3de454b3141e794b146b0f58fd7cd6",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "62b90d3",
+            "message": "Merge pull request #400 from scienceverse/add-dataverse-figshare-dspace-repo-support",
+            "body": "Detect and download from many more Dataverse, Figshare, and DSpace installations",
+            "author": "Daniel Lakens",
+            "date": "2026-09-12",
+            "url": "https://github.com/scienceverse/metacheck/commit/62b90d35e74c4280da8fe11c92d9fdfeda789a99",
+            "type": "feat",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 5,
+        "pushed_at": "2026-09-02T03:58:35Z",
+        "recent_commits": [
+          {
+            "sha": "7729a28",
+            "message": "Built site for tenzing@0.4.1: 5554f64",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "5554f64",
+            "message": "temporarily cmmment out new test that failed for Load instead of Upload",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
+            "type": "feat",
+            "branch": "master"
+          },
+          {
+            "sha": "e07088e",
+            "message": "move papaja UI output down, retitle affiliations page",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "e4217bd",
+            "message": "Built site for tenzing@0.4.1: 6944931",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "6944931",
+            "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
+            "body": "Reorder output actions and clarify URL loading",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-09-12T16:45:11Z",
+        "recent_commits": [
+          {
+            "sha": "1c1d925",
+            "message": "Merge pull request #299 from Davidvandijcke/dev",
+            "body": "Release subscription review model selection fix",
+            "author": "David Van Dijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/1c1d925e58646e6df78de711d64ec6d7f485badf",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "1e703c1",
+            "message": "fix(web): preserve subscription model selections and refresh options (#298)",
+            "body": "",
+            "author": "David Van Dijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/1e703c1a5178e05cd462daa264da8d094ffee93e",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "b8118c7",
+            "message": "fix(web): preserve subscription model selections and refresh options",
+            "body": "",
+            "author": "Davidvandijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/b8118c775122c3535419384063a6b2f04ba61c7f",
+            "type": "fix",
+            "branch": "codex/subscription-model-selection"
+          }
+        ]
+      },
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-09-09T17:50:39Z",
+        "recent_commits": [
+          {
+            "sha": "72620b2",
+            "message": "Treat `list_min_distance_functions` like other constants",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-09-09",
+            "url": "https://github.com/lhdjung/scrutiny/commit/72620b2796b2d95fce0ce545ac4a27679a85b8f2",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "23404f6",
+            "message": "Refactor to simplify",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-09-09",
+            "url": "https://github.com/lhdjung/scrutiny/commit/23404f642574b29973f21e853e8acb3012ed338c",
+            "type": "refactor",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-28T15:19:13Z",
+        "recent_commits": [
+          {
+            "sha": "4ea4b3b",
+            "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
+            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 69c3964cbc6c5fa72e1928aa83f610425e07cd6d\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
+            "author": "Gilad Feldman",
+            "date": "2026-08-28",
+            "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-10T06:52:07Z",
+        "recent_commits": [
+          {
+            "sha": "40676dd",
+            "message": "Release 0.12.7",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-09-10",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/40676dd45a817ba78070d6742d1018a5be451385",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-09-13T03:08:57.154968+00:00",
     "narrative": "",
     "repos": [
@@ -19827,232 +20103,6 @@
             "date": "2026-08-13",
             "url": "https://github.com/shaheedazaad/auto-zcurve/commit/e20a3b12aa8ea38e826693f11abede65630940a4",
             "type": "chore",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-08-20T06:49:25.664148+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 9,
-        "pushed_at": "2026-08-18T16:36:36Z",
-        "recent_commits": [
-          {
-            "sha": "efedd30",
-            "message": "Fix ResearchBox file-link collapsing, Stata quoted-filename regex, and add cache param to reproducibility_check",
-            "body": "ResearchBox hrefs pointing at a specific file within a box were treated as\nseparate repos; they are now truncated to the box id. The unquoted-filename\ncapture regexes in code_file_refs() were matching inside already-quoted\nStata filenames that contain spaces, producing bogus extra references; they\nnow only run against lines without a quoted filename. reproducibility_check()\ngains a cache argument forwarded to data_check/code_check, and duplicate-file\nreporting now shows each mirror's location instead of just its (identical)\nbasename.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/efedd3044ac7fcb4d6244835e1954236cdd8fb4b",
-            "type": "fix",
-            "branch": "reproducibility_check"
-          },
-          {
-            "sha": "b343a0e",
-            "message": "Normalize line endings repo-wide with a single text=auto rule",
-            "body": ".gitattributes previously forced LF only under tests/testthat/fixtures/,\nwhich also matched binary fixtures there (PDFs, a zip) and forced git to\ntreat them as text, and left every other CRLF-committed text file (e.g.\ndata-raw/demo/ground_truth/*.csv, tests/testthat/apis/**/*.html) subject to\neach contributor's local core.autocrlf, causing line-ending-only diffs on\ncheckout.\n\nReplace it with `* text=auto`: git decides text vs. binary from each file's\nactual content (the same detection diff/file use), not its extension or\npath, so a binary file with a misleading name (e.g. the zip archive stored\nas tests/testthat/apis/.../osfstorage-546010.R-FILE) is still handled\ncorrectly with no entry needed, and every genuine text file is stored and\nchecked out as LF regardless of the checkout platform.\n\nRenormalizes the 23 tracked text files that were actually stored with CRLF\n(verified byte-for-byte: only line-ending bytes changed, no content diff).",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/b343a0e2eb4e0cc25a3afd9aaefd7ab778e78d3d",
-            "type": "other",
-            "branch": "reproducibility_check"
-          },
-          {
-            "sha": "3cbe26b",
-            "message": "Fix reproducibility_check calling isTRUE_vec(), an undefined function",
-            "body": "isTRUE_vec() only exists in R/psychds-convert.R on the convert_psychds\nbranch, which this branch never merged, so both call sites errored with\n\"could not find function\". Both columns (code_check's parse_error,\nthis module's own via_archive) are already plain logical, so inline the\nequivalent !is.na(x) & x instead of porting the helper.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/3cbe26b8a228fd5c0282f8f3719b985999b5e8f2",
-            "type": "fix",
-            "branch": "reproducibility_check"
-          },
-          {
-            "sha": "eff145a",
-            "message": "Add the missing .gitignore entry for pkgdown/assets/report-example.*",
-            "body": "The previous commit deleted these files and claimed they were\ngitignored going forward, but the .gitignore edit itself never got\nstaged. Adding it now so a regenerated report-example.html/.qmd\ndoesn't silently get re-tracked.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/eff145a51133bedf4adc72990444f8f68c94c362",
-            "type": "feat",
-            "branch": "dev"
-          },
-          {
-            "sha": "431e0c5",
-            "message": "Fix FLoRA_update() using the wrong osf_file_download mode",
-            "body": "Broke when mode = \"all\" became the default for whole-project\ndownloads: t4j8f is a single OSF file, not a project, so \"all\"'s\nskip-the-listing/download-archives-per-node approach is the wrong\nshape for it. This test is gated behind skip_if_quick() and so never\nran in normal test suite passes, which is why it went unnoticed.\nmode = \"select\" restores the old \"files\" behaviour (list, then fetch\nthe requested file), verified passing.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/431e0c553c1edb071504d66464ecdd176107c032",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "1bda9ad",
-            "message": "Merge dev into additional_archives",
-            "body": "Reconciles this branch with dev after its content commits (the\nshiny_app addition, osf_app.R's library(metacheck) fix, the two\nMetacheck-description additions) were already cherry-picked in\nindividually. Remaining conflicts are all deletions this branch made\ndeliberately -- vignettes/ (superseded by the metacheck book) and\n_stuff/profile/cermine_example.xml (repo cleanup) -- kept deleted.\n.gitattributes keeps this branch's binary-fixture-by-default approach\nover dev's broader \"* text=auto\", since it fails safe for newly added\nfixture formats rather than requiring each one to be listed.\n\nNo R/, inst/modules/, or test content changes: dev's only two\nunmerged commits (logpath() fix, .gitattributes fix) are identical in\ncontent to commits already resolved from main earlier today.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/1bda9ade25b89635273880315fc258a3b4465b47",
-            "type": "other",
-            "branch": "dev"
-          },
-          {
-            "sha": "befd5d5",
-            "message": "Match main's Metacheck Manual navbar wording/URL",
-            "body": "main independently made the same navbar change (pointing at the\nmetacheck book instead of Get Started/Articles) with slightly\ndifferent wording and the correct https:// URL. Taking main's exact\nwording here avoids a needless merge conflict; this branch's newer\nreference-index content (no stale psychsci entry, no dead articles:\nsection, includes the Dataverse/Figshare/Dryad/ReShare/4TU entries)\nis kept as-is.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/befd5d52bc992126c2a6518f0671fa6bf39d8d7a",
-            "type": "other",
-            "branch": "dev"
-          },
-          {
-            "sha": "d12bf1d",
-            "message": "Fix remaining test warnings, including a cross-file llm_use() leak",
-            "body": "test-module-power.R's last test block set llm_use(TRUE) and never\nreset it, leaking that global option into every test file that ran\nafterward in the suite. test-module-repo_check.R and\ntest-repo-download.R were the two downstream files that triggered\nreal (unmocked) LLM network calls as a side effect, failing with\nconnection-refused and printing as warnings even though their actual\nassertions still passed. Fixed with withr::defer(llm_use(FALSE)) --\nplain on.exit() and withr::local_options() were both tried first and\nconfirmed, by direct testing, not to restore state correctly through\nthis project's custom test_that() wrapper in helper.R; withr::defer()\ndoes. Applied the same fix to test-llm.R and test-utils.R, which had\nthe same unrestored llm_use(TRUE) pattern.\n\ntest-archive-zenodo.R and test-repo-download.R had intentional\nfake-download-failure scenarios whose warnings were never wrapped in\nexpect_warning(), the same gap already fixed in\ntest-archive-dataverse.R -- applied consistently here too.\n\nFull suite: 0 failures, 0 warnings, 4280 passed.",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/d12bf1d23c45929ea52b5ce3fb82f543e27b3ab9",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "74c2d84",
-            "message": "Fix R CMD check warnings/notes and cross-test pollution from dead module imports",
-            "body": "R CMD check fixes:\n- .Rbuildignore: exclude .vscode, .comments, CLAUDE.md; delete stray\n  duplicate to_err_is_human.xml at repo root (real copy lives in\n  inst/demos/)\n- Non-ASCII characters warning: escape functional Unicode (Greek\n  statistical notation, math operators, box-drawing table borders, a\n  field-separator character, an NBSP constant, a BOM string) as \\uXXXX,\n  substitute purely decorative comment punctuation with ASCII, across\n  12 files\n- Undeclared imports warning: add SnowballC, data.table, officer,\n  pdftools, readxl, yaml to Suggests (already used via :: throughout)\n- Rd cross-references / Rd usage-section warnings: two roxygen blocks\n  had drifted onto the wrong function because a plain (non-roxygen)\n  comment sat between the doc block and its real target\n  (stat_results_long, data_read_head) -- moved each block to the\n  correct function; removed one duplicate leftover block; stripped six\n  dangling \\link{} references to functions that only exist on unmerged\n  branches\n- R code NOTE: qualify two bare ave() calls as stats::ave(), fix an NSE\n  binding in code_setwd(), port the missing .repro_split_args() helper\n  r-output.R was calling (only defined on the reproducibility_check\n  branch)\n- Avoid the \"assignments to the global environment\" NOTE in\n  .r_capture_runner() (a callr subprocess payload, not the user's\n  session) by capturing globalenv() into a variable first, which\n  R CMD check's static scan does not resolve\n\nTest suite fix:\n- Three modules (prereg_check.R, code_check.R, stat_effect_size.R)\n  declared roxygen @import for packages (httr, jsonlite, tidyr) they\n  never actually use. module_run() require()s every declared @import,\n  so running those modules' tests attached httr/jsonlite to the search\n  path ahead of metacheck, letting httr::verbose() and\n  jsonlite::validate() shadow metacheck::verbose()/validate() for every\n  test that ran afterward in the same session -- the reason two\n  unrelated test files only failed in full-suite runs, never in\n  isolation. Removed the three dead @import lines (a full sweep confirms\n  no other module has an unused import).",
-            "author": "Lakens",
-            "date": "2026-08-18",
-            "url": "https://github.com/scienceverse/metacheck/commit/74c2d846a029f8010cc1be38f7f093212a3ad3e2",
-            "type": "fix",
-            "branch": "dev"
-          }
-        ]
-      },
-      {
-        "owner": "lhdjung",
-        "repo": "scrutiny",
-        "url": "https://github.com/lhdjung/scrutiny",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 3,
-        "pushed_at": "2026-08-18T14:51:48Z",
-        "recent_commits": [
-          {
-            "sha": "ddb58e7",
-            "message": "Rewrite all other tests in the image of c3abc016614fab2685d16a39d2835a36c6624e3c",
-            "body": "* Mechanical syntax changes only\n* Main change: pipes instead of nested code\n* Also, some more empty lines for readability",
-            "author": "Lukas Jung",
-            "date": "2026-08-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/ddb58e7da87e0eba8221cac0906ae35d9bbf63a0",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "c3abc01",
-            "message": "Rewrite test-utils.R to model test style",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/c3abc016614fab2685d16a39d2835a36c6624e3c",
-            "type": "test",
-            "branch": "polishing"
-          },
-          {
-            "sha": "879c2ea",
-            "message": "Optimize testing helpers via constants and inlining",
-            "body": "* Also update tests and NEWS.md\n* Move pre-existing constants into the new aaa.R",
-            "author": "Lukas Jung",
-            "date": "2026-08-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/879c2ea3caa987a2c4f959235723117f2d8d5fa0",
-            "type": "other",
-            "branch": "polishing"
-          }
-        ]
-      },
-      {
-        "owner": "marton-balazs-kovacs",
-        "repo": "tenzing",
-        "url": "https://github.com/marton-balazs-kovacs/tenzing",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-07-23T04:38:31Z",
-        "recent_commits": [
-          {
-            "sha": "ea980fd",
-            "message": "Built site for tenzing@0.4.1: d271884",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-07-23",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/ea980fdf1543387c4b111fbb11a4eb4e0b402323",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "d271884",
-            "message": "Update success alert title in sweet_alert.js",
-            "body": "Update terminology from infosheet to contributors table",
-            "author": "Alex O. Holcombe",
-            "date": "2026-07-23",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/d271884e9e3dcf047cae84deffe660dece15b52b",
-            "type": "other",
-            "branch": "master"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "escicheck",
-        "url": "https://github.com/giladfeldman/escicheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-08-09T17:29:35Z",
-        "recent_commits": [
-          {
-            "sha": "a96641b",
-            "message": "sync from escicheckapp@1bc688d (effectcheck v0.7.5) (#38)",
-            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-09",
-            "url": "https://github.com/giladfeldman/escicheck/commit/a96641b59ea6cc235ae7ef84c20c52e081fbd5ed",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "6bff8a3",
-            "message": "sync from escicheckapp@63da84b (effectcheck v0.7.4) (#37)",
-            "body": "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-09",
-            "url": "https://github.com/giladfeldman/escicheck/commit/6bff8a3490a0f07616193e629cdc0732f7d1a6e3",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "quest-bih",
-        "repo": "oddpub",
-        "url": "https://github.com/quest-bih/oddpub",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-07-30T15:11:29Z",
-        "recent_commits": [
-          {
-            "sha": "ec80478",
-            "message": "nature das and cas detection",
-            "body": "",
-            "author": "ontogenerator",
-            "date": "2026-07-30",
-            "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
-            "type": "other",
             "branch": "main"
           }
         ]
