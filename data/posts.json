@@ -1,5 +1,311 @@
 [
   {
+    "generated_at": "2026-09-17T11:06:14.666054+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 7,
+        "pushed_at": "2026-09-17T10:17:39Z",
+        "recent_commits": [
+          {
+            "sha": "3e58d9d",
+            "message": "docs(claude): one checkout only \u2014 the five siblings were worktrees, not copies",
+            "body": "Five directories sat beside this one: -accf-docs, -e0b-docs, -head-sibling,\n-main-check, -v137-probe. Each was a git worktree of this same repository at an\nolder commit, sharing this .git \u2014 which is why each presented a complete-looking\nproject with its own CHANGELOG, package and docs, frozen at that commit.\n\nThat is the reason this is a standing rule rather than a one-off tidy: a stale\nworktree is indistinguishable from the real checkout at a glance, and reading old\ndocumentation or editing a file that will never be committed produces no warning.\n\nAll five verified clean (git status --porcelain returned 0 lines in each) before\nremoval was proposed. git worktree list is now a /docpluck-cleanup check, with the\ndirty-count verified first \u2014 --force on a dirty worktree destroys work that exists\nnowhere else.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-17",
+            "url": "https://github.com/giladfeldman/docpluck/commit/3e58d9df49dc2df7f30bfd93ef73890a5b8e0eb6",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "633ed28",
+            "message": "chore(repo): one home for correspondence \u2014 communications/, ignored as a directory",
+            "body": "149 correspondence documents were loose in the repo root (38) and in docs/ (111)\n\u2014 messages in and out, replies, requests, session write-ups, investigation notes,\ncorpus work queues. None had ever been committed: verified with\n`git log --all --diff-filter=A --name-only` over every ref, which returns zero\nfor all of those prefixes. So this is a structural fix, not an exposure fix.\n\nThey now live in communications/, one flat folder, and .gitignore carries\ncommunications/ as a DIRECTORY entry rather than yet another prefix. Every\ncorrespondence leak this repo has had came from a naming convention nobody had\nimagined yet (2026-08-07, 2026-08-20); a directory rule does not care what the\nfile is called. Verified with a positive control \u2014 an arbitrarily named file\nplaced inside communications/ comes back ignored by that rule, and the relocation\ncheck itself was shown to fire on a planted file before its zero was believed.\n\nComments and docstrings citing a moved file by its old path were repointed and\neach target confirmed to exist. No code reads any of these paths.\n\ntests/test_public_repo_hygiene.py: 11 passed.\npublic-repo-guard: 0 blocking.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-17",
+            "url": "https://github.com/giladfeldman/docpluck/commit/633ed28f732c050695cb2c7bfc9d8f0ff6e8ca4c",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "99bbec2",
+            "message": "fix(normalize): one DOI grammar, not two \u2014 and the count that says the fix is inert",
+            "body": "`_DOI_IDENTIFIER_IN_LINE` (H0's colon-lead-in exemption) and\n`_BARE_DOI_IDENTIFIER_LINE` (P0r's running-footer predicate) each hand-typed the\nDOI grammar, nine lines apart in the same commit, under a comment on the first\none warning that a second copy WILL drift. It had already drifted: printing both\nregexes' verdict on `doi:10/gt3vmw` gave False and True. Both now derive from a\nshared `_DOI_FULL_FORM` / `_DOI_SHORT_FORM` pair. Found by /docpluck-review.\n\nNORMALIZATION_VERSION 1.9.67 -> 1.9.68, because the unification WIDENS one\npredicate: a `doi:`-prefixed short-form DOI on a colon-introduced header-zone\nline now survives where it did not. That is a consumer-visible text change for\nthat shape, and an unbumped version would make pre-fix and post-fix output\nindistinguishable in a consumer's own store.\n\nPREVALENCE, MEASURED \u2014 because the divergence was found by a CONSTRUCTED string,\nwhich is evidence about the code and never about the corpus. Over 200 PDFs (199\nEnglish; 1 Spanish excluded and reported) sampled seed 20260912: the newly-exempt\nshape occurs 0 lines in 0 papers. Two-sided, so that zero is a property of the\ncorpus and not of a broken search \u2014 the same scan's control, any bare short-form\n`10/xxxx`, fires on 8 lines in 8 papers. Confirmed a second way: the canary\npaper's render is byte-identical across the change (sha256 8d74f263ec2b0f03...).\nSo this is kept because it removes a duplicated grammar, NOT because a paper was\nlosing a DOI to it, and it must not later be cited as a corpus defect.\n\nShips tools/diag/doi_short_form_prevalence.py, which regenerates those numbers.\nThe comment named the tool, so the tool exists; and every site quoting the counts\nnames the command, so none of them is a number nobody can reproduce.\n\nAlso in this commit, both found while verifying the above:\n\n- CHANGELOG.md had TWO `## [2.4.143]` headings after the review's edit. One\n  version, one entry: merged, with the 1.9.67 work now a section under it.\n\n- tests/test_cli_structured.py spawns real `python -m docpluck` subprocesses on a\n  fixed 120s budget. Under `pytest -n auto` on 14 workers that expires:\n  test_figures_only_omits_tables and test_html_tables_to_writes_html_files\n  reported FAILED on subprocess.TimeoutExpired while the same file passed 7/7\n  serially in 192s. A false RED in the release gate costs more than a false green\n  \u2014 it sends someone hunting a regression that does not exist. The budget now\n  scales with load, as tests/test_benchmark_docx_html.py already does; both\n  branches were proved to fire (480 under a worker, 120 serial). It is a timeout,\n  not an assertion, so a genuinely hung CLI still fails.\n\nLESSONS.md L-057: a comment predicting drift is evidence someone thought about\nthe risk, never evidence it was checked for. Its second half records the\nprevalence, so a later reader cannot mistake L-057 for a corpus defect.\n\nFull suite on these bytes: 3208 passed, 0 failed, 46 skipped, 5 xfailed, exit 0.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-17",
+            "url": "https://github.com/giladfeldman/docpluck/commit/99bbec29046e054b0afee5382c42c2f8b36efb27",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "52c036e",
+            "message": "docs(normalize): close the header-zone DOI residual by measurement, not by hunch",
+            "body": "The one identifier H0 still drops that it should not\n(10.24072/pci.rr.101017.rev11, a bioRxiv preprint URL) was recorded as a known\nresidual with a rationale and no number. A rationale is not a measurement, so\nthe obvious widening was measured before being rejected rather than argued\nabout -- two-sided, over the same 297 English papers, counting what it would\nsave AND what it would cost.\n\nWidening the exemption from \"previous line ends in a colon\" to \"previous line\ndoes not end in sentence-terminal punctuation\" would:\n\n    recover  0 real identifiers\n    stop   198 correct masthead-furniture drops\n\nIt is not a weaker colon rule, it is the wrong signal. The residual's own\nlead-in ends in a period, so it sits on the same side of that line as the\nmasthead cases and no punctuation signal separates it.\n\nComment only: no non-comment line changes, output is byte-identical, so\nNORMALIZATION_VERSION and __version__ are deliberately unchanged.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-16",
+            "url": "https://github.com/giladfeldman/docpluck/commit/52c036edfb5d7e71fd2b0a7819fc776cdfc4c0fd",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "2c8b0dd",
+            "message": "fix(tables): the region was sized to the caption, so published columns and rows were deleted",
+            "body": "Four defects in table-region detection, each deleting real printed data from the\nstructured table with no error, no warning and no log line.\n\n10.1001/jamanetworkopen.2023.39337 Table 3 prints seven columns; docpluck\nemitted two. Five of six data columns -- and the Sodium and Physical-activity\nvalues of the surviving one -- appeared ZERO times in the 59 KB render.\n\n(a) _horizontal_rules_in required a ruled line to be entirely CONTAINED in the\n    search band, which is built at the CAPTION's x-range. On p9 the caption\n    spans 141pt and each of Table 3's twenty rules spans 515pt, so all twenty\n    were rejected while ten 10pt row decorations were kept -- still enough to\n    clear LATTICE_MIN_HORIZONTAL_RULES, so lattice fired on furniture. Now\n    keyed on x-OVERLAP, safe for a rule because a rule does not cross a column\n    gutter.\n(b) A rule drawn cell-by-cell arrives as one segment per column, so it only\n    overlaps the band where the caption sits (ieee_access_2 p55: one segment of\n    a three-column grid). Collinear end-to-end segments are merged first.\n(c) _longest_aligned_run compared column START edges only, so a run severed\n    where a right-aligned cell changed width. 10.1371/journal.pmed.1004323 p10:\n    `fenylefrine 0 3` and `ephedrine 0 2` begin ~29pt right of the rows above\n    but END on the same edge, and were cut off. A column now counts as aligned\n    on its START or its END edge.\n(d) A located region kept the MODAL body row's width, so a column filled only\n    in the header and one summary row fell outside it -- Rel. risk\n    1.19 (0.33-4.31) and P value 1.00. The region is widened to the rows it\n    already contains that begin at its left edge; gated OFF for caption_only,\n    where no grid was found and widening is the known cog_emo regression.\n\nTable 4 of that paper also stops being a copy of Table 3, so the\nsurgical-reintervention rows reach a structured table for the first time.\n\nMeasured, two-sided and deterministically: over 40 PDFs sampled\nrandom.Random(20260912) from a 10,049-PDF repository (25 with >=1 table\ncaption, 62 captioned regions) column-clipped regions fall 43 -> 34, 7 papers\nimproved, 0 worsened -- (a)+(b) only, since the clip detector shares (d)'s\ncriterion and cannot judge it. On the 6-paper canary set 2 renders changed and\n3 are byte-identical; a token census over both changed renders shows 0 tokens\nlost and 0 vanished.\n\nGround truth is the rasterized page throughout, never another extractor.\nBoth test files were watched RED first. TABLE_EXTRACTION_VERSION 2.4.14 ->\n2.4.15: consumers read it as the identity of the pipeline that made a table.\n\nAlso fixes the docs-consistency gate, which was red at c120788: __version__ and\nNORMALIZATION_VERSION were bumped without updating docs/README.md.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-12",
+            "url": "https://github.com/giladfeldman/docpluck/commit/2c8b0dd988040f4c3e3ba2de7cb410895c409798",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "c120788",
+            "message": "fix(normalize): a DOI on its own continuation line is reference data",
+            "body": "Three rules deleted it. P0's two curated DOI-line patterns fired\ndocument-wide on the strength of a comment claiming \"in-text DOI mentions\n... never appear alone\" -- false, because a reference whose DOI wraps is\nexactly that. H0 added a third route: its header zone is a flat 30-line\ncap with no content end-condition, so on a short document it reaches the\nbibliography and the generic bare-URL banner pattern matched a DOI on the\n\"doi.org\" host.\n\nThe arithmetic, over 300 PDFs sampled random.Random(20260912) from a\n10,049-PDF corpus (297 English; 1 spanish, 1 portuguese, 1 bilingual\nexcluded and reported): the two P0 patterns fired 649 times across 117 of\n297 papers (39.4%) on a unique standalone DOI inside a References span --\nevery one a destroyed identifier -- and 27 times in 2 papers on a genuine\nper-page journal footer. 27/676 = 4.0% accuracy, the same arithmetic that\ncondemned the EU-numeric rules and W0k.\n\nVerified at the primary source: 10.1525/collabra.138502 prints 133 DOIs\nand the academic render delivered 101, losing all 32 of its\nstandalone-DOI lines.\n\nThe genuine footer is not lost with them. A journal stamps its own DOI on\nevery page, so that line recurs; P0r already strips on >= 3 standalone\nrepetitions and _BARE_DOI_IDENTIFIER_LINE adds the shape there, verified\nfiring on real papers (19 -> 0 and 7 -> 0). The line content is identical\nin both cases and can never separate them; recurrence can, and recurrence\nis what a running footer is.\n\nH0 gains two content end-conditions, each measured separately: no line\ninside a _find_references_spans span is header furniture, and a\nDOI-identifier line introduced by a colon-terminated lead-in is the object\nof a sentence. The colon discriminator recovers 4 of 5 real identifiers\nand costs 1 of 120 furniture drops.\n\nCorpus re-measured after the fix: 649 reference-DOI losses -> 1. The\nresidual (10.24072/pci.rr.101017.rev11, a bioRxiv URL with no colon\nlead-in) is recorded in the code rather than coded around -- one paper\nproves a shape exists and says nothing about prevalence.\n\nDOCX and HTML are unaffected; those branches never call normalize_text,\nchecked at the source and by probe.\n\nNORMALIZATION_VERSION 1.9.66 -> 1.9.67 even though the change mostly\nremoves rules: consumers store extracted text keyed on it, so leaving it\nwould make pre-fix and post-fix text indistinguishable in their store --\nand the pre-fix text is missing published identifiers.\n\nPinned by tests/test_standalone_doi_line_is_reference_data.py, proved red\nby re-inserting the deleted patterns at runtime and by neutralising the\nreferences-span exemption. Carries three two-sided controls: an inline DOI\nstill survives, a recurring page footer is still stripped, and a genuine\npublisher landing-page banner is still stripped.\n\nCanary: the audit reported 5 findings on ip_feldman_2025_pspb. All 5 are\nPRE-EXISTING and untouched by this change, proved against a clean HEAD\nworktree render rather than asserted: the HEAD and post-fix renders are\n3221 lines each and differ in exactly 6 lines, every one a reference\ngaining its DOI, nothing removed. Each of the 5 flagged strings occurs the\nsame number of times in both renders. They are real defects in docpluck's\noutput and are reported separately rather than folded into this change.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-12",
+            "url": "https://github.com/giladfeldman/docpluck/commit/c120788deeafcee266947751116e8cc00c8c7bcd",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "e8541bf",
+            "message": "fix(normalize): W0g comes out of both text channels \u2014 a CI does not tell you which statistic it belongs to",
+            "body": "`W0g_dropped_minus_ci_pairing` re-signed a bare positive decimal whenever a bracket in the\nsame record made the arithmetic work. IT NEVER CHECKED WHICH STATISTIC THE BRACKET\nDESCRIBED. On `korbmacher_2022_kruger` the page prints, and pdftotext delivers verbatim:\n\n    r(223) = -0.13 (p = .0498, 95% CI [-0.26, -0.0002])\n\nThe interval is `r`'s. W0g took the nearest bare positive decimal in the record \u2014 the\nP-VALUE \u2014 and published `p = -.0498`. A probability cannot be negative. The same paper\nyields `p = -.05` from the second occurrence of the shape.\n\nAND IT WAS IN THE SHIPPED OUTPUT, not merely in a re-normalization. The handoff that\nscoped this work recorded it as pass-2 only, which reads as an idempotency curiosity. The\nrender channel called W0g over markdown `normalize_text` had ALREADY normalized, so that\ncall was itself a second pass: `render_pdf_to_markdown` emitted both fabricated values on\nthe FIRST render. Raw pdftotext escapes only because it delivers the bracket with EN\nDASHES, which W0g's pattern does not match; S5 makes them ASCII and the next pass fires.\n\nTHE WIDER COST, confirmed against the rasterized page: over 250 papers W0g fired 12 times\nin 4, and at least 7 of those rewrote a quantity that is non-negative by definition \u2014\n`SE = 0.11` -> `SE = -0.11`, `p = .90` -> `p = -.90`. `10.1525/collabra.118835` p7 prints\n`(hedges' g = -.17, SE = 0.11, 95%CI = [-0.38, 0.04], p = .12)`: a negative estimate with a\nPOSITIVE standard error, the paper's house style on that page. There was no corruption to\nrepair.\n\nTHE THREE TIERS directive names CI CONTAINMENT verbatim as forbidden evidence, and W0g is\nCI containment by name. Its signature is `text: str`, so it can never consult the rendered\npage. CHECK THE SIGNATURE BEFORE YOU CHECK THE LOGIC. A \"skip the token after `p =`\" guard\nwould fix one paper and not the class: the rule cannot tell which statistic an interval\ndescribes, because that is a fact about the SENTENCE.\n\nBOTH CHANNELS, and only two exist. Verified by grep rather than assumed from this repo's\nusual three-channel phrasing: W0g was never wired into `tables/cell_cleaning.py`.\n\nW0b, W0d, W0q, W0h AND W0m ARE DELIBERATELY UNTOUCHED. A FAMILY VERDICT MUST BE TESTED PER\nMEMBER. CLAUDE.md twice records \"W0b/W0d/W0g fire 0 times in 226 papers\" and that line is\nWRONG for the first two \u2014 they fire on `efendic_2022_affect` and recover 62 real minus\nsigns correctly, `r = 2.74 [20.92, 20.30]` back to `r = -.74 [-0.92, -0.30]`. Sweeping the\nfamily out together would have destroyed published values. A control test pins them.\n\nG5c2 IS NOW IDEMPOTENT BY CONSTRUCTION, and that was the whole of the remaining corpus\ngate. `_rejoin_split_numbered_headings` emits `N. <Heading>`, and its own output was\neligible as its own INPUT: the stacked-orphan guard only saw a BARE `^N.$`, and\n`lookup_canonical_label` strips one leading number, so `6. References` still qualified as a\ntarget and a stray `3.` above it was glued on. `3. 6. References` resolves to None, so the\npartitioner LOSES the heading. All four remaining non-idempotent papers were this one\nshape \u2014 efendic_2022_affect, am_sociol_rev_4, nat_comms_3, bmc_med_4 \u2014 with DIGIT COUNTS\nIDENTICAL across all four, which is why no digit-delta check could ever have found it.\n\nTHE RATCHET WAS NOT RAISED. It stays at 0 and the corpus gate now passes on its own terms:\n5 non-idempotent papers -> 0, by fixing the causes. The owner was offered a named-defect\nlist and a raise to 4 and chose to fix the cause before releasing.\n\n`NORMALIZATION_VERSION` 1.9.65 -> 1.9.66. It MUST bump even though this only REMOVES a\nrewrite: consumers store extracted text keyed on that string, so leaving it would make text\nproduced before and after indistinguishable in their store. `TABLE_EXTRACTION_VERSION`\nstays at 2.4.14 \u2014 no table code changed.\n\nTwo test files, both watched RED first (8 failures on G5c2, 2 on W0g, controls passing) and\nboth asserting through `normalize_text` / `render_pdf_to_markdown`, never the raw function:\na test that calls a deliberately-kept definition keeps failing after its call sites are\ngone, because it measures the definition rather than the product. That trap cost a cycle on\nthe W0k removal.\n\nTwo instrument defects were found and fixed while writing them, both recorded in the files\nbecause both are this repo's own recurring traps: the stacked-heading detector first used\n`\\s+`, which matches a NEWLINE, so it spanned the three CORRECT lines and reported a defect\non a repaired paper; and it ended in `\\S`, which matched a run of bare list numbers. A\nrender-chain gate that asserted a magic `len(names) >= 50` now asserts that two independent\nderivations of the chain AGREE, because a fixed floor can only ever be too low to catch a\nblinding or tripped by a deliberate retirement \u2014 and it was the second.\n\nThree stale imports of the already-retired W0k/W0l rules are dropped from render.py. They\nhad sat unused since f169c3d; an unused import of a retired rule reads as though the rule\nwere still in the pipeline.\n\nVerified: full suite 3209 passed / 0 failed; render_deletion_scan 26/26 papers 0 content\nlost; repair_site_scan 120/120; article custody 0 leaks in all three forms; a three-provider\nconsult round (anthropic/openai/xai, 3 answered 0 refused, all passing the read-the-code\nchallenge) returned 0 findings. The one adjacent case it raised \u2014 a DOTLESS numbering\nconvention can still stack \u2014 was measured at 0 occurrences in 101 papers against a\ntwo-sided control and deliberately left unfixed rather than widened on a constructed string.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-11",
+            "url": "https://github.com/giladfeldman/docpluck/commit/e8541bfb49adc88f45fdfdee3e094595cdc01457",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 5,
+        "pushed_at": "2026-09-02T03:58:35Z",
+        "recent_commits": [
+          {
+            "sha": "7729a28",
+            "message": "Built site for tenzing@0.4.1: 5554f64",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "5554f64",
+            "message": "temporarily cmmment out new test that failed for Load instead of Upload",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
+            "type": "feat",
+            "branch": "master"
+          },
+          {
+            "sha": "e07088e",
+            "message": "move papaja UI output down, retitle affiliations page",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "e4217bd",
+            "message": "Built site for tenzing@0.4.1: 6944931",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "6944931",
+            "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
+            "body": "Reorder output actions and clarify URL loading",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-09-16T20:31:09Z",
+        "recent_commits": [
+          {
+            "sha": "6794e30",
+            "message": "Merge pull request #406 from scienceverse/fix-batch-query-httr2-failure",
+            "body": "Fix .batch_query() crashing on a connection-level failure",
+            "author": "Daniel Lakens",
+            "date": "2026-09-16",
+            "url": "https://github.com/scienceverse/metacheck/commit/6794e308dad018656635a2b0cb5609522af0eb15",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "170693f",
+            "message": "Fix .batch_query() crashing on a connection-level failure",
+            "body": "req_error(is_error = \\(resp) FALSE) only suppresses errors on a real\nHTTP status; a connection-level failure (timeout, DNS, dropped\nconnection) still comes back from req_perform_sequential's\non_error = \"continue\" as an httr2_failure condition object, not a\nresponse. Every archive-*.R caller checks only is.null(resp) before\ncalling httr2::resp_status(resp), which crashes on that object\ninstead. Normalizes any non-response result to NULL in the one\nshared helper instead of patching every caller individually.\n\nFound while investigating a live crash during 4TU DOI testing for\nthe Cooper et al. validation corpus.",
+            "author": "Lakens",
+            "date": "2026-09-16",
+            "url": "https://github.com/scienceverse/metacheck/commit/170693f6b0173488d5d37bc68724ea680db9ad88",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "9e5bc71",
+            "message": "Merge pull request #405 from scienceverse/fix-4tu-bare-uuid-doi",
+            "body": "Fix 4TU DOI id extraction for bare (unlabelled) uuids",
+            "author": "Daniel Lakens",
+            "date": "2026-09-16",
+            "url": "https://github.com/scienceverse/metacheck/commit/9e5bc714ca45c305f337fef298330b180b34d8d7",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "c8808dc",
+            "message": "Fix 4TU DOI id extraction for bare (unlabelled) uuids",
+            "body": ".researchdata4tu_id() only matched 10.4121/uuid:<uuid>, not the equally\ncommon 10.4121/<uuid> form with no \"uuid:\" label, so repo_check silently\nfailed to fetch data for papers citing that form even though the DOI\nresolves and the dataset exists. Found while reviewing a false COOPER_RIGHT\ndisagreement in the Cooper et al. validation corpus\n(10.4121/ce413614-1c82-4e81-90c0-323aa7d2fabd).",
+            "author": "Lakens",
+            "date": "2026-09-16",
+            "url": "https://github.com/scienceverse/metacheck/commit/c8808dcd759d46e34ff7f5de73a5a156ee028acd",
+            "type": "fix",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-09-12T16:45:11Z",
+        "recent_commits": [
+          {
+            "sha": "1c1d925",
+            "message": "Merge pull request #299 from Davidvandijcke/dev",
+            "body": "Release subscription review model selection fix",
+            "author": "David Van Dijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/1c1d925e58646e6df78de711d64ec6d7f485badf",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "1e703c1",
+            "message": "fix(web): preserve subscription model selections and refresh options (#298)",
+            "body": "",
+            "author": "David Van Dijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/1e703c1a5178e05cd462daa264da8d094ffee93e",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "b8118c7",
+            "message": "fix(web): preserve subscription model selections and refresh options",
+            "body": "",
+            "author": "Davidvandijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/b8118c775122c3535419384063a6b2f04ba61c7f",
+            "type": "fix",
+            "branch": "codex/subscription-model-selection"
+          }
+        ]
+      },
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-09-09T17:50:39Z",
+        "recent_commits": [
+          {
+            "sha": "72620b2",
+            "message": "Treat `list_min_distance_functions` like other constants",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-09-09",
+            "url": "https://github.com/lhdjung/scrutiny/commit/72620b2796b2d95fce0ce545ac4a27679a85b8f2",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "23404f6",
+            "message": "Refactor to simplify",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-09-09",
+            "url": "https://github.com/lhdjung/scrutiny/commit/23404f642574b29973f21e853e8acb3012ed338c",
+            "type": "refactor",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-28T15:19:13Z",
+        "recent_commits": [
+          {
+            "sha": "4ea4b3b",
+            "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
+            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 69c3964cbc6c5fa72e1928aa83f610425e07cd6d\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
+            "author": "Gilad Feldman",
+            "date": "2026-08-28",
+            "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-10T06:52:07Z",
+        "recent_commits": [
+          {
+            "sha": "40676dd",
+            "message": "Release 0.12.7",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-09-10",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/40676dd45a817ba78070d6742d1018a5be451385",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-09-17T03:25:27.507426+00:00",
     "narrative": "",
     "repos": [
@@ -17687,72 +17993,6 @@
             "date": "2026-08-22",
             "url": "https://github.com/shaheedazaad/auto-zcurve/commit/25dceedf86930b5c8bb6e0c963adcc16eec65307",
             "type": "chore",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-08-24T07:01:25.553576+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "lhdjung",
-        "repo": "scrutiny",
-        "url": "https://github.com/lhdjung/scrutiny",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 3,
-        "pushed_at": "2026-08-18T14:51:48Z",
-        "recent_commits": [
-          {
-            "sha": "ddb58e7",
-            "message": "Rewrite all other tests in the image of c3abc016614fab2685d16a39d2835a36c6624e3c",
-            "body": "* Mechanical syntax changes only\n* Main change: pipes instead of nested code\n* Also, some more empty lines for readability",
-            "author": "Lukas Jung",
-            "date": "2026-08-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/ddb58e7da87e0eba8221cac0906ae35d9bbf63a0",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "c3abc01",
-            "message": "Rewrite test-utils.R to model test style",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/c3abc016614fab2685d16a39d2835a36c6624e3c",
-            "type": "test",
-            "branch": "polishing"
-          },
-          {
-            "sha": "879c2ea",
-            "message": "Optimize testing helpers via constants and inlining",
-            "body": "* Also update tests and NEWS.md\n* Move pre-existing constants into the new aaa.R",
-            "author": "Lukas Jung",
-            "date": "2026-08-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/879c2ea3caa987a2c4f959235723117f2d8d5fa0",
-            "type": "other",
-            "branch": "polishing"
-          }
-        ]
-      },
-      {
-        "owner": "quest-bih",
-        "repo": "oddpub",
-        "url": "https://github.com/quest-bih/oddpub",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-07-30T15:11:29Z",
-        "recent_commits": [
-          {
-            "sha": "ec80478",
-            "message": "nature das and cas detection",
-            "body": "",
-            "author": "ontogenerator",
-            "date": "2026-07-30",
-            "url": "https://github.com/quest-bih/oddpub/commit/ec804786ef17f85450ae9f8453c4b32c325ba3f6",
-            "type": "other",
             "branch": "main"
           }
         ]
