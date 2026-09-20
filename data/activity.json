@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-19T20:10:03.549780+00:00",
+  "generated_at": "2026-09-20T03:24:40.554485+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -32,7 +32,7 @@
       "topics": [
         "metascience"
       ],
-      "pushed_at": "2026-09-19T16:44:55Z",
+      "pushed_at": "2026-09-19T20:05:06Z",
       "created_at": "2025-02-04",
       "last_push_days": 0,
       "default_branch": "main",
@@ -65,6 +65,10 @@
         {
           "name": "fix-batch-query-httr2-failure",
           "last_commit": "2026-09-16"
+        },
+        {
+          "name": "fix-dataone-figshare-institutional-prefixes",
+          "last_commit": "2026-09-19"
         },
         {
           "name": "fix-dataverse-prefix-undersampling",
@@ -152,7 +156,7 @@
         {
           "name": "dev",
           "last_commit": "2026-09-19",
-          "commits_30d": 30
+          "commits_30d": 32
         },
         {
           "name": "main",
@@ -165,25 +169,40 @@
           "commits_30d": 2
         }
       ],
-      "commits_30d": 74,
-      "commits_7d": 20,
-      "commits_1d": 6,
-      "commits_90d": 239,
+      "commits_30d": 76,
+      "commits_7d": 21,
+      "commits_1d": 8,
+      "commits_90d": 241,
       "authors_30d": [
         "Lakens",
         "Daniel Lakens"
       ],
       "type_breakdown": {
         "other": 18,
-        "fix": 37,
+        "fix": 38,
         "chore": 6,
-        "feat": 12,
+        "feat": 13,
         "test": 1
       },
       "dormant_revived": false,
       "is_archived": false,
       "summary": "Summary unavailable.",
       "prs": [
+        {
+          "number": 414,
+          "title": "Add DataONE and institutional Figshare DOI-prefix coverage",
+          "state": "closed",
+          "author": "Lakens",
+          "author_url": "https://github.com/Lakens",
+          "created_at": "2026-09-19",
+          "updated_at": "2026-09-19",
+          "merged_at": "2026-09-19",
+          "url": "https://github.com/scienceverse/metacheck/pull/414",
+          "draft": false,
+          "labels": [],
+          "comments": 0,
+          "review_comments": 0
+        },
         {
           "number": 413,
           "title": "Fix nine small module bugs (code_check light, causal_claims regex, upper-case P, and others)",
@@ -393,25 +412,10 @@
           "labels": [],
           "comments": 0,
           "review_comments": 0
-        },
-        {
-          "number": 376,
-          "title": "Wait for the real Dryad/Zenodo/GitHub/GitLab rate-limit reset instead of blind exponential backoff",
-          "state": "closed",
-          "author": "Lakens",
-          "author_url": "https://github.com/Lakens",
-          "created_at": "2026-08-31",
-          "updated_at": "2026-09-02",
-          "merged_at": "2026-08-31",
-          "url": "https://github.com/scienceverse/metacheck/pull/376",
-          "draft": false,
-          "labels": [],
-          "comments": 0,
-          "review_comments": 0
         }
       ],
       "open_prs_count": 2,
-      "merged_prs_count": 16,
+      "merged_prs_count": 17,
       "releases": [
         {
           "tag": "v0.1.0-beta",
@@ -670,19 +674,19 @@
         },
         {
           "week": 1787529600,
-          "total": 3
+          "total": 4
         },
         {
           "week": 1788134400,
-          "total": 23
+          "total": 22
         },
         {
           "week": 1788739200,
-          "total": 28
+          "total": 29
         },
         {
           "week": 1789344000,
-          "total": 20
+          "total": 21
         }
       ],
       "code_frequency": [
@@ -785,6 +789,71 @@
       "scopus_citations": null,
       "recent_commits": [
         {
+          "sha": "a2b1f07",
+          "message": "Merge pull request #414 from scienceverse/fix-dataone-figshare-institutional-prefixes",
+          "body": "Add DataONE and institutional Figshare DOI-prefix coverage",
+          "author": "Daniel Lakens",
+          "author_login": "Lakens",
+          "date": "2026-09-19",
+          "url": "https://github.com/scienceverse/metacheck/commit/a2b1f0736f07057ffba7a62a6cd475c18ed6f3fe",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {
+            "additions": 250,
+            "deletions": 9,
+            "files": [
+              {
+                "filename": "NEWS.md",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 0,
+                "patch": "@@ -1,5 +1,7 @@\n # metacheck 0.3.0\n \n+* DataONE: added `data.piscoweb.org` (PISCO, UC Santa Barbara) as a known member node, and fixed `.dataone_pid()` not recognising a bare DOI whose suffix itself contains a further slash (PISCO's own `10.6085/AA/<id>` shape) -- both found via a real paper citing this DOI with no host domain in the URL at all, which `dataone_links()` could not resolve at all before this fix\n+* Figshare: added 28 more institutional instances (found via DataCite's client registr"
+              },
+              {
+                "filename": "R/archive-dataone.R",
+                "status": "modified",
+                "additions": 21,
+                "deletions": 3,
+                "patch": "@@ -16,12 +16,25 @@\n # \"DataONE\" 2026-09-12) and each confirmed live the same way: a plain GET to\n # \"<api_base>node\" returns DataONE's own XML node-capabilities document\n # rather than an HTML page.\n+#\n+# data.piscoweb.org (PISCO, Partnership for Interdisciplinary Studies of\n+# Coastal Oceans, UC Santa Barbara) added 2026-09-19: found via a real\n+# paper citing a bare 10.6085/AA/... DOI with no host domain in the URL at\n+# all (\"uploaded to DataONE and are accessible here: https://doi.org/\n+# 1"
+              },
+              {
+                "filename": "R/archive-figshare.R",
+                "status": "modified",
+                "additions": 133,
+                "deletions": 4,
+                "patch": "@@ -46,6 +46,30 @@\n # no longer resolve live: myresearchdata.curtin.edu.au (DNS does not resolve)\n # and dra.american.edu (TLS certificate no longer matches the hostname) --\n # these may simply be stale entries; re-check before adding.\n+#\n+# Extended 2026-09-19 with 15 more institutional instances, found by\n+# searching DataCite's client registry for \"figshare\" in the CLIENT NAME\n+# (api.datacite.org/clients?query=figshare, 35 candidates) and individually\n+# confirming each live the same way as "
+              },
+              {
+                "filename": "tests/testthat/test-archive-dataone.R",
+                "status": "added",
+                "additions": 57,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,57 @@\n+test_that(\".dataone_pid handles a DOI suffix containing a further slash\", {\n+  # Regression test: PISCO (data.piscoweb.org, DOI prefix 10.6085) mints\n+  # DataONE PIDs whose suffix itself contains a slash\n+  # (10.6085/AA/marine_ltm.20.1, confirmed live to be a real, resolving\n+  # DOI). The bare-DOI branch of .dataone_pid() used\n+  # [A-Za-z0-9._-]+ for the suffix, which cannot match across a \"/\" and so\n+  # silently returned NA for this whole class of PID -- found via a real\n"
+              },
+              {
+                "filename": "tests/testthat/test-archive-figshare.R",
+                "status": "modified",
+                "additions": 37,
+                "deletions": 2,
+                "patch": "@@ -57,21 +57,56 @@ test_that(\".figshare_id\", {\n     # return NA: the three-segment (type/name/id) pattern above requires a\n     # type keyword that isn't there, and the bare-id pattern requires the\n     # id immediately after /articles/, which it also isn't.\n-    \"https://figshare.com/articles/PxW_dataset/6934484\"\n+    \"https://figshare.com/articles/PxW_dataset/6934484\",\n+    # An institutional Figshare instance's own DOI prefix (see\n+    # .figshare_doi_prefix_hosts()) -- confirmed live 2026-0"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "57435f4",
+          "message": "Add DataONE and institutional Figshare DOI-prefix coverage",
+          "body": "DataONE: added data.piscoweb.org (PISCO, UC Santa Barbara) as a known\nmember node, and fixed .dataone_pid() not recognising a bare DOI whose\nsuffix itself contains a further slash (PISCO's own 10.6085/AA/<id>\nshape). Both found via a real paper citing this DOI with no host\ndomain in the URL at all, which dataone_links() could not resolve at\nall before this fix.\n\nFigshare: added 28 more institutional instances (found via DataCite's\nclient registry, searched for \"figshare\" in the client name) and\nMonash University's bridges.monash.edu (found separately, via a real\npaper citation, since its DataCite client is named \"Monash University\"\nrather than mentioning Figshare). Taught .figshare_id()/figshare_links()\nto recognise each instance's own DOI prefix (e.g. 10.26180 for Monash,\n10.25375 for ZivaHub/UCT) when cited as a bare DOI with no host domain\nin the URL -- previously only the generic 10.6084/m9.figshare.* DOI\nshape was recognised this way, silently missing every institutional\ninstance's own prefix regardless of how many hosts were already in\n.figshare_vanity_hosts(). Also anchored the new id-extraction pattern\non a non-digit boundary rather than end-of-string, since a trailing\nsentence period from ordinary prose (\"...19095317.v1.\") is a common\nreal-extraction artifact that end-of-string anchoring silently missed.\n\nEvery added host confirmed live to answer Figshare's own single-page-app\nshell (HTTP 202, non-JSON body) rather than a real API response, the\nsame discipline the existing 16 vanity hosts use; several DataCite-listed\ncandidates were checked and excluded because their real platform is\nsomething else entirely (DataverseNO, DTU's Orbit repository, University\nof Salford's Worktribe platform).\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-09-19",
+          "url": "https://github.com/scienceverse/metacheck/commit/57435f471d1b5109d9631dc5b4175bcfdcbedaf1",
+          "type": "feat",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
           "sha": "cfbb2f4",
           "message": "Merge pull request #412 from scienceverse/fix-figshare-articles-no-type-segment",
           "body": "Fix .figshare_id() missing the plain /articles/<slug>/<id> URL shape",
@@ -794,34 +863,7 @@
           "url": "https://github.com/scienceverse/metacheck/commit/cfbb2f4aa83f092436198e74db7ab0c275a6e3ee",
           "type": "fix",
           "branch": "dev",
-          "diff": {
-            "additions": 25,
-            "deletions": 2,
-            "files": [
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -1,5 +1,6 @@\n # metacheck 0.3.0\n \n+* Fixed `.figshare_id()` not recognising a Figshare article URL with no resource-type segment (`figshare.com/articles/<slug>/<id>`, as opposed to `figshare.com/articles/dataset/<slug>/<id>`) -- an older/plainer, still commonly-cited Figshare URL shape that `figshare_links()` already detected but could not resolve to an id, silently leaving `repo_check` unable to fetch a real Figshare article cited by its own link. See scienceverse/metacheck#411\n * New `repro"
-              },
-              {
-                "filename": "R/archive-figshare.R",
-                "status": "modified",
-                "additions": 14,
-                "deletions": 0,
-                "patch": "@@ -187,10 +187,24 @@ figshare_links <- function(paper) {\n   # the file-level note above: vanity hosts serve no API of their own, so a\n   # file is always actually fetched from figshare.com regardless of which\n   # host a paper cited).\n+  # Not every Figshare article URL carries a resource-type segment\n+  # (dataset/software/media/...) -- an older or simply plainer citation\n+  # can read \"figshare.com/articles/<slug>/<id>\" with the id directly\n+  # after the slug, no type keyword in between. Con"
-              },
-              {
-                "filename": "tests/testthat/test-archive-figshare.R",
-                "status": "modified",
-                "additions": 10,
-                "deletions": 2,
-                "patch": "@@ -50,13 +50,21 @@ test_that(\".figshare_id\", {\n     \"https://figshare.com/projects/some_project/133332\",  # project, not an article\n     \"https://figshare.com/s/5e01cc0cae4cf3e2e14f\",         # share link, opaque hash\n     \"not-a-figshare-url\",\n-    \"\"\n+    \"\",\n+    # No resource-type segment (slug directly followed by id) -- a real,\n+    # still-common Figshare article URL shape, confirmed live 2026-09-19\n+    # against https://figshare.com/articles/PxW_dataset/6934484. Used to\n+    # return N"
-              }
-            ]
-          },
-          "diff_summary": ""
+          "diff": {}
         },
         {
           "sha": "ffaa241",
@@ -1146,33 +1188,74 @@
           "type": "other",
           "branch": "add-dataverse-figshare-dspace-repo-support",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "a2b1f07",
+          "message": "Merge pull request #414 from scienceverse/fix-dataone-figshare-institutional-prefixes",
+          "body": "Add DataONE and institutional Figshare DOI-prefix coverage",
+          "author": "Daniel Lakens",
+          "author_login": "Lakens",
+          "date": "2026-09-19",
+          "url": "https://github.com/scienceverse/metacheck/commit/a2b1f0736f07057ffba7a62a6cd475c18ed6f3fe",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {
+            "additions": 250,
+            "deletions": 9,
+            "files": [
+              {
+                "filename": "NEWS.md",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 0,
+                "patch": "@@ -1,5 +1,7 @@\n # metacheck 0.3.0\n \n+* DataONE: added `data.piscoweb.org` (PISCO, UC Santa Barbara) as a known member node, and fixed `.dataone_pid()` not recognising a bare DOI whose suffix itself contains a further slash (PISCO's own `10.6085/AA/<id>` shape) -- both found via a real paper citing this DOI with no host domain in the URL at all, which `dataone_links()` could not resolve at all before this fix\n+* Figshare: added 28 more institutional instances (found via DataCite's client registr"
+              },
+              {
+                "filename": "R/archive-dataone.R",
+                "status": "modified",
+                "additions": 21,
+                "deletions": 3,
+                "patch": "@@ -16,12 +16,25 @@\n # \"DataONE\" 2026-09-12) and each confirmed live the same way: a plain GET to\n # \"<api_base>node\" returns DataONE's own XML node-capabilities document\n # rather than an HTML page.\n+#\n+# data.piscoweb.org (PISCO, Partnership for Interdisciplinary Studies of\n+# Coastal Oceans, UC Santa Barbara) added 2026-09-19: found via a real\n+# paper citing a bare 10.6085/AA/... DOI with no host domain in the URL at\n+# all (\"uploaded to DataONE and are accessible here: https://doi.org/\n+# 1"
+              },
+              {
+                "filename": "R/archive-figshare.R",
+                "status": "modified",
+                "additions": 133,
+                "deletions": 4,
+                "patch": "@@ -46,6 +46,30 @@\n # no longer resolve live: myresearchdata.curtin.edu.au (DNS does not resolve)\n # and dra.american.edu (TLS certificate no longer matches the hostname) --\n # these may simply be stale entries; re-check before adding.\n+#\n+# Extended 2026-09-19 with 15 more institutional instances, found by\n+# searching DataCite's client registry for \"figshare\" in the CLIENT NAME\n+# (api.datacite.org/clients?query=figshare, 35 candidates) and individually\n+# confirming each live the same way as "
+              },
+              {
+                "filename": "tests/testthat/test-archive-dataone.R",
+                "status": "added",
+                "additions": 57,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,57 @@\n+test_that(\".dataone_pid handles a DOI suffix containing a further slash\", {\n+  # Regression test: PISCO (data.piscoweb.org, DOI prefix 10.6085) mints\n+  # DataONE PIDs whose suffix itself contains a slash\n+  # (10.6085/AA/marine_ltm.20.1, confirmed live to be a real, resolving\n+  # DOI). The bare-DOI branch of .dataone_pid() used\n+  # [A-Za-z0-9._-]+ for the suffix, which cannot match across a \"/\" and so\n+  # silently returned NA for this whole class of PID -- found via a real\n"
+              },
+              {
+                "filename": "tests/testthat/test-archive-figshare.R",
+                "status": "modified",
+                "additions": 37,
+                "deletions": 2,
+                "patch": "@@ -57,21 +57,56 @@ test_that(\".figshare_id\", {\n     # return NA: the three-segment (type/name/id) pattern above requires a\n     # type keyword that isn't there, and the bare-id pattern requires the\n     # id immediately after /articles/, which it also isn't.\n-    \"https://figshare.com/articles/PxW_dataset/6934484\"\n+    \"https://figshare.com/articles/PxW_dataset/6934484\",\n+    # An institutional Figshare instance's own DOI prefix (see\n+    # .figshare_doi_prefix_hosts()) -- confirmed live 2026-0"
+              }
+            ]
+          },
+          "diff_summary": ""
         },
         {
-          "sha": "02d90e3",
-          "message": "Add an opt-in capture_reasoning argument to llm()",
-          "body": "Some providers/models return their own chain-of-thought text alongside a\nstructured call's result (via ellmer's ContentThinking). Off by default;\nwhen enabled, the raw thinking text is added as a `.reasoning` column so it\ncan be inspected without changing any existing caller's output.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+          "sha": "57435f4",
+          "message": "Add DataONE and institutional Figshare DOI-prefix coverage",
+          "body": "DataONE: added data.piscoweb.org (PISCO, UC Santa Barbara) as a known\nmember node, and fixed .dataone_pid() not recognising a bare DOI whose\nsuffix itself contains a further slash (PISCO's own 10.6085/AA/<id>\nshape). Both found via a real paper citing this DOI with no host\ndomain in the URL at all, which dataone_links() could not resolve at\nall before this fix.\n\nFigshare: added 28 more institutional instances (found via DataCite's\nclient registry, searched for \"figshare\" in the client name) and\nMonash University's bridges.monash.edu (found separately, via a real\npaper citation, since its DataCite client is named \"Monash University\"\nrather than mentioning Figshare). Taught .figshare_id()/figshare_links()\nto recognise each instance's own DOI prefix (e.g. 10.26180 for Monash,\n10.25375 for ZivaHub/UCT) when cited as a bare DOI with no host domain\nin the URL -- previously only the generic 10.6084/m9.figshare.* DOI\nshape was recognised this way, silently missing every institutional\ninstance's own prefix regardless of how many hosts were already in\n.figshare_vanity_hosts(). Also anchored the new id-extraction pattern\non a non-digit boundary rather than end-of-string, since a trailing\nsentence period from ordinary prose (\"...19095317.v1.\") is a common\nreal-extraction artifact that end-of-string anchoring silently missed.\n\nEvery added host confirmed live to answer Figshare's own single-page-app\nshell (HTTP 202, non-JSON body) rather than a real API response, the\nsame discipline the existing 16 vanity hosts use; several DataCite-listed\ncandidates were checked and excluded because their real platform is\nsomething else entirely (DataverseNO, DTU's Orbit repository, University\nof Salford's Worktribe platform).\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
           "author": "Lakens",
           "author_login": "Lakens",
-          "date": "2026-09-11",
-          "url": "https://github.com/scienceverse/metacheck/commit/02d90e312cf18215b139c36e1fa53db5e7411bb5",
+          "date": "2026-09-19",
+          "url": "https://github.com/scienceverse/metacheck/commit/57435f471d1b5109d9631dc5b4175bcfdcbedaf1",
           "type": "feat",
           "branch": "dev",
           "diff": {}
         },
-        {
-          "sha": "651c72d",
-          "message": "Cache zip_peek() failures too, not just successes",
-          "body": "zip_peek()'s per-session cache only ever remembered a SUCCESS; a NULL\n(host refused, rate-limited, or otherwise) was deliberately retried fresh\non every call, on the documented assumption that \"a real 'not supported'\nresult would still return NULL again quickly.\"\n\nThat assumption holds for a host that plainly does not honour range\nrequests (a fast, clear refusal), but confirmed live 2026-09-09 to be false\nwhen the host instead answers every call with a retryable-looking status\n(403/429/5xx) persistently: a single zip_peek() call already pays\nreq_retry()'s full backoff sequence (up to 3 tries each, exponential up to\na 30s cap, across up to 3 separate HTTP calls this function and its\nhelpers make) before giving up. This file's own header comment already\ndocuments that the SAME url is peeked more than once per pipeline run\n(once in repo_check, again in download_repo_files()'s\n.zip_fetch_members()) -- each call independently paying that cost again is\nexactly what compounded a single persistently-403ing Zenodo archive\n(SAPFLUXNET, 10.5281/zenodo.3971689, investigated the same day) into a\nmulti-hour stall, alongside the separate max_files_per_repo undercounting\nbug fixed just before this.\n\nNow caches a NULL result too (exists(url, envir=..., inherits=FALSE), not\nmget's ifnotfound, so a cached failure is distinguishable from \"never\nattempted\" -- confirmed live that assign(url, NULL, envir=...) really does\nbind NULL in an environment, unlike env$x <- NULL on a list, which removes\nthe element). Trade-off: a transient failure that would have cleared by a\nLATER call in the same session is no longer retried fresh either -- judged\nacceptable, since the alternative (repeating a costly multi-minute retry\nsequence every time the same URL is touched again) is what caused this\nincident, and the function's existing documented fallback for a NULL\nresult (download-and-inspect instead) already degrades gracefully.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-09-09",
-          "url": "https://github.com/scienceverse/metacheck/commit/651c72df5abab14f30e310b45b707ba2fa16bb4b",
-          "type": "other",
-          "branch": "add-dataverse-figshare-dspace-repo-support",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
         {
           "sha": "cfbb2f4",
           "message": "Merge pull request #412 from scienceverse/fix-figshare-articles-no-type-segment",
@@ -1183,34 +1266,7 @@
           "url": "https://github.com/scienceverse/metacheck/commit/cfbb2f4aa83f092436198e74db7ab0c275a6e3ee",
           "type": "fix",
           "branch": "dev",
-          "diff": {
-            "additions": 25,
-            "deletions": 2,
-            "files": [
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -1,5 +1,6 @@\n # metacheck 0.3.0\n \n+* Fixed `.figshare_id()` not recognising a Figshare article URL with no resource-type segment (`figshare.com/articles/<slug>/<id>`, as opposed to `figshare.com/articles/dataset/<slug>/<id>`) -- an older/plainer, still commonly-cited Figshare URL shape that `figshare_links()` already detected but could not resolve to an id, silently leaving `repo_check` unable to fetch a real Figshare article cited by its own link. See scienceverse/metacheck#411\n * New `repro"
-              },
-              {
-                "filename": "R/archive-figshare.R",
-                "status": "modified",
-                "additions": 14,
-                "deletions": 0,
-                "patch": "@@ -187,10 +187,24 @@ figshare_links <- function(paper) {\n   # the file-level note above: vanity hosts serve no API of their own, so a\n   # file is always actually fetched from figshare.com regardless of which\n   # host a paper cited).\n+  # Not every Figshare article URL carries a resource-type segment\n+  # (dataset/software/media/...) -- an older or simply plainer citation\n+  # can read \"figshare.com/articles/<slug>/<id>\" with the id directly\n+  # after the slug, no type keyword in between. Con"
-              },
-              {
-                "filename": "tests/testthat/test-archive-figshare.R",
-                "status": "modified",
-                "additions": 10,
-                "deletions": 2,
-                "patch": "@@ -50,13 +50,21 @@ test_that(\".figshare_id\", {\n     \"https://figshare.com/projects/some_project/133332\",  # project, not an article\n     \"https://figshare.com/s/5e01cc0cae4cf3e2e14f\",         # share link, opaque hash\n     \"not-a-figshare-url\",\n-    \"\"\n+    \"\",\n+    # No resource-type segment (slug directly followed by id) -- a real,\n+    # still-common Figshare article URL shape, confirmed live 2026-09-19\n+    # against https://figshare.com/articles/PxW_dataset/6934484. Used to\n+    # return N"
-              }
-            ]
-          },
-          "diff_summary": ""
+          "diff": {}
         },
         {
           "sha": "ffaa241",
@@ -2844,81 +2900,6 @@
           "branch": "master",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "7729a28",
-          "message": "Built site for tenzing@0.4.1: 5554f64",
-          "body": "",
-          "author": "Anka",
-          "author_login": "",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
-          "type": "other",
-          "branch": "gh-pages",
-          "diff": {
-            "additions": 1,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "pkgdown.yml",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -5,7 +5,7 @@ articles:\n   app_use: app_use.html\n   local_use: local_use.html\n   validation: validation.html\n-last_built: 2026-09-02T03:43Z\n+last_built: 2026-09-02T03:57Z\n urls:\n   reference: https://marton-balazs-kovacs.github.io/tenzing/reference\n   article: https://marton-balazs-kovacs.github.io/tenzing/articles"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "5554f64",
-          "message": "temporarily cmmment out new test that failed for Load instead of Upload",
-          "body": "",
-          "author": "Alex O. Holcombe",
-          "author_login": "alexholcombe",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
-          "type": "feat",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "e07088e",
-          "message": "move papaja UI output down, retitle affiliations page",
-          "body": "",
-          "author": "Alex O. Holcombe",
-          "author_login": "alexholcombe",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "e4217bd",
-          "message": "Built site for tenzing@0.4.1: 6944931",
-          "body": "",
-          "author": "Anka",
-          "author_login": "",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
-          "type": "other",
-          "branch": "gh-pages",
-          "diff": {}
-        },
-        {
-          "sha": "6944931",
-          "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
-          "body": "Reorder output actions and clarify URL loading",
-          "author": "Alex O. Holcombe",
-          "author_login": "alexholcombe",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
-          "type": "fix",
-          "branch": "master",
-          "diff": {}
-        }
       ]
     },
     {
@@ -3520,11 +3501,11 @@
         },
         {
           "week": 1785715200,
-          "total": 2
+          "total": 18
         },
         {
           "week": 1786320000,
-          "total": 110
+          "total": 94
         },
         {
           "week": 1786924800,
@@ -3532,11 +3513,11 @@
         },
         {
           "week": 1787529600,
-          "total": 15
+          "total": 16
         },
         {
           "week": 1788134400,
-          "total": 5
+          "total": 4
         },
         {
           "week": 1788739200,
@@ -3946,59 +3927,6 @@
           "date": "2026-08-28",
           "url": "https://github.com/lhdjung/scrutiny/commit/26ab044cb5a649e0910ba2380a77bcb6de77cd4a",
           "type": "other",
-          "branch": "polishing",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "72620b2",
-          "message": "Treat `list_min_distance_functions` like other constants",
-          "body": "",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-09-09",
-          "url": "https://github.com/lhdjung/scrutiny/commit/72620b2796b2d95fce0ce545ac4a27679a85b8f2",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {
-            "additions": 65,
-            "deletions": 71,
-            "files": [
-              {
-                "filename": "R/aaa.R",
-                "status": "modified",
-                "additions": 64,
-                "deletions": 0,
-                "patch": "@@ -75,3 +75,67 @@ PATTERN_NAME_TEST_FN <- \"^(grim|grimmer|debit)\"\n \n # Used in `grim_plot()` if `digits > 2`\n TIBBLE_FRAC_N_ZERO <- tibble::new_tibble(list(frac = 0, n = 0L), nrow = 1L)\n+\n+\n+# List of minimal-distance functions for `audit_seq()`\n+#\n+# The functions collected in `LIST_MIN_DISTANCE_FUNCTIONS` are mapped in one\n+# particular place within `audit_seq()` and shouldn't really be used elsewhere.\n+#\n+# Instead of being individually defined as named functions or being used as\n+# anonymou"
-              },
-              {
-                "filename": "R/audit.R",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 2,
-                "patch": "@@ -174,12 +174,11 @@ audit_seq <- function(data) {\n     ) |>\n     tidyr::unnest(cols = everything())\n \n-  # Go to utils.R to see the `list_min_distance_functions` object.\n   cols_diff <- df_nested |>\n     dplyr::mutate(\n       dplyr::across(\n         .cols = everything(),\n-        .fns = list_min_distance_functions,\n+        .fns = LIST_MIN_DISTANCE_FUNCTIONS,\n         .names = \"diff_{.col}{fun_names}\"\n       ),\n       .keep = \"none\""
-              },
-              {
-                "filename": "R/utils.R",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 69,
-                "patch": "@@ -1954,75 +1954,6 @@ audit_summary_stats <- function(data, selection, total = FALSE) {\n }\n \n \n-#' List of minimal-distance functions for `audit_seq()`\n-#'\n-#' @description The functions collected in `list_min_distance_functions` are\n-#'   mapped in one particular place within `audit_seq()` and shouldn't really be\n-#'   used elsewhere.\n-#'\n-#'   Instead of being individually defined as named functions or being used as\n-#'   anonymous functions directly inside of `audit_seq()`, they are stored i"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "23404f6",
-          "message": "Refactor to simplify",
-          "body": "",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-09-09",
-          "url": "https://github.com/lhdjung/scrutiny/commit/23404f642574b29973f21e853e8acb3012ed338c",
-          "type": "refactor",
           "branch": "polishing",
           "diff": {}
         }
@@ -4468,6 +4396,40 @@
           "type": "test",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "2b30005",
+          "message": "documentation and version bump",
+          "body": "",
+          "author": "ontogenerator",
+          "author_login": "",
+          "date": "2026-08-31",
+          "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 45,
+            "deletions": 3,
+            "files": [
+              {
+                "filename": "DESCRIPTION",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,7 +1,7 @@\n Package: oddpub\n Type: Package\n Title: Detection of Open Data & Open Code statements in biomedical publications\n-Version: 7.3.0\n+Version: 7.4.0\n Authors@R: \n     c(person(\"Nico\", \"Riedel\",\n     role = \"aut\"),"
+              },
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 44,
+                "deletions": 2,
+                "patch": "@@ -90,14 +90,56 @@ Additionally returns the identified Open Data/Code categories,\n as well as the detected sentences, which can be deactivated using the\n additional parameter ```detected_sentences = FALSE```.\n \n-The output data frame can be exported to csv, with the help of the `readr`\n-package.\n+The output data frame can be exported to csv, with the help of the `write_csv` \n+function from the `readr` package.\n \n ```r\n write_csv(open_data_results, \"path/to/output/folder/open_data_results.csv\") "
+              }
+            ]
+          },
+          "diff_summary": ""
         }
       ]
     },
@@ -5219,10 +5181,10 @@
         {
           "name": "main",
           "last_commit": "2026-09-17",
-          "commits_30d": 56
+          "commits_30d": 53
         }
       ],
-      "commits_30d": 56,
+      "commits_30d": 53,
       "commits_7d": 4,
       "commits_1d": 0,
       "commits_90d": 123,
@@ -5232,8 +5194,8 @@
       "type_breakdown": {
         "other": 6,
         "chore": 6,
-        "fix": 27,
-        "docs": 10,
+        "fix": 25,
+        "docs": 9,
         "test": 6,
         "feat": 1
       },
@@ -5757,57 +5719,6 @@
           "date": "2026-09-05",
           "url": "https://github.com/giladfeldman/docpluck/commit/4901834c375c61593af17903ba8b587a98d2ee97",
           "type": "feat",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "3e58d9d",
-          "message": "docs(claude): one checkout only \u2014 the five siblings were worktrees, not copies",
-          "body": "Five directories sat beside this one: -accf-docs, -e0b-docs, -head-sibling,\n-main-check, -v137-probe. Each was a git worktree of this same repository at an\nolder commit, sharing this .git \u2014 which is why each presented a complete-looking\nproject with its own CHANGELOG, package and docs, frozen at that commit.\n\nThat is the reason this is a standing rule rather than a one-off tidy: a stale\nworktree is indistinguishable from the real checkout at a glance, and reading old\ndocumentation or editing a file that will never be committed produces no warning.\n\nAll five verified clean (git status --porcelain returned 0 lines in each) before\nremoval was proposed. git worktree list is now a /docpluck-cleanup check, with the\ndirty-count verified first \u2014 --force on a dirty worktree destroys work that exists\nnowhere else.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-09-17",
-          "url": "https://github.com/giladfeldman/docpluck/commit/3e58d9df49dc2df7f30bfd93ef73890a5b8e0eb6",
-          "type": "other",
-          "branch": "main",
-          "diff": {
-            "additions": 34,
-            "deletions": 0,
-            "files": [
-              {
-                "filename": "CLAUDE.md",
-                "status": "modified",
-                "additions": 34,
-                "deletions": 0,
-                "patch": "@@ -64,6 +64,40 @@ by user directive 2026-05-14; re-affirmed 2026-05-15, 2026-05-17, and 2026-05-19\n doesn't matter pre-existing or not\"). Full statement under \"Critical hard\n rules\" below; durable cross-session record in memory `feedback_fix_every_bug_found`.\n \n+## ONE DIRECTORY. DO NOT CREATE A SECOND ONE.\n+\n+**User directive 2026-09-17:** *\"there should be only one docpluck directory and it should include\n+everything. do not create new directories.\"*\n+\n+Everything belonging to this project li"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "633ed28",
-          "message": "chore(repo): one home for correspondence \u2014 communications/, ignored as a directory",
-          "body": "149 correspondence documents were loose in the repo root (38) and in docs/ (111)\n\u2014 messages in and out, replies, requests, session write-ups, investigation notes,\ncorpus work queues. None had ever been committed: verified with\n`git log --all --diff-filter=A --name-only` over every ref, which returns zero\nfor all of those prefixes. So this is a structural fix, not an exposure fix.\n\nThey now live in communications/, one flat folder, and .gitignore carries\ncommunications/ as a DIRECTORY entry rather than yet another prefix. Every\ncorrespondence leak this repo has had came from a naming convention nobody had\nimagined yet (2026-08-07, 2026-08-20); a directory rule does not care what the\nfile is called. Verified with a positive control \u2014 an arbitrarily named file\nplaced inside communications/ comes back ignored by that rule, and the relocation\ncheck itself was shown to fire on a planted file before its zero was believed.\n\nComments and docstrings citing a moved file by its old path were repointed and\neach target confirmed to exist. No code reads any of these paths.\n\ntests/test_public_repo_hygiene.py: 11 passed.\npublic-repo-guard: 0 blocking.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-09-17",
-          "url": "https://github.com/giladfeldman/docpluck/commit/633ed28f732c050695cb2c7bfc9d8f0ff6e8ca4c",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "99bbec2",
-          "message": "fix(normalize): one DOI grammar, not two \u2014 and the count that says the fix is inert",
-          "body": "`_DOI_IDENTIFIER_IN_LINE` (H0's colon-lead-in exemption) and\n`_BARE_DOI_IDENTIFIER_LINE` (P0r's running-footer predicate) each hand-typed the\nDOI grammar, nine lines apart in the same commit, under a comment on the first\none warning that a second copy WILL drift. It had already drifted: printing both\nregexes' verdict on `doi:10/gt3vmw` gave False and True. Both now derive from a\nshared `_DOI_FULL_FORM` / `_DOI_SHORT_FORM` pair. Found by /docpluck-review.\n\nNORMALIZATION_VERSION 1.9.67 -> 1.9.68, because the unification WIDENS one\npredicate: a `doi:`-prefixed short-form DOI on a colon-introduced header-zone\nline now survives where it did not. That is a consumer-visible text change for\nthat shape, and an unbumped version would make pre-fix and post-fix output\nindistinguishable in a consumer's own store.\n\nPREVALENCE, MEASURED \u2014 because the divergence was found by a CONSTRUCTED string,\nwhich is evidence about the code and never about the corpus. Over 200 PDFs (199\nEnglish; 1 Spanish excluded and reported) sampled seed 20260912: the newly-exempt\nshape occurs 0 lines in 0 papers. Two-sided, so that zero is a property of the\ncorpus and not of a broken search \u2014 the same scan's control, any bare short-form\n`10/xxxx`, fires on 8 lines in 8 papers. Confirmed a second way: the canary\npaper's render is byte-identical across the change (sha256 8d74f263ec2b0f03...).\nSo this is kept because it removes a duplicated grammar, NOT because a paper was\nlosing a DOI to it, and it must not later be cited as a corpus defect.\n\nShips tools/diag/doi_short_form_prevalence.py, which regenerates those numbers.\nThe comment named the tool, so the tool exists; and every site quoting the counts\nnames the command, so none of them is a number nobody can reproduce.\n\nAlso in this commit, both found while verifying the above:\n\n- CHANGELOG.md had TWO `## [2.4.143]` headings after the review's edit. One\n  version, one entry: merged, with the 1.9.67 work now a section under it.\n\n- tests/test_cli_structured.py spawns real `python -m docpluck` subprocesses on a\n  fixed 120s budget. Under `pytest -n auto` on 14 workers that expires:\n  test_figures_only_omits_tables and test_html_tables_to_writes_html_files\n  reported FAILED on subprocess.TimeoutExpired while the same file passed 7/7\n  serially in 192s. A false RED in the release gate costs more than a false green\n  \u2014 it sends someone hunting a regression that does not exist. The budget now\n  scales with load, as tests/test_benchmark_docx_html.py already does; both\n  branches were proved to fire (480 under a worker, 120 serial). It is a timeout,\n  not an assertion, so a genuinely hung CLI still fails.\n\nLESSONS.md L-057: a comment predicting drift is evidence someone thought about\nthe risk, never evidence it was checked for. Its second half records the\nprevalence, so a later reader cannot mistake L-057 for a corpus defect.\n\nFull suite on these bytes: 3208 passed, 0 failed, 46 skipped, 5 xfailed, exit 0.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-09-17",
-          "url": "https://github.com/giladfeldman/docpluck/commit/99bbec29046e054b0afee5382c42c2f8b36efb27",
-          "type": "fix",
           "branch": "main",
           "diff": {}
         }
@@ -6585,10 +6496,10 @@
       "commits_1d": 0,
       "commits_90d": 58,
       "authors_30d": [
-        "ciamac moallemi",
-        "Davidvandijcke",
         "David Van Dijcke",
-        "Aditya Datta"
+        "ciamac moallemi",
+        "Aditya Datta",
+        "Davidvandijcke"
       ],
       "type_breakdown": {
         "fix": 21,
@@ -7638,71 +7549,6 @@
           "branch": "codex/fix-ocr-296-audit-292",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "1c1d925",
-          "message": "Merge pull request #299 from Davidvandijcke/dev",
-          "body": "Release subscription review model selection fix",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-09-12",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/1c1d925e58646e6df78de711d64ec6d7f485badf",
-          "type": "other",
-          "branch": "main",
-          "diff": {
-            "additions": 48,
-            "deletions": 6,
-            "files": [
-              {
-                "filename": "web/src/app/page.tsx",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 3,
-                "patch": "@@ -18,7 +18,7 @@ import {\n   HOST_LABELS,\n   HOST_GLYPHS,\n   HOST_CLI_NAME,\n-  HOST_DEFAULT_MODELS,\n+  getHostModels,\n   HOST_INSTALL_URL,\n   HOST_LAUNCH_LABEL,\n   HOST_LAUNCH_HINT,\n@@ -887,7 +887,7 @@ function PageBody() {\n       const bundle = await mintCliHandoff(id, host, handoffSecret);\n \n       // Step 3: defaults for the modal dropdowns.\n-      setSelectedModel(HOST_DEFAULT_MODELS[host][0]);\n+      setSelectedModel(getHostModels(host, model)[0]);\n       setSelectedEffort(\"high\");\n \n     "
-              },
-              {
-                "filename": "web/src/lib/mcpHandoff.ts",
-                "status": "modified",
-                "additions": 18,
-                "deletions": 2,
-                "patch": "@@ -65,16 +65,32 @@ export const HOST_CLI_NAME: Record<ChatHost, \"claude\" | \"codex\" | \"gemini\"> = {\n // pre-selected default (see page.tsx setSelectedModel). Latest generation\n // leads; the prior generation stays available as a fallback option.\n export const HOST_DEFAULT_MODELS: Record<ChatHost, string[]> = {\n-  \"claude-code\": [\"claude-opus-5\", \"claude-sonnet-5\", \"claude-opus-4-8\", \"claude-haiku-4-5\"],\n-  \"codex\": [\"gpt-5.6-sol\", \"gpt-5.6-terra\", \"gpt-5.6-luna\", \"gpt-5.5\", \"gpt-5.4\"],\n+  \"claud"
-              },
-              {
-                "filename": "web/tests/mcpHandoff.test.ts",
-                "status": "modified",
-                "additions": 27,
-                "deletions": 1,
-                "patch": "@@ -1,6 +1,6 @@\n import { describe, expect, it } from \"vitest\";\n \n-import { buildAgentPrompt, buildCliCommands } from \"@/lib/mcpHandoff\";\n+import { buildAgentPrompt, buildCliCommands, getHostModels, type ChatHost } from \"@/lib/mcpHandoff\";\n \n const baseCommands = {\n   setupCmd: \"uvx --from coarse-ink coarse install-skills --all --force\",\n@@ -57,3 +57,29 @@ describe(\"deep-literature subscription handoff\", () => {\n     expect(prompt).not.toContain(\"No OpenRouter API key is needed for this review\")"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "1e703c1",
-          "message": "fix(web): preserve subscription model selections and refresh options (#298)",
-          "body": "",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-09-12",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/1e703c1a5178e05cd462daa264da8d094ffee93e",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "b8118c7",
-          "message": "fix(web): preserve subscription model selections and refresh options",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-09-12",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/b8118c775122c3535419384063a6b2f04ba61c7f",
-          "type": "fix",
-          "branch": "codex/subscription-model-selection",
-          "diff": {}
-        }
       ]
     },
     {
@@ -7718,17 +7564,17 @@
       "subscribers_count": 1,
       "language": "Python",
       "languages_breakdown": {
-        "Python": 827308,
-        "HTML": 170647,
-        "JavaScript": 167304,
+        "Python": 851626,
+        "HTML": 170700,
+        "JavaScript": 168482,
         "CSS": 109964,
         "Mako": 671,
         "Procfile": 256
       },
       "topics": [],
-      "pushed_at": "2026-07-14T15:54:41Z",
+      "pushed_at": "2026-09-20T02:00:02Z",
       "created_at": "2026-01-19",
-      "last_push_days": 67,
+      "last_push_days": 0,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -7738,7 +7584,7 @@
         },
         {
           "name": "main",
-          "last_commit": "2026-07-14"
+          "last_commit": "2026-09-20"
         },
         {
           "name": "rework",
@@ -7753,14 +7599,24 @@
           "last_commit": "2026-03-23"
         }
       ],
-      "branch_activity": [],
-      "commits_30d": 0,
-      "commits_7d": 0,
-      "commits_1d": 0,
-      "commits_90d": 53,
-      "authors_30d": [],
-      "type_breakdown": {},
-      "dormant_revived": false,
+      "branch_activity": [
+        {
+          "name": "main",
+          "last_commit": "2026-09-20",
+          "commits_30d": 1
+        }
+      ],
+      "commits_30d": 1,
+      "commits_7d": 1,
+      "commits_1d": 1,
+      "commits_90d": 54,
+      "authors_30d": [
+        "Jamie Cummins"
+      ],
+      "type_breakdown": {
+        "feat": 1
+      },
+      "dormant_revived": true,
       "is_archived": false,
       "summary": "Summary unavailable.",
       "prs": [
@@ -7842,7 +7698,7 @@
       "contributors": [
         {
           "login": "JamieCummins",
-          "contributions": 176,
+          "contributions": 177,
           "avatar_url": "https://avatars.githubusercontent.com/u/37660973?v=4",
           "html_url": "https://github.com/JamieCummins"
         }
@@ -7854,11 +7710,11 @@
         },
         {
           "week": 1783296000,
-          "total": 18
+          "total": 19
         },
         {
           "week": 1783900800,
-          "total": 10
+          "total": 9
         },
         {
           "week": 1784505600,
@@ -7894,77 +7750,166 @@
         },
         {
           "week": 1789344000,
-          "total": 0
+          "total": 1
         }
       ],
-      "code_frequency": [
-        {
-          "week": 1782604800,
-          "additions": 10467,
-          "deletions": -11292
-        },
-        {
-          "week": 1783209600,
-          "additions": 11793,
-          "deletions": -3988
-        },
-        {
-          "week": 1783814400,
-          "additions": 1488,
-          "deletions": -13427
-        },
-        {
-          "week": 1784419200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785024000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1785628800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786233600,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1786838400,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1787443200,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1788048000,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1788652800,
-          "additions": 0,
-          "deletions": 0
-        },
-        {
-          "week": 1789257600,
-          "additions": 0,
-          "deletions": 0
-        }
-      ],
+      "code_frequency": [],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "AI-assisted comparison tool for preregistrations/clinical trial registrations/preclinical (animals) registrations and published papers. FastAPI serves the web UI and HTTP API; a CLI entrypoint enables backend-only runs with CSV-defined dimensions. Redis is used for task state when running via the web app.\n\nStatus: v1.0.0 (see [CHANGELOG.md](CHANGELOG.md)). AI judgements should be verified against the quoted sources in the report; accuracy notes live in the FAQ.\n\n- `app.py` / `backend/`: FastAPI app, routes, services (comparisons, embeddings, parsing).\n- `templates/` + `static/`: Frontend pages",
       "scopus_citations": null,
-      "recent_commits": [],
-      "_new_commits": []
+      "recent_commits": [
+        {
+          "sha": "d2dd8a5",
+          "message": "add redis data info",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-09-20",
+          "url": "https://github.com/JamieCummins/regcheck/commit/d2dd8a5b564a4ccd69b1536969cf418d02a26a86",
+          "type": "feat",
+          "branch": "main",
+          "diff": {
+            "additions": 2146,
+            "deletions": 587,
+            "files": [
+              {
+                "filename": ".gitignore",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 0,
+                "patch": "@@ -29,5 +29,8 @@ nltk_data/\n # Local fixtures / sample documents + curated ground-truth (not redistributed)\n test_materials/\n \n+# Benchmarks (probe fixtures, generated corpora, evaluation runs): local only.\n+benchmarks/\n+\n # Native libraries\n *.dylib"
+              },
+              {
+                "filename": "CHANGELOG.md",
+                "status": "modified",
+                "additions": 42,
+                "deletions": 0,
+                "patch": "@@ -4,6 +4,48 @@ Notable changes to RegCheck. The application version lives in\n `APP_VERSION` in `backend/main.py` and is what `/openapi.json` reports.\n \n \n+## Unreleased\n+\n+### Comparison engine\n+- Fixed: multi-study runs now tell every per-dimension judgement which study\n+  the registration belongs to (the label and any user note from the wizard's\n+  \"experiment\" fields). The paper text was already isolated to that study\n+  upstream, but the judge never knew: residual mentions of sibling studi"
+              },
+              {
+                "filename": "backend/cli.py",
+                "status": "modified",
+                "additions": 59,
+                "deletions": 9,
+                "patch": "@@ -90,7 +90,8 @@ def _resolve_dimensions_arg(args, *, require: bool) -> list[dict[str, str]] | No\n \n def _resolve_general_prereg(args) -> tuple[str, str]:\n     \"\"\"Resolve the preregistration source: an OSF link (--osf-url, resolved here the\n-    same way the worker does) or a local file (--preregistration). Exactly one.\"\"\"\n+    same way the worker does) or a local file (--preregistration). Exactly one.\n+    Any --additional-preregistration files are merged in afterwards.\"\"\"\n     osf_url = getat"
+              },
+              {
+                "filename": "backend/main.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -31,7 +31,7 @@\n # Single source of truth for static-asset cache-busting. Bump this on any\n # CSS/JS change so browsers refetch; it is exposed to every template as the\n # `static_version` global (templates reference it as `?v={{ static_version }}`).\n-STATIC_VERSION = \"20260714-demo-refresh\"\n+STATIC_VERSION = \"20260914-evidence-scroll\"\n \n \n def create_app() -> FastAPI:"
+              },
+              {
+                "filename": "backend/routes/comparisons.py",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 3,
+                "patch": "@@ -86,7 +86,7 @@ def _int_env(name: str, default: int, *, minimum: int = 0) -> int:\n _MAX_DIMENSIONS_PAYLOAD_CHARS = 512 * 1024\n \n # Document types the comparison pipeline can read (mirrors documents.read_file).\n-_SUPPORTED_DOC_EXTS = {\".pdf\", \".docx\", \".txt\", \".html\", \".htm\"}\n+_SUPPORTED_DOC_EXTS = {\".pdf\", \".docx\", \".txt\", \".html\", \".htm\", \".xml\"}\n \n ComparisonType = Literal[\n     \"clinical_trials\",\n@@ -147,7 +147,7 @@ def _validate_doc_ext(ext: str, *, kind: str) -> None:\n     if (ext or \"\")"
+              },
+              {
+                "filename": "backend/services/comparisons.py",
+                "status": "modified",
+                "additions": 120,
+                "deletions": 32,
+                "patch": "@@ -20,6 +20,7 @@\n from .documents import (\n     extract_text_from_docx,\n     extract_text_from_html,\n+    extract_text_from_xml,\n     read_file,\n     read_file_as_pdf,\n )\n@@ -381,6 +382,11 @@ def _reference_chunk_ids(corpus: \"EmbeddingCorpus\") -> set[str]:\n _UNLOCATED_SPLIT_RE = re.compile(r\"[;\\n]+\")\n _SYNONYM_GROUP_RE = re.compile(r\"\\(([^)]*)\\)\")\n \n+# Cap on augment\u2192re-judge cycles in the targeted verification loop. Each round\n+# only searches elements not already searched, so the loop converg"
+              },
+              {
+                "filename": "backend/services/documents.py",
+                "status": "modified",
+                "additions": 75,
+                "deletions": 7,
+                "patch": "@@ -2,6 +2,7 @@\n \n import re\n import uuid\n+import xml.etree.ElementTree as ElementTree\n from html.parser import HTMLParser\n from pathlib import Path\n \n@@ -14,6 +15,7 @@\n     \"extract_text_from_docx\",\n     \"extract_text_from_pdf\",\n     \"extract_text_from_html\",\n+    \"extract_text_from_xml\",\n     \"convert_txt_to_pdf\",\n     \"clean_document_text\",\n     \"read_file\",\n@@ -150,6 +152,62 @@ def extract_text_from_html(file_path: str) -> str:\n     return extractor.text()\n \n \n+# Tags whose content flows inl"
+              },
+              {
+                "filename": "backend/services/evidence.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -693,7 +693,7 @@ def build_file_evidence_source(\n             embedding_model=embedding_model,\n         )\n \n-    if ext in {\".docx\", \".txt\", \".html\", \".htm\"}:\n+    if ext in {\".docx\", \".txt\", \".html\", \".htm\", \".xml\"}:\n         rendered_pdf = _build_rendered_text_pdf_evidence_source(\n             source_id=source_id,\n             label=label,"
+              }
+            ]
+          },
+          "diff_summary": ""
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "d2dd8a5",
+          "message": "add redis data info",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-09-20",
+          "url": "https://github.com/JamieCummins/regcheck/commit/d2dd8a5b564a4ccd69b1536969cf418d02a26a86",
+          "type": "feat",
+          "branch": "main",
+          "diff": {
+            "additions": 2146,
+            "deletions": 587,
+            "files": [
+              {
+                "filename": ".gitignore",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 0,
+                "patch": "@@ -29,5 +29,8 @@ nltk_data/\n # Local fixtures / sample documents + curated ground-truth (not redistributed)\n test_materials/\n \n+# Benchmarks (probe fixtures, generated corpora, evaluation runs): local only.\n+benchmarks/\n+\n # Native libraries\n *.dylib"
+              },
+              {
+                "filename": "CHANGELOG.md",
+                "status": "modified",
+                "additions": 42,
+                "deletions": 0,
+                "patch": "@@ -4,6 +4,48 @@ Notable changes to RegCheck. The application version lives in\n `APP_VERSION` in `backend/main.py` and is what `/openapi.json` reports.\n \n \n+## Unreleased\n+\n+### Comparison engine\n+- Fixed: multi-study runs now tell every per-dimension judgement which study\n+  the registration belongs to (the label and any user note from the wizard's\n+  \"experiment\" fields). The paper text was already isolated to that study\n+  upstream, but the judge never knew: residual mentions of sibling studi"
+              },
+              {
+                "filename": "backend/cli.py",
+                "status": "modified",
+                "additions": 59,
+                "deletions": 9,
+                "patch": "@@ -90,7 +90,8 @@ def _resolve_dimensions_arg(args, *, require: bool) -> list[dict[str, str]] | No\n \n def _resolve_general_prereg(args) -> tuple[str, str]:\n     \"\"\"Resolve the preregistration source: an OSF link (--osf-url, resolved here the\n-    same way the worker does) or a local file (--preregistration). Exactly one.\"\"\"\n+    same way the worker does) or a local file (--preregistration). Exactly one.\n+    Any --additional-preregistration files are merged in afterwards.\"\"\"\n     osf_url = getat"
+              },
+              {
+                "filename": "backend/main.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -31,7 +31,7 @@\n # Single source of truth for static-asset cache-busting. Bump this on any\n # CSS/JS change so browsers refetch; it is exposed to every template as the\n # `static_version` global (templates reference it as `?v={{ static_version }}`).\n-STATIC_VERSION = \"20260714-demo-refresh\"\n+STATIC_VERSION = \"20260914-evidence-scroll\"\n \n \n def create_app() -> FastAPI:"
+              },
+              {
+                "filename": "backend/routes/comparisons.py",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 3,
+                "patch": "@@ -86,7 +86,7 @@ def _int_env(name: str, default: int, *, minimum: int = 0) -> int:\n _MAX_DIMENSIONS_PAYLOAD_CHARS = 512 * 1024\n \n # Document types the comparison pipeline can read (mirrors documents.read_file).\n-_SUPPORTED_DOC_EXTS = {\".pdf\", \".docx\", \".txt\", \".html\", \".htm\"}\n+_SUPPORTED_DOC_EXTS = {\".pdf\", \".docx\", \".txt\", \".html\", \".htm\", \".xml\"}\n \n ComparisonType = Literal[\n     \"clinical_trials\",\n@@ -147,7 +147,7 @@ def _validate_doc_ext(ext: str, *, kind: str) -> None:\n     if (ext or \"\")"
+              },
+              {
+                "filename": "backend/services/comparisons.py",
+                "status": "modified",
+                "additions": 120,
+                "deletions": 32,
+                "patch": "@@ -20,6 +20,7 @@\n from .documents import (\n     extract_text_from_docx,\n     extract_text_from_html,\n+    extract_text_from_xml,\n     read_file,\n     read_file_as_pdf,\n )\n@@ -381,6 +382,11 @@ def _reference_chunk_ids(corpus: \"EmbeddingCorpus\") -> set[str]:\n _UNLOCATED_SPLIT_RE = re.compile(r\"[;\\n]+\")\n _SYNONYM_GROUP_RE = re.compile(r\"\\(([^)]*)\\)\")\n \n+# Cap on augment\u2192re-judge cycles in the targeted verification loop. Each round\n+# only searches elements not already searched, so the loop converg"
+              },
+              {
+                "filename": "backend/services/documents.py",
+                "status": "modified",
+                "additions": 75,
+                "deletions": 7,
+                "patch": "@@ -2,6 +2,7 @@\n \n import re\n import uuid\n+import xml.etree.ElementTree as ElementTree\n from html.parser import HTMLParser\n from pathlib import Path\n \n@@ -14,6 +15,7 @@\n     \"extract_text_from_docx\",\n     \"extract_text_from_pdf\",\n     \"extract_text_from_html\",\n+    \"extract_text_from_xml\",\n     \"convert_txt_to_pdf\",\n     \"clean_document_text\",\n     \"read_file\",\n@@ -150,6 +152,62 @@ def extract_text_from_html(file_path: str) -> str:\n     return extractor.text()\n \n \n+# Tags whose content flows inl"
+              },
+              {
+                "filename": "backend/services/evidence.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -693,7 +693,7 @@ def build_file_evidence_source(\n             embedding_model=embedding_model,\n         )\n \n-    if ext in {\".docx\", \".txt\", \".html\", \".htm\"}:\n+    if ext in {\".docx\", \".txt\", \".html\", \".htm\", \".xml\"}:\n         rendered_pdf = _build_rendered_text_pdf_evidence_source(\n             source_id=source_id,\n             label=label,"
+              }
+            ]
+          },
+          "diff_summary": ""
+        }
+      ]
     },
     {
       "owner": "giladfeldman",
@@ -8508,75 +8453,6 @@
           "type": "chore",
           "branch": "main",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "4ea4b3b",
-          "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
-          "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 69c3964cbc6c5fa72e1928aa83f610425e07cd6d\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-28",
-          "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 317,
-            "deletions": 74,
-            "files": [
-              {
-                "filename": ".winbuilder-logs/README.md",
-                "status": "modified",
-                "additions": 82,
-                "deletions": 42,
-                "patch": "@@ -1,53 +1,93 @@\n-# Pre-submission check evidence \u2014 effectcheck 0.6.19\n+# Pre-submission check evidence \u2014 effectcheck\n \n-CRAN submissions are **closed 2026-08-05 \u2192 2026-08-19** (team vacation +\n-maintenance), so 0.6.19 was fully validated on 2026-08-06 and parked until the\n-window reopens. These logs are archived here because win-builder deletes its\n-result directories after ~72 hours.\n+## What these logs are\n \n-## Verdicts\n+Archived win-builder results, kept because win-builder deletes its own"
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 32,
-                "deletions": 2,
-                "patch": "@@ -70,8 +70,9 @@ hand and passed -- and scanning plumber 1.3.3, webutils 1.2.2 and httpuv 1.6.17\n symbol by symbol finds `\"FILES\"` **zero times**: nothing in the serving stack\n sets it. That test was green on a branch production never takes.\n \n-Package suite unchanged at 1231 `test_that` blocks / 3719 assertions / 0\n-failures; no package logic changed in this release.\n+Package suite **1232 `test_that` blocks / 3745 assertions / 0 failures**, across\n+144 files; no package *logic* changed in this"
-              },
-              {
-                "filename": "R/check.R",
-                "status": "modified",
-                "additions": 15,
-                "deletions": 5,
-                "patch": "@@ -8344,11 +8344,21 @@ compute_and_compare_one <- function(row,\n #'   before v0.7.6 that rewrite was invisible downstream. Surfaced as the\n #'   document-level columns \\code{upstream_sign_rewrites} (integer; NA when no\n #'   report was supplied, 0 when one was supplied and reported none) and\n-#'   \\code{upstream_normalization_version}. Treat the count as a LOWER BOUND:\n-#'   docpluck's own report assigns rather than accumulates that metric, and\n-#'   three of its rules write the same key, so a "
-              },
-              {
-                "filename": "cran-comments.md",
-                "status": "modified",
-                "additions": 27,
-                "deletions": 15,
-                "patch": "@@ -1,33 +1,45 @@\n ## Submission\n \n This is an update of 'effectcheck' from 0.2.3 (the current CRAN release) to\n-0.6.20. Development has been active across 0.2.4-0.6.20 -- new test types,\n+0.7.7. Development has been active across 0.2.4-0.7.7 -- new test types,\n nonparametric and regression support, confidence-interval computation, and\n many parser and consistency fixes -- and the most significant change is\n structural, in 0.4.0 (see \"Breaking change\" below). Every intervening version\n is docume"
-              },
-              {
-                "filename": "inst/docpluck-contract/boundary_contract_golden.json",
-                "status": "added",
-                "additions": 80,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,80 @@\n+{\n+  \"schema\": \"docpluck-boundary-contract/1\",\n+  \"consumer\": \"ESCImate worker -- worker/docpluck_client.R\",\n+  \"what_this_pins\": \"The field set and statistical-symbol surface docpluck returns for two committed fixtures, captured THROUGH THE PRODUCTION CLIENT. Refresh with: Rscript worker/tests/docpluck-contract.R --refresh\",\n+  \"captured_utc\": \"2026-08-22T08:38:56Z\",\n+  \"docpluck\": {\n+    \"docpluck_version\": \"2.4.137\",\n+    \"service_version\": \"1.6.0\",\n+    \"sectioning_version\""
-              },
-              {
-                "filename": "man/check_text.Rd",
-                "status": "modified",
-                "additions": 15,
-                "deletions": 5,
-                "patch": "@@ -99,11 +99,21 @@ sign-recovery rules can turn a printed \\code{SE = 0.199} into \\code{-0.199}, and\n before v0.7.6 that rewrite was invisible downstream. Surfaced as the\n document-level columns \\code{upstream_sign_rewrites} (integer; NA when no\n report was supplied, 0 when one was supplied and reported none) and\n-\\code{upstream_normalization_version}. Treat the count as a LOWER BOUND:\n-docpluck's own report assigns rather than accumulates that metric, and\n-three of its rules write the same key,"
-              },
-              {
-                "filename": "tests/testthat/test-v076-docpluck-consumer-canary.R",
-                "status": "modified",
-                "additions": 66,
-                "deletions": 5,
-                "patch": "@@ -26,17 +26,35 @@\n # anywhere -- that blind spot is real, is why the token-set hash below exists as\n # a separate tripwire, and is why this does not replace the corpus diff.\n \n-.canary_snapshot <- function() {\n-  p <- system.file(\"docpluck-contract\", \"symbol_contract_snapshot.json\",\n-                   package = \"effectcheck\")\n+.canary_contract_file <- function(name) {\n+  p <- system.file(\"docpluck-contract\", name, package = \"effectcheck\")\n   if (!nzchar(p) || !file.exists(p)) {\n-    p <- file"
-              }
-            ]
-          },
-          "diff_summary": ""
         }
       ]
     },
@@ -9239,82 +9115,6 @@
           "type": "other",
           "branch": "main",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "40676dd",
-          "message": "Release 0.12.7",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-09-10",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/40676dd45a817ba78070d6742d1018a5be451385",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 215,
-            "deletions": 67,
-            "files": [
-              {
-                "filename": "R/report.R",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 17,
-                "patch": "@@ -932,30 +932,15 @@ build_reference_table <- function(results, config) {\n   dplyr::distinct(refs)\n }\n \n-default_effect_definition <- function() {\n-  paste(\n-    \"Extract each article's 'focal' effects.\",\n-    \"Focal effects are those that support the claims in either the title or abstract of the article\",\n-    \"(a non-focal effect, for example, would be a manipulation check).\"\n-  )\n-}\n-\n-build_system_prompt <- function(config, instruction_path, effect_definition = NULL) {\n+build_system_prompt "
-              },
-              {
-                "filename": "auto_zcurve/__init__.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,3 +1,3 @@\n \"\"\"auto-zcurve CLI package.\"\"\"\n \n-__version__ = \"0.12.6\"\n+__version__ = \"0.12.7\""
-              },
-              {
-                "filename": "auto_zcurve/artifacts.py",
-                "status": "modified",
-                "additions": 69,
-                "deletions": 8,
-                "patch": "@@ -3,7 +3,9 @@\n import csv\n import hashlib\n import json\n+import os\n import re\n+import tempfile\n from datetime import datetime, timezone\n from pathlib import Path\n from typing import Any\n@@ -82,12 +84,75 @@ def extraction_record(result: ExtractionResult) -> dict[str, Any]:\n     }\n \n \n+def _atomic_json_dump(path: Path, value: Any) -> None:\n+    \"\"\"Write JSON without exposing a partially-written file to readers.\"\"\"\n+    path.parent.mkdir(parents=True, exist_ok=True)\n+    descriptor, temporary_name"
-              },
-              {
-                "filename": "auto_zcurve/cli.py",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 1,
-                "patch": "@@ -158,7 +158,6 @@ def _settings_from_args(\n         max_upload_size_mb=(\n             existing.max_upload_size_mb if existing else app_defaults.max_upload_size_mb\n         ),\n-        effect_definition=existing.effect_definition if existing else None,\n         pdf_parser=app_defaults.pdf_parser,\n         reasoning_effort=app_defaults.reasoning_effort,\n         service_tier=app_defaults.service_tier,"
-              },
-              {
-                "filename": "auto_zcurve/config.py",
-                "status": "modified",
-                "additions": 39,
-                "deletions": 3,
-                "patch": "@@ -99,7 +99,6 @@ class RunSettings:\n     parallel_requests: int = DEFAULTS[\"parallel_requests\"]\n     request_delay_sec: int = DEFAULTS[\"request_delay_sec\"]\n     max_upload_size_mb: int = DEFAULTS[\"max_upload_size_mb\"]\n-    effect_definition: str | None = None\n     provider: str = \"gemini\"\n     pdf_parser: str = DEFAULTS[\"pdf_parser\"]\n     reasoning_effort: str = DEFAULTS[\"reasoning_effort\"]\n@@ -189,6 +188,45 @@ def settings_path(project_dir: Path) -> Path:\n     return project_dir / \".auto_zcurv"
-              },
-              {
-                "filename": "auto_zcurve/gemini.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 2,
-                "patch": "@@ -125,7 +125,6 @@ def extract_pdf(\n     response_schema: dict[str, Any],\n     schema_config: ExtractionSchema,\n     instruction_path: Path,\n-    effect_definition: str | None,\n     request_timeout_sec: int = 600,\n     input_mode: str = \"native_pdf\",\n     context_length: int | None = None,\n@@ -141,7 +140,7 @@ def extract_pdf(\n         raise RuntimeError(\"google-genai is not installed.\") from exc\n \n     client = genai.Client(api_key=api_key)\n-    prompt = build_system_prompt(schema_config, instr"
-              },
-              {
-                "filename": "auto_zcurve/openrouter.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 2,
-                "patch": "@@ -290,7 +290,6 @@ def extract_pdf(\n     response_schema: dict[str, Any],\n     schema_config: ExtractionSchema,\n     instruction_path: Path,\n-    effect_definition: str | None,\n     request_timeout_sec: int = 600,\n     input_mode: str = \"native_pdf\",\n     context_length: int | None = None,\n@@ -299,7 +298,7 @@ def extract_pdf(\n     endpoint_order: tuple[str, ...] = (),\n ) -> ExtractionResult:\n     started = time.monotonic()\n-    prompt = build_system_prompt(schema_config, instruction_path, effec"
-              },
-              {
-                "filename": "auto_zcurve/projects.py",
-                "status": "modified",
-                "additions": 22,
-                "deletions": 2,
-                "patch": "@@ -18,7 +18,12 @@\n     read_disclosure_summary,\n     read_zcurve_summary,\n )\n-from .config import DEFAULTS, load_run_settings\n+from .config import (\n+    DEFAULTS,\n+    legacy_effect_definition,\n+    load_run_settings,\n+    remove_legacy_effect_definition,\n+)\n from .models import DEFAULT_MODEL, model_request_defaults\n from .paths import DEFAULT_INSTRUCTIONS, DEFAULT_SCHEMA\n from .schema import build_response_schema, parse_extraction_schema\n@@ -28,6 +33,10 @@\n SAFE_NAME_RE = re.compile(r\"[^A-Za-"
-              }
-            ]
-          },
-          "diff_summary": ""
         }
       ]
     },
@@ -10344,9 +10144,9 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/37660973?v=4",
       "html_url": "https://github.com/JamieCummins",
       "repos": {
-        "JamieCummins/regcheck": 176
+        "JamieCummins/regcheck": 177
       },
-      "total_contributions": 176,
+      "total_contributions": 177,
       "name": "Jamie Cummins",
       "bio": "Senior postdoctoral researcher at University of Bern. Creator and developer of RegCheck and other NLP-based apps. ",
       "company": null,
@@ -10803,24 +10603,61 @@
     }
   ],
   "digest": {
-    "week_start": "2026-09-12",
-    "active_repos": 2,
-    "total_commits_7d": 24,
-    "dormant_revived": [],
+    "week_start": "2026-09-13",
+    "active_repos": 3,
+    "total_commits_7d": 26,
+    "dormant_revived": [
+      {
+        "owner": "JamieCummins",
+        "repo": "regcheck"
+      }
+    ],
     "new_releases": [],
     "most_active": [
       {
         "owner": "scienceverse",
         "repo": "metacheck",
-        "commits": 20
+        "commits": 21
       },
       {
         "owner": "giladfeldman",
         "repo": "docpluck",
         "commits": 4
+      },
+      {
+        "owner": "JamieCummins",
+        "repo": "regcheck",
+        "commits": 1
       }
     ],
     "highlights": [
+      {
+        "repo": "regcheck",
+        "owner": "JamieCummins",
+        "message": "add redis data info",
+        "body": "",
+        "type": "feat",
+        "author": "Jamie Cummins",
+        "date": "2026-09-20"
+      },
+      {
+        "repo": "metacheck",
+        "owner": "scienceverse",
+        "message": "Merge pull request #414 from scienceverse/fix-dataone-figshare-institutional-prefixes",
+        "body": "Add DataONE and institutional Figshare DOI-prefix coverage",
+        "type": "fix",
+        "author": "Daniel Lakens",
+        "date": "2026-09-19"
+      },
+      {
+        "repo": "metacheck",
+        "owner": "scienceverse",
+        "message": "Add DataONE and institutional Figshare DOI-prefix coverage",
+        "body": "DataONE: added data.piscoweb.org (PISCO, UC Santa Barbara) as a known\nmember node, and fixed .dataone_pid() not recognising a bare DOI whose\nsuffix itself contains a further slash (PISCO's own 10.6085/AA/<id>\nshape). Both found via a real paper citing this DOI with no host\ndomain in the URL at all, which dataone_links() could not resolve at\nall before this fix.\n\nFigshare: added 28 more institutional instances (found via DataCite's\nclient registry, searched for \"figshare\" in the client name) and\nMonash University's bridges.monash.edu (found separately, via a real\npaper citation, since its DataCite client is named \"Monash University\"\nrather than mentioning Figshare). Taught .figshare_id()/figshare_links()\nto recognise each instance's own DOI prefix (e.g. 10.26180 for Monash,\n10.25375 for ZivaHub/UCT) when cited as a bare DOI with no host domain\nin the URL -- previously only the generic 10.6084/m9.figshare.* DOI\nshape was recognised this way, silently missing every institutional\ninstance's own prefix regardless of how many hosts were already in\n.figshare_vanity_hosts(). Also anchored the new id-extraction pattern\non a non-digit boundary rather than end-of-string, since a trailing\nsentence period from ordinary prose (\"...19095317.v1.\") is a common\nreal-extraction artifact that end-of-string anchoring silently missed.\n\nEvery added host confirmed live to answer Figshare's own single-page-app\nshell (HTTP 202, non-JSON body) rather than a real API response, the\nsame discipline the existing 16 vanity hosts use; several DataCite-listed\ncandidates were checked and excluded because their real platform is\nsomething else entirely (DataverseNO, DTU's Orbit repository, University\nof Salford's Worktribe platform).\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+        "type": "feat",
+        "author": "Lakens",
+        "date": "2026-09-19"
+      },
       {
         "repo": "metacheck",
         "owner": "scienceverse",
@@ -11027,123 +10864,6 @@
         "type": "other",
         "author": "Lakens",
         "date": "2026-09-13"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Fix Zenodo crashes on unreadable records and list-column input, add docs",
-        "body": "Two real crashes remained after the earlier online()/%empty_or% fix\n(c0531ed): (1) a record .zenodo_info() could not read returned only\nzenodo_id+error, so a paper whose every Zenodo record was unreadable\nproduced a table with no doi/license columns at all -- as.character(NULL)\nis character(0), and data.frame() rejects mixing that with an n-row\ncolumn (\"arguments imply differing number of rows\"). .zenodo_unread()\nnow returns the full schema for an unreadable record, and .col_chr()\nguards repo_check()'s Zenodo metadata extraction the same way, including\nagainst a list-column element that as.character() silently mangles into\nthe literal string \"character(0)\" instead of erroring. (2)\ndata.frame(zenodo_url = <list>) silently explodes into one column per\nlist element rather than creating a zenodo_url column, which a list-\ncolumn repo_url arriving from repo_check() could trigger; as.character()\nbefore data.frame() fixes it.\n\nAlso documents .is_r_package_file() (missed in the earlier commit that\nadded it).\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-        "type": "fix",
-        "author": "Lakens",
-        "date": "2026-09-12"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Exclude R package source trees from repo_check's data/code listing",
-        "body": "An R package repository (DESCRIPTION + NAMESPACE, its R/, man/, tests/\netc. subdirectories) is reusable software infrastructure, not the\nstudy's own data or analysis code. Detect this fingerprint per\nrepo_url and drop those files from the file listing entirely, before\nclassification, so they never inflate files_n/files_code or appear in\ndownstream reports.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-        "type": "other",
-        "author": "Lakens",
-        "date": "2026-09-12"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Fix reproducibility_check issues #388, #390-392, #394, #396",
-        "body": "- #388: classify Bioconductor-only packages (edgeR, DESeq2, phyloseq, ...) as\n  source = \"bioc\" in repro_dependencies() instead of falling through to\n  \"cran\", and install them via BiocManager::install() in repro_install_deps()\n  and its Docker equivalent.\n- #390: extend the undefined-variable corrective rerun to missing library()\n  calls. A \"could not find function \\\"X\\\"\" error with zero same-repo\n  definers is checked against a scoped candidate set (the paper's own\n  declared dependencies plus a small curated safe-list); an unambiguous\n  match is injected as a library() call and the script is rerun once.\n- #391: expose per-file modifications (path rewrites, setwd() removal, font\n  substitution, library() injections) as a `modifications` data frame in the\n  module's output, instead of only aggregate counts.\n- #392: fall back to normalised-basename matching for source() targets when\n  exact basename matching finds nothing, scoped to code-to-code references\n  only (not data files, per the issue's own evidence). Fuzzy matches are\n  flagged distinctly via a `fuzzy_sources` attribute, never silently treated\n  as exact.\n- #394/#396: sniff a .R/.Rmd file's actual content before treating a parse\n  failure as a code defect, distinguishing non-R content (JSON/HTML) and\n  JAGS/BUGS model definitions from genuine broken R code.\n\nSkipped #389/#393's auto-resolution/guessing scope and #395 (needs a change\nin the separate metacheck_docker_reproducibility repo).\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-        "type": "fix",
-        "author": "Lakens",
-        "date": "2026-09-12"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Fix pre-existing test suite failures unrelated to Zenodo/Mendeley/DataONE work",
-        "body": "Found while running the full suite: 15 failures, none in the files this\nbranch otherwise touches, confirmed against a clean origin/dev checkout.\n\n- data-manifest: the test itself was wrong, not the code -- it left a\n  paper's file with no file_location and no failed-download record, which\n  .data_check_write_manifest() correctly (per its own documented rules)\n  treats as an unreported failure. Fixed the test to actually simulate a\n  successful download, which is what it meant to test.\n- code_check manifest: a real cross-contamination bug -- jsonlite::toJSON()\n  renders an R NULL list element as \"{}\" rather than dropping it, so an\n  absent packages/files_failed section for one paper in a batch came back\n  as a non-NULL empty object instead of NULL when read back. Filtered NULLs\n  before writing, matching the convention .data_check_write_manifest()\n  already uses. Also added the code_install_packages column (#398) to two\n  tests never updated for it.\n- repo-download: the real cause of 9 failures -- testthat::local_mocked_\n  bindings() for httr2::req_perform/req_perform_parallel silently fails to\n  restore the original binding in this testthat 3.3.2 / withr 3.0.3 /\n  httr2 1.3.0 combination (confirmed with a canary: deferred cleanup fires\n  in general, this specific namespace restore just doesn't stick), so a\n  mock from one test broke every real download in every later test in the\n  file. Added an explicit, unconditional top-level restore after each risky\n  mock. One remaining failure was a tight 3s wall-clock threshold that's\n  simply slow on this machine; loosened it since the regression it guards\n  against (an O(n) scan over 20000 rows) would take far longer regardless.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-        "type": "fix",
-        "author": "Lakens",
-        "date": "2026-09-12"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Add Mendeley Data and DataONE repository support",
-        "body": "Mendeley Data: detects 10.17632/ DOIs and data.mendeley.com URLs, queried\nvia the public, unauthenticated data.mendeley.com/public-api/datasets/<id>\nendpoint. Host-independent by design -- verified live that an institution's\nwhite-labelled front end (e.g. Washington University's \"Digital Commons\nData\") serves the exact same backend, so detection only needs the DOI, not\na host registry.\n\nDataONE: a federation of independently-run repositories (\"member nodes\"),\nnot one hosted service. Covers four verified hosts (Arctic Data Center,\nKNB, Taiwan Forestry Research Institute, Smithsonian Tropical Data Portal\n-- the latter two found via re3data.org), each confirmed live and each\nmounting the same underlying REST API at a different base path per\ninstallation. Parses each dataset's EML metadata document for its file\nlisting.\n\nBoth wired into repo_check.R the same way as the existing providers, and\ntested end-to-end against real live records through the full repo_check()\npipeline.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-        "type": "feat",
-        "author": "Lakens",
-        "date": "2026-09-12"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Fix Zenodo online() DNS false-negatives and harden %||% against zero-length JSON fields",
-        "body": "online() previously failed a paper's entire Zenodo retrieval on a single\ntransient DNS lookup miss; it now retries. Zenodo also silently dropped\nrecords when a JSON field came back as a length-zero value (e.g. an empty\narray) rather than NULL, since %||% only guards against NULL -- this threw\n\"arguments imply differing number of rows\" inside a tryCatch that quietly\ndiscarded the whole record. Confirmed against real corpus failures.\n\nAdded %empty_or% (like %||%, but also catches length-zero values) and\napplied it everywhere the same bare-%||% gap existed: Dataverse, Dryad,\nDSpace7, Figshare, GitHub, GitLab, OSF, PsychArchives, and ReShare.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-        "type": "fix",
-        "author": "Lakens",
-        "date": "2026-09-12"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Merge pull request #399 from scienceverse/housekeeping-llm-reasoning-and-data-check-fix",
-        "body": "Add an opt-in capture_reasoning argument to llm()",
-        "type": "fix",
-        "author": "Daniel Lakens",
-        "date": "2026-09-12"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Merge pull request #400 from scienceverse/add-dataverse-figshare-dspace-repo-support",
-        "body": "Detect and download from many more Dataverse, Figshare, and DSpace installations",
-        "type": "feat",
-        "author": "Daniel Lakens",
-        "date": "2026-09-12"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "fix(tables): the region was sized to the caption, so published columns and rows were deleted",
-        "body": "Four defects in table-region detection, each deleting real printed data from the\nstructured table with no error, no warning and no log line.\n\n10.1001/jamanetworkopen.2023.39337 Table 3 prints seven columns; docpluck\nemitted two. Five of six data columns -- and the Sodium and Physical-activity\nvalues of the surviving one -- appeared ZERO times in the 59 KB render.\n\n(a) _horizontal_rules_in required a ruled line to be entirely CONTAINED in the\n    search band, which is built at the CAPTION's x-range. On p9 the caption\n    spans 141pt and each of Table 3's twenty rules spans 515pt, so all twenty\n    were rejected while ten 10pt row decorations were kept -- still enough to\n    clear LATTICE_MIN_HORIZONTAL_RULES, so lattice fired on furniture. Now\n    keyed on x-OVERLAP, safe for a rule because a rule does not cross a column\n    gutter.\n(b) A rule drawn cell-by-cell arrives as one segment per column, so it only\n    overlaps the band where the caption sits (ieee_access_2 p55: one segment of\n    a three-column grid). Collinear end-to-end segments are merged first.\n(c) _longest_aligned_run compared column START edges only, so a run severed\n    where a right-aligned cell changed width. 10.1371/journal.pmed.1004323 p10:\n    `fenylefrine 0 3` and `ephedrine 0 2` begin ~29pt right of the rows above\n    but END on the same edge, and were cut off. A column now counts as aligned\n    on its START or its END edge.\n(d) A located region kept the MODAL body row's width, so a column filled only\n    in the header and one summary row fell outside it -- Rel. risk\n    1.19 (0.33-4.31) and P value 1.00. The region is widened to the rows it\n    already contains that begin at its left edge; gated OFF for caption_only,\n    where no grid was found and widening is the known cog_emo regression.\n\nTable 4 of that paper also stops being a copy of Table 3, so the\nsurgical-reintervention rows reach a structured table for the first time.\n\nMeasured, two-sided and deterministically: over 40 PDFs sampled\nrandom.Random(20260912) from a 10,049-PDF repository (25 with >=1 table\ncaption, 62 captioned regions) column-clipped regions fall 43 -> 34, 7 papers\nimproved, 0 worsened -- (a)+(b) only, since the clip detector shares (d)'s\ncriterion and cannot judge it. On the 6-paper canary set 2 renders changed and\n3 are byte-identical; a token census over both changed renders shows 0 tokens\nlost and 0 vanished.\n\nGround truth is the rasterized page throughout, never another extractor.\nBoth test files were watched RED first. TABLE_EXTRACTION_VERSION 2.4.14 ->\n2.4.15: consumers read it as the identity of the pipeline that made a table.\n\nAlso fixes the docs-consistency gate, which was red at c120788: __version__ and\nNORMALIZATION_VERSION were bumped without updating docs/README.md.",
-        "type": "fix",
-        "author": "Gilad Feldman",
-        "date": "2026-09-12"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "fix(normalize): a DOI on its own continuation line is reference data",
-        "body": "Three rules deleted it. P0's two curated DOI-line patterns fired\ndocument-wide on the strength of a comment claiming \"in-text DOI mentions\n... never appear alone\" -- false, because a reference whose DOI wraps is\nexactly that. H0 added a third route: its header zone is a flat 30-line\ncap with no content end-condition, so on a short document it reaches the\nbibliography and the generic bare-URL banner pattern matched a DOI on the\n\"doi.org\" host.\n\nThe arithmetic, over 300 PDFs sampled random.Random(20260912) from a\n10,049-PDF corpus (297 English; 1 spanish, 1 portuguese, 1 bilingual\nexcluded and reported): the two P0 patterns fired 649 times across 117 of\n297 papers (39.4%) on a unique standalone DOI inside a References span --\nevery one a destroyed identifier -- and 27 times in 2 papers on a genuine\nper-page journal footer. 27/676 = 4.0% accuracy, the same arithmetic that\ncondemned the EU-numeric rules and W0k.\n\nVerified at the primary source: 10.1525/collabra.138502 prints 133 DOIs\nand the academic render delivered 101, losing all 32 of its\nstandalone-DOI lines.\n\nThe genuine footer is not lost with them. A journal stamps its own DOI on\nevery page, so that line recurs; P0r already strips on >= 3 standalone\nrepetitions and _BARE_DOI_IDENTIFIER_LINE adds the shape there, verified\nfiring on real papers (19 -> 0 and 7 -> 0). The line content is identical\nin both cases and can never separate them; recurrence can, and recurrence\nis what a running footer is.\n\nH0 gains two content end-conditions, each measured separately: no line\ninside a _find_references_spans span is header furniture, and a\nDOI-identifier line introduced by a colon-terminated lead-in is the object\nof a sentence. The colon discriminator recovers 4 of 5 real identifiers\nand costs 1 of 120 furniture drops.\n\nCorpus re-measured after the fix: 649 reference-DOI losses -> 1. The\nresidual (10.24072/pci.rr.101017.rev11, a bioRxiv URL with no colon\nlead-in) is recorded in the code rather than coded around -- one paper\nproves a shape exists and says nothing about prevalence.\n\nDOCX and HTML are unaffected; those branches never call normalize_text,\nchecked at the source and by probe.\n\nNORMALIZATION_VERSION 1.9.66 -> 1.9.67 even though the change mostly\nremoves rules: consumers store extracted text keyed on it, so leaving it\nwould make pre-fix and post-fix text indistinguishable in their store --\nand the pre-fix text is missing published identifiers.\n\nPinned by tests/test_standalone_doi_line_is_reference_data.py, proved red\nby re-inserting the deleted patterns at runtime and by neutralising the\nreferences-span exemption. Carries three two-sided controls: an inline DOI\nstill survives, a recurring page footer is still stripped, and a genuine\npublisher landing-page banner is still stripped.\n\nCanary: the audit reported 5 findings on ip_feldman_2025_pspb. All 5 are\nPRE-EXISTING and untouched by this change, proved against a clean HEAD\nworktree render rather than asserted: the HEAD and post-fix renders are\n3221 lines each and differ in exactly 6 lines, every one a reference\ngaining its DOI, nothing removed. Each of the 5 flagged strings occurs the\nsame number of times in both renders. They are real defects in docpluck's\noutput and are reported separately rather than folded into this change.",
-        "type": "fix",
-        "author": "Gilad Feldman",
-        "date": "2026-09-12"
-      },
-      {
-        "repo": "coarse",
-        "owner": "Davidvandijcke",
-        "message": "Merge pull request #299 from Davidvandijcke/dev",
-        "body": "Release subscription review model selection fix",
-        "type": "other",
-        "author": "David Van Dijcke",
-        "date": "2026-09-12"
-      },
-      {
-        "repo": "coarse",
-        "owner": "Davidvandijcke",
-        "message": "fix(web): preserve subscription model selections and refresh options (#298)",
-        "body": "",
-        "type": "fix",
-        "author": "David Van Dijcke",
-        "date": "2026-09-12"
-      },
-      {
-        "repo": "coarse",
-        "owner": "Davidvandijcke",
-        "message": "fix(web): preserve subscription model selections and refresh options",
-        "body": "",
-        "type": "fix",
-        "author": "Davidvandijcke",
-        "date": "2026-09-12"
       }
     ],
     "narrative": ""
@@ -11153,13 +10873,13 @@
     "total_stars": 712,
     "total_forks": 133,
     "total_commits_30d": 209,
-    "total_commits_7d": 24,
-    "total_commits_1d": 6,
-    "active_repos_7d": 2,
-    "dormant_revived": 0,
+    "total_commits_7d": 26,
+    "total_commits_1d": 9,
+    "active_repos_7d": 3,
+    "dormant_revived": 1,
     "total_open_issues": 179,
     "total_open_prs": 10,
-    "unique_authors_30d": 12,
+    "unique_authors_30d": 13,
     "total_contributors": 48
   }
 }
