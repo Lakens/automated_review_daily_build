@@ -1,5 +1,311 @@
 [
   {
+    "generated_at": "2026-09-21T12:06:03.248907+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 8,
+        "pushed_at": "2026-09-21T09:50:17Z",
+        "recent_commits": [
+          {
+            "sha": "85c8c87",
+            "message": "Fix .reproducibility_check_batch() hang from callr pipe deadlock (#420)",
+            "body": "callr::r_bg() was launched with its default stdout = \"|\" / stderr = \"|\",\nwhich pipes a worker's output through a small, fixed-size OS buffer.\nNothing in the polling loop drains those pipes while a worker is still\nrunning, so a paper whose output exceeded the buffer before the parent\nread it would block the child on its next write() forever. The process\nstays alive (is_alive() == TRUE, CPU frozen rather than accumulating),\nso its slot in `running` never frees, the queue never advances past it,\nand the dispatcher hangs indefinitely with the remaining queued papers\nnever launched.\n\nRedirect each worker's stdout/stderr to temp files instead, tracked in\nnew out_files/err_files lists keyed by pid (the callr process object is\na locked R6 environment and rejects new fields directly). The failure\npath now reads the stderr file instead of p$read_all_error(), and both\ntemp files are removed once a worker's result has been collected.\n\nVerified against a real Docker run (workers = 2, 3 papers): all papers\nlaunch, finish, and combine correctly.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Daniel Lakens",
+            "date": "2026-09-21",
+            "url": "https://github.com/scienceverse/metacheck/commit/85c8c872cf71ab5a70c10008bd41bf563352a396",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "033294d",
+            "message": "Fix capture_module_tables() saving modules unnamed (#419)",
+            "body": "collect_module_tables() looked up saved modules by name\n(j$modules[[module]]), but capture_module_tables() never named the\noutputs list, so the lookup always missed and the function silently\nreturned an empty data frame for every paper. .load_module_tables()\nhad the same problem via names(saved$modules).\n\nName outputs from each module's own $module field (read before it is\nstripped as plumbing), with a positional fallback for any NA/blank/\nduplicate name. Also warn in collect_module_tables() when files exist\nbut none matched, instead of silently returning empty.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/033294d820d7cb4745a88f9d1e7c9a5ff2034076",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "f080541",
+            "message": "Bump version to 0.3.1",
+            "body": "reproducibility_check: run multiple papers' Docker checks concurrently\n(paperlist + workers > 1), starting the next paper as soon as a slot\nfrees up, with per-container CPU/memory limits sized to the worker\ncount. Fix repro_install_deps_docker() corrupting the install script\nfor long dependency lists (deparse() wrapping; #418). Fix a timed-out\nDocker container being left running instead of stopped (#417).\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/f080541849843ad9b806ea1a2c2d2aa83a278ecd",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "38e0d10",
+            "message": "Merge pull request #416 from scienceverse/psychsci-download",
+            "body": "Download and cache the psychsci test corpus on demand, closes #407",
+            "author": "Daniel Lakens",
+            "date": "2026-09-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/38e0d109af4cf33171f100ab5d4cb4b5c7bb4716",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "73dbb87",
+            "message": "Download and cache the psychsci test corpus on demand",
+            "body": "psychsci was removed from data/ (LazyData) to reduce package size, so\ntests/testthat/setup.R now downloads psychsci.rds from the GitHub\nrelease (scienceverse/papers) and caches it in the same\nrappdirs::user_data_dir(\"metacheck\", \"scienceverse\") directory the\npackage already uses for other downloaded data. It's assigned to the\nbare name psychsci, matching how test files already referred to it.\n\nIf the download fails (no internet, as on CRAN), psychsci is NULL\ninstead of erroring. Added skip_no_psychsci() to helper.R, following\nthe existing skip_api()/skip_llm()/skip_osf() pattern, and added it to\nevery test_that() block across 13 files that uses the psychsci object,\nso those tests skip cleanly instead of failing when it's unavailable.\n\nAlso fixed test-psychsci.R, which referenced metacheck::psychsci (no\nlonger an exported object) to use the bare, now-downloaded psychsci\ninstead.",
+            "author": "Lakens",
+            "date": "2026-09-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/73dbb87286a5c524f6ba1d64ff7699d375a0cbfa",
+            "type": "test",
+            "branch": "dev"
+          },
+          {
+            "sha": "35033be",
+            "message": "Revert \"Merge pull request #413 from LukasWallrich/fix/module-bugs-from-review\"",
+            "body": "This reverts commit bb448c3d502169e5eac7ee29a52d5ff82762852d, reversing\nchanges made to 4ea669a413e59937ed4b449a743ec16bd4434bd3.",
+            "author": "Lakens",
+            "date": "2026-09-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/35033be8313994ab55cc6aece1cc49499552708d",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "55d5873",
+            "message": "Merge pull request #415 from scienceverse/bring-413-into-dev",
+            "body": "Bring PR #413 into dev",
+            "author": "Daniel Lakens",
+            "date": "2026-09-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/55d5873860a1678ab05cfb300ce52a4ad60bb7f7",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "bb448c3",
+            "message": "Merge pull request #413 from LukasWallrich/fix/module-bugs-from-review",
+            "body": "Fix nine small module bugs (code_check light, causal_claims regex, upper-case P, and others)",
+            "author": "Daniel Lakens",
+            "date": "2026-09-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/bb448c3d502169e5eac7ee29a52d5ff82762852d",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 5,
+        "pushed_at": "2026-09-02T03:58:35Z",
+        "recent_commits": [
+          {
+            "sha": "7729a28",
+            "message": "Built site for tenzing@0.4.1: 5554f64",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "5554f64",
+            "message": "temporarily cmmment out new test that failed for Load instead of Upload",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
+            "type": "feat",
+            "branch": "master"
+          },
+          {
+            "sha": "e07088e",
+            "message": "move papaja UI output down, retitle affiliations page",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "e4217bd",
+            "message": "Built site for tenzing@0.4.1: 6944931",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "6944931",
+            "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
+            "body": "Reorder output actions and clarify URL loading",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-09-17T10:17:39Z",
+        "recent_commits": [
+          {
+            "sha": "3e58d9d",
+            "message": "docs(claude): one checkout only \u2014 the five siblings were worktrees, not copies",
+            "body": "Five directories sat beside this one: -accf-docs, -e0b-docs, -head-sibling,\n-main-check, -v137-probe. Each was a git worktree of this same repository at an\nolder commit, sharing this .git \u2014 which is why each presented a complete-looking\nproject with its own CHANGELOG, package and docs, frozen at that commit.\n\nThat is the reason this is a standing rule rather than a one-off tidy: a stale\nworktree is indistinguishable from the real checkout at a glance, and reading old\ndocumentation or editing a file that will never be committed produces no warning.\n\nAll five verified clean (git status --porcelain returned 0 lines in each) before\nremoval was proposed. git worktree list is now a /docpluck-cleanup check, with the\ndirty-count verified first \u2014 --force on a dirty worktree destroys work that exists\nnowhere else.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-17",
+            "url": "https://github.com/giladfeldman/docpluck/commit/3e58d9df49dc2df7f30bfd93ef73890a5b8e0eb6",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "633ed28",
+            "message": "chore(repo): one home for correspondence \u2014 communications/, ignored as a directory",
+            "body": "149 correspondence documents were loose in the repo root (38) and in docs/ (111)\n\u2014 messages in and out, replies, requests, session write-ups, investigation notes,\ncorpus work queues. None had ever been committed: verified with\n`git log --all --diff-filter=A --name-only` over every ref, which returns zero\nfor all of those prefixes. So this is a structural fix, not an exposure fix.\n\nThey now live in communications/, one flat folder, and .gitignore carries\ncommunications/ as a DIRECTORY entry rather than yet another prefix. Every\ncorrespondence leak this repo has had came from a naming convention nobody had\nimagined yet (2026-08-07, 2026-08-20); a directory rule does not care what the\nfile is called. Verified with a positive control \u2014 an arbitrarily named file\nplaced inside communications/ comes back ignored by that rule, and the relocation\ncheck itself was shown to fire on a planted file before its zero was believed.\n\nComments and docstrings citing a moved file by its old path were repointed and\neach target confirmed to exist. No code reads any of these paths.\n\ntests/test_public_repo_hygiene.py: 11 passed.\npublic-repo-guard: 0 blocking.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-17",
+            "url": "https://github.com/giladfeldman/docpluck/commit/633ed28f732c050695cb2c7bfc9d8f0ff6e8ca4c",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "99bbec2",
+            "message": "fix(normalize): one DOI grammar, not two \u2014 and the count that says the fix is inert",
+            "body": "`_DOI_IDENTIFIER_IN_LINE` (H0's colon-lead-in exemption) and\n`_BARE_DOI_IDENTIFIER_LINE` (P0r's running-footer predicate) each hand-typed the\nDOI grammar, nine lines apart in the same commit, under a comment on the first\none warning that a second copy WILL drift. It had already drifted: printing both\nregexes' verdict on `doi:10/gt3vmw` gave False and True. Both now derive from a\nshared `_DOI_FULL_FORM` / `_DOI_SHORT_FORM` pair. Found by /docpluck-review.\n\nNORMALIZATION_VERSION 1.9.67 -> 1.9.68, because the unification WIDENS one\npredicate: a `doi:`-prefixed short-form DOI on a colon-introduced header-zone\nline now survives where it did not. That is a consumer-visible text change for\nthat shape, and an unbumped version would make pre-fix and post-fix output\nindistinguishable in a consumer's own store.\n\nPREVALENCE, MEASURED \u2014 because the divergence was found by a CONSTRUCTED string,\nwhich is evidence about the code and never about the corpus. Over 200 PDFs (199\nEnglish; 1 Spanish excluded and reported) sampled seed 20260912: the newly-exempt\nshape occurs 0 lines in 0 papers. Two-sided, so that zero is a property of the\ncorpus and not of a broken search \u2014 the same scan's control, any bare short-form\n`10/xxxx`, fires on 8 lines in 8 papers. Confirmed a second way: the canary\npaper's render is byte-identical across the change (sha256 8d74f263ec2b0f03...).\nSo this is kept because it removes a duplicated grammar, NOT because a paper was\nlosing a DOI to it, and it must not later be cited as a corpus defect.\n\nShips tools/diag/doi_short_form_prevalence.py, which regenerates those numbers.\nThe comment named the tool, so the tool exists; and every site quoting the counts\nnames the command, so none of them is a number nobody can reproduce.\n\nAlso in this commit, both found while verifying the above:\n\n- CHANGELOG.md had TWO `## [2.4.143]` headings after the review's edit. One\n  version, one entry: merged, with the 1.9.67 work now a section under it.\n\n- tests/test_cli_structured.py spawns real `python -m docpluck` subprocesses on a\n  fixed 120s budget. Under `pytest -n auto` on 14 workers that expires:\n  test_figures_only_omits_tables and test_html_tables_to_writes_html_files\n  reported FAILED on subprocess.TimeoutExpired while the same file passed 7/7\n  serially in 192s. A false RED in the release gate costs more than a false green\n  \u2014 it sends someone hunting a regression that does not exist. The budget now\n  scales with load, as tests/test_benchmark_docx_html.py already does; both\n  branches were proved to fire (480 under a worker, 120 serial). It is a timeout,\n  not an assertion, so a genuinely hung CLI still fails.\n\nLESSONS.md L-057: a comment predicting drift is evidence someone thought about\nthe risk, never evidence it was checked for. Its second half records the\nprevalence, so a later reader cannot mistake L-057 for a corpus defect.\n\nFull suite on these bytes: 3208 passed, 0 failed, 46 skipped, 5 xfailed, exit 0.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-17",
+            "url": "https://github.com/giladfeldman/docpluck/commit/99bbec29046e054b0afee5382c42c2f8b36efb27",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-09-12T16:45:11Z",
+        "recent_commits": [
+          {
+            "sha": "1c1d925",
+            "message": "Merge pull request #299 from Davidvandijcke/dev",
+            "body": "Release subscription review model selection fix",
+            "author": "David Van Dijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/1c1d925e58646e6df78de711d64ec6d7f485badf",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "1e703c1",
+            "message": "fix(web): preserve subscription model selections and refresh options (#298)",
+            "body": "",
+            "author": "David Van Dijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/1e703c1a5178e05cd462daa264da8d094ffee93e",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "b8118c7",
+            "message": "fix(web): preserve subscription model selections and refresh options",
+            "body": "",
+            "author": "Davidvandijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/b8118c775122c3535419384063a6b2f04ba61c7f",
+            "type": "fix",
+            "branch": "codex/subscription-model-selection"
+          }
+        ]
+      },
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-09-09T17:50:39Z",
+        "recent_commits": [
+          {
+            "sha": "72620b2",
+            "message": "Treat `list_min_distance_functions` like other constants",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-09-09",
+            "url": "https://github.com/lhdjung/scrutiny/commit/72620b2796b2d95fce0ce545ac4a27679a85b8f2",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "23404f6",
+            "message": "Refactor to simplify",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-09-09",
+            "url": "https://github.com/lhdjung/scrutiny/commit/23404f642574b29973f21e853e8acb3012ed338c",
+            "type": "refactor",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-28T15:19:13Z",
+        "recent_commits": [
+          {
+            "sha": "4ea4b3b",
+            "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
+            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 69c3964cbc6c5fa72e1928aa83f610425e07cd6d\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
+            "author": "Gilad Feldman",
+            "date": "2026-08-28",
+            "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-10T06:52:07Z",
+        "recent_commits": [
+          {
+            "sha": "40676dd",
+            "message": "Release 0.12.7",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-09-10",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/40676dd45a817ba78070d6742d1018a5be451385",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-09-21T03:20:31.435461+00:00",
     "narrative": "",
     "repos": [
@@ -16286,372 +16592,6 @@
             "author": "Shaheed Azaad",
             "date": "2026-08-22",
             "url": "https://github.com/shaheedazaad/auto-zcurve/commit/25dceedf86930b5c8bb6e0c963adcc16eec65307",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-08-29T12:25:15.616000+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "lhdjung",
-        "repo": "scrutiny",
-        "url": "https://github.com/lhdjung/scrutiny",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 14,
-        "pushed_at": "2026-08-28T18:17:30Z",
-        "recent_commits": [
-          {
-            "sha": "f463a54",
-            "message": "Reject `symmetric` where a `\"ties_*\"` method already fixes the tie direction",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/f463a5465a226ee4ed13249ce2a3abc268168005",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "02ffc27",
-            "message": "List the `round_ties_*()` family in the pkgdown reference",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/02ffc2759df963cbbd509aaff9eedbd8bb128e9b",
-            "type": "docs",
-            "branch": "polishing"
-          },
-          {
-            "sha": "4e2a519",
-            "message": "Cover `\"ties_even\"` where the other tie methods are covered",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/4e2a519e7461756217c15dd4faef9d1871c8b7a3",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "11fe2ea",
-            "message": "Document the new rules for `reround()`'s `digits`",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/11fe2ea2ceef8ab4b46fdb784e16f9098f30a057",
-            "type": "feat",
-            "branch": "polishing"
-          },
-          {
-            "sha": "a57a0f3",
-            "message": "Report a bad `threshold` as a number, not as a non-string",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/a57a0f34c8638c0eaf759f02908af71af7894800",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "beb5963",
-            "message": "Make `check_digits_whole()` cheap, and say what is actually wrong",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/beb5963e71c38b12f0fc74ab52884e8a668e291e",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "e1cd277",
-            "message": "Capture argument names only when a length check fails",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/e1cd277f7a935f008b5dd60e2e373ebcdfa7694b",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "f4f176b",
-            "message": "Regenerate documentation",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/f4f176b4fa2683e660cd49fabfe30c253b29474c",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "71d1b91",
-            "message": "Document the rounding changes in NEWS.md and the vignette",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/71d1b916461badafa7b9c3bab539c3255163b6b3",
-            "type": "docs",
-            "branch": "polishing"
-          },
-          {
-            "sha": "b2a913d",
-            "message": "Add `round_ties_even()` and the `\"ties_even\"` string",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/b2a913d9edac7e79773180ba24548095b6723bf6",
-            "type": "feat",
-            "branch": "polishing"
-          },
-          {
-            "sha": "770bbd7",
-            "message": "Fix the argument checks in `rounding_bias()` and `reround_to_fraction()`",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/770bbd7313069f2fd5ac785003c6e3e1fcedb708",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "2f949d5",
-            "message": "Validate `digits` in `reround()`",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/2f949d5e8566818f80096d829ea00a4ad44d2e6f",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "d0c8c1e",
-            "message": "Correct the claim that `symmetric` only affects ties",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/d0c8c1e22d93a925cee372d5d71009f1f85fc59e",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "26ab044",
-            "message": "Make `round_down_from()` read `threshold` as `round_up_from()` does",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-28",
-            "url": "https://github.com/lhdjung/scrutiny/commit/26ab044cb5a649e0910ba2380a77bcb6de77cd4a",
-            "type": "other",
-            "branch": "polishing"
-          }
-        ]
-      },
-      {
-        "owner": "Davidvandijcke",
-        "repo": "coarse",
-        "url": "https://github.com/Davidvandijcke/coarse",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 13,
-        "pushed_at": "2026-08-27T17:58:45Z",
-        "recent_commits": [
-          {
-            "sha": "26532e1",
-            "message": "release: v1.9.2 (#286)",
-            "body": "Release the preview-validated extraction QA integrity fix, OpenRouter vision routing, cache migration, dependency audit repair, and documentation updates.",
-            "author": "David Van Dijcke",
-            "date": "2026-08-27",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/26532e1cb618d809d4fad70cce9ee001dcf15855",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "a94846c",
-            "message": "chore(release): prepare v1.9.2 (#285)",
-            "body": "Bump package and handoff pins to 1.9.2 and finalize the release changelog after preview signoff.",
-            "author": "David Van Dijcke",
-            "date": "2026-08-27",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/a94846c2b8dbb3f20ade853d7a0120b7232d37df",
-            "type": "chore",
-            "branch": "dev"
-          },
-          {
-            "sha": "605b77c",
-            "message": "chore(release): prepare v1.9.2",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-08-27",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/605b77c80bbce63b792871e165ad90082609b041",
-            "type": "chore",
-            "branch": "codex/release-v1.9.2-prep"
-          },
-          {
-            "sha": "313cae3",
-            "message": "chore: sync v1.9.1 main back into dev (#284)",
-            "body": "Preserve main ancestry and reconcile v1.9.1 release changes with current dev before v1.9.2.",
-            "author": "David Van Dijcke",
-            "date": "2026-08-27",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/313cae3d292eca07b83116171f7747d564b2cc95",
-            "type": "chore",
-            "branch": "codex/release-v1.9.2-prep"
-          },
-          {
-            "sha": "ecd8024",
-            "message": "merge: sync main v1.9.1 into dev",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-08-27",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/ecd80244a32c962ea5db80171b2abce93fe3d4e3",
-            "type": "other",
-            "branch": "codex/release-v1.9.2-prep"
-          },
-          {
-            "sha": "57efbb1",
-            "message": "fix(extraction): force headless vision QA through OpenRouter (#283)",
-            "body": "Prevent stale direct-provider keys from diverting the dedicated vision-QA call away from the required OpenRouter path. Follow-up to #282 and #254.",
-            "author": "David Van Dijcke",
-            "date": "2026-08-27",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/57efbb19c686ed7b65f18541dbe823f4d8fe0274",
-            "type": "fix",
-            "branch": "codex/release-v1.9.2-prep"
-          },
-          {
-            "sha": "36af75b",
-            "message": "fix(extraction): force headless vision QA through OpenRouter",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-08-27",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/36af75bf837371142ca0b5445750c755e44a85ab",
-            "type": "fix",
-            "branch": "codex/fix-headless-vision-openrouter"
-          },
-          {
-            "sha": "e762bbe",
-            "message": "fix(extraction): preserve vision QA images in headless reviews (#282)",
-            "body": "Route extraction vision QA through the real multimodal client, fail closed on non-text headless prompts, invalidate legacy PDF caches, disclose the QA charge, and restore a clean web dependency audit. Fixes #254.",
-            "author": "David Van Dijcke",
-            "date": "2026-08-27",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/e762bbe2b5d5407e27a79b0147ee34a3f6d625a0",
-            "type": "fix",
-            "branch": "codex/fix-headless-vision-openrouter"
-          },
-          {
-            "sha": "9447813",
-            "message": "fix(web): patch nanoid audit blocker",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-08-27",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/94478137ab8fedd5a2145ddda3feda5fb2710b83",
-            "type": "fix",
-            "branch": "codex/fix-headless-vision-qa-254"
-          },
-          {
-            "sha": "e476f88",
-            "message": "fix(extraction): preserve vision QA images in headless reviews",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-08-27",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/e476f882c3dbeb156f23adcf475a059571619a67",
-            "type": "fix",
-            "branch": "codex/fix-headless-vision-qa-254"
-          },
-          {
-            "sha": "ce0bac9",
-            "message": "chore(release): prepare v1.9.1",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-08-27",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/ce0bac90cf4f529ed0220900ea1c1c6b35d0ad97",
-            "type": "chore",
-            "branch": "codex/release-v1.9.2-prep"
-          },
-          {
-            "sha": "8daf944",
-            "message": "fix(codex): honor model-specific max effort",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-08-27",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/8daf9441deec54ff4781d3868f0373bea683e89e",
-            "type": "fix",
-            "branch": "codex/release-v1.9.2-prep"
-          },
-          {
-            "sha": "14d7992",
-            "message": "Merge pull request #253 from corybaird/docs/architecture-and-docs-improvements",
-            "body": "DOCS Reorganize documentation directory and add architecture guide",
-            "author": "David Van Dijcke",
-            "date": "2026-08-27",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/14d7992e43345d1a433828a301bb503ab799bc99",
-            "type": "other",
-            "branch": "codex/fix-headless-vision-openrouter"
-          }
-        ]
-      },
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-08-27T18:12:02Z",
-        "recent_commits": [
-          {
-            "sha": "a8e020c",
-            "message": "Classify undefined-symbol, missing-input, and install-failure diagnostics in reproducibility_check",
-            "body": "Three module-report improvements: recognize \"could not find function\" errors alongside \"object not found\" (both feed undefined_var), and surface where an undefined symbol is actually defined elsewhere in the paper's own code as a likely sourcing/copy-paste gap; fall back to fuzzy basename matching (same stem, small edit distance) when a missing input file has no exact match, surfacing the near-match candidate; and categorize dependency install failures (compile failure, network, transitive dependency missing, CRAN-unavailable) instead of reporting only raw error text.",
-            "author": "Lakens",
-            "date": "2026-08-27",
-            "url": "https://github.com/scienceverse/metacheck/commit/a8e020ca17c0e545bbd31c9fbc1d6bcfd067e618",
-            "type": "chore",
-            "branch": "reproducibility_check"
-          },
-          {
-            "sha": "53cca60",
-            "message": "Add per-call LLM request timeout and module-output caching for reproducibility_check retests",
-            "body": "Bounds a stuck local Ollama call so it fails fast and retries instead of blocking silently for hours, and lets a solo reproducibility_check retest reuse a prior full build's saved data_check/code_check/psychds_check outputs (via tables_dir) instead of recomputing them.",
-            "author": "Lakens",
-            "date": "2026-08-27",
-            "url": "https://github.com/scienceverse/metacheck/commit/53cca60fd6e533339d50f252987e683a2cd0cc3a",
-            "type": "feat",
-            "branch": "reproducibility_check"
-          }
-        ]
-      },
-      {
-        "owner": "quest-bih",
-        "repo": "oddpub",
-        "url": "https://github.com/quest-bih/oddpub",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-28T19:27:14Z",
-        "recent_commits": [
-          {
-            "sha": "fcdcbb0",
-            "message": "added parameters field_specific_yaml_path and field_speficif_action to open_data_search",
-            "body": "",
-            "author": "ontogenerator",
-            "date": "2026-08-28",
-            "url": "https://github.com/quest-bih/oddpub/commit/fcdcbb0105a89588d8166ce054e47fa32f09f39f",
-            "type": "test",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "escicheck",
-        "url": "https://github.com/giladfeldman/escicheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-28T15:19:13Z",
-        "recent_commits": [
-          {
-            "sha": "4ea4b3b",
-            "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
-            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 69c3964cbc6c5fa72e1928aa83f610425e07cd6d\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
-            "author": "Gilad Feldman",
-            "date": "2026-08-28",
-            "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
             "type": "chore",
             "branch": "main"
           }
