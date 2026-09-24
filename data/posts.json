@@ -1,5 +1,91 @@
 [
   {
+    "generated_at": "2026-09-24T16:37:11.715714+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-09-24T13:51:16Z",
+        "recent_commits": [
+          {
+            "sha": "f097769",
+            "message": "docs(claude): one checkout only \u2014 the five siblings were worktrees, not copies",
+            "body": "Five directories sat beside this one: -accf-docs, -e0b-docs, -head-sibling,\n-main-check, -v137-probe. Each was a git worktree of this same repository at an\nolder commit, sharing this .git \u2014 which is why each presented a complete-looking\nproject with its own CHANGELOG, package and docs, frozen at that commit.\n\nThat is the reason this is a standing rule rather than a one-off tidy: a stale\nworktree is indistinguishable from the real checkout at a glance, and reading old\ndocumentation or editing a file that will never be committed produces no warning.\n\nAll five verified clean (git status --porcelain returned 0 lines in each) before\nremoval was proposed. git worktree list is now a /docpluck-cleanup check, with the\ndirty-count verified first \u2014 --force on a dirty worktree destroys work that exists\nnowhere else.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-17",
+            "url": "https://github.com/giladfeldman/docpluck/commit/f0977690a363282868dba6e498ba95c66b98ca0b",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "b46a159",
+            "message": "chore(repo): one home for correspondence \u2014 communications/, ignored as a directory",
+            "body": "149 correspondence documents were loose in the repo root (38) and in docs/ (111)\n\u2014 messages in and out, replies, requests, session write-ups, investigation notes,\ncorpus work queues. None had ever been committed: verified with\n`git log --all --diff-filter=A --name-only` over every ref, which returns zero\nfor all of those prefixes. So this is a structural fix, not an exposure fix.\n\nThey now live in communications/, one flat folder, and .gitignore carries\ncommunications/ as a DIRECTORY entry rather than yet another prefix. Every\ncorrespondence leak this repo has had came from a naming convention nobody had\nimagined yet (2026-08-07, 2026-08-20); a directory rule does not care what the\nfile is called. Verified with a positive control \u2014 an arbitrarily named file\nplaced inside communications/ comes back ignored by that rule, and the relocation\ncheck itself was shown to fire on a planted file before its zero was believed.\n\nComments and docstrings citing a moved file by its old path were repointed and\neach target confirmed to exist. No code reads any of these paths.\n\ntests/test_public_repo_hygiene.py: 11 passed.\npublic-repo-guard: 0 blocking.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-17",
+            "url": "https://github.com/giladfeldman/docpluck/commit/b46a159babf2349f31f745f61cc40a93dd0a3b98",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "c81cc8e",
+            "message": "fix(normalize): one DOI grammar, not two \u2014 and the count that says the fix is inert",
+            "body": "`_DOI_IDENTIFIER_IN_LINE` (H0's colon-lead-in exemption) and\n`_BARE_DOI_IDENTIFIER_LINE` (P0r's running-footer predicate) each hand-typed the\nDOI grammar, nine lines apart in the same commit, under a comment on the first\none warning that a second copy WILL drift. It had already drifted: printing both\nregexes' verdict on `doi:10/gt3vmw` gave False and True. Both now derive from a\nshared `_DOI_FULL_FORM` / `_DOI_SHORT_FORM` pair. Found by /docpluck-review.\n\nNORMALIZATION_VERSION 1.9.67 -> 1.9.68, because the unification WIDENS one\npredicate: a `doi:`-prefixed short-form DOI on a colon-introduced header-zone\nline now survives where it did not. That is a consumer-visible text change for\nthat shape, and an unbumped version would make pre-fix and post-fix output\nindistinguishable in a consumer's own store.\n\nPREVALENCE, MEASURED \u2014 because the divergence was found by a CONSTRUCTED string,\nwhich is evidence about the code and never about the corpus. Over 200 PDFs (199\nEnglish; 1 Spanish excluded and reported) sampled seed 20260912: the newly-exempt\nshape occurs 0 lines in 0 papers. Two-sided, so that zero is a property of the\ncorpus and not of a broken search \u2014 the same scan's control, any bare short-form\n`10/xxxx`, fires on 8 lines in 8 papers. Confirmed a second way: the canary\npaper's render is byte-identical across the change (sha256 8d74f263ec2b0f03...).\nSo this is kept because it removes a duplicated grammar, NOT because a paper was\nlosing a DOI to it, and it must not later be cited as a corpus defect.\n\nShips tools/diag/doi_short_form_prevalence.py, which regenerates those numbers.\nThe comment named the tool, so the tool exists; and every site quoting the counts\nnames the command, so none of them is a number nobody can reproduce.\n\nAlso in this commit, both found while verifying the above:\n\n- CHANGELOG.md had TWO `## [2.4.143]` headings after the review's edit. One\n  version, one entry: merged, with the 1.9.67 work now a section under it.\n\n- tests/test_cli_structured.py spawns real `python -m docpluck` subprocesses on a\n  fixed 120s budget. Under `pytest -n auto` on 14 workers that expires:\n  test_figures_only_omits_tables and test_html_tables_to_writes_html_files\n  reported FAILED on subprocess.TimeoutExpired while the same file passed 7/7\n  serially in 192s. A false RED in the release gate costs more than a false green\n  \u2014 it sends someone hunting a regression that does not exist. The budget now\n  scales with load, as tests/test_benchmark_docx_html.py already does; both\n  branches were proved to fire (480 under a worker, 120 serial). It is a timeout,\n  not an assertion, so a genuinely hung CLI still fails.\n\nLESSONS.md L-057: a comment predicting drift is evidence someone thought about\nthe risk, never evidence it was checked for. Its second half records the\nprevalence, so a later reader cannot mistake L-057 for a corpus defect.\n\nFull suite on these bytes: 3208 passed, 0 failed, 46 skipped, 5 xfailed, exit 0.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-17",
+            "url": "https://github.com/giladfeldman/docpluck/commit/c81cc8e9494f325290e9d7935119e13d13e89a83",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-31T11:22:46Z",
+        "recent_commits": [
+          {
+            "sha": "2b30005",
+            "message": "documentation and version bump",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-08-31",
+            "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "JamieCummins",
+        "repo": "regcheck",
+        "url": "https://github.com/JamieCummins/regcheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-20T02:00:02Z",
+        "recent_commits": [
+          {
+            "sha": "d2dd8a5",
+            "message": "add redis data info",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-09-20",
+            "url": "https://github.com/JamieCummins/regcheck/commit/d2dd8a5b564a4ccd69b1536969cf418d02a26a86",
+            "type": "feat",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-09-24T11:15:05.785687+00:00",
     "narrative": "",
     "repos": [
@@ -15816,172 +15902,6 @@
             "author": "Gilad Feldman",
             "date": "2026-08-28",
             "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-09-02T02:53:16.570865+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "giladfeldman",
-        "repo": "docpluck",
-        "url": "https://github.com/giladfeldman/docpluck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 5,
-        "pushed_at": "2026-08-21T19:16:04Z",
-        "recent_commits": [
-          {
-            "sha": "56b67b0",
-            "message": "release: v2.4.137 \u2014 a fix in the COMPARISON KEY is not a fix in the SHIPPED string",
-            "body": "v1.9.57 diagnosed that one stray U+0008 BACKSPACE made a Frontiers running\nheader unequal to its layout-channel twin, and fixed it inside `_key()` \u2014 F0's\ncomparison key. The character stayed in the emitted text, where a completely\nunrelated rule landed on it one day later:\n`_prior_paragraph_is_sentence_terminated` walks back over whitespace and\nrequires what it finds to be in \".!?/\". On 10.3389/fvets.2025.1645266 the walk\nlanded on the BACKSPACE, discarded the `1 Introduction:` heading, and greedy\nspan-fill handed the preceding KEYWORDS span 69,849 characters \u2014 the whole\narticle. Found by an external benchmark, not by us.\n\n* C0 `_strip_furniture_controls` (NORMALIZATION_VERSION 1.9.58), run before F0\n  so the comparison key and the output are ONE rule. One character wide and\n  measured: all 33 corpus U+0008 sites are '.'+BS+newline, none are overstrike.\n  U+0002/03/04/07 are corrupted CONTENT glyphs (Schri<02>macher =\n  \"Schrittmacher\") and are COUNTED, not stripped, in the new\n  `NormalizationReport.residual_control_chars`.\n* The heading guard skips page breaks and control characters, and a canonical\n  heading carrying BOTH a line-initial section number AND a colon no longer\n  needs a terminated prior paragraph (SECTIONING_VERSION 1.2.5). Both halves\n  are required: `2 Literature search` on the same paper resolves canonically to\n  `references`, so a number-only escape would open back-matter mid-article.\n  Measured blast radius: 3 of 39 guard rejections were furniture; the escape\n  fires exactly once in 30 papers.\n* The boundary-truncation pass, unreachable since v1.6.1 (`_NO_TRUNCATE =\n  set(SectionLabel)` matched every label), is deleted.\n\nThe C0 strip ALONE does not fix that paper \u2014 the first probe said it did,\nbecause it stripped the character from an already-normalized string while the\nshipped order runs C0 before H0. Test the composition that ships (LESSONS\nL-055, L-056).\n\nArena effect, 30 held-out PMC papers: body-label slice 0.7681 -> 0.7911,\noracle 0.8038 -> 0.8140, collapses 5 -> 4, recall median 0.9862, 0 regressions.\n\nGates: 2,885 passed / 0 failed; non-statistic corpus scan CLEAN 60/60;\nrender-deletion 26/26 with 0 content lost; verify_corpus 26/26 COVERAGE 26/26;\nservice suite 183 passed; public-repo hygiene 11/11.",
-            "author": "Gilad Feldman",
-            "date": "2026-08-21",
-            "url": "https://github.com/giladfeldman/docpluck/commit/56b67b06d6a7c21f1fef88978b72ecc85820f8c2",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "86c9e98",
-            "message": "docs(changelog): v2.4.136's measurements were the LAYOUT path, presented as universal",
-            "body": "The entry said \"16 papers gain page breaks; 2 footnote appendices restored\" with\nno indication of which callers see it. Two of those three claims do not reach the\nHTTP API at all, and the entry as written told consumers otherwise.\n\n`_f0_strip_running_and_footnotes` returns immediately without a `LayoutDoc`, and\nthe footnote appendix is F0's product. Enumerated rather than assumed:\n\n    batch.py:355              passes layout   -> full change\n    sections/__init__.py:116  passes layout   -> full change\n    service/app/main.py:532   NO layout       -> page breaks only\n    service/app/main.py:1007  NO layout       -> page breaks only\n\nRe-measured through the no-layout path the service actually runs: 12 of 26 papers\nchange (not 16), 0 appendices restored (not 2), and still 0 lines removed or\nadded. The API gains page boundaries and loses nothing; it gains no appendix.\n\nAND THE LARGER FINDING, pre-existing and not this release's doing: because the\nservice never computes a layout, F0 has NEVER run in production, and neither has\nany layout-gated repair -- W0h (dropped minus via cid glyph), W0m (beta-as-b via\nfont), W0p (superscript via size+baseline). Every API consumer has been receiving\ntext with running headers intact and those three repairs absent, while the same\ndocument through `extract_to_dir` is repaired. Two paths, one version, different\nnumbers.\n\nThis is the identical shape CLAUDE.md records for batch.py and marks FIXED in\nv2.4.128 -- the service was never checked. NOT fixed here: wiring a layout into\nthe service roughly doubles per-document cost and changes output for every\nconsumer at once, which is a deliberate decision, not a doc fix. Tracked in the\nhandoff and in both consumer notices.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-21",
-            "url": "https://github.com/giladfeldman/docpluck/commit/86c9e981c7becabfd27ff095b98911a75c0c9d6f",
-            "type": "docs",
-            "branch": "main"
-          },
-          {
-            "sha": "a1979ae",
-            "message": "release: v2.4.136 \u2014 a page NUMBER is furniture, a page BOUNDARY is structure",
-            "body": "Bumps __version__ + pyproject to 2.4.136 and promotes the CHANGELOG entry.\nNORMALIZATION_VERSION was already at 1.9.57 (cd89380), because the output\nchanged then and the version describing that output had to move with it.\n\nWHAT SHIPS. `_normalize_text` stripped standalone page numbers with\n`^\\s*\\d{1,3}\\s*$` under MULTILINE, and the whitespace class matches THE FORM\nFEED \u2014 so the rule could consume the page boundary beside the number it deleted.\nWrong since it was written, held latent by a running footer standing between the\ntwo. Two baseline papers were ALREADY broken at HEAD: 10.1016/j.jesp.2021.104154\nand 10.1016/j.joep.2020.102350 reported 15 and 18 footnotes through\nreport.footnote_texts while the returned string carried no appendix at all.\n\nCONSUMER-VISIBLE CHANGE, and consumers must be told: the `\\n\\f\\f\\n` marker that\nseparates the footnote appendix now actually appears on those papers. A consumer\nsplitting on it gets a body WITHOUT the footnotes where it previously got a body\nWITH them silently inlined. That is a correction, but it is a change.\n\nMeasured, 26-paper baseline vs a git worktree of the prior tree, separate\ninterpreters: 0 lines removed, 0 added; 16 papers gain page breaks (+1..+17);\n2 appendices restored (0 -> 1,288 and 0 -> 2,165 bytes); 0 papers worse.\n\ndocs/README.md's advertised `'version'` was updated \u2014 and it was the gate added\nin ab291c7 that caught it going stale, on its first real release. That gate now\nhas its own test (bc6b861), because it had none and had been edited twice in one\nsession.\n\nGATES, all on the shipping tree:\n  library suite      2864 passed, 27 skipped, 5 xfailed, 0 failed (1:25:37)\n  service suite      183 passed, 2 skipped\n  two-tree diff      0 lines removed/added across 26 papers\n  render-deletion    0 papers losing content, COVERAGE 26/26\n  non-statistic scan CLEAN, 0 defects, COVERAGE 40/40\n  corpus verifier    26/26 PASS, COVERAGE 26/26\n  concurrency (14e)  6x200, 2x429 service_busy, zero 502s, max 66s\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-21",
-            "url": "https://github.com/giladfeldman/docpluck/commit/a1979aeda597666707d297436e94008194809fd7",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "bc6b861",
-            "message": "test(gate): the docs-accuracy gate had no test, and was edited twice in one session",
-            "body": "`scripts/check_docs_consistency.py` asserts that the version numbers\n`docs/README.md` advertises still match the constants this package defines. It is\ninvoked by hand from handoffs and release checklists and by nothing automatic \u2014\nso it was changed twice today (2657047, ab291c7) with nothing pinning either\nchange, and the second of those changes existed only because the first had a gap\nnobody could have caught.\n\nA check that CAN be a test MUST be a test. A gate nobody runs is\nindistinguishable from a gate that passes, and this one guards a claim that\nreaches consumers: `docs/README.md` documents the provenance block\n`get_version_info()` returns.\n\nFive cases, each pinning a failure that actually happened or is about to:\n\n  * the gate PASSES on the committed tree\n  * a drifted PACKAGE version is caught \u2014 the one that goes stale on EVERY\n    release, uncovered until ab291c7\n  * a drifted PIPELINE version is caught \u2014 `table_extraction_version` sat at\n    '2.4.10' against a source 2.4.12 until it was spotted by eye\n  * a drifted NORMALIZATION version is caught\n  * the two deliberately-ungated keys are still NAMED in the gate, so the reason\n    for excluding them cannot be silently lost\n\nEach drift runs against a COPY of only the files the gate reads, in tmp \u2014 the\ntest never mutates the working tree, and does not drag the corpus along.\n\nMUTATION-VERIFIED IN TWO DIRECTIONS, because a test that has never failed against\nthe real defect proves nothing:\n\n  removing the package-version line   -> exactly 1 test fails\n  removing the whole sibling loop     -> 3 tests fail\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-21",
-            "url": "https://github.com/giladfeldman/docpluck/commit/bc6b861b423f6e123cfbb0307a7e290d063a8ea5",
-            "type": "test",
-            "branch": "main"
-          },
-          {
-            "sha": "ab291c7",
-            "message": "fix(gate): the version check missed the ONE version that goes stale every release",
-            "body": "Hard rule 23 says a universal-quantifier claim is only as good as the enumeration\nbehind it. The previous commit's message claimed the gate \"compares every\nadvertised pipeline version against its defining constant\". Enumerating the\nprovenance block in docs/README.md rather than trusting that sentence:\n\n    advertised   version, normalize_version, sectioning_version,\n                 table_extraction_version, python_version, unicodedata_version\n    covered      normalize_version, sectioning_version, table_extraction_version\n    UNCOVERED    version, python_version, unicodedata_version\n\nSix keys, not the five I had in mind -- `unicodedata_version` was not even on my\nlist. The claim was defensible for the three PIPELINE versions and silent about\nthe rest, which is exactly the shape rule 23 exists to catch.\n\n`version` is now covered, and it is the important one: it is the package version,\nso it goes stale on EVERY release, and docs/README.md advertises it as `2.4.135`.\nThe very next release would have made that doc wrong with nothing to say so.\n\n`python_version` and `unicodedata_version` are deliberately NOT gated, and the\ncode says why: they are runtime facts this repo does not define, so there is no\nconstant for them to drift from. Recording the reason matters more than the\nexclusion -- an unexplained gap reads as an oversight to the next maintainer.\n\nMutation-verified: setting __version__ = 2.4.136 fails with\n\"docs/README.md says version = '2.4.135' but docpluck/__init__.py defines\n__version__ = '2.4.136'\", and restoring it passes.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>",
-            "author": "Gilad Feldman",
-            "date": "2026-08-21",
-            "url": "https://github.com/giladfeldman/docpluck/commit/ab291c78b9ed4fdff7d3097c015bb3261324ed1c",
-            "type": "fix",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "Davidvandijcke",
-        "repo": "coarse",
-        "url": "https://github.com/Davidvandijcke/coarse",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 5,
-        "pushed_at": "2026-09-01T23:34:18Z",
-        "recent_commits": [
-          {
-            "sha": "6a1942c",
-            "message": "fix(security): close remaining high-risk findings",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-09-01",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/6a1942ccad41f2a92d4747416dbde2b7fb38c43a",
-            "type": "fix",
-            "branch": "codex/security-hardening-20260901"
-          },
-          {
-            "sha": "c0bfcea",
-            "message": "fix(cli): close subscription isolation gaps",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-09-01",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/c0bfcea2187d084c22cea2f3afb84d7aa3bc4022",
-            "type": "fix",
-            "branch": "codex/security-hardening-20260901"
-          },
-          {
-            "sha": "588f294",
-            "message": "Merge remote-tracking branch 'upstream/dev' into fix/review-only-headless-profile",
-            "body": "# Conflicts:\n#\tCHANGELOG.md",
-            "author": "Davidvandijcke",
-            "date": "2026-08-31",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/588f2945dc06c1e3d051e191d8823c275c459c73",
-            "type": "fix",
-            "branch": "codex/security-hardening-20260901"
-          },
-          {
-            "sha": "735b8e3",
-            "message": "fix(cli): enforce tool-free review isolation",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-08-31",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/735b8e3696a79036a3ed2d384f5b9f63de6492c7",
-            "type": "fix",
-            "branch": "codex/security-hardening-20260901"
-          },
-          {
-            "sha": "3f74204",
-            "message": "feat(llm): support openai/gpt-5.6-sol-pro on the direct OpenAI route (#288)",
-            "body": "* feat(llm): support openai/gpt-5.6-sol-pro on the direct OpenAI route (#1)\n\nThe -pro suffix is an OpenRouter-only variant ID; OpenAI's own API 404s\non it. With a direct OPENAI_API_KEY, LLMClient now rewrites the wire\nrequest to the real model gpt-5.6-sol plus a reasoning {\"mode\": \"pro\"}\nbody via the new DIRECT_REQUEST_MODEL_ALIASES table in models.py, and\nsuppresses the conflicting default reasoning_effort. The OpenRouter\nroute keeps sending the variant ID untouched. The variant's pricing and\n272k long-context tier are registered (identical to base Sol per\nOpenRouter, verified 2026-08-30) so the pre-flight cost gate no longer\nquotes $0.\n\nCo-authored-by: Claude Fable 5 <noreply@anthropic.com>\n\n* fix(llm): route Sol pro through Responses API\n\n---------\n\nCo-authored-by: Claude Fable 5 <noreply@anthropic.com>\nCo-authored-by: Davidvandijcke <david.van.dijcke@gmail.com>",
-            "author": "ciamac moallemi",
-            "date": "2026-08-31",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/3f742046fdbebb0648fd89c369e59f412709c355",
-            "type": "feat",
-            "branch": "codex/security-hardening-20260901"
-          }
-        ]
-      },
-      {
-        "owner": "quest-bih",
-        "repo": "oddpub",
-        "url": "https://github.com/quest-bih/oddpub",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-31T11:22:46Z",
-        "recent_commits": [
-          {
-            "sha": "2b30005",
-            "message": "documentation and version bump",
-            "body": "",
-            "author": "ontogenerator",
-            "date": "2026-08-31",
-            "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-22T10:29:03Z",
-        "recent_commits": [
-          {
-            "sha": "25dceed",
-            "message": "Release 0.12.6",
-            "body": "Fixes the Gemini model catalog being restricted to a small hardcoded\nallowlist (any generateContent-capable model is now offered, and the\nsaved model text is no longer blanked out when it's not in the\ncatalog), fixes a duplicated/conflicting \"Effects of interest\"\nextraction-instructions section, and adds app-wide default models,\na read-only view of the default extraction instructions, provider-\nswitch model autofill, a Sources-tab landing for new projects, and\nthe rendered extraction instructions in the results ZIP.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-            "author": "Shaheed Azaad",
-            "date": "2026-08-22",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/25dceedf86930b5c8bb6e0c963adcc16eec65307",
             "type": "chore",
             "branch": "main"
           }
