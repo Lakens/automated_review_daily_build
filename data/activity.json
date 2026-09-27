@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-27T16:31:35.465745+00:00",
+  "generated_at": "2026-09-27T21:00:41.892872+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -32,9 +32,9 @@
       "topics": [
         "metascience"
       ],
-      "pushed_at": "2026-09-26T14:21:28Z",
+      "pushed_at": "2026-09-27T20:47:28Z",
       "created_at": "2025-02-04",
-      "last_push_days": 1,
+      "last_push_days": 0,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -52,11 +52,15 @@
         },
         {
           "name": "dev",
-          "last_commit": "2026-09-26"
+          "last_commit": "2026-09-27"
         },
         {
           "name": "fix-427-zip-peek-cache",
           "last_commit": "2026-09-26"
+        },
+        {
+          "name": "fix-429-zip-member-errors",
+          "last_commit": "2026-09-27"
         },
         {
           "name": "jw_bibr_read_passthrough",
@@ -114,8 +118,13 @@
       "branch_activity": [
         {
           "name": "dev",
-          "last_commit": "2026-09-26",
-          "commits_30d": 83
+          "last_commit": "2026-09-27",
+          "commits_30d": 85
+        },
+        {
+          "name": "fix-429-zip-member-errors",
+          "last_commit": "2026-09-27",
+          "commits_30d": 1
         },
         {
           "name": "jw_bibr_schema_v12",
@@ -133,19 +142,19 @@
           "commits_30d": 2
         }
       ],
-      "commits_30d": 95,
-      "commits_7d": 10,
-      "commits_1d": 0,
-      "commits_90d": 252,
+      "commits_30d": 98,
+      "commits_7d": 11,
+      "commits_1d": 3,
+      "commits_90d": 255,
       "authors_30d": [
-        "Lukas Wallrich",
         "Lakens",
-        "Daniel Lakens",
-        "Jakub Werner"
+        "Jakub Werner",
+        "Lukas Wallrich",
+        "Daniel Lakens"
       ],
       "type_breakdown": {
-        "fix": 47,
-        "other": 24,
+        "fix": 48,
+        "other": 26,
         "chore": 8,
         "test": 2,
         "feat": 14
@@ -154,6 +163,21 @@
       "is_archived": false,
       "summary": "Summary unavailable.",
       "prs": [
+        {
+          "number": 430,
+          "title": "Record why a zip archive-member fetch failed instead of a silent NULL (#429)",
+          "state": "closed",
+          "author": "Lakens",
+          "author_url": "https://github.com/Lakens",
+          "created_at": "2026-09-27",
+          "updated_at": "2026-09-27",
+          "merged_at": "2026-09-27",
+          "url": "https://github.com/scienceverse/metacheck/pull/430",
+          "draft": false,
+          "labels": [],
+          "comments": 0,
+          "review_comments": 0
+        },
         {
           "number": 428,
           "title": "Persist zip_peek() to disk and thread skip_on_api_limit through it (#427)",
@@ -359,21 +383,6 @@
           "updated_at": "2026-09-20",
           "merged_at": "2026-09-20",
           "url": "https://github.com/scienceverse/metacheck/pull/415",
-          "draft": false,
-          "labels": [],
-          "comments": 0,
-          "review_comments": 0
-        },
-        {
-          "number": 416,
-          "title": "Download and cache the psychsci test corpus on demand",
-          "state": "closed",
-          "author": "Lakens",
-          "author_url": "https://github.com/Lakens",
-          "created_at": "2026-09-20",
-          "updated_at": "2026-09-20",
-          "merged_at": "2026-09-20",
-          "url": "https://github.com/scienceverse/metacheck/pull/416",
           "draft": false,
           "labels": [],
           "comments": 0,
@@ -632,31 +641,31 @@
         },
         {
           "week": 1786320000,
-          "total": 56
+          "total": 57
         },
         {
           "week": 1786924800,
-          "total": 46
+          "total": 45
         },
         {
           "week": 1787529600,
-          "total": 13
+          "total": 15
         },
         {
           "week": 1788134400,
-          "total": 17
+          "total": 16
         },
         {
           "week": 1788739200,
-          "total": 27
+          "total": 32
         },
         {
           "week": 1789344000,
-          "total": 30
+          "total": 26
         },
         {
           "week": 1789948800,
-          "total": 10
+          "total": 11
         }
       ],
       "code_frequency": [
@@ -759,6 +768,62 @@
       "scopus_citations": null,
       "recent_commits": [
         {
+          "sha": "33f340c",
+          "message": "Record archive-member download failures in download_repo_files() itself (#429)",
+          "body": "The previous commit fixed error propagation inside .zip_fetch_members()/\n.zip_member_fetch(), but missed the actual call site the issue reported:\ndownload_repo_files()'s archive-member block (R/repo-download.R) wraps\n.zip_fetch_members() in tryCatch(..., error = function(e) NULL) and, on\nany failure -- a thrown error, or a listing that returns NULL, or an\nindividual member coming back ok = FALSE -- just does `next`, leaving\nfile_location = NA with nothing recorded anywhere. This is the exact code\nquoted in the issue.\n\nMoved `failed`'s initialization earlier (it previously appeared after this\nblock ran, so there was nowhere to record into) and now populate it for\nall three failure shapes, matching the has_url path's existing convention:\nthe roll-up message() and attr(files, \"failed\") already downstream pick\nthese up unchanged.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-09-27",
+          "url": "https://github.com/scienceverse/metacheck/commit/33f340cc7e36662b8d04313de5d4448e3afa6bd7",
+          "type": "other",
+          "branch": "fix-429-zip-member-errors",
+          "diff": {
+            "additions": 119,
+            "deletions": 7,
+            "files": [
+              {
+                "filename": "R/repo-download.R",
+                "status": "modified",
+                "additions": 44,
+                "deletions": 7,
+                "patch": "@@ -1208,6 +1208,14 @@ download_repo_files <- function(files,\n   # archive-member block, which runs first, can record into it too.\n   oversize_skipped <- data.frame(repo_url = character(0), file_name = character(0),\n                                  file_size = numeric(0), stringsAsFactors = FALSE)\n+  # Same reason `oversize_skipped` was moved up (see above): `failed` was\n+  # previously defined just before the has_url loop, so the archive-member\n+  # block below had nowhere to record a fetch fa"
+              },
+              {
+                "filename": "tests/testthat/test-repo-download.R",
+                "status": "modified",
+                "additions": 75,
+                "deletions": 0,
+                "patch": "@@ -174,6 +174,81 @@ test_that(\"failed downloads are reported and recorded, not swallowed\", {\n   expect_equal(fa$file_url, files$file_url[2])\n })\n \n+# Build a files data.frame shaped like repo_check's zip-peek expansion: no\n+# file_url (an archive-member row has none), but archive_url/archive_member\n+# instead (see download_repo_files()'s own header comment on this block).\n+make_archive_member_files <- function() {\n+  repo <- paste0(\"https://example.org/repo-test-\",\n+                paste(sample"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "93d35f4",
+          "message": "Merge pull request #430 from scienceverse/fix-429-zip-member-errors",
+          "body": "Record why a zip archive-member fetch failed instead of a silent NULL (#429)",
+          "author": "Daniel Lakens",
+          "author_login": "Lakens",
+          "date": "2026-09-27",
+          "url": "https://github.com/scienceverse/metacheck/commit/93d35f448886d1a7d27a047259ddc2a31be01fe4",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
+          "sha": "947aace",
+          "message": "Record why a zip archive-member fetch failed instead of a silent NULL (#429)",
+          "body": ".zip_fetch_members()/.zip_member_fetch() collapsed every failure -- a\ntransient range-request error, a corrupt local header, a CRC mismatch, a\npath-traversal rejection, a write failure -- into an indistinguishable\nok = FALSE with no message anywhere, so a corpus-scale run had no way to\ntell a retryable failure apart from a host that will never support this.\nEach failure path now records a one-line reason, and the five per-provider\ndownload functions (Dryad, Zenodo, Figshare, Dataverse, ReShare) surface it\nas a progress message and attach it as a `failed` attribute on the returned\ntable, matching the convention download_repo_files() already uses.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-09-27",
+          "url": "https://github.com/scienceverse/metacheck/commit/947aacedae645d5b42dc9e40e4a49b0f7a23e5be",
+          "type": "other",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
           "sha": "1889c53",
           "message": "Merge pull request #428 from scienceverse/fix-427-zip-peek-cache",
           "body": "Persist zip_peek() to disk and thread skip_on_api_limit through it (#427)",
@@ -768,69 +833,7 @@
           "url": "https://github.com/scienceverse/metacheck/commit/1889c530553a7a547a1aed5d9b27cb882be502e7",
           "type": "fix",
           "branch": "dev",
-          "diff": {
-            "additions": 334,
-            "deletions": 52,
-            "files": [
-              {
-                "filename": "NAMESPACE",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -306,4 +306,5 @@ export(zenodo_pat)\n export(zenodo_upload)\n export(zip_decision)\n export(zip_peek)\n+export(zip_peek_cache_clear)\n importFrom(DT,datatable)"
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -1,5 +1,6 @@\n # metacheck 0.3.1\n \n+* `zip_peek()` gained an on-disk cache (`cache = TRUE`, mirroring `repo_info_cache()`) so a restarted R process reuses a zip's already-peeked listing instead of re-issuing the range request; `repo_check()`/`data_check()`/`code_check()` forward their own `cache` argument to it. Also fixed `skip_on_api_limit` not reaching `zip_peek()`'s own HTTP requests: `repo_check()` gained a `skip_on_api_limit` parameter, and `data_check()`/`code_check()` now forward their"
-              },
-              {
-                "filename": "R/code_check.R",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 3,
-                "patch": "@@ -591,15 +591,16 @@ code_lang <- function(file_name) {\n # own NULL-return cases); such a row is left for the normal download path,\n # which will fetch the whole archive and (if data_check expands it) recover\n # its contents that way instead.\n-.code_expand_zip <- function(all_files, skip_on_api_limit = FALSE) {\n+.code_expand_zip <- function(all_files, skip_on_api_limit = FALSE, cache = FALSE) {\n   is_zip <- grepl(\"\\\\.zip$\", all_files$file_name, ignore.case = TRUE) &\n     !is.na(all_files$file_u"
-              },
-              {
-                "filename": "R/repo-download.R",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 1,
-                "patch": "@@ -1306,7 +1306,8 @@ download_repo_files <- function(files,\n         member_dest <- .safe_write_path(member_dest)\n         dir.create(member_dest, showWarnings = FALSE, recursive = TRUE)\n         fetched <- tryCatch(\n-          .zip_fetch_members(arc, names = files$archive_member[idx], dest = member_dest),\n+          .zip_fetch_members(arc, names = files$archive_member[idx], dest = member_dest,\n+                            cache = cache, skip_on_api_limit = skip_on_api_limit),\n           error "
-              },
-              {
-                "filename": "R/zip-peek-cache.R",
-                "status": "added",
-                "additions": 85,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,85 @@\n+# On-disk cache for zip_peek()'s result (a zip's central-directory listing,\n+# read via one or two HTTP range requests -- see R/zip-peek.R). This is the\n+# same fix, one level further in, that repo_info_cache() (R/repo-info-cache.R)\n+# already applies to a repository's file LISTING: zip_peek()'s own cache\n+# (.zip_peek_cache, R/zip-peek.R) is in-memory only, so it is reset every time\n+# the R process restarts, and a restarted pipeline run re-peeks every zip it\n+# already peeked"
-              },
-              {
-                "filename": "R/zip-peek.R",
-                "status": "modified",
-                "additions": 79,
-                "deletions": 36,
-                "patch": "@@ -53,8 +53,8 @@\n # moment (see .storage_is_transient(), R/repo-download.R), but S3 answers a\n # HEAD with 403 every single time, so retrying it only added ~6 s of backoff\n # per Dryad/Figshare/Dataverse file before the size request failed anyway.\n-.size_probe_is_transient_factory <- function() {\n-  is_transient <- .storage_is_transient_factory()\n+.size_probe_is_transient_factory <- function(skip_on_api_limit = FALSE) {\n+  is_transient <- .storage_is_transient_factory(skip_on_api_limit)\n   func"
-              },
-              {
-                "filename": "inst/modules/code_check.R",
-                "status": "modified",
-                "additions": 9,
-                "deletions": 4,
-                "patch": "@@ -27,7 +27,7 @@\n #' @param max_download_size largest total download per repository, in MB (default 500). Set `Inf` for no cap.\n #' @param max_files_per_repo largest file COUNT a single repository may have before it is refused outright (default `Inf`, no cap) -- see [download_repo_files()]'s own parameter of the same name.\n #' @param cache if TRUE, keep downloaded files in a persistent on-disk cache (see [repo_cache_dir()]) so they are reused on later runs. If FALSE (the default), download to a"
-              },
-              {
-                "filename": "inst/modules/data_check.R",
-                "status": "modified",
-                "additions": 13,
-                "deletions": 4,
-                "patch": "@@ -105,7 +105,9 @@\n #'   rate-limit-exhausted signal (e.g. Dryad's per-day quota) skips that file\n #'   instead of waiting out the host's own reset. Default `FALSE` (always\n #'   wait for a confirmed reset) -- see [download_repo_files()]'s own\n-#'   parameter of the same name.\n+#'   parameter of the same name. Also forwarded to `repo_check()` and to the\n+#'   zip-peeking step below (`peek_zips`, [zip_peek()]), both of which make\n+#'   the same kind of request and can hit the same rate limit.\n #"
-              }
-            ]
-          },
-          "diff_summary": ""
+          "diff": {}
         },
         {
           "sha": "bec46c6",
@@ -1143,45 +1146,65 @@
           "type": "fix",
           "branch": "main",
           "diff": {}
-        },
-        {
-          "sha": "5cb8326",
-          "message": "Merge pull request #409 from scienceverse/fix-dryad-alternate-doi-prefixes",
-          "body": "Fix Dryad/Dataverse DOI-prefix detection gaps and a systemic *_info() crash",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-09-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/5cb8326323c0b854bfd13989aca9f27f5284f1fe",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "46a6c19",
-          "message": "Fix Dryad/Dataverse DOI-prefix detection gaps and a systemic *_info() crash",
-          "body": "Dryad DOIs are not all issued under the 10.5061 prefix; found the\ncomplete set of 14 real prefixes by exhaustively sampling DataCite's\nDOI index, each individually confirmed live to resolve to a real\ndatadryad.org dataset page.\n\nA bare DOI with no host domain in the URL (e.g. CIRAD Dataverse's\n\"https://doi.org/10.18167/DVN1/T0DMFJ\") was invisible to\ndataverse_links() even though the host itself is already known;\nadded a per-host, individually-verified DOI-prefix allowlist\ncovering 87 of 121 known Dataverse installations, found and verified\nthe same way as the Dryad prefixes.\n\nWhile verifying both fixes against real papers, found that calling\n<platform>_info() with the table <platform>_links() itself produced\n(the normal, documented usage) crashes with a left_join column-name\ncollision whenever a repository isn't found -- confirmed in Dryad,\nDataverse, DataONE, Figshare, Mendeley Data, ReShare, and Zenodo.\nFixed by dropping the caller's pre-existing derived columns before\neach function recomputes and joins its own.\n\nFound while investigating disagreements in the Cooper et al.\nvalidation corpus flagged as repo_check misses that were actually\nreal, working repository citations.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-09-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/46a6c193e3cb4fa62d3f8edada4e8eee48751b08",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "6794e30",
-          "message": "Merge pull request #406 from scienceverse/fix-batch-query-httr2-failure",
-          "body": "Fix .batch_query() crashing on a connection-level failure",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-09-16",
-          "url": "https://github.com/scienceverse/metacheck/commit/6794e308dad018656635a2b0cb5609522af0eb15",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {}
         }
       ],
       "_new_commits": [
+        {
+          "sha": "33f340c",
+          "message": "Record archive-member download failures in download_repo_files() itself (#429)",
+          "body": "The previous commit fixed error propagation inside .zip_fetch_members()/\n.zip_member_fetch(), but missed the actual call site the issue reported:\ndownload_repo_files()'s archive-member block (R/repo-download.R) wraps\n.zip_fetch_members() in tryCatch(..., error = function(e) NULL) and, on\nany failure -- a thrown error, or a listing that returns NULL, or an\nindividual member coming back ok = FALSE -- just does `next`, leaving\nfile_location = NA with nothing recorded anywhere. This is the exact code\nquoted in the issue.\n\nMoved `failed`'s initialization earlier (it previously appeared after this\nblock ran, so there was nowhere to record into) and now populate it for\nall three failure shapes, matching the has_url path's existing convention:\nthe roll-up message() and attr(files, \"failed\") already downstream pick\nthese up unchanged.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-09-27",
+          "url": "https://github.com/scienceverse/metacheck/commit/33f340cc7e36662b8d04313de5d4448e3afa6bd7",
+          "type": "other",
+          "branch": "fix-429-zip-member-errors",
+          "diff": {
+            "additions": 119,
+            "deletions": 7,
+            "files": [
+              {
+                "filename": "R/repo-download.R",
+                "status": "modified",
+                "additions": 44,
+                "deletions": 7,
+                "patch": "@@ -1208,6 +1208,14 @@ download_repo_files <- function(files,\n   # archive-member block, which runs first, can record into it too.\n   oversize_skipped <- data.frame(repo_url = character(0), file_name = character(0),\n                                  file_size = numeric(0), stringsAsFactors = FALSE)\n+  # Same reason `oversize_skipped` was moved up (see above): `failed` was\n+  # previously defined just before the has_url loop, so the archive-member\n+  # block below had nowhere to record a fetch fa"
+              },
+              {
+                "filename": "tests/testthat/test-repo-download.R",
+                "status": "modified",
+                "additions": 75,
+                "deletions": 0,
+                "patch": "@@ -174,6 +174,81 @@ test_that(\"failed downloads are reported and recorded, not swallowed\", {\n   expect_equal(fa$file_url, files$file_url[2])\n })\n \n+# Build a files data.frame shaped like repo_check's zip-peek expansion: no\n+# file_url (an archive-member row has none), but archive_url/archive_member\n+# instead (see download_repo_files()'s own header comment on this block).\n+make_archive_member_files <- function() {\n+  repo <- paste0(\"https://example.org/repo-test-\",\n+                paste(sample"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "93d35f4",
+          "message": "Merge pull request #430 from scienceverse/fix-429-zip-member-errors",
+          "body": "Record why a zip archive-member fetch failed instead of a silent NULL (#429)",
+          "author": "Daniel Lakens",
+          "author_login": "Lakens",
+          "date": "2026-09-27",
+          "url": "https://github.com/scienceverse/metacheck/commit/93d35f448886d1a7d27a047259ddc2a31be01fe4",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
+          "sha": "947aace",
+          "message": "Record why a zip archive-member fetch failed instead of a silent NULL (#429)",
+          "body": ".zip_fetch_members()/.zip_member_fetch() collapsed every failure -- a\ntransient range-request error, a corrupt local header, a CRC mismatch, a\npath-traversal rejection, a write failure -- into an indistinguishable\nok = FALSE with no message anywhere, so a corpus-scale run had no way to\ntell a retryable failure apart from a host that will never support this.\nEach failure path now records a one-line reason, and the five per-provider\ndownload functions (Dryad, Zenodo, Figshare, Dataverse, ReShare) surface it\nas a progress message and attach it as a `failed` attribute on the returned\ntable, matching the convention download_repo_files() already uses.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-09-27",
+          "url": "https://github.com/scienceverse/metacheck/commit/947aacedae645d5b42dc9e40e4a49b0f7a23e5be",
+          "type": "other",
+          "branch": "dev",
+          "diff": {}
+        },
         {
           "sha": "1889c53",
           "message": "Merge pull request #428 from scienceverse/fix-427-zip-peek-cache",
@@ -1192,69 +1215,7 @@
           "url": "https://github.com/scienceverse/metacheck/commit/1889c530553a7a547a1aed5d9b27cb882be502e7",
           "type": "fix",
           "branch": "dev",
-          "diff": {
-            "additions": 334,
-            "deletions": 52,
-            "files": [
-              {
-                "filename": "NAMESPACE",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -306,4 +306,5 @@ export(zenodo_pat)\n export(zenodo_upload)\n export(zip_decision)\n export(zip_peek)\n+export(zip_peek_cache_clear)\n importFrom(DT,datatable)"
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -1,5 +1,6 @@\n # metacheck 0.3.1\n \n+* `zip_peek()` gained an on-disk cache (`cache = TRUE`, mirroring `repo_info_cache()`) so a restarted R process reuses a zip's already-peeked listing instead of re-issuing the range request; `repo_check()`/`data_check()`/`code_check()` forward their own `cache` argument to it. Also fixed `skip_on_api_limit` not reaching `zip_peek()`'s own HTTP requests: `repo_check()` gained a `skip_on_api_limit` parameter, and `data_check()`/`code_check()` now forward their"
-              },
-              {
-                "filename": "R/code_check.R",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 3,
-                "patch": "@@ -591,15 +591,16 @@ code_lang <- function(file_name) {\n # own NULL-return cases); such a row is left for the normal download path,\n # which will fetch the whole archive and (if data_check expands it) recover\n # its contents that way instead.\n-.code_expand_zip <- function(all_files, skip_on_api_limit = FALSE) {\n+.code_expand_zip <- function(all_files, skip_on_api_limit = FALSE, cache = FALSE) {\n   is_zip <- grepl(\"\\\\.zip$\", all_files$file_name, ignore.case = TRUE) &\n     !is.na(all_files$file_u"
-              },
-              {
-                "filename": "R/repo-download.R",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 1,
-                "patch": "@@ -1306,7 +1306,8 @@ download_repo_files <- function(files,\n         member_dest <- .safe_write_path(member_dest)\n         dir.create(member_dest, showWarnings = FALSE, recursive = TRUE)\n         fetched <- tryCatch(\n-          .zip_fetch_members(arc, names = files$archive_member[idx], dest = member_dest),\n+          .zip_fetch_members(arc, names = files$archive_member[idx], dest = member_dest,\n+                            cache = cache, skip_on_api_limit = skip_on_api_limit),\n           error "
-              },
-              {
-                "filename": "R/zip-peek-cache.R",
-                "status": "added",
-                "additions": 85,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,85 @@\n+# On-disk cache for zip_peek()'s result (a zip's central-directory listing,\n+# read via one or two HTTP range requests -- see R/zip-peek.R). This is the\n+# same fix, one level further in, that repo_info_cache() (R/repo-info-cache.R)\n+# already applies to a repository's file LISTING: zip_peek()'s own cache\n+# (.zip_peek_cache, R/zip-peek.R) is in-memory only, so it is reset every time\n+# the R process restarts, and a restarted pipeline run re-peeks every zip it\n+# already peeked"
-              },
-              {
-                "filename": "R/zip-peek.R",
-                "status": "modified",
-                "additions": 79,
-                "deletions": 36,
-                "patch": "@@ -53,8 +53,8 @@\n # moment (see .storage_is_transient(), R/repo-download.R), but S3 answers a\n # HEAD with 403 every single time, so retrying it only added ~6 s of backoff\n # per Dryad/Figshare/Dataverse file before the size request failed anyway.\n-.size_probe_is_transient_factory <- function() {\n-  is_transient <- .storage_is_transient_factory()\n+.size_probe_is_transient_factory <- function(skip_on_api_limit = FALSE) {\n+  is_transient <- .storage_is_transient_factory(skip_on_api_limit)\n   func"
-              },
-              {
-                "filename": "inst/modules/code_check.R",
-                "status": "modified",
-                "additions": 9,
-                "deletions": 4,
-                "patch": "@@ -27,7 +27,7 @@\n #' @param max_download_size largest total download per repository, in MB (default 500). Set `Inf` for no cap.\n #' @param max_files_per_repo largest file COUNT a single repository may have before it is refused outright (default `Inf`, no cap) -- see [download_repo_files()]'s own parameter of the same name.\n #' @param cache if TRUE, keep downloaded files in a persistent on-disk cache (see [repo_cache_dir()]) so they are reused on later runs. If FALSE (the default), download to a"
-              },
-              {
-                "filename": "inst/modules/data_check.R",
-                "status": "modified",
-                "additions": 13,
-                "deletions": 4,
-                "patch": "@@ -105,7 +105,9 @@\n #'   rate-limit-exhausted signal (e.g. Dryad's per-day quota) skips that file\n #'   instead of waiting out the host's own reset. Default `FALSE` (always\n #'   wait for a confirmed reset) -- see [download_repo_files()]'s own\n-#'   parameter of the same name.\n+#'   parameter of the same name. Also forwarded to `repo_check()` and to the\n+#'   zip-peeking step below (`peek_zips`, [zip_peek()]), both of which make\n+#'   the same kind of request and can hit the same rate limit.\n #"
-              }
-            ]
-          },
-          "diff_summary": ""
+          "diff": {}
         },
         {
           "sha": "bec46c6",
@@ -1911,7 +1872,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.6.1.9000",
@@ -2063,8 +2085,8 @@
       "commits_1d": 0,
       "commits_90d": 15,
       "authors_30d": [
-        "Anka",
-        "Alex O. Holcombe"
+        "Alex O. Holcombe",
+        "Anka"
       ],
       "type_breakdown": {
         "other": 3,
@@ -2803,6 +2825,81 @@
           "branch": "master",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "7729a28",
+          "message": "Built site for tenzing@0.4.1: 5554f64",
+          "body": "",
+          "author": "Anka",
+          "author_login": "",
+          "date": "2026-09-02",
+          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
+          "type": "other",
+          "branch": "gh-pages",
+          "diff": {
+            "additions": 1,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "pkgdown.yml",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -5,7 +5,7 @@ articles:\n   app_use: app_use.html\n   local_use: local_use.html\n   validation: validation.html\n-last_built: 2026-09-02T03:43Z\n+last_built: 2026-09-02T03:57Z\n urls:\n   reference: https://marton-balazs-kovacs.github.io/tenzing/reference\n   article: https://marton-balazs-kovacs.github.io/tenzing/articles"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "5554f64",
+          "message": "temporarily cmmment out new test that failed for Load instead of Upload",
+          "body": "",
+          "author": "Alex O. Holcombe",
+          "author_login": "alexholcombe",
+          "date": "2026-09-02",
+          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
+          "type": "feat",
+          "branch": "master",
+          "diff": {}
+        },
+        {
+          "sha": "e07088e",
+          "message": "move papaja UI output down, retitle affiliations page",
+          "body": "",
+          "author": "Alex O. Holcombe",
+          "author_login": "alexholcombe",
+          "date": "2026-09-02",
+          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
+          "type": "other",
+          "branch": "master",
+          "diff": {}
+        },
+        {
+          "sha": "e4217bd",
+          "message": "Built site for tenzing@0.4.1: 6944931",
+          "body": "",
+          "author": "Anka",
+          "author_login": "",
+          "date": "2026-09-02",
+          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
+          "type": "other",
+          "branch": "gh-pages",
+          "diff": {}
+        },
+        {
+          "sha": "6944931",
+          "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
+          "body": "Reorder output actions and clarify URL loading",
+          "author": "Alex O. Holcombe",
+          "author_login": "alexholcombe",
+          "date": "2026-09-02",
+          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
+          "type": "fix",
+          "branch": "master",
+          "diff": {}
+        }
       ]
     },
     {
@@ -2861,12 +2958,12 @@
         {
           "name": "polishing",
           "last_commit": "2026-09-27",
-          "commits_30d": 26
+          "commits_30d": 24
         }
       ],
-      "commits_30d": 26,
+      "commits_30d": 24,
       "commits_7d": 13,
-      "commits_1d": 5,
+      "commits_1d": 4,
       "commits_90d": 157,
       "authors_30d": [
         "Lukas Jung"
@@ -2874,10 +2971,10 @@
       "type_breakdown": {
         "feat": 2,
         "fix": 5,
-        "other": 12,
+        "other": 11,
         "test": 1,
         "refactor": 4,
-        "docs": 2
+        "docs": 1
       },
       "dormant_revived": false,
       "is_archived": false,
@@ -3845,71 +3942,6 @@
           "type": "other",
           "branch": "polishing",
           "diff": {}
-        },
-        {
-          "sha": "f463a54",
-          "message": "Reject `symmetric` where a `\"ties_*\"` method already fixes the tie direction",
-          "body": "",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-08-28",
-          "url": "https://github.com/lhdjung/scrutiny/commit/f463a5465a226ee4ed13249ce2a3abc268168005",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "02ffc27",
-          "message": "List the `round_ties_*()` family in the pkgdown reference",
-          "body": "",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-08-28",
-          "url": "https://github.com/lhdjung/scrutiny/commit/02ffc2759df963cbbd509aaff9eedbd8bb128e9b",
-          "type": "docs",
-          "branch": "polishing",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "82d39c4",
-          "message": "Add mailmap to merge my IDs",
-          "body": "",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-09-27",
-          "url": "https://github.com/lhdjung/scrutiny/commit/82d39c45cc77147b13cc3ec6c9cdc72b39741605",
-          "type": "feat",
-          "branch": "polishing",
-          "diff": {
-            "additions": 11,
-            "deletions": 2,
-            "files": [
-              {
-                "filename": ".Rbuildignore",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -30,3 +30,4 @@ R\\.Rproj$\n ^vignettes/.*\\.pdf$\n ^\\.DS_Store$\n ^.*/\\.DS_Store$\n+^\\.mailmap$"
-              },
-              {
-                "filename": ".mailmap",
-                "status": "added",
-                "additions": 3,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,3 @@\n+Lukas Jung <jung-lukas@gmx.net> <lhdjung@users.noreply.github.com>\n+Lukas Jung <jung-lukas@gmx.net> lhdjung <jung-lukas@gmx.net>\n+Lukas Jung <jung-lukas@gmx.net> <71007825+lhdjung@users.noreply.github.com>"
-              },
-              {
-                "filename": "R/debit-plot.R",
-                "status": "modified",
-                "additions": 7,
-                "deletions": 2,
-                "patch": "@@ -187,15 +187,20 @@ debit_plot <- function(\n           ymin = debit_line(n_range[2])(x_grid),\n           ymax = debit_line(n_range[1])(x_grid)\n         ),\n-        ggplot2::aes(x = x, ymin = ymin, ymax = ymax),\n+        ggplot2::aes(\n+          x = .data$x,\n+          ymin = .data$ymin,\n+          ymax = .data$ymax\n+        ),\n         fill = line_color,\n         alpha = line_alpha * 0.25,\n         na.rm = TRUE,\n         inherit.aes = FALSE\n       )\n   }\n \n-  debit_lines <- unique(n_range) |>\n"
-              }
-            ]
-          },
-          "diff_summary": ""
         }
       ]
     },
@@ -3948,10 +3980,10 @@
         {
           "name": "main",
           "last_commit": "2026-08-31",
-          "commits_30d": 2
+          "commits_30d": 1
         }
       ],
-      "commits_30d": 2,
+      "commits_30d": 1,
       "commits_7d": 0,
       "commits_1d": 0,
       "commits_90d": 13,
@@ -3959,8 +3991,7 @@
         "ontogenerator"
       ],
       "type_breakdown": {
-        "chore": 1,
-        "test": 1
+        "chore": 1
       },
       "dormant_revived": false,
       "is_archived": false,
@@ -4334,52 +4365,6 @@
       "readme_excerpt": "ODDPub is a text mining algorithm that parses a set of publications and detects\nwhich publications disseminated Open Data or Open Code together with the\npublication. It is tailored towards biomedical literature.\n\n\nNico Riedel, Vladislav Nachev (vladislav.nachev@charite.de), Miriam Kip, Evgeny Bobrov (evgeny.bobrov@bih-charite.de) - QUEST Center for Transforming Biomedical Research, Berlin Institute of Health\n\n\nMore information on the development and validation of the algorithm can be found in the publication https://doi.org/10.5334/dsj-2020-042. The related training and validation datasets can",
       "scopus_citations": null,
       "recent_commits": [
-        {
-          "sha": "2b30005",
-          "message": "documentation and version bump",
-          "body": "",
-          "author": "ontogenerator",
-          "author_login": "",
-          "date": "2026-08-31",
-          "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 45,
-            "deletions": 3,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,7 +1,7 @@\n Package: oddpub\n Type: Package\n Title: Detection of Open Data & Open Code statements in biomedical publications\n-Version: 7.3.0\n+Version: 7.4.0\n Authors@R: \n     c(person(\"Nico\", \"Riedel\",\n     role = \"aut\"),"
-              },
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 44,
-                "deletions": 2,
-                "patch": "@@ -90,14 +90,56 @@ Additionally returns the identified Open Data/Code categories,\n as well as the detected sentences, which can be deactivated using the\n additional parameter ```detected_sentences = FALSE```.\n \n-The output data frame can be exported to csv, with the help of the `readr`\n-package.\n+The output data frame can be exported to csv, with the help of the `write_csv` \n+function from the `readr` package.\n \n ```r\n write_csv(open_data_results, \"path/to/output/folder/open_data_results.csv\") "
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "fcdcbb0",
-          "message": "added parameters field_specific_yaml_path and field_speficif_action to open_data_search",
-          "body": "",
-          "author": "ontogenerator",
-          "author_login": "",
-          "date": "2026-08-28",
-          "url": "https://github.com/quest-bih/oddpub/commit/fcdcbb0105a89588d8166ce054e47fa32f09f39f",
-          "type": "test",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
         {
           "sha": "2b30005",
           "message": "documentation and version bump",
@@ -5029,7 +5014,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.1.21.1",
@@ -5101,13 +5147,13 @@
         {
           "name": "main",
           "last_commit": "2026-09-26",
-          "commits_30d": 103
+          "commits_30d": 102
         }
       ],
-      "commits_30d": 103,
+      "commits_30d": 102,
       "commits_7d": 45,
       "commits_1d": 0,
-      "commits_90d": 177,
+      "commits_90d": 176,
       "authors_30d": [
         "Gilad Feldman"
       ],
@@ -5116,7 +5162,7 @@
         "other": 13,
         "chore": 10,
         "fix": 53,
-        "docs": 11,
+        "docs": 10,
         "refactor": 2,
         "feat": 1
       },
@@ -5666,7 +5712,8 @@
           "branch": "main",
           "diff": {}
         }
-      ]
+      ],
+      "_new_commits": []
     },
     {
       "owner": "quest-bih",
@@ -5808,7 +5855,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.0.0.9000",
@@ -5953,7 +6061,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.2.6",
@@ -6012,7 +6181,7 @@
       "topics": [],
       "pushed_at": "2026-09-12T16:45:11Z",
       "created_at": "2026-03-03",
-      "last_push_days": 14,
+      "last_push_days": 15,
       "default_branch": "dev",
       "license": "MIT",
       "branches": [
@@ -6303,10 +6472,10 @@
       "commits_1d": 0,
       "commits_90d": 58,
       "authors_30d": [
-        "Aditya Datta",
-        "David Van Dijcke",
         "ciamac moallemi",
-        "Davidvandijcke"
+        "Aditya Datta",
+        "Davidvandijcke",
+        "David Van Dijcke"
       ],
       "type_breakdown": {
         "fix": 15,
@@ -7305,6 +7474,71 @@
           "branch": "codex/security-hardening-20260901",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "1c1d925",
+          "message": "Merge pull request #299 from Davidvandijcke/dev",
+          "body": "Release subscription review model selection fix",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-09-12",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/1c1d925e58646e6df78de711d64ec6d7f485badf",
+          "type": "other",
+          "branch": "main",
+          "diff": {
+            "additions": 48,
+            "deletions": 6,
+            "files": [
+              {
+                "filename": "web/src/app/page.tsx",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 3,
+                "patch": "@@ -18,7 +18,7 @@ import {\n   HOST_LABELS,\n   HOST_GLYPHS,\n   HOST_CLI_NAME,\n-  HOST_DEFAULT_MODELS,\n+  getHostModels,\n   HOST_INSTALL_URL,\n   HOST_LAUNCH_LABEL,\n   HOST_LAUNCH_HINT,\n@@ -887,7 +887,7 @@ function PageBody() {\n       const bundle = await mintCliHandoff(id, host, handoffSecret);\n \n       // Step 3: defaults for the modal dropdowns.\n-      setSelectedModel(HOST_DEFAULT_MODELS[host][0]);\n+      setSelectedModel(getHostModels(host, model)[0]);\n       setSelectedEffort(\"high\");\n \n     "
+              },
+              {
+                "filename": "web/src/lib/mcpHandoff.ts",
+                "status": "modified",
+                "additions": 18,
+                "deletions": 2,
+                "patch": "@@ -65,16 +65,32 @@ export const HOST_CLI_NAME: Record<ChatHost, \"claude\" | \"codex\" | \"gemini\"> = {\n // pre-selected default (see page.tsx setSelectedModel). Latest generation\n // leads; the prior generation stays available as a fallback option.\n export const HOST_DEFAULT_MODELS: Record<ChatHost, string[]> = {\n-  \"claude-code\": [\"claude-opus-5\", \"claude-sonnet-5\", \"claude-opus-4-8\", \"claude-haiku-4-5\"],\n-  \"codex\": [\"gpt-5.6-sol\", \"gpt-5.6-terra\", \"gpt-5.6-luna\", \"gpt-5.5\", \"gpt-5.4\"],\n+  \"claud"
+              },
+              {
+                "filename": "web/tests/mcpHandoff.test.ts",
+                "status": "modified",
+                "additions": 27,
+                "deletions": 1,
+                "patch": "@@ -1,6 +1,6 @@\n import { describe, expect, it } from \"vitest\";\n \n-import { buildAgentPrompt, buildCliCommands } from \"@/lib/mcpHandoff\";\n+import { buildAgentPrompt, buildCliCommands, getHostModels, type ChatHost } from \"@/lib/mcpHandoff\";\n \n const baseCommands = {\n   setupCmd: \"uvx --from coarse-ink coarse install-skills --all --force\",\n@@ -57,3 +57,29 @@ describe(\"deep-literature subscription handoff\", () => {\n     expect(prompt).not.toContain(\"No OpenRouter API key is needed for this review\")"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "1e703c1",
+          "message": "fix(web): preserve subscription model selections and refresh options (#298)",
+          "body": "",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-09-12",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/1e703c1a5178e05cd462daa264da8d094ffee93e",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
+          "sha": "b8118c7",
+          "message": "fix(web): preserve subscription model selections and refresh options",
+          "body": "",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-09-12",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/b8118c775122c3535419384063a6b2f04ba61c7f",
+          "type": "fix",
+          "branch": "codex/subscription-model-selection",
+          "diff": {}
+        }
       ]
     },
     {
@@ -7650,82 +7884,6 @@
           },
           "diff_summary": ""
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "d2dd8a5",
-          "message": "add redis data info",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-09-20",
-          "url": "https://github.com/JamieCummins/regcheck/commit/d2dd8a5b564a4ccd69b1536969cf418d02a26a86",
-          "type": "feat",
-          "branch": "main",
-          "diff": {
-            "additions": 2146,
-            "deletions": 587,
-            "files": [
-              {
-                "filename": ".gitignore",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 0,
-                "patch": "@@ -29,5 +29,8 @@ nltk_data/\n # Local fixtures / sample documents + curated ground-truth (not redistributed)\n test_materials/\n \n+# Benchmarks (probe fixtures, generated corpora, evaluation runs): local only.\n+benchmarks/\n+\n # Native libraries\n *.dylib"
-              },
-              {
-                "filename": "CHANGELOG.md",
-                "status": "modified",
-                "additions": 42,
-                "deletions": 0,
-                "patch": "@@ -4,6 +4,48 @@ Notable changes to RegCheck. The application version lives in\n `APP_VERSION` in `backend/main.py` and is what `/openapi.json` reports.\n \n \n+## Unreleased\n+\n+### Comparison engine\n+- Fixed: multi-study runs now tell every per-dimension judgement which study\n+  the registration belongs to (the label and any user note from the wizard's\n+  \"experiment\" fields). The paper text was already isolated to that study\n+  upstream, but the judge never knew: residual mentions of sibling studi"
-              },
-              {
-                "filename": "backend/cli.py",
-                "status": "modified",
-                "additions": 59,
-                "deletions": 9,
-                "patch": "@@ -90,7 +90,8 @@ def _resolve_dimensions_arg(args, *, require: bool) -> list[dict[str, str]] | No\n \n def _resolve_general_prereg(args) -> tuple[str, str]:\n     \"\"\"Resolve the preregistration source: an OSF link (--osf-url, resolved here the\n-    same way the worker does) or a local file (--preregistration). Exactly one.\"\"\"\n+    same way the worker does) or a local file (--preregistration). Exactly one.\n+    Any --additional-preregistration files are merged in afterwards.\"\"\"\n     osf_url = getat"
-              },
-              {
-                "filename": "backend/main.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -31,7 +31,7 @@\n # Single source of truth for static-asset cache-busting. Bump this on any\n # CSS/JS change so browsers refetch; it is exposed to every template as the\n # `static_version` global (templates reference it as `?v={{ static_version }}`).\n-STATIC_VERSION = \"20260714-demo-refresh\"\n+STATIC_VERSION = \"20260914-evidence-scroll\"\n \n \n def create_app() -> FastAPI:"
-              },
-              {
-                "filename": "backend/routes/comparisons.py",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 3,
-                "patch": "@@ -86,7 +86,7 @@ def _int_env(name: str, default: int, *, minimum: int = 0) -> int:\n _MAX_DIMENSIONS_PAYLOAD_CHARS = 512 * 1024\n \n # Document types the comparison pipeline can read (mirrors documents.read_file).\n-_SUPPORTED_DOC_EXTS = {\".pdf\", \".docx\", \".txt\", \".html\", \".htm\"}\n+_SUPPORTED_DOC_EXTS = {\".pdf\", \".docx\", \".txt\", \".html\", \".htm\", \".xml\"}\n \n ComparisonType = Literal[\n     \"clinical_trials\",\n@@ -147,7 +147,7 @@ def _validate_doc_ext(ext: str, *, kind: str) -> None:\n     if (ext or \"\")"
-              },
-              {
-                "filename": "backend/services/comparisons.py",
-                "status": "modified",
-                "additions": 120,
-                "deletions": 32,
-                "patch": "@@ -20,6 +20,7 @@\n from .documents import (\n     extract_text_from_docx,\n     extract_text_from_html,\n+    extract_text_from_xml,\n     read_file,\n     read_file_as_pdf,\n )\n@@ -381,6 +382,11 @@ def _reference_chunk_ids(corpus: \"EmbeddingCorpus\") -> set[str]:\n _UNLOCATED_SPLIT_RE = re.compile(r\"[;\\n]+\")\n _SYNONYM_GROUP_RE = re.compile(r\"\\(([^)]*)\\)\")\n \n+# Cap on augment\u2192re-judge cycles in the targeted verification loop. Each round\n+# only searches elements not already searched, so the loop converg"
-              },
-              {
-                "filename": "backend/services/documents.py",
-                "status": "modified",
-                "additions": 75,
-                "deletions": 7,
-                "patch": "@@ -2,6 +2,7 @@\n \n import re\n import uuid\n+import xml.etree.ElementTree as ElementTree\n from html.parser import HTMLParser\n from pathlib import Path\n \n@@ -14,6 +15,7 @@\n     \"extract_text_from_docx\",\n     \"extract_text_from_pdf\",\n     \"extract_text_from_html\",\n+    \"extract_text_from_xml\",\n     \"convert_txt_to_pdf\",\n     \"clean_document_text\",\n     \"read_file\",\n@@ -150,6 +152,62 @@ def extract_text_from_html(file_path: str) -> str:\n     return extractor.text()\n \n \n+# Tags whose content flows inl"
-              },
-              {
-                "filename": "backend/services/evidence.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -693,7 +693,7 @@ def build_file_evidence_source(\n             embedding_model=embedding_model,\n         )\n \n-    if ext in {\".docx\", \".txt\", \".html\", \".htm\"}:\n+    if ext in {\".docx\", \".txt\", \".html\", \".htm\", \".xml\"}:\n         rendered_pdf = _build_rendered_text_pdf_evidence_source(\n             source_id=source_id,\n             label=label,"
-              }
-            ]
-          },
-          "diff_summary": ""
-        }
       ]
     },
     {
@@ -7763,7 +7921,7 @@
       "commits_30d": 0,
       "commits_7d": 0,
       "commits_1d": 0,
-      "commits_90d": 20,
+      "commits_90d": 19,
       "authors_30d": [],
       "type_breakdown": {},
       "dormant_revived": false,
@@ -8040,11 +8198,11 @@
         },
         {
           "week": 1785715200,
-          "total": 10
+          "total": 11
         },
         {
           "week": 1786320000,
-          "total": 1
+          "total": 0
         },
         {
           "week": 1786924800,
@@ -8169,7 +8327,8 @@
       },
       "readme_excerpt": "> **IMPORTANT: Development Version.** This package is under heavy development\n> and has not yet been fully validated. Results should be independently verified\n> before use in any consequential context (e.g., peer review, retractions,\n> editorial decisions). Use of this package is at the sole responsibility of\n> the user. We welcome contributions, verification reports, and bug reports at\n> <https://github.com/giladfeldman/escicheck/issues> or by contacting\n> Gilad Feldman (<giladfel@gmail.com>).\n\n**EffectCheck** is a conservative, assumption-aware statistical consistency checker for published r",
       "scopus_citations": null,
-      "recent_commits": []
+      "recent_commits": [],
+      "_new_commits": []
     },
     {
       "owner": "ingmarboeschen",
@@ -8374,7 +8533,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.3.1",
@@ -8522,11 +8742,11 @@
         },
         {
           "week": 1785110400,
-          "total": 3
+          "total": 5
         },
         {
           "week": 1785715200,
-          "total": 7
+          "total": 5
         },
         {
           "week": 1786320000,
@@ -8709,6 +8929,82 @@
           "type": "other",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "40676dd",
+          "message": "Release 0.12.7",
+          "body": "",
+          "author": "Shaheed Azaad",
+          "author_login": "shaheedazaad",
+          "date": "2026-09-10",
+          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/40676dd45a817ba78070d6742d1018a5be451385",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 215,
+            "deletions": 67,
+            "files": [
+              {
+                "filename": "R/report.R",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 17,
+                "patch": "@@ -932,30 +932,15 @@ build_reference_table <- function(results, config) {\n   dplyr::distinct(refs)\n }\n \n-default_effect_definition <- function() {\n-  paste(\n-    \"Extract each article's 'focal' effects.\",\n-    \"Focal effects are those that support the claims in either the title or abstract of the article\",\n-    \"(a non-focal effect, for example, would be a manipulation check).\"\n-  )\n-}\n-\n-build_system_prompt <- function(config, instruction_path, effect_definition = NULL) {\n+build_system_prompt "
+              },
+              {
+                "filename": "auto_zcurve/__init__.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,3 +1,3 @@\n \"\"\"auto-zcurve CLI package.\"\"\"\n \n-__version__ = \"0.12.6\"\n+__version__ = \"0.12.7\""
+              },
+              {
+                "filename": "auto_zcurve/artifacts.py",
+                "status": "modified",
+                "additions": 69,
+                "deletions": 8,
+                "patch": "@@ -3,7 +3,9 @@\n import csv\n import hashlib\n import json\n+import os\n import re\n+import tempfile\n from datetime import datetime, timezone\n from pathlib import Path\n from typing import Any\n@@ -82,12 +84,75 @@ def extraction_record(result: ExtractionResult) -> dict[str, Any]:\n     }\n \n \n+def _atomic_json_dump(path: Path, value: Any) -> None:\n+    \"\"\"Write JSON without exposing a partially-written file to readers.\"\"\"\n+    path.parent.mkdir(parents=True, exist_ok=True)\n+    descriptor, temporary_name"
+              },
+              {
+                "filename": "auto_zcurve/cli.py",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 1,
+                "patch": "@@ -158,7 +158,6 @@ def _settings_from_args(\n         max_upload_size_mb=(\n             existing.max_upload_size_mb if existing else app_defaults.max_upload_size_mb\n         ),\n-        effect_definition=existing.effect_definition if existing else None,\n         pdf_parser=app_defaults.pdf_parser,\n         reasoning_effort=app_defaults.reasoning_effort,\n         service_tier=app_defaults.service_tier,"
+              },
+              {
+                "filename": "auto_zcurve/config.py",
+                "status": "modified",
+                "additions": 39,
+                "deletions": 3,
+                "patch": "@@ -99,7 +99,6 @@ class RunSettings:\n     parallel_requests: int = DEFAULTS[\"parallel_requests\"]\n     request_delay_sec: int = DEFAULTS[\"request_delay_sec\"]\n     max_upload_size_mb: int = DEFAULTS[\"max_upload_size_mb\"]\n-    effect_definition: str | None = None\n     provider: str = \"gemini\"\n     pdf_parser: str = DEFAULTS[\"pdf_parser\"]\n     reasoning_effort: str = DEFAULTS[\"reasoning_effort\"]\n@@ -189,6 +188,45 @@ def settings_path(project_dir: Path) -> Path:\n     return project_dir / \".auto_zcurv"
+              },
+              {
+                "filename": "auto_zcurve/gemini.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 2,
+                "patch": "@@ -125,7 +125,6 @@ def extract_pdf(\n     response_schema: dict[str, Any],\n     schema_config: ExtractionSchema,\n     instruction_path: Path,\n-    effect_definition: str | None,\n     request_timeout_sec: int = 600,\n     input_mode: str = \"native_pdf\",\n     context_length: int | None = None,\n@@ -141,7 +140,7 @@ def extract_pdf(\n         raise RuntimeError(\"google-genai is not installed.\") from exc\n \n     client = genai.Client(api_key=api_key)\n-    prompt = build_system_prompt(schema_config, instr"
+              },
+              {
+                "filename": "auto_zcurve/openrouter.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 2,
+                "patch": "@@ -290,7 +290,6 @@ def extract_pdf(\n     response_schema: dict[str, Any],\n     schema_config: ExtractionSchema,\n     instruction_path: Path,\n-    effect_definition: str | None,\n     request_timeout_sec: int = 600,\n     input_mode: str = \"native_pdf\",\n     context_length: int | None = None,\n@@ -299,7 +298,7 @@ def extract_pdf(\n     endpoint_order: tuple[str, ...] = (),\n ) -> ExtractionResult:\n     started = time.monotonic()\n-    prompt = build_system_prompt(schema_config, instruction_path, effec"
+              },
+              {
+                "filename": "auto_zcurve/projects.py",
+                "status": "modified",
+                "additions": 22,
+                "deletions": 2,
+                "patch": "@@ -18,7 +18,12 @@\n     read_disclosure_summary,\n     read_zcurve_summary,\n )\n-from .config import DEFAULTS, load_run_settings\n+from .config import (\n+    DEFAULTS,\n+    legacy_effect_definition,\n+    load_run_settings,\n+    remove_legacy_effect_definition,\n+)\n from .models import DEFAULT_MODEL, model_request_defaults\n from .paths import DEFAULT_INSTRUCTIONS, DEFAULT_SCHEMA\n from .schema import build_response_schema, parse_extraction_schema\n@@ -28,6 +33,10 @@\n SAFE_NAME_RE = re.compile(r\"[^A-Za-"
+              }
+            ]
+          },
+          "diff_summary": ""
         }
       ]
     },
@@ -9327,7 +9623,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.2.0",
@@ -9460,7 +9817,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\nOIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailoring the extension to your discipline requires no programming expertise, just edit a list.\n\nFollow this link: https://chr",
@@ -10078,7 +10496,7 @@
   "digest": {
     "week_start": "2026-09-20",
     "active_repos": 3,
-    "total_commits_7d": 68,
+    "total_commits_7d": 69,
     "dormant_revived": [
       {
         "owner": "JamieCummins",
@@ -10100,10 +10518,37 @@
       {
         "owner": "scienceverse",
         "repo": "metacheck",
-        "commits": 10
+        "commits": 11
       }
     ],
     "highlights": [
+      {
+        "repo": "metacheck",
+        "owner": "scienceverse",
+        "message": "Record archive-member download failures in download_repo_files() itself (#429)",
+        "body": "The previous commit fixed error propagation inside .zip_fetch_members()/\n.zip_member_fetch(), but missed the actual call site the issue reported:\ndownload_repo_files()'s archive-member block (R/repo-download.R) wraps\n.zip_fetch_members() in tryCatch(..., error = function(e) NULL) and, on\nany failure -- a thrown error, or a listing that returns NULL, or an\nindividual member coming back ok = FALSE -- just does `next`, leaving\nfile_location = NA with nothing recorded anywhere. This is the exact code\nquoted in the issue.\n\nMoved `failed`'s initialization earlier (it previously appeared after this\nblock ran, so there was nowhere to record into) and now populate it for\nall three failure shapes, matching the has_url path's existing convention:\nthe roll-up message() and attr(files, \"failed\") already downstream pick\nthese up unchanged.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+        "type": "other",
+        "author": "Lakens",
+        "date": "2026-09-27"
+      },
+      {
+        "repo": "metacheck",
+        "owner": "scienceverse",
+        "message": "Merge pull request #430 from scienceverse/fix-429-zip-member-errors",
+        "body": "Record why a zip archive-member fetch failed instead of a silent NULL (#429)",
+        "type": "fix",
+        "author": "Daniel Lakens",
+        "date": "2026-09-27"
+      },
+      {
+        "repo": "metacheck",
+        "owner": "scienceverse",
+        "message": "Record why a zip archive-member fetch failed instead of a silent NULL (#429)",
+        "body": ".zip_fetch_members()/.zip_member_fetch() collapsed every failure -- a\ntransient range-request error, a corrupt local header, a CRC mismatch, a\npath-traversal rejection, a write failure -- into an indistinguishable\nok = FALSE with no message anywhere, so a corpus-scale run had no way to\ntell a retryable failure apart from a host that will never support this.\nEach failure path now records a one-line reason, and the five per-provider\ndownload functions (Dryad, Zenodo, Figshare, Dataverse, ReShare) surface it\nas a progress message and attach it as a `failed` attribute on the returned\ntable, matching the convention download_repo_files() already uses.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+        "type": "other",
+        "author": "Lakens",
+        "date": "2026-09-27"
+      },
       {
         "repo": "scrutiny",
         "owner": "lhdjung",
@@ -10526,33 +10971,6 @@
         "type": "fix",
         "author": "Gilad Feldman",
         "date": "2026-09-23"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "fix(harness): extraction crashed on its first document since the corpus repoint",
-        "body": "Manifest records carry corpus_path (custodian papers) or sha256 (other sources)\nand, since 2026-09-17, never rel_path. extract._process read doc['rel_path']\nOUTSIDE its try block, so every run raised KeyError before extracting anything;\ninspect.py discover did the same and resolved gold keys by a filename stem that\nai-gold refuses. extract now records a path-free source_ref; inspect resolves by\nDOI (verified: ai-gold resolve <doi> -> canonical key, <stem> -> HALT).\nTest: both manifest record shapes extract; 9 passed, old extract.py 2 fail.",
-        "type": "fix",
-        "author": "Gilad Feldman",
-        "date": "2026-09-23"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "fix(extract): a column reorder must preserve every character, not only words",
-        "body": "Found by the Sonnet cross-model review of 78bc04f, then measured. The\nsplice's word-multiset guard ignores digits and one-letter tokens by design,\nand the pdftotext column crop duplicates the glyph that sits on the cut.\nA running header crossing the gutter therefore shipped as \"125-13\" + \"35\"\nfor \"125-135\" (10.1016/j.jesp.2017.05.004 p11).\n\nMeasured on the RELEASED corrector (6f179e2) over the 500-paper sample plus\nthe 101-paper corpus: 27 of the 38 pages it rewrites carry a duplicated or\nsplit character. 17 are JESP reference pages (page numbers, page ranges);\nthis change corrects all 17 character-identically via the edge-trimmed\ngeometry. 10 are non-reference pages (rsos p1 x6, a watermark URL gaining a\nstray character; psci, fpsyg, arXiv one each) which are now refused and keep\npdftotext's order with the correct characters.\n\nAlso: the rotation-gain ternary's else branch was unreachable; replaced by\nmax(..., default=base).",
-        "type": "fix",
-        "author": "Gilad Feldman",
-        "date": "2026-09-23"
-      },
-      {
-        "repo": "docpluck",
-        "owner": "giladfeldman",
-        "message": "fix(harness): ask /analyze for every stage, and refuse a response that skipped one",
-        "body": "App service 1.7.0 (shipping alongside this release) makes /analyze's optional\nstages opt-in, default OFF. The harness called a bare /analyze?level=X, so it\nwould have received sections/tables/rendered as null; _save_views writes only\nthe views that arrive, so every Tier-D check reading rendered.md or tables.json\nwould have lost its input silently -- and a rendered.md left from an earlier run\nwould have been read back as this run's.\n\nNow: the request names structured/sections/rendered explicitly (a pre-1.7.0\nservice ignores them); a requested stage reported 'skipped' raises; stale view\nfiles are removed before writing. New test: 7 passed; against the previous\nextract.py 3 fail (url, skipped, stale).",
-        "type": "fix",
-        "author": "Gilad Feldman",
-        "date": "2026-09-23"
       }
     ],
     "narrative": ""
@@ -10561,9 +10979,9 @@
     "total_repos": 16,
     "total_stars": 714,
     "total_forks": 133,
-    "total_commits_30d": 260,
-    "total_commits_7d": 68,
-    "total_commits_1d": 5,
+    "total_commits_30d": 259,
+    "total_commits_7d": 69,
+    "total_commits_1d": 7,
     "active_repos_7d": 3,
     "dormant_revived": 1,
     "total_open_issues": 186,

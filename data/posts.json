@@ -1,5 +1,211 @@
 [
   {
+    "generated_at": "2026-09-27T21:00:41.873261+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 7,
+        "pushed_at": "2026-09-27T20:47:28Z",
+        "recent_commits": [
+          {
+            "sha": "33f340c",
+            "message": "Record archive-member download failures in download_repo_files() itself (#429)",
+            "body": "The previous commit fixed error propagation inside .zip_fetch_members()/\n.zip_member_fetch(), but missed the actual call site the issue reported:\ndownload_repo_files()'s archive-member block (R/repo-download.R) wraps\n.zip_fetch_members() in tryCatch(..., error = function(e) NULL) and, on\nany failure -- a thrown error, or a listing that returns NULL, or an\nindividual member coming back ok = FALSE -- just does `next`, leaving\nfile_location = NA with nothing recorded anywhere. This is the exact code\nquoted in the issue.\n\nMoved `failed`'s initialization earlier (it previously appeared after this\nblock ran, so there was nowhere to record into) and now populate it for\nall three failure shapes, matching the has_url path's existing convention:\nthe roll-up message() and attr(files, \"failed\") already downstream pick\nthese up unchanged.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-27",
+            "url": "https://github.com/scienceverse/metacheck/commit/33f340cc7e36662b8d04313de5d4448e3afa6bd7",
+            "type": "other",
+            "branch": "fix-429-zip-member-errors"
+          },
+          {
+            "sha": "93d35f4",
+            "message": "Merge pull request #430 from scienceverse/fix-429-zip-member-errors",
+            "body": "Record why a zip archive-member fetch failed instead of a silent NULL (#429)",
+            "author": "Daniel Lakens",
+            "date": "2026-09-27",
+            "url": "https://github.com/scienceverse/metacheck/commit/93d35f448886d1a7d27a047259ddc2a31be01fe4",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "947aace",
+            "message": "Record why a zip archive-member fetch failed instead of a silent NULL (#429)",
+            "body": ".zip_fetch_members()/.zip_member_fetch() collapsed every failure -- a\ntransient range-request error, a corrupt local header, a CRC mismatch, a\npath-traversal rejection, a write failure -- into an indistinguishable\nok = FALSE with no message anywhere, so a corpus-scale run had no way to\ntell a retryable failure apart from a host that will never support this.\nEach failure path now records a one-line reason, and the five per-provider\ndownload functions (Dryad, Zenodo, Figshare, Dataverse, ReShare) surface it\nas a progress message and attach it as a `failed` attribute on the returned\ntable, matching the convention download_repo_files() already uses.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-27",
+            "url": "https://github.com/scienceverse/metacheck/commit/947aacedae645d5b42dc9e40e4a49b0f7a23e5be",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "1889c53",
+            "message": "Merge pull request #428 from scienceverse/fix-427-zip-peek-cache",
+            "body": "Persist zip_peek() to disk and thread skip_on_api_limit through it (#427)",
+            "author": "Daniel Lakens",
+            "date": "2026-09-26",
+            "url": "https://github.com/scienceverse/metacheck/commit/1889c530553a7a547a1aed5d9b27cb882be502e7",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "bec46c6",
+            "message": "Persist zip_peek() to disk and thread skip_on_api_limit through it (#427)",
+            "body": "zip_peek()'s result was cached only in memory (.zip_peek_cache), reset every\nR process, unlike repo_info_cache() which already persists a repository's\nLISTING to disk for exactly this reason. Added an on-disk cache\n(R/zip-peek-cache.R, mirroring repo-info-cache.R's shape: one file per\narchive URL, opt-in via cache = TRUE) and wired it into zip_peek(),\nzip_decision(), .zip_fetch_members(), and .code_expand_zip(), plus all of\ntheir call sites in repo_check.R, data_check.R, code_check.R, and\nrepo-download.R.\n\nAlso fixed skip_on_api_limit not reaching zip_peek()'s own HTTP helpers:\n.head_size(), .http_range_get(), .http_range_tail(), .http_range_suffix(),\n.http_range_bytes(), and .range_size() all called .wait_out_known_rate_limit()\nand the retry factories with no skip_on_api_limit argument, so a confirmed\nexhausted rate limit was always waited out during a zip peek regardless of\nwhat the caller asked for -- the argument only reached them via the global\nmetacheck.skip_on_api_limit option. repo_check() had no skip_on_api_limit\nparameter at all; added one, and data_check()/code_check() now forward their\nown skip_on_api_limit both to repo_check() (via module_run()) and to the\nzip-peeking step, matching how they already forward cache the same way.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-26",
+            "url": "https://github.com/scienceverse/metacheck/commit/bec46c66140bba6bffb908ddd4ea608b6bb8e645",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "00f0604",
+            "message": "Merge pull request #426 from scienceverse/fix-424-zip-peek-s3",
+            "body": "Fix zip listing on S3-backed hosts, install-loop variables as packages, empty code files",
+            "author": "Daniel Lakens",
+            "date": "2026-09-26",
+            "url": "https://github.com/scienceverse/metacheck/commit/00f0604436969c0a894624fb60c00c9ae14ccc8d",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "214bd46",
+            "message": "Fix zip listing on S3-backed hosts (#424), install-loop variables as packages (#421), empty code files (#425)",
+            "body": "#424: zip_peek() on Dryad, Figshare and Harvard Dataverse\n- These hosts redirect downloads to Amazon S3, which refuses HEAD (403)\n  but honours ranged GETs. When HEAD gives no size, the tail is now\n  requested by distance from the end (\"bytes=-n\") and the total read\n  from Content-Range; a 416 answer is handled. The fallback reads the\n  status before any body and accepts only 206, so a host that ignores\n  the range cannot send a whole archive.\n- A size is taken from HEAD only when the answer is 2xx; a 403 on a\n  size request is no longer retried.\n- .remote_size() falls back to a one-byte ranged GET the same way.\n- Removed the OSF, Zenodo and Dataverse whole-archive routes in\n  download_repo_files(): those archives never report a size, so the\n  routes never ran. Removed .remote_content_length().\n- Dryad, GitHub and GitLab archives now follow one rule: size estimated\n  from listed file sizes, skipped when unknown or above 2x\n  max_download_size, and stopped during download at 2x. GitHub and\n  GitLab previously had no limit.\n- osf_file_download(mode = \"zip\"): max_download_size is a budget for the\n  whole project. A node whose archive does not fit is downloaded file by\n  file within the budget (previously reported as \"not downloaded\" and\n  then downloaded without limit). Partial archives are deleted.\n- peek_zips now defaults to TRUE in data_check and reproducibility_check.\n\n#421: dependency extraction\n- code_library_names() no longer reports a variable's name as a package\n  in install.packages(), requireNamespace(), or library()/require() with\n  character.only = TRUE. Variables are resolved to the literal names\n  assigned in the file (including for-loop variables, lapply(pkgs,\n  library), p_load(char = pkgs)), and dropped otherwise.\n- A package install.packages() cannot find is reported with its \"not\n  available\" warning instead of \"installed but not loadable\".\n- A 404 from the CRAN Archive is reported as \"not found in the CRAN\n  Archive\", not as a network failure.\n\n#425: empty code files\n- code_abs_path(), code_setwd(), code_install_packages() and\n  code_line_stats() handle an empty file without warnings or errors;\n  code_parse_r() no longer reads the first line of an empty file.\n  code_check previously recorded empty files as errored.\n\nTests\n- New tests for all of the above.\n- Existing tests: restore the real zip_peek() after tests that replace\n  it; give new download tests their own repository names; add an\n  renv.lock to the code_check green-light test (required since 9285b1f).",
+            "author": "Lakens",
+            "date": "2026-09-26",
+            "url": "https://github.com/scienceverse/metacheck/commit/214bd4628df92d7132769aa07e90a90a525a44ec",
+            "type": "fix",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 5,
+        "pushed_at": "2026-09-02T03:58:35Z",
+        "recent_commits": [
+          {
+            "sha": "7729a28",
+            "message": "Built site for tenzing@0.4.1: 5554f64",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "5554f64",
+            "message": "temporarily cmmment out new test that failed for Load instead of Upload",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
+            "type": "feat",
+            "branch": "master"
+          },
+          {
+            "sha": "e07088e",
+            "message": "move papaja UI output down, retitle affiliations page",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "e4217bd",
+            "message": "Built site for tenzing@0.4.1: 6944931",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "6944931",
+            "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
+            "body": "Reorder output actions and clarify URL loading",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-09-12T16:45:11Z",
+        "recent_commits": [
+          {
+            "sha": "1c1d925",
+            "message": "Merge pull request #299 from Davidvandijcke/dev",
+            "body": "Release subscription review model selection fix",
+            "author": "David Van Dijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/1c1d925e58646e6df78de711d64ec6d7f485badf",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "1e703c1",
+            "message": "fix(web): preserve subscription model selections and refresh options (#298)",
+            "body": "",
+            "author": "David Van Dijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/1e703c1a5178e05cd462daa264da8d094ffee93e",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "b8118c7",
+            "message": "fix(web): preserve subscription model selections and refresh options",
+            "body": "",
+            "author": "Davidvandijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/b8118c775122c3535419384063a6b2f04ba61c7f",
+            "type": "fix",
+            "branch": "codex/subscription-model-selection"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-10T06:52:07Z",
+        "recent_commits": [
+          {
+            "sha": "40676dd",
+            "message": "Release 0.12.7",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-09-10",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/40676dd45a817ba78070d6742d1018a5be451385",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-09-27T16:31:35.446474+00:00",
     "narrative": "",
     "repos": [
@@ -16227,132 +16433,6 @@
             "date": "2026-08-31",
             "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
             "type": "chore",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-09-05T10:05:09.524700+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "marton-balazs-kovacs",
-        "repo": "tenzing",
-        "url": "https://github.com/marton-balazs-kovacs/tenzing",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 5,
-        "pushed_at": "2026-09-02T03:58:35Z",
-        "recent_commits": [
-          {
-            "sha": "7729a28",
-            "message": "Built site for tenzing@0.4.1: 5554f64",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "5554f64",
-            "message": "temporarily cmmment out new test that failed for Load instead of Upload",
-            "body": "",
-            "author": "Alex O. Holcombe",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
-            "type": "feat",
-            "branch": "master"
-          },
-          {
-            "sha": "e07088e",
-            "message": "move papaja UI output down, retitle affiliations page",
-            "body": "",
-            "author": "Alex O. Holcombe",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
-            "type": "other",
-            "branch": "master"
-          },
-          {
-            "sha": "e4217bd",
-            "message": "Built site for tenzing@0.4.1: 6944931",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "6944931",
-            "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
-            "body": "Reorder output actions and clarify URL loading",
-            "author": "Alex O. Holcombe",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
-            "type": "fix",
-            "branch": "master"
-          }
-        ]
-      },
-      {
-        "owner": "lhdjung",
-        "repo": "scrutiny",
-        "url": "https://github.com/lhdjung/scrutiny",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-29T20:31:38Z",
-        "recent_commits": [
-          {
-            "sha": "6dfe35c",
-            "message": "Refactor function factory helpers",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-29",
-            "url": "https://github.com/lhdjung/scrutiny/commit/6dfe35c4e8b11ad63c4b2208f876dd8e65538c80",
-            "type": "refactor",
-            "branch": "polishing"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "escicheck",
-        "url": "https://github.com/giladfeldman/escicheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-28T15:19:13Z",
-        "recent_commits": [
-          {
-            "sha": "4ea4b3b",
-            "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
-            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 69c3964cbc6c5fa72e1928aa83f610425e07cd6d\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
-            "author": "Gilad Feldman",
-            "date": "2026-08-28",
-            "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-09-04T17:34:35Z",
-        "recent_commits": [
-          {
-            "sha": "eac55db",
-            "message": "Clarify quality-checking caveat in docs",
-            "body": "Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_016fAVfHLS9MvLTWCh7jPusd",
-            "author": "Shaheed Azaad",
-            "date": "2026-09-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/eac55db3b148b7699a80e601ec361e14a0eeb905",
-            "type": "other",
             "branch": "main"
           }
         ]
