@@ -1,5 +1,391 @@
 [
   {
+    "generated_at": "2026-09-27T11:30:33.103478+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 23,
+        "pushed_at": "2026-09-27T11:03:45Z",
+        "recent_commits": [
+          {
+            "sha": "deb69ae",
+            "message": "test: correspondence-shaped files must live in communications/",
+            "body": "A gitignored prompt file sat in docs/ rather than communications/, where the\none-directory rule puts all correspondence. Git-scoped checks cannot see a\ngitignored file, so this test scans the working tree itself (repo root and\ndocs/). Red with the file back in docs/, green after the move.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-26",
+            "url": "https://github.com/giladfeldman/docpluck/commit/deb69ae13da8d379d9bd41dba0cb035bfdfb1b3e",
+            "type": "test",
+            "branch": "main"
+          },
+          {
+            "sha": "73dc51d",
+            "message": "docs: two public tables still named the retired U+FFFD recovery as live",
+            "body": "docs/DESIGN.md's dependency table gave pdfplumber's purpose as \"PDF SMP\nUnicode recovery\" and docs/BENCHMARKS.md named \"pdfplumber recovery\" as the\nactive handling step, although 2.4.145 retires that recovery. Both now say it\nis retired. A test fails on any docs/*.md line that names the mechanism\nwithout saying so (red on the pre-fix wording). The edited BENCHMARKS row also\nnamed a private repository as its source; it now says what the corpus is.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-26",
+            "url": "https://github.com/giladfeldman/docpluck/commit/73dc51dd9745921821e5272dcd11a3375730c3e2",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "96e1a0f",
+            "message": "chore(harness): re-baseline Tier-D at the 2.4.145 candidate after a zero-regression A/B",
+            "body": "Whole-corpus A/B, arms run serially (v2.4.144 worktree vs this tree, same app\nservice at 46e9734, identity proven by each arm's /_diag render path): 0\nregressions, 5 table_parity cells fixed, 21 known failures unchanged. Verdict\ndiff against the previous baseline is exactly those 5 fail->pass; every other\nline is a new detail field. Text changed in 3 of 135 documents, each expected\n(a duplicated page digit removed twice, one reference list reordered).\nCHANGELOG gains the render-fix and harness-check entries and the measured\ncandidate counts.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-26",
+            "url": "https://github.com/giladfeldman/docpluck/commit/96e1a0f68f520206804f69990b14309cbfc92c2c",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "9fc3f7e",
+            "message": "fix(harness): table_parity matches uncaptioned candidates to their own heading",
+            "body": "2.4.145 renders a kept uncaptioned grid under \"### Uncaptioned candidate\",\nnever \"### Table N\". The check compared Table headings against ALL tables, so\nevery paper with a candidate failed: 208 cells in the whole-corpus run, and\nevery one was explained exactly by the candidate count. Each class is now\ncounted against its own heading, so a candidate can neither pad the captioned\ncount nor hide a missing captioned table. With the noise gone the check shows\nthe one real defect underneath it: candidate <table> blocks the render chain\ndeletes (8 papers).",
+            "author": "Gilad Feldman",
+            "date": "2026-09-26",
+            "url": "https://github.com/giladfeldman/docpluck/commit/9fc3f7edc18484708bd5b3e88ffad9b68974fdff",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "5c89330",
+            "message": "fix(render): the phantom-table stripper no longer deletes kept uncaptioned candidates",
+            "body": "tools/diag/render_deletion_scan.py (docpluck-qa check 3c) went red on 2.4.145 for 10.1017/s0007123424000024: candidate u2 on p10, a real 127-cell literature-review table whose <th> absorbed one line of body prose, was removed whole by _strip_phantom_camelot_tables, leaving an empty candidate heading while tables and flattened_rows still carried every cell.\n\nWhether a candidate is kept is decided once, at the extract_structured keep step (recorded there) and seen identically by all three channels. The stripper now skips <table> blocks inside the uncaptioned-candidates section (its span: the section heading to the next '## '); everywhere else it is unchanged. The section heading has one definition, _UNCAPTIONED_CANDIDATES_HEADING, used by the emitter and the stripper.\n\nTests: a phantom-shaped block is kept inside the section and still stripped outside it and after the section's end; on bjps_1 no candidate heading is left without its grid. Mutation (exemption removed) fails the unit and the real-paper test. The 63 existing render-deletion guard tests pass.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-25",
+            "url": "https://github.com/giladfeldman/docpluck/commit/5c89330806919754dcf0ee7fb3c379f538b4281d",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "494fac4",
+            "message": "release: 2.4.145 \u2014 normalization 1.9.69, table extraction 2.4.17",
+            "body": "Library version, NORMALIZATION_VERSION and TABLE_EXTRACTION_VERSION move\ntogether, with the CHANGELOG entry, for this release's fixes: reference-list\ncolumn order with a character-preserving reorder guard, the ruled-table\nneighbour absorption, the U+FFFD retirement, Nature captions, and labelled\nuncaptioned grids (including caption_status on flattened rows). Normalized\ntext changes because extract_pdf's text does; no normalize rule changed.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-25",
+            "url": "https://github.com/giladfeldman/docpluck/commit/494fac4caf33687cb7043c17d87303ec6436b115",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "dc4fa06",
+            "message": "fix(tables): label uncaptioned candidates in flattened_rows, and stop re-emitting page furniture as candidates",
+            "body": "Three commits from the uncaptioned-grid work, squashed because the first on its\nown re-emits a page-1 masthead line that the metadata-leak contract strips, and\nthe pre-commit canary rightly blocks that intermediate state.\n\n- Every FlattenedRow carries its table's caption_status, so a consumer running\n  statistical checks on flattened_rows can see which rows come from a grid no\n  caption claimed (be11d1f).\n- An uncaptioned grid is deduplicated only when it carries no statistic and\n  every line of every cell is found as a contiguous run on the same page of the\n  text channel; recorded as camelot_candidate_is_page_running_text (e725473).\n- A page-1 grid with no statistic and at least two lines the body's own\n  masthead test would strip is not re-emitted; recorded as\n  camelot_candidate_is_page_masthead (26099e5).\n\nCensus over 70 corpus papers holding a statistic-free candidate: 80 of 341\ncandidates dropped, 80/80 judged furniture from their text, 0 of the 185 that\ncarry a statistic. Two-sided controls keep four real uncaptioned tables,\nincluding one pdftotext prints word for word.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-25",
+            "url": "https://github.com/giladfeldman/docpluck/commit/dc4fa064f7ea062dfc2643bf2093c4347ec23026",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "b052205",
+            "message": "test: close the file handle in the camelot vocabulary check (SIM115)",
+            "body": "",
+            "author": "Gilad Feldman",
+            "date": "2026-09-25",
+            "url": "https://github.com/giladfeldman/docpluck/commit/b052205949ea2e19be8861ec955ac65b8fab7239",
+            "type": "test",
+            "branch": "main"
+          },
+          {
+            "sha": "4d34fc9",
+            "message": "test(rule-40): two-sided gates for the four unasserted *_failed tokens",
+            "body": "roundtrip_failed, tables_failed, whitespace_setup_failed and\nwhitespace_region_failed were each recorded into `method` / a table field /\n`fallbacks` and asserted by nothing, so a recording that stopped would leave\na lost table channel indistinguishable from a document without one.\n\nEach gate is two-sided: a healthy control that proves the code path is\nreached (a spy for the whitespace fallback, which recovers no cells on its\npaper so never names itself in `method`), and a forced failure that must name\nitself in every channel it writes to.\n\nMutation-checked 2026-09-25: disabling each of the 8 recordings (4 tokens,\n4 record_fallback calls) turns its gate red with the intended assertion.\nrule-40-scan List B: 4 unasserted -> 0. Tests only; no library change.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-25",
+            "url": "https://github.com/giladfeldman/docpluck/commit/4d34fc91014c703548210ee5012c035dfc9ace5a",
+            "type": "test",
+            "branch": "main"
+          },
+          {
+            "sha": "ce7414d",
+            "message": "docs(harness): Tier-A verifiers are dispatched one per document, model set explicitly",
+            "body": "Brings README and inspect.py's docstring in line with docpluck-iterate Phase 5H-c\nand docpluck-qa 7h, which already dispatch one Agent(model=\"sonnet\") per\ndocument covering all its ready levels. Edit left uncommitted in the shared tree\nby a session that has since ended; adopted after checking both skills say the same.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/ce7414d90165bb02f126f3d4bffffbb5ea9b25e4",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "5866c49",
+            "message": "test(harness): the baseline ratchet now pins the joined state",
+            "body": "test_the_committed_baseline_is_currently_unjoinable asserted the baseline shared\nno ids with the manifest, written to fail and be replaced once the re-baseline\nlanded -- which it now has (a full-suite run flagged it). Replaced by the forward\nratchet: every manifest document has a baseline entry and none is stale.\n4 passed; against the published pre-rebaseline baseline the same check reports\n135 missing / 106 stale.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/5866c49d30982f03b8765a60d1398f63b9b1a434",
+            "type": "test",
+            "branch": "main"
+          },
+          {
+            "sha": "64808ab",
+            "message": "test(types): the Table field set now includes caption_status",
+            "body": "6102a33 added Table.caption_status (matched / none_found / uncaptioned_candidate) and\nthe full suite on the rebased branch caught that test_table_typed_dict_fields pins the\nexact field set. Added with its meaning, in the same style as cell_geometry.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/64808ab9234f70c15664e4bce0a56f387ed84bf6",
+            "type": "test",
+            "branch": "main"
+          },
+          {
+            "sha": "ef7ffb3",
+            "message": "fix(tables): a text-free band between a ruled table and a caption is a figure, not table rows",
+            "body": "The narrowed note-distance rule (previous commit) rejects a distant \"note\" only\nwhen running prose lies between it and the table. On 10.48550/arxiv.2410.21901\np7 the gap between Table 6 and the Figure 5 caption is the figure itself, which\ncarries no text. So the caption came back as Table 6's note, the region ran\ninto it, and Table 6 reverted to fused label/value cells (\"H:7,V:11 94.83\").\n\nA band of more than 40pt with no upright text inside the table's x-range now\ndisqualifies the gap too. Consecutive table rows sit 10-14pt apart, and a band\nthat tall with nothing in it is a figure or empty page. Re-extracting the 11\npapers whose regions moved restores Table 6 to 10x4 with every value in its own\ncell. cmaj.230841 and 00221465251343322 keep their real notes.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/ef7ffb3ba6795145bfdc96424097653c66efcbbd",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "df70115",
+            "message": "fix(tables): two region guards narrowed after a firing census and a cross-model review",
+            "body": "Measured every firing of the new detect.py guards over the 102-paper manifest\nand judged each against the text it acted on. Two guards were wrong some of the\ntime. Both are now narrowed.\n\n- The lone-rule filter dropped a table's OWN unique top rule:\n  10.1038/s41598-023-50460-2 p4 Table 3 draws one full-width rule\n  (x 159.4->552.2) above shorter recurring rules. 1 of 9 firings, confirmed on\n  the rasterized page. Sol and Sonnet each raised the same shape independently\n  in the consult round, and Sonnet reproduced it on constructed rules. Every\n  correct firing dropped a rule BELOW the table (a footer separator, the next\n  table's top rule), so only such a rule is now dropped. Final: 5 firings,\n  5/5 correct.\n- The note-distance rule assumed a ruled table's last detected rule is its\n  last row. On 10.1503/cmaj.230841 p6 and 10.1177/00221465251343322 p7 the\n  table continues far below the rules found, and the rejected \"Note:\" /\n  \"Source:\" line was the table's real note. That was 2 of 32 firings; final\n  output was unchanged in both, but the premise was false. A distant note is\n  now rejected only when a running-prose line (spanning at least 60% of the\n  column, no gap of 12pt or more, at least 25 glyphs) lies between the table\n  and the note. Final: 21 firings, 21/21 correct (page footers, section\n  headings, a figure caption, citation superscripts, a URL footnote).\n\nThe caption locator was 12/12 correct and is unchanged. Sonnet's\njustified-stretch case (a word space of 6pt or more before a cross-reference)\nis documented at the threshold as a known, bounded limit: it falls back to the\npre-v2.4.145 choice.\n\nEach narrowing was mutation-tested: removing it turns exactly its new unit\ntest red.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/df70115ae780c9e9e46e88f29d2342d56fd53d5b",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "7563368",
+            "message": "fix(tables): read Nature `N |` captions, and keep uncaptioned grids labelled instead of dropping them",
+            "body": "Two defects, found together on nature/nat_comms_1.pdf, owner-directed 2026-09-24\n(\"investigate, understand what happened and fix ... best to retain information and\nnot drop. if unsure what that is - we keep but label it accordingly\").\n\n1. THE PIPE. The Nature family prints `Fig. 1 | Title` / `Table 1 | Title`. FOUR\n   caption patterns required `.`/`:` (or a space and a capital) after the number,\n   so every caption in that house style was invisible -- figures and tables alike.\n   All four now build from ONE `CAPTION_PIPE_SEPARATOR` in tables/captions.py\n   (captions.py x2, camelot_extract.py's caption-row and caption-number patterns);\n   before, the second pair never learned the pipe, so the caption line stayed inside\n   the grid as the table's first cell. A test asserts the four agree.\n   Census, all 102 corpus papers: +29 caption matches in 5 papers, all Nature\n   Communications, 29/29 real captions. End to end on nat_comms_1..5, same base,\n   only the pattern differing: figures 0->5, 0->4, 0->6, 0->3, 0->5; tables +1\n   (nat_comms_2), +4 (nat_comms_4), +1 (nat_comms_5), with real cells.\n\n2. THE SILENT DROP. extract_structured discarded every Camelot grid on a page with\n   no detected caption (and every grid no caption matched) with a bare `continue`:\n   no event, no count, justified as \"rare in the APA corpus\" -- never measured.\n   Such grids are now KEPT with the new field caption_status=\"uncaptioned_candidate\"\n   (label/caption None, id `u<n>`), counted as camelot_table_kept_without_caption,\n   and rendered in their own \"Uncaptioned table candidates (unverified)\" section --\n   never anchored inline, where an empty label would search for the bare word\n   \"Table\". A grid overlapping a kept table on the same page (>= 50% of the smaller\n   box) is a surviving copy and is deduplicated, recorded as such. Every Table now\n   carries caption_status: matched / none_found (DOCX: the file declares the table)\n   / uncaptioned_candidate.\n   Corpus sweep: 83 of 102 papers gain >= 1 candidate, 369 in total, 40 deduped. A\n   random sample is roughly half REAL statistical tables that were being thrown away\n   (a regression table \"Coeff. (SE)\", \"Odds ratio with 95%...\", a 220-cell JAMA table)\n   and half furniture (running headers, title blocks, figure internals) -- which is\n   exactly why the label says \"unverified\", not \"table\".\n\nTHE FIXTURES WERE ON THE WRONG PAPERS. nature_minimal_rule (\"minimal-rule tables,\ngray-band header\") pointed at nat_comms_1, which prints no table; nat_comms_figure_only\n(\"figures, no tables\") pointed at nat_comms_2, which prints a gray-band Table 1.\nVerified by rasterizing both. Swapped, counts set from the printed pages (1 table /\n4 figures; 0 / 5), and the sha256 text pins moved with their papers.\n\nGates that could only pass, now able to fail:\n- smoke figure count: +/-6 tolerance accepted ZERO figures (two Nature fixtures\n  extracted 0 while printing 4 and 5); zero is now its own assertion. The table count\n  compares CAPTIONED tables, since candidates are extra by construction.\n- four figure tests did pytest.skip(\"no figures detected\") -- which is how zero\n  figures stayed invisible. Now assertions. Two of them test figures/detect.find_figures,\n  which has NO production caller and fails on this paper because pdfplumber collapsed\n  every space in its layout text (\"Fig.1|Lethaleffects...\"): strict xfail, reason\n  recorded, goes red the day that module works.\n- test_wrapped_contact_strip: the contact block must stay out of the BODY (its name);\n  it may now appear, labelled, in the candidates section. Scoped to the body.\n- table ids may start `u`.\n\nTwo-sided: tests/test_nature_pipe_captions_real_pdf.py restores the old pattern and\nrequires the figures to vanish; the keep-and-label test was mutation-checked by\nrestoring the silent drop in-process -> \"grids on this paper were dropped again\".\n\nCONSUMER-VISIBLE: every Table gains `caption_status`; Nature-family papers gain\nfigures and tables; 83/102 corpus papers gain uncaptioned candidates in `tables` and a\nnew appendix section in rendered Markdown. TABLE_EXTRACTION_VERSION left to the\nrelease coordinator (one bump with the concurrent table-region fix).\n\nNOT fixed, newly exposed, handed on: nat_comms_4 Table 4 is printed ROTATED and is\ncaptured as caption-only with raw_text \"Article\" (the running header); JAMA's\nunnumbered \"Table.\" caption is another caption gap.\n\nTargeted: 91 passed, 2 xfailed (then the caption-text assertion corrected: 5/5).",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/7563368cc2dcafebaa988454c0e9d4a9e889e985",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "936f8b2",
+            "message": "fix(tables): a wider table region stops at its own table, not the page furniture",
+            "body": "2c8b0dd (v2.4.143) widened caption-anchored regions so wide tables stopped\nlosing columns. That is kept. But four detectors were never written for a wide\nregion, and a 102-paper diff (v2.4.142 vs 2.4.144) found real tables they\nemptied or garbled. Every change is keyed on what the file states:\n\n- `_bbox_of_caption_line` matched by CONTAINMENT, so a body sentence\n  \"presented in Table 4.\" above the real \"TABLE 4\" heading won\n  (10.5465/amj.2016.1196 p19). A row whose match starts a text block (the first\n  glyph, or after a gap of 6pt or more) is now preferred. With none, the old\n  first-containing row is returned.\n- `_widen_to_left_aligned_rows` buckets words by y across the WHOLE page, so a\n  row \"starting at the left edge\" carried a side-note column\n  (10.1001/jamanetworkopen.2023.48333 p6: the Model 1/Model 2 hazard ratios\n  came out interleaved glyph by glyph) and a rotated copyright strip\n  (10.1136/bmjopen-2022-066361 p6). It now runs only for a whitespace run (a\n  ruled table's rules state its width) and skips non-upright words.\n- the lattice union admitted a lone page-footer rule (x 47.9->562.8 beside\n  eight table rules at 47.9->395.1). A rule that is the only one of its width,\n  AND reaches beyond the recurring rules' extent, is dropped from the union.\n- `_detect_footnote_below` took the first small text anywhere below a table:\n  the rotated strip (bmjopen: Table 4 shipped with 0 rows), the page footer\n  440pt below (10.48550/arxiv.2410.21901 Table 5, EMPTY), and a figure caption\n  (its Table 6, EMPTY). Non-upright glyphs are excluded. For a ruled table,\n  whose last rule is its last row, a note must start within one note-row gap\n  (25pt) of it.\n\nThe note-distance rule was first applied to every signal. A geometry-only\ncensus (all 429 captions, HEAD vs this) showed it moving 112 regions in 43\npapers, and 10.1525/collabra.90203 Table 7 would have lost its lower 300pt.\nScoped to lattice, it moves 63 regions in 31 papers. A full\nextract_pdf_structured diff over the 39 affected papers changes 15; each\nchanged table was checked against the printed page. No printed value is lost.\nRecovered: jama_open_2 T2, bmj_open_1 T4 (now all 6 columns),\narxiv.2410.21901 T5/T6. Newly captured: 10.1016/j.jesp.2021.104154 T3.\nCorrected: 10.1017/jdm.2023.15 T3 had carried Table 2's descriptives while the\nregression table reached nothing.\n\nNOT recovered: 10.5465/amj.2016.1196 Table 4, lost from v2.4.143 on. v2.4.142's\npartial copy (M, SD only) existed only because of the mis-located caption. With\nthe caption now right, the table (rules drawn as rectangles, a lower-triangular\ncorrelation matrix) is found by no detector. Reported, not hidden.\n\nTwo docstrings stated safety claims this disproved; corrected in place.\nLESSONS L-060.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/936f8b25b30100eeea54307a652f7a23f62b238d",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "28e0b8f",
+            "message": "fix(tables): a ruled table no longer swallows the next table's caption and rows",
+            "body": "`_augment_lattice_with_stream_rows` (v2.4.94) appended every Camelot stream row\nbelow a lattice table's box, to recover rows a ruling cut off. Stream does not\nstop at a table: on a page of stacked tables it returns one block running\nthrough the next caption and the next table. So a ruled Table 1 gained Table\n2's caption line and Table 2's rows, mis-columned by stream (\"Sleep vs\nNap-3.07\"). Under Table 1's header (Effect | F | df1 | df2 | p) that row\nflattened to `F(0.003, -0.31) = 98`, a statistic no page printed. docpluck\nbuilt it.\n\nReported by CitationGuard's and ESCImate's contract suites after v2.4.143 and\nbisected to 2c8b0dd, which did not write the row. It made the region-driven\ncandidates correct, and `_pick_better_table`'s equal-columns tie-break (\"more\ncells wins\") then chose the 8-row merged grid over Table 2's own 3-row grid.\nBefore that, Table 2's t-tests survived under Table 1's caption.\n\nThe run of appended rows now stops at the top edge of another same-page ruled\ntable sharing its x-range, or at a `Table N.` / `Figure N.` caption row. The box\nis widened only to the last row actually appended. Each stop is recorded as\n`lattice_augment_stopped_at_boundary`.\n\nMeasured over the 102-paper manifest: it fires 6 times in 5 papers\n(5 caption_row, 1 sibling_table). 6/6 withheld only a caption line, body prose\nor another table's rows, and 0 withheld a row of the table it was attached to.\nOne final table changes: 10.1038/s41598-023-50401-z Table 1 loses its own\ncaption and three rows of Discussion prose (\"no significant difference\n(P = 0.16) ...\"), confirmed on the rasterized p4.\n\nTests: a reportlab-built stacked-tables page fails on 14ba3b8, 2c8b0dd and\n2c8b0dd^ and passes here. Four augmenter unit tests. Each of the three\nconditions was mutation-tested; removing any one turns at least one test red.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/28e0b8f7c6a35e271fd597bac6f1a86f48a7d2b9",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "f3660ee",
+            "message": "test(snapshots): re-pin chen_2021_jesp after the intended reference-page change",
+            "body": "The extract_pdf output of apa_chen_jesp_lineless changes on exactly two pages,\nmeasured by a per-page sha1 before/after over the 101-paper corpus: p20 is now\nread left column first (the reported defect), and p19 loses the digit the\ncolumn crop duplicated from the running header. 137545 -> 137541 bytes; method\ncolumn_corrected:19 -> column_corrected:19,20. Every other pin still matches.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/f3660ee2fb86b3a4238ed5f9ef469b81d6f3aaa8",
+            "type": "test",
+            "branch": "main"
+          },
+          {
+            "sha": "15ecaee",
+            "message": "fix(public-repo): a test found its DOCX fixture by a manuscript's filename",
+            "body": "tests/test_pua_glyph_recovery_real_pdf.py opened redacted-docx.docx by name,\nand CHANGELOG repeated it; the docx sources are unsubmitted manuscripts, so the\nfilename is a title. The test now locates the fixture by content hash (the\nharness manifest id docxtests__8452867332d36c85); it still runs: 1 passed.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/15ecaeefdc6abb7f41ecee6c6ef2d4e1dfcca943",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "5d3e47b",
+            "message": "docs(extract): say where U+FFFD is still rewritten -- d4003f1 overstated it",
+            "body": "d4003f1 described the retired recovery's replacement contract as \"docpluck does not guess\".\nThat is true of extract_pdf and false of the normalized text: normalize_text's S5a\n(eta before `2 =`) and S5b (>= / <= before a number) still rewrite U+FFFD from context.\nMeasured on vancouver/plos_med_1.pdf, the one corpus paper carrying U+FFFD: extract_pdf\nreturns all 9; after normalize_text, S5b has rewritten all 9 and 0 remain.\n\nWording corrected in README, DESIGN, the extract_pdf comment and the pass-through test's\ndocstring. No behaviour change. Whether S5a/S5b should stay is a separate owner question.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/5d3e47b9de98f0b73f5720b9cf4dc84a4d70e544",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "75d74a2",
+            "message": "fix(extract): retire the U+FFFD recovery -- it could substitute a wrong statistic",
+            "body": "Owner decision 2026-09-24. When pdftotext emitted three or more U+FFFD, extract_pdf\nran pdfplumber over the whole document and then either REPLACED the entire text\n(Mode A) or patched words one at a time from a global token set (Mode B). Every\nload-bearing claim against it was reproduced by running the code:\n\n  * Mode A's guard, _reading_order_agrees, returned True for a document's exact\n    REVERSE (under 2000 chars it checks length only), for its blocks SHUFFLED\n    (it tests substring membership, never order), and for completely UNRELATED\n    text (when no clean 60-char window exists it skips all three checks and\n    returns True vacuously).\n  * Mode A joined pages with \"\\n\\n\" instead of form feeds, so every downstream\n    page boundary collapsed to page 1.\n  * Mode B turned `partial <U+FFFD>2 = .35` into `partial R2 = .35` -- a partial\n    eta-squared relabelled as an R-squared -- because \"unique\" meant unique among\n    distinct token spellings anywhere in the document, and the SMP Greek it\n    looked up had already been spelled out, so the true `eta2` could never match.\n  * Mode B is not dormant: on vancouver/plos_med_1.pdf (9 U+FFFD) it EXECUTED on\n    the live document and returned 0 patches only because no word had a unique\n    look-alike.\n  * Across all 102 corpus papers neither mode was ever accepted.\n\nA visible U+FFFD is a flag a consumer can act on; a plausible wrong token is not.\nRemoved: the recovery block and every helper that served only it\n(_patch_fffds_word_by_word, _reading_order_agrees, _build_smp_greek /\n_SMP_GREEK_TO_ASCII, _smp_to_ascii_map, _recover_with_pdfplumber). Nothing\ncorrectly encoded is lost: normalize.py maps SMP math-italic characters that\npdftotext DOES decode (_MATH_ALNUM_RE), and the removed Greek table was the\nsecond copy that the ONE-CONCEPT-ONE-TABLE rule was written about.\n\nTests: the eight word-patch unit tests and test_smp_greek_agrees_with_a5.py (all\nfive of its tests exercised only the removed table) are gone. The strict xfail\ntest_nature_smp_recovery, whose premise had been false since 2026-09-17, is\nreplaced by test_replacement_characters_pass_through_as_printed on the one corpus\npaper that carries U+FFFD. Mutation-checked: making extract_pdf rewrite U+FFFD\nturns it red (\"found 0\"). The compat allowlist no longer accepts a method value\nthat cannot be produced. Docs, README, SYMBOL_CONTRACT and DESIGN updated; the\nDESIGN section is kept and marked retired.\n\nCONSUMER-VISIBLE:\n  method   before: \"pdftotext_default+pdfplumber_recovery\" / \"...+pdfplumber_word_patch\"\n           after:  never produced\n  text     before: on >= 3 U+FFFD, possibly a different document's worth of text\n           after:  U+FFFD passed through as printed\n  fallbacks: \"pdfplumber_recovery_exception\" no longer emitted\nNo corpus paper's output changes; the change bites only outside the corpus.\n\npython -m pytest tests/test_extraction.py tests/test_v23_1_fixes.py\n  tests/test_v2_backwards_compat.py tests/test_mathitalic_greek_real_pdf.py\n  tests/test_symbol_contract.py tests/test_public_repo_hygiene.py -n 4\n  -> 162 passed",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/75d74a24586e0210128722e3cb27e093ddf4b611",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "68fb115",
+            "message": "chore(harness): drop a gold key that joins no document",
+            "body": "gold_keys.json held one key in the pre-repoint filename-slug id scheme; it joins\n0 of the 135 manifest ids, so it mapped nothing, and it published a manuscript\nfilename. inspect.py discover now resolves gold keys by DOI and repopulates this.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/68fb1158feb3b5f9c9ebd77052732a62ab76fc6c",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "03da498",
+            "message": "chore(harness): re-baseline Tier-D on the re-keyed corpus, after a zero-regression A/B",
+            "body": "The committed baseline joined nothing (180 old-id docs vs 135 manifest ids, 0\noverlap), so checks.py refused it and it gated nothing -- and its keys were the\nold filename slugs, 25 of them titles of unsubmitted manuscripts. Rebuilt from a\nwhole-corpus run of library HEAD + the app service that ships with it (405\ndoc x level cells, 1620 check results: pass 1492, fail 26, skip 102).\n\nEvidence it is safe to accept: the same corpus through v2.4.143 + production's\napp (origin/master): 0 pass->fail, 6 fail->pass. Section output identical on\n403/403 cells. The 17 table-content differences are load nondeterminism: within\nEACH arm 7-8 papers' tables differ across normalization levels (tables do not\ndepend on level), and sci-rep-2 re-run standalone on v2.4.143 3x reproduces the\nnew arm's tables. All 135 keys join the manifest; non-corpus keys are all\n<source>__<16 hex>.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-24",
+            "url": "https://github.com/giladfeldman/docpluck/commit/03da4982f760389171803980f6ca5034c096ee52",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 5,
+        "pushed_at": "2026-09-02T03:58:35Z",
+        "recent_commits": [
+          {
+            "sha": "7729a28",
+            "message": "Built site for tenzing@0.4.1: 5554f64",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "5554f64",
+            "message": "temporarily cmmment out new test that failed for Load instead of Upload",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
+            "type": "feat",
+            "branch": "master"
+          },
+          {
+            "sha": "e07088e",
+            "message": "move papaja UI output down, retitle affiliations page",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "e4217bd",
+            "message": "Built site for tenzing@0.4.1: 6944931",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "6944931",
+            "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
+            "body": "Reorder output actions and clarify URL loading",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-09-12T16:45:11Z",
+        "recent_commits": [
+          {
+            "sha": "1c1d925",
+            "message": "Merge pull request #299 from Davidvandijcke/dev",
+            "body": "Release subscription review model selection fix",
+            "author": "David Van Dijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/1c1d925e58646e6df78de711d64ec6d7f485badf",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "1e703c1",
+            "message": "fix(web): preserve subscription model selections and refresh options (#298)",
+            "body": "",
+            "author": "David Van Dijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/1e703c1a5178e05cd462daa264da8d094ffee93e",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "b8118c7",
+            "message": "fix(web): preserve subscription model selections and refresh options",
+            "body": "",
+            "author": "Davidvandijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/b8118c775122c3535419384063a6b2f04ba61c7f",
+            "type": "fix",
+            "branch": "codex/subscription-model-selection"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-28T15:19:13Z",
+        "recent_commits": [
+          {
+            "sha": "4ea4b3b",
+            "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
+            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 69c3964cbc6c5fa72e1928aa83f610425e07cd6d\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
+            "author": "Gilad Feldman",
+            "date": "2026-08-28",
+            "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-10T06:52:07Z",
+        "recent_commits": [
+          {
+            "sha": "40676dd",
+            "message": "Release 0.12.7",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-09-10",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/40676dd45a817ba78070d6742d1018a5be451385",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-09-27T03:39:31.164953+00:00",
     "narrative": "",
     "repos": [
@@ -16046,142 +16432,6 @@
             "author": "ontogenerator",
             "date": "2026-08-31",
             "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-09-04T20:24:50.211223+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "marton-balazs-kovacs",
-        "repo": "tenzing",
-        "url": "https://github.com/marton-balazs-kovacs/tenzing",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 5,
-        "pushed_at": "2026-09-02T03:58:35Z",
-        "recent_commits": [
-          {
-            "sha": "7729a28",
-            "message": "Built site for tenzing@0.4.1: 5554f64",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "5554f64",
-            "message": "temporarily cmmment out new test that failed for Load instead of Upload",
-            "body": "",
-            "author": "Alex O. Holcombe",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
-            "type": "feat",
-            "branch": "master"
-          },
-          {
-            "sha": "e07088e",
-            "message": "move papaja UI output down, retitle affiliations page",
-            "body": "",
-            "author": "Alex O. Holcombe",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
-            "type": "other",
-            "branch": "master"
-          },
-          {
-            "sha": "e4217bd",
-            "message": "Built site for tenzing@0.4.1: 6944931",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "6944931",
-            "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
-            "body": "Reorder output actions and clarify URL loading",
-            "author": "Alex O. Holcombe",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
-            "type": "fix",
-            "branch": "master"
-          }
-        ]
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-09-04T17:34:35Z",
-        "recent_commits": [
-          {
-            "sha": "eac55db",
-            "message": "Clarify quality-checking caveat in docs",
-            "body": "Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_016fAVfHLS9MvLTWCh7jPusd",
-            "author": "Shaheed Azaad",
-            "date": "2026-09-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/eac55db3b148b7699a80e601ec361e14a0eeb905",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "25dceed",
-            "message": "Release 0.12.6",
-            "body": "Fixes the Gemini model catalog being restricted to a small hardcoded\nallowlist (any generateContent-capable model is now offered, and the\nsaved model text is no longer blanked out when it's not in the\ncatalog), fixes a duplicated/conflicting \"Effects of interest\"\nextraction-instructions section, and adds app-wide default models,\na read-only view of the default extraction instructions, provider-\nswitch model autofill, a Sources-tab landing for new projects, and\nthe rendered extraction instructions in the results ZIP.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-            "author": "Shaheed Azaad",
-            "date": "2026-08-22",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/25dceedf86930b5c8bb6e0c963adcc16eec65307",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "lhdjung",
-        "repo": "scrutiny",
-        "url": "https://github.com/lhdjung/scrutiny",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-29T20:31:38Z",
-        "recent_commits": [
-          {
-            "sha": "6dfe35c",
-            "message": "Refactor function factory helpers",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-08-29",
-            "url": "https://github.com/lhdjung/scrutiny/commit/6dfe35c4e8b11ad63c4b2208f876dd8e65538c80",
-            "type": "refactor",
-            "branch": "polishing"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "escicheck",
-        "url": "https://github.com/giladfeldman/escicheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-28T15:19:13Z",
-        "recent_commits": [
-          {
-            "sha": "4ea4b3b",
-            "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
-            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 69c3964cbc6c5fa72e1928aa83f610425e07cd6d\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
-            "author": "Gilad Feldman",
-            "date": "2026-08-28",
-            "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
             "type": "chore",
             "branch": "main"
           }
