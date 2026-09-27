@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-26T20:47:25.586650+00:00",
+  "generated_at": "2026-09-27T03:39:31.184661+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -139,8 +139,8 @@
       "commits_90d": 252,
       "authors_30d": [
         "Jakub Werner",
-        "Lakens",
         "Lukas Wallrich",
+        "Lakens",
         "Daniel Lakens"
       ],
       "type_breakdown": {
@@ -1176,6 +1176,118 @@
           "author_login": "Lakens",
           "date": "2026-09-16",
           "url": "https://github.com/scienceverse/metacheck/commit/6794e308dad018656635a2b0cb5609522af0eb15",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "1889c53",
+          "message": "Merge pull request #428 from scienceverse/fix-427-zip-peek-cache",
+          "body": "Persist zip_peek() to disk and thread skip_on_api_limit through it (#427)",
+          "author": "Daniel Lakens",
+          "author_login": "Lakens",
+          "date": "2026-09-26",
+          "url": "https://github.com/scienceverse/metacheck/commit/1889c530553a7a547a1aed5d9b27cb882be502e7",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {
+            "additions": 334,
+            "deletions": 52,
+            "files": [
+              {
+                "filename": "NAMESPACE",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 0,
+                "patch": "@@ -306,4 +306,5 @@ export(zenodo_pat)\n export(zenodo_upload)\n export(zip_decision)\n export(zip_peek)\n+export(zip_peek_cache_clear)\n importFrom(DT,datatable)"
+              },
+              {
+                "filename": "NEWS.md",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 0,
+                "patch": "@@ -1,5 +1,6 @@\n # metacheck 0.3.1\n \n+* `zip_peek()` gained an on-disk cache (`cache = TRUE`, mirroring `repo_info_cache()`) so a restarted R process reuses a zip's already-peeked listing instead of re-issuing the range request; `repo_check()`/`data_check()`/`code_check()` forward their own `cache` argument to it. Also fixed `skip_on_api_limit` not reaching `zip_peek()`'s own HTTP requests: `repo_check()` gained a `skip_on_api_limit` parameter, and `data_check()`/`code_check()` now forward their"
+              },
+              {
+                "filename": "R/code_check.R",
+                "status": "modified",
+                "additions": 5,
+                "deletions": 3,
+                "patch": "@@ -591,15 +591,16 @@ code_lang <- function(file_name) {\n # own NULL-return cases); such a row is left for the normal download path,\n # which will fetch the whole archive and (if data_check expands it) recover\n # its contents that way instead.\n-.code_expand_zip <- function(all_files, skip_on_api_limit = FALSE) {\n+.code_expand_zip <- function(all_files, skip_on_api_limit = FALSE, cache = FALSE) {\n   is_zip <- grepl(\"\\\\.zip$\", all_files$file_name, ignore.case = TRUE) &\n     !is.na(all_files$file_u"
+              },
+              {
+                "filename": "R/repo-download.R",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 1,
+                "patch": "@@ -1306,7 +1306,8 @@ download_repo_files <- function(files,\n         member_dest <- .safe_write_path(member_dest)\n         dir.create(member_dest, showWarnings = FALSE, recursive = TRUE)\n         fetched <- tryCatch(\n-          .zip_fetch_members(arc, names = files$archive_member[idx], dest = member_dest),\n+          .zip_fetch_members(arc, names = files$archive_member[idx], dest = member_dest,\n+                            cache = cache, skip_on_api_limit = skip_on_api_limit),\n           error "
+              },
+              {
+                "filename": "R/zip-peek-cache.R",
+                "status": "added",
+                "additions": 85,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,85 @@\n+# On-disk cache for zip_peek()'s result (a zip's central-directory listing,\n+# read via one or two HTTP range requests -- see R/zip-peek.R). This is the\n+# same fix, one level further in, that repo_info_cache() (R/repo-info-cache.R)\n+# already applies to a repository's file LISTING: zip_peek()'s own cache\n+# (.zip_peek_cache, R/zip-peek.R) is in-memory only, so it is reset every time\n+# the R process restarts, and a restarted pipeline run re-peeks every zip it\n+# already peeked"
+              },
+              {
+                "filename": "R/zip-peek.R",
+                "status": "modified",
+                "additions": 79,
+                "deletions": 36,
+                "patch": "@@ -53,8 +53,8 @@\n # moment (see .storage_is_transient(), R/repo-download.R), but S3 answers a\n # HEAD with 403 every single time, so retrying it only added ~6 s of backoff\n # per Dryad/Figshare/Dataverse file before the size request failed anyway.\n-.size_probe_is_transient_factory <- function() {\n-  is_transient <- .storage_is_transient_factory()\n+.size_probe_is_transient_factory <- function(skip_on_api_limit = FALSE) {\n+  is_transient <- .storage_is_transient_factory(skip_on_api_limit)\n   func"
+              },
+              {
+                "filename": "inst/modules/code_check.R",
+                "status": "modified",
+                "additions": 9,
+                "deletions": 4,
+                "patch": "@@ -27,7 +27,7 @@\n #' @param max_download_size largest total download per repository, in MB (default 500). Set `Inf` for no cap.\n #' @param max_files_per_repo largest file COUNT a single repository may have before it is refused outright (default `Inf`, no cap) -- see [download_repo_files()]'s own parameter of the same name.\n #' @param cache if TRUE, keep downloaded files in a persistent on-disk cache (see [repo_cache_dir()]) so they are reused on later runs. If FALSE (the default), download to a"
+              },
+              {
+                "filename": "inst/modules/data_check.R",
+                "status": "modified",
+                "additions": 13,
+                "deletions": 4,
+                "patch": "@@ -105,7 +105,9 @@\n #'   rate-limit-exhausted signal (e.g. Dryad's per-day quota) skips that file\n #'   instead of waiting out the host's own reset. Default `FALSE` (always\n #'   wait for a confirmed reset) -- see [download_repo_files()]'s own\n-#'   parameter of the same name.\n+#'   parameter of the same name. Also forwarded to `repo_check()` and to the\n+#'   zip-peeking step below (`peek_zips`, [zip_peek()]), both of which make\n+#'   the same kind of request and can hit the same rate limit.\n #"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "bec46c6",
+          "message": "Persist zip_peek() to disk and thread skip_on_api_limit through it (#427)",
+          "body": "zip_peek()'s result was cached only in memory (.zip_peek_cache), reset every\nR process, unlike repo_info_cache() which already persists a repository's\nLISTING to disk for exactly this reason. Added an on-disk cache\n(R/zip-peek-cache.R, mirroring repo-info-cache.R's shape: one file per\narchive URL, opt-in via cache = TRUE) and wired it into zip_peek(),\nzip_decision(), .zip_fetch_members(), and .code_expand_zip(), plus all of\ntheir call sites in repo_check.R, data_check.R, code_check.R, and\nrepo-download.R.\n\nAlso fixed skip_on_api_limit not reaching zip_peek()'s own HTTP helpers:\n.head_size(), .http_range_get(), .http_range_tail(), .http_range_suffix(),\n.http_range_bytes(), and .range_size() all called .wait_out_known_rate_limit()\nand the retry factories with no skip_on_api_limit argument, so a confirmed\nexhausted rate limit was always waited out during a zip peek regardless of\nwhat the caller asked for -- the argument only reached them via the global\nmetacheck.skip_on_api_limit option. repo_check() had no skip_on_api_limit\nparameter at all; added one, and data_check()/code_check() now forward their\nown skip_on_api_limit both to repo_check() (via module_run()) and to the\nzip-peeking step, matching how they already forward cache the same way.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-09-26",
+          "url": "https://github.com/scienceverse/metacheck/commit/bec46c66140bba6bffb908ddd4ea608b6bb8e645",
+          "type": "other",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
+          "sha": "00f0604",
+          "message": "Merge pull request #426 from scienceverse/fix-424-zip-peek-s3",
+          "body": "Fix zip listing on S3-backed hosts, install-loop variables as packages, empty code files",
+          "author": "Daniel Lakens",
+          "author_login": "Lakens",
+          "date": "2026-09-26",
+          "url": "https://github.com/scienceverse/metacheck/commit/00f0604436969c0a894624fb60c00c9ae14ccc8d",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {}
+        },
+        {
+          "sha": "214bd46",
+          "message": "Fix zip listing on S3-backed hosts (#424), install-loop variables as packages (#421), empty code files (#425)",
+          "body": "#424: zip_peek() on Dryad, Figshare and Harvard Dataverse\n- These hosts redirect downloads to Amazon S3, which refuses HEAD (403)\n  but honours ranged GETs. When HEAD gives no size, the tail is now\n  requested by distance from the end (\"bytes=-n\") and the total read\n  from Content-Range; a 416 answer is handled. The fallback reads the\n  status before any body and accepts only 206, so a host that ignores\n  the range cannot send a whole archive.\n- A size is taken from HEAD only when the answer is 2xx; a 403 on a\n  size request is no longer retried.\n- .remote_size() falls back to a one-byte ranged GET the same way.\n- Removed the OSF, Zenodo and Dataverse whole-archive routes in\n  download_repo_files(): those archives never report a size, so the\n  routes never ran. Removed .remote_content_length().\n- Dryad, GitHub and GitLab archives now follow one rule: size estimated\n  from listed file sizes, skipped when unknown or above 2x\n  max_download_size, and stopped during download at 2x. GitHub and\n  GitLab previously had no limit.\n- osf_file_download(mode = \"zip\"): max_download_size is a budget for the\n  whole project. A node whose archive does not fit is downloaded file by\n  file within the budget (previously reported as \"not downloaded\" and\n  then downloaded without limit). Partial archives are deleted.\n- peek_zips now defaults to TRUE in data_check and reproducibility_check.\n\n#421: dependency extraction\n- code_library_names() no longer reports a variable's name as a package\n  in install.packages(), requireNamespace(), or library()/require() with\n  character.only = TRUE. Variables are resolved to the literal names\n  assigned in the file (including for-loop variables, lapply(pkgs,\n  library), p_load(char = pkgs)), and dropped otherwise.\n- A package install.packages() cannot find is reported with its \"not\n  available\" warning instead of \"installed but not loadable\".\n- A 404 from the CRAN Archive is reported as \"not found in the CRAN\n  Archive\", not as a network failure.\n\n#425: empty code files\n- code_abs_path(), code_setwd(), code_install_packages() and\n  code_line_stats() handle an empty file without warnings or errors;\n  code_parse_r() no longer reads the first line of an empty file.\n  code_check previously recorded empty files as errored.\n\nTests\n- New tests for all of the above.\n- Existing tests: restore the real zip_peek() after tests that replace\n  it; give new download tests their own repository names; add an\n  renv.lock to the code_check green-light test (required since 9285b1f).",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-09-26",
+          "url": "https://github.com/scienceverse/metacheck/commit/214bd4628df92d7132769aa07e90a90a525a44ec",
           "type": "fix",
           "branch": "dev",
           "diff": {}
@@ -2752,81 +2864,6 @@
           "branch": "master",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "7729a28",
-          "message": "Built site for tenzing@0.4.1: 5554f64",
-          "body": "",
-          "author": "Anka",
-          "author_login": "",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
-          "type": "other",
-          "branch": "gh-pages",
-          "diff": {
-            "additions": 1,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "pkgdown.yml",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -5,7 +5,7 @@ articles:\n   app_use: app_use.html\n   local_use: local_use.html\n   validation: validation.html\n-last_built: 2026-09-02T03:43Z\n+last_built: 2026-09-02T03:57Z\n urls:\n   reference: https://marton-balazs-kovacs.github.io/tenzing/reference\n   article: https://marton-balazs-kovacs.github.io/tenzing/articles"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "5554f64",
-          "message": "temporarily cmmment out new test that failed for Load instead of Upload",
-          "body": "",
-          "author": "Alex O. Holcombe",
-          "author_login": "alexholcombe",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
-          "type": "feat",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "e07088e",
-          "message": "move papaja UI output down, retitle affiliations page",
-          "body": "",
-          "author": "Alex O. Holcombe",
-          "author_login": "alexholcombe",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "e4217bd",
-          "message": "Built site for tenzing@0.4.1: 6944931",
-          "body": "",
-          "author": "Anka",
-          "author_login": "",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
-          "type": "other",
-          "branch": "gh-pages",
-          "diff": {}
-        },
-        {
-          "sha": "6944931",
-          "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
-          "body": "Reorder output actions and clarify URL loading",
-          "author": "Alex O. Holcombe",
-          "author_login": "alexholcombe",
-          "date": "2026-09-02",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
-          "type": "fix",
-          "branch": "master",
-          "diff": {}
-        }
       ]
     },
     {
@@ -2837,7 +2874,7 @@
       "stars": 10,
       "watchers": 10,
       "forks": 4,
-      "open_issues_count": 14,
+      "open_issues_count": 15,
       "network_count": 4,
       "subscribers_count": 1,
       "language": "R",
@@ -2846,9 +2883,9 @@
         "TeX": 7436
       },
       "topics": [],
-      "pushed_at": "2026-09-09T17:50:39Z",
+      "pushed_at": "2026-09-27T00:24:07Z",
       "created_at": "2021-11-21",
-      "last_push_days": 17,
+      "last_push_days": 0,
       "default_branch": "main",
       "license": "NOASSERTION",
       "branches": [
@@ -2874,7 +2911,7 @@
         },
         {
           "name": "polishing",
-          "last_commit": "2026-09-09"
+          "last_commit": "2026-09-27"
         },
         {
           "name": "test",
@@ -2884,23 +2921,24 @@
       "branch_activity": [
         {
           "name": "polishing",
-          "last_commit": "2026-09-09",
-          "commits_30d": 23
+          "last_commit": "2026-09-27",
+          "commits_30d": 38
         }
       ],
-      "commits_30d": 23,
-      "commits_7d": 0,
-      "commits_1d": 0,
-      "commits_90d": 142,
+      "commits_30d": 38,
+      "commits_7d": 13,
+      "commits_1d": 5,
+      "commits_90d": 157,
       "authors_30d": [
         "Lukas Jung"
       ],
       "type_breakdown": {
-        "other": 13,
-        "refactor": 3,
-        "docs": 3,
-        "feat": 2,
-        "fix": 2
+        "feat": 4,
+        "fix": 7,
+        "other": 19,
+        "test": 1,
+        "refactor": 4,
+        "docs": 3
       },
       "dormant_revived": false,
       "is_archived": false,
@@ -3182,9 +3220,22 @@
           "title": "Version 1.0.0 checklist",
           "url": "https://github.com/lhdjung/scrutiny/issues/39",
           "state": "open",
-          "updated_at": "2026-09-25",
+          "updated_at": "2026-09-26",
           "created_at": "2023-02-22",
           "labels": [],
+          "comments": 0,
+          "author": "lhdjung"
+        },
+        {
+          "number": 93,
+          "title": "Align examples in `digits_*` errors with true call sites",
+          "url": "https://github.com/lhdjung/scrutiny/issues/93",
+          "state": "open",
+          "updated_at": "2026-09-26",
+          "created_at": "2026-09-26",
+          "labels": [
+            "bug"
+          ],
           "comments": 0,
           "author": "lhdjung"
         },
@@ -3288,19 +3339,6 @@
           "created_at": "2026-01-18",
           "labels": [
             "bug"
-          ],
-          "comments": 0,
-          "author": "lhdjung"
-        },
-        {
-          "number": 74,
-          "title": "Update \"Consistency tests in depth\"",
-          "url": "https://github.com/lhdjung/scrutiny/issues/74",
-          "state": "open",
-          "updated_at": "2025-07-26",
-          "created_at": "2025-01-01",
-          "labels": [
-            "documentation"
           ],
           "comments": 0,
           "author": "lhdjung"
@@ -3424,11 +3462,11 @@
         },
         {
           "week": 1785715200,
-          "total": 2
+          "total": 18
         },
         {
           "week": 1786320000,
-          "total": 110
+          "total": 94
         },
         {
           "week": 1786924800,
@@ -3444,15 +3482,15 @@
         },
         {
           "week": 1788739200,
-          "total": 3
+          "total": 4
         },
         {
           "week": 1789344000,
-          "total": 0
+          "total": 1
         },
         {
           "week": 1789948800,
-          "total": 0
+          "total": 13
         }
       ],
       "code_frequency": [
@@ -3555,6 +3593,213 @@
       "scopus_citations": null,
       "recent_commits": [
         {
+          "sha": "82d39c4",
+          "message": "Add mailmap to merge my IDs",
+          "body": "",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-27",
+          "url": "https://github.com/lhdjung/scrutiny/commit/82d39c45cc77147b13cc3ec6c9cdc72b39741605",
+          "type": "feat",
+          "branch": "polishing",
+          "diff": {
+            "additions": 11,
+            "deletions": 2,
+            "files": [
+              {
+                "filename": ".Rbuildignore",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 0,
+                "patch": "@@ -30,3 +30,4 @@ R\\.Rproj$\n ^vignettes/.*\\.pdf$\n ^\\.DS_Store$\n ^.*/\\.DS_Store$\n+^\\.mailmap$"
+              },
+              {
+                "filename": ".mailmap",
+                "status": "added",
+                "additions": 3,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,3 @@\n+Lukas Jung <jung-lukas@gmx.net> <lhdjung@users.noreply.github.com>\n+Lukas Jung <jung-lukas@gmx.net> lhdjung <jung-lukas@gmx.net>\n+Lukas Jung <jung-lukas@gmx.net> <71007825+lhdjung@users.noreply.github.com>"
+              },
+              {
+                "filename": "R/debit-plot.R",
+                "status": "modified",
+                "additions": 7,
+                "deletions": 2,
+                "patch": "@@ -187,15 +187,20 @@ debit_plot <- function(\n           ymin = debit_line(n_range[2])(x_grid),\n           ymax = debit_line(n_range[1])(x_grid)\n         ),\n-        ggplot2::aes(x = x, ymin = ymin, ymax = ymax),\n+        ggplot2::aes(\n+          x = .data$x,\n+          ymin = .data$ymin,\n+          ymax = .data$ymax\n+        ),\n         fill = line_color,\n         alpha = line_alpha * 0.25,\n         na.rm = TRUE,\n         inherit.aes = FALSE\n       )\n   }\n \n-  debit_lines <- unique(n_range) |>\n"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "5e6fce9",
+          "message": "Fix `debit_plot()` and plot argument handling",
+          "body": "* `debit_plot()` recycled the `n` column along a single DEBIT line; it\n  now draws the line for the correct `n`. If `n` varies, it draws the\n  lines for the smallest and largest `n` and shades the band between\n  them, which contains all the others. `NA` rows are dropped with a\n  warning, and it returns its plot rather than printing it.\n* `debit_plot()` no longer draws outer boxes around the rectangles;\n  `show_outer_boxes` and the `tile_*` arguments are gone. Each rectangle\n  is drawn over a point at the reported mean and SD instead, so that it\n  shows up even when it is too small to see.\n* `grim_plot(n = ...)` now ends the x-axis at `n`, and\n  `split_by_digits = TRUE` always returns a list.\n* `grim_plot_values()` and `grimmer_plot_values()` reject invalid input\n  with clear errors.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-26",
+          "url": "https://github.com/lhdjung/scrutiny/commit/5e6fce99afdfc7b6fa22b13699ee7bc76b977d15",
+          "type": "fix",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "40e4e9d",
+          "message": "Fix duplicate counts and audit summary statistics",
+          "body": "* `audit()` of `duplicate_detect()` output dropped columns without\n  duplicates, which also skewed `.total`.\n* `duplicate_count_colpair()`'s `rate_y` could exceed 1.\n* `audit_summary_stats()` computed `na_rate` for `.total` over rows, not\n  values, and gave `Inf`/`-Inf` for all-`NA` columns.\n* `duplicate_count()` now uses a named vector's names as `locations`.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-26",
+          "url": "https://github.com/lhdjung/scrutiny/commit/40e4e9d2045250ce7ea424f1e01dcf77d90ecde8",
+          "type": "fix",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "c0b8518",
+          "message": "Split parenthesized strings one at a time",
+          "body": "* The split pieces were pooled and re-chunked by their average count, so\none cell with an extra pair of parentheses shifted every later value\ninto the wrong row. Separators are now matched literally, `NA` no\nlonger breaks `split_by_parens()`, and `transform = TRUE` no longer\nmixes up columns such as `exp_sd`. `row_to_colnames()` handles `NA`\nheader cells.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-26",
+          "url": "https://github.com/lhdjung/scrutiny/commit/c0b8518515ba52f4510f265fac8bb51c877ed0a7",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "d0f1c3b",
+          "message": "Fix decimal counting, `restore_zeros()`, and rounding input checks",
+          "body": "* `sep` is matched literally, as documented; the default is now `\".\"`.\n* `decimal_places()` and `decimal_places_scalar()` agree on malformed\n  strings and read `\"inf\"`/`\"nan\"` in any case.\n* `restore_zeros()` handled scientific notation and wide padding badly.\n* `reround()` and `unround()` validate `digits` alike; `unround()`\n  treats an infinite `x` as missing.\n* `rounding_bias()`, the `round_*()` functions, and\n  `reround_to_fraction()` handle strings, `symmetric`, recycling, and\n  `NA` properly.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-26",
+          "url": "https://github.com/lhdjung/scrutiny/commit/d0f1c3b91649738529665f1a46d1d12d49feff2b",
+          "type": "fix",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "dcb7d82",
+          "message": "Fix sequence, dispersion, and total-n edge cases",
+          "body": "* `reverse_map_total_n()` rebuilt the wrong total `n` unless\n  `dispersion` started at 0.\n* `seq_endpoint()` and `seq_distance()` drifted off the decimal level.\n* `is_seq_linear()` accepted zigzags; the other predicates returned `NA`\n  where the known values ruled a sequence out.\n* `seq_disperse()` accepted a fractional `dispersion` and compared\n  string limits as strings.\n* `disperse_total()` and the total-n mappers crashed when no pair of\n  group sizes was left, for a total below 2, and for 0-row data.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/dcb7d825da643ba3436ce3a0ab1ecd852f3a7055",
+          "type": "fix",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "d49ce05",
+          "message": "Make the GRIM probability exact for every rounding method",
+          "body": "* `(10^D - N * L) / 10^D` only holds for rounding methods with a single\nhalf-open range one step wide. `\"up_or_down\"` admits ties toward both\nneighbors, and `\"ceiling_or_floor\"` a range two steps wide.\n`grim_probability()` and `grim_total()` now take `rounding` and\n`threshold` and count exactly the values `grim()` rules out, and return\n`NA` where `grim()` does. `grim_map()` passes its `rounding` on.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/d49ce0548f7b790c0ce88a6fc96d1c06a5e089ec",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "e9107e6",
+          "message": "Close gaps in the tests' handling of untestable input",
+          "body": "* `grimmer()` checked the scale bounds before `n`, turning undecidable\n  cases into `FALSE`. A negative `sd` is now `FALSE` with its own reason.\n* `grim_values()` and `grim_closest()` skipped the decidability check.\n* `grim_binomial()` and `grim_binomial_power()` crashed R on empty\n  input inside poibin.\n* A string `n` and an infinite `digits_*` now get clear errors.\n* The missing-`digits_sd` error suggested a call that itself failed.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/e9107e69a99018989f3c50146a760d002b07b43b",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "aafc98d",
+          "message": "Anchor the patterns of `is_map_df()` and friends",
+          "body": "* `(^scrutiny_)*` made the prefix optional, so any class ending in `_map`\nmatched, and `is_map_basic_df()` rejected mappers with `map` in their\ntest name.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/aafc98d62c2181c9368c0fb1ad8541acaa8a49cd",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "dbef5d1",
+          "message": "Read key arguments by value in `absorb_key_args()`",
+          "body": "* It parsed the unevaluated call, which through `lapply()` or\n`purrr::map()` is `FUN(X[[i]], ...)`, and from a wrapper names a\nvariable rather than the column. It also silently ignored a key argument\nwhenever `data` already had a column of that name. The values are now\ncaptured in the mapper's frame, and such a clash is an error.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/dbef5d1d8d21c2b212f24f99055bd9c8f5b3050a",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "d07f888",
+          "message": "Fix `items` and `case` in `*_map_seq()` output",
+          "body": "* The sequence mappers re-tested `n * items` with `items = 1`. GRIMMER\n  needs `n` and `items` separately, so `grimmer_map_seq()` gave wrong\n  verdicts, even for the reported values. `function_map()` now records\n  which key column each helper is merged into, and `function_map_seq()`\n  undoes the merge: `n` is dispersed as the sample size and `items` is\n  returned as a column, which `audit_seq()` also reads.\n* `case` is now the row number in the input data, not the position\n  among the inconsistent rows, so results can be joined back.\n* `audit_seq()` now accepts output from a single-step `dispersion`.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/d07f8889cb169d692ee32dacd25e2738ee51dbfc",
+          "type": "fix",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "87c58b2",
+          "message": "Write `expect_na()` with `pass()` and `fail()`",
+          "body": "* testthat 3.3.0 checks the inputs of `expect()`, which b5b2f3f worked\naround on main. Now using the documented pattern for custom expectations\ninstead: https://testthat.r-lib.org/articles/custom-expectation.html",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/87c58b202ad86501d52b36e7502411152b8d19da",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "f78bc8c",
+          "message": "Test that both `seq_disperse()` limits apply to both sides",
+          "body": "The fix went into edaada3; these are its tests, plus the corrected\nexpectations in `test-reverse-map-seq.R` that follow from it.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/f78bc8cad7b5a736b87eba92361bc072fb0c6092",
+          "type": "test",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "edaada3",
+          "message": "Add `grim_plot_values()` and `grimmer_plot_values()`",
+          "body": "",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-14",
+          "url": "https://github.com/lhdjung/scrutiny/commit/edaada3027d611a748b20187d2e6570d6cb478bf",
+          "type": "feat",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "d6d231a",
+          "message": "Improve various input checks + refactor",
+          "body": "",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-10",
+          "url": "https://github.com/lhdjung/scrutiny/commit/d6d231ab3a1007fc8601d767de1ec03ab3d58dca",
+          "type": "refactor",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
           "sha": "72620b2",
           "message": "Treat `list_min_distance_functions` like other constants",
           "body": "",
@@ -3564,34 +3809,7 @@
           "url": "https://github.com/lhdjung/scrutiny/commit/72620b2796b2d95fce0ce545ac4a27679a85b8f2",
           "type": "other",
           "branch": "polishing",
-          "diff": {
-            "additions": 65,
-            "deletions": 71,
-            "files": [
-              {
-                "filename": "R/aaa.R",
-                "status": "modified",
-                "additions": 64,
-                "deletions": 0,
-                "patch": "@@ -75,3 +75,67 @@ PATTERN_NAME_TEST_FN <- \"^(grim|grimmer|debit)\"\n \n # Used in `grim_plot()` if `digits > 2`\n TIBBLE_FRAC_N_ZERO <- tibble::new_tibble(list(frac = 0, n = 0L), nrow = 1L)\n+\n+\n+# List of minimal-distance functions for `audit_seq()`\n+#\n+# The functions collected in `LIST_MIN_DISTANCE_FUNCTIONS` are mapped in one\n+# particular place within `audit_seq()` and shouldn't really be used elsewhere.\n+#\n+# Instead of being individually defined as named functions or being used as\n+# anonymou"
-              },
-              {
-                "filename": "R/audit.R",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 2,
-                "patch": "@@ -174,12 +174,11 @@ audit_seq <- function(data) {\n     ) |>\n     tidyr::unnest(cols = everything())\n \n-  # Go to utils.R to see the `list_min_distance_functions` object.\n   cols_diff <- df_nested |>\n     dplyr::mutate(\n       dplyr::across(\n         .cols = everything(),\n-        .fns = list_min_distance_functions,\n+        .fns = LIST_MIN_DISTANCE_FUNCTIONS,\n         .names = \"diff_{.col}{fun_names}\"\n       ),\n       .keep = \"none\""
-              },
-              {
-                "filename": "R/utils.R",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 69,
-                "patch": "@@ -1954,75 +1954,6 @@ audit_summary_stats <- function(data, selection, total = FALSE) {\n }\n \n \n-#' List of minimal-distance functions for `audit_seq()`\n-#'\n-#' @description The functions collected in `list_min_distance_functions` are\n-#'   mapped in one particular place within `audit_seq()` and shouldn't really be\n-#'   used elsewhere.\n-#'\n-#'   Instead of being individually defined as named functions or being used as\n-#'   anonymous functions directly inside of `audit_seq()`, they are stored i"
-              }
-            ]
-          },
-          "diff_summary": ""
+          "diff": {}
         },
         {
           "sha": "23404f6",
@@ -3760,105 +3978,216 @@
           "type": "fix",
           "branch": "polishing",
           "diff": {}
-        },
+        }
+      ],
+      "_new_commits": [
         {
-          "sha": "e1cd277",
-          "message": "Capture argument names only when a length check fails",
+          "sha": "82d39c4",
+          "message": "Add mailmap to merge my IDs",
           "body": "",
           "author": "Lukas Jung",
           "author_login": "lhdjung",
-          "date": "2026-08-28",
-          "url": "https://github.com/lhdjung/scrutiny/commit/e1cd277f7a935f008b5dd60e2e373ebcdfa7694b",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "f4f176b",
-          "message": "Regenerate documentation",
-          "body": "",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-08-28",
-          "url": "https://github.com/lhdjung/scrutiny/commit/f4f176b4fa2683e660cd49fabfe30c253b29474c",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "71d1b91",
-          "message": "Document the rounding changes in NEWS.md and the vignette",
-          "body": "",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-08-28",
-          "url": "https://github.com/lhdjung/scrutiny/commit/71d1b916461badafa7b9c3bab539c3255163b6b3",
-          "type": "docs",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "b2a913d",
-          "message": "Add `round_ties_even()` and the `\"ties_even\"` string",
-          "body": "",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-08-28",
-          "url": "https://github.com/lhdjung/scrutiny/commit/b2a913d9edac7e79773180ba24548095b6723bf6",
+          "date": "2026-09-27",
+          "url": "https://github.com/lhdjung/scrutiny/commit/82d39c45cc77147b13cc3ec6c9cdc72b39741605",
           "type": "feat",
           "branch": "polishing",
-          "diff": {}
+          "diff": {
+            "additions": 11,
+            "deletions": 2,
+            "files": [
+              {
+                "filename": ".Rbuildignore",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 0,
+                "patch": "@@ -30,3 +30,4 @@ R\\.Rproj$\n ^vignettes/.*\\.pdf$\n ^\\.DS_Store$\n ^.*/\\.DS_Store$\n+^\\.mailmap$"
+              },
+              {
+                "filename": ".mailmap",
+                "status": "added",
+                "additions": 3,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,3 @@\n+Lukas Jung <jung-lukas@gmx.net> <lhdjung@users.noreply.github.com>\n+Lukas Jung <jung-lukas@gmx.net> lhdjung <jung-lukas@gmx.net>\n+Lukas Jung <jung-lukas@gmx.net> <71007825+lhdjung@users.noreply.github.com>"
+              },
+              {
+                "filename": "R/debit-plot.R",
+                "status": "modified",
+                "additions": 7,
+                "deletions": 2,
+                "patch": "@@ -187,15 +187,20 @@ debit_plot <- function(\n           ymin = debit_line(n_range[2])(x_grid),\n           ymax = debit_line(n_range[1])(x_grid)\n         ),\n-        ggplot2::aes(x = x, ymin = ymin, ymax = ymax),\n+        ggplot2::aes(\n+          x = .data$x,\n+          ymin = .data$ymin,\n+          ymax = .data$ymax\n+        ),\n         fill = line_color,\n         alpha = line_alpha * 0.25,\n         na.rm = TRUE,\n         inherit.aes = FALSE\n       )\n   }\n \n-  debit_lines <- unique(n_range) |>\n"
+              }
+            ]
+          },
+          "diff_summary": ""
         },
         {
-          "sha": "770bbd7",
-          "message": "Fix the argument checks in `rounding_bias()` and `reround_to_fraction()`",
-          "body": "",
+          "sha": "5e6fce9",
+          "message": "Fix `debit_plot()` and plot argument handling",
+          "body": "* `debit_plot()` recycled the `n` column along a single DEBIT line; it\n  now draws the line for the correct `n`. If `n` varies, it draws the\n  lines for the smallest and largest `n` and shades the band between\n  them, which contains all the others. `NA` rows are dropped with a\n  warning, and it returns its plot rather than printing it.\n* `debit_plot()` no longer draws outer boxes around the rectangles;\n  `show_outer_boxes` and the `tile_*` arguments are gone. Each rectangle\n  is drawn over a point at the reported mean and SD instead, so that it\n  shows up even when it is too small to see.\n* `grim_plot(n = ...)` now ends the x-axis at `n`, and\n  `split_by_digits = TRUE` always returns a list.\n* `grim_plot_values()` and `grimmer_plot_values()` reject invalid input\n  with clear errors.",
           "author": "Lukas Jung",
           "author_login": "lhdjung",
-          "date": "2026-08-28",
-          "url": "https://github.com/lhdjung/scrutiny/commit/770bbd7313069f2fd5ac785003c6e3e1fcedb708",
+          "date": "2026-09-26",
+          "url": "https://github.com/lhdjung/scrutiny/commit/5e6fce99afdfc7b6fa22b13699ee7bc76b977d15",
           "type": "fix",
           "branch": "polishing",
           "diff": {}
         },
         {
-          "sha": "2f949d5",
-          "message": "Validate `digits` in `reround()`",
-          "body": "",
+          "sha": "40e4e9d",
+          "message": "Fix duplicate counts and audit summary statistics",
+          "body": "* `audit()` of `duplicate_detect()` output dropped columns without\n  duplicates, which also skewed `.total`.\n* `duplicate_count_colpair()`'s `rate_y` could exceed 1.\n* `audit_summary_stats()` computed `na_rate` for `.total` over rows, not\n  values, and gave `Inf`/`-Inf` for all-`NA` columns.\n* `duplicate_count()` now uses a named vector's names as `locations`.",
           "author": "Lukas Jung",
           "author_login": "lhdjung",
-          "date": "2026-08-28",
-          "url": "https://github.com/lhdjung/scrutiny/commit/2f949d5e8566818f80096d829ea00a4ad44d2e6f",
+          "date": "2026-09-26",
+          "url": "https://github.com/lhdjung/scrutiny/commit/40e4e9d2045250ce7ea424f1e01dcf77d90ecde8",
+          "type": "fix",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "c0b8518",
+          "message": "Split parenthesized strings one at a time",
+          "body": "* The split pieces were pooled and re-chunked by their average count, so\none cell with an extra pair of parentheses shifted every later value\ninto the wrong row. Separators are now matched literally, `NA` no\nlonger breaks `split_by_parens()`, and `transform = TRUE` no longer\nmixes up columns such as `exp_sd`. `row_to_colnames()` handles `NA`\nheader cells.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-26",
+          "url": "https://github.com/lhdjung/scrutiny/commit/c0b8518515ba52f4510f265fac8bb51c877ed0a7",
           "type": "other",
           "branch": "polishing",
           "diff": {}
         },
         {
-          "sha": "d0c8c1e",
-          "message": "Correct the claim that `symmetric` only affects ties",
-          "body": "",
+          "sha": "d0f1c3b",
+          "message": "Fix decimal counting, `restore_zeros()`, and rounding input checks",
+          "body": "* `sep` is matched literally, as documented; the default is now `\".\"`.\n* `decimal_places()` and `decimal_places_scalar()` agree on malformed\n  strings and read `\"inf\"`/`\"nan\"` in any case.\n* `restore_zeros()` handled scientific notation and wide padding badly.\n* `reround()` and `unround()` validate `digits` alike; `unround()`\n  treats an infinite `x` as missing.\n* `rounding_bias()`, the `round_*()` functions, and\n  `reround_to_fraction()` handle strings, `symmetric`, recycling, and\n  `NA` properly.",
           "author": "Lukas Jung",
           "author_login": "lhdjung",
-          "date": "2026-08-28",
-          "url": "https://github.com/lhdjung/scrutiny/commit/d0c8c1e22d93a925cee372d5d71009f1f85fc59e",
+          "date": "2026-09-26",
+          "url": "https://github.com/lhdjung/scrutiny/commit/d0f1c3b91649738529665f1a46d1d12d49feff2b",
+          "type": "fix",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "dcb7d82",
+          "message": "Fix sequence, dispersion, and total-n edge cases",
+          "body": "* `reverse_map_total_n()` rebuilt the wrong total `n` unless\n  `dispersion` started at 0.\n* `seq_endpoint()` and `seq_distance()` drifted off the decimal level.\n* `is_seq_linear()` accepted zigzags; the other predicates returned `NA`\n  where the known values ruled a sequence out.\n* `seq_disperse()` accepted a fractional `dispersion` and compared\n  string limits as strings.\n* `disperse_total()` and the total-n mappers crashed when no pair of\n  group sizes was left, for a total below 2, and for 0-row data.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/dcb7d825da643ba3436ce3a0ab1ecd852f3a7055",
+          "type": "fix",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "d49ce05",
+          "message": "Make the GRIM probability exact for every rounding method",
+          "body": "* `(10^D - N * L) / 10^D` only holds for rounding methods with a single\nhalf-open range one step wide. `\"up_or_down\"` admits ties toward both\nneighbors, and `\"ceiling_or_floor\"` a range two steps wide.\n`grim_probability()` and `grim_total()` now take `rounding` and\n`threshold` and count exactly the values `grim()` rules out, and return\n`NA` where `grim()` does. `grim_map()` passes its `rounding` on.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/d49ce0548f7b790c0ce88a6fc96d1c06a5e089ec",
           "type": "other",
           "branch": "polishing",
           "diff": {}
         },
         {
-          "sha": "26ab044",
-          "message": "Make `round_down_from()` read `threshold` as `round_up_from()` does",
-          "body": "",
+          "sha": "e9107e6",
+          "message": "Close gaps in the tests' handling of untestable input",
+          "body": "* `grimmer()` checked the scale bounds before `n`, turning undecidable\n  cases into `FALSE`. A negative `sd` is now `FALSE` with its own reason.\n* `grim_values()` and `grim_closest()` skipped the decidability check.\n* `grim_binomial()` and `grim_binomial_power()` crashed R on empty\n  input inside poibin.\n* A string `n` and an infinite `digits_*` now get clear errors.\n* The missing-`digits_sd` error suggested a call that itself failed.",
           "author": "Lukas Jung",
           "author_login": "lhdjung",
-          "date": "2026-08-28",
-          "url": "https://github.com/lhdjung/scrutiny/commit/26ab044cb5a649e0910ba2380a77bcb6de77cd4a",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/e9107e69a99018989f3c50146a760d002b07b43b",
           "type": "other",
           "branch": "polishing",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
+        },
+        {
+          "sha": "aafc98d",
+          "message": "Anchor the patterns of `is_map_df()` and friends",
+          "body": "* `(^scrutiny_)*` made the prefix optional, so any class ending in `_map`\nmatched, and `is_map_basic_df()` rejected mappers with `map` in their\ntest name.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/aafc98d62c2181c9368c0fb1ad8541acaa8a49cd",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "dbef5d1",
+          "message": "Read key arguments by value in `absorb_key_args()`",
+          "body": "* It parsed the unevaluated call, which through `lapply()` or\n`purrr::map()` is `FUN(X[[i]], ...)`, and from a wrapper names a\nvariable rather than the column. It also silently ignored a key argument\nwhenever `data` already had a column of that name. The values are now\ncaptured in the mapper's frame, and such a clash is an error.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/dbef5d1d8d21c2b212f24f99055bd9c8f5b3050a",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "d07f888",
+          "message": "Fix `items` and `case` in `*_map_seq()` output",
+          "body": "* The sequence mappers re-tested `n * items` with `items = 1`. GRIMMER\n  needs `n` and `items` separately, so `grimmer_map_seq()` gave wrong\n  verdicts, even for the reported values. `function_map()` now records\n  which key column each helper is merged into, and `function_map_seq()`\n  undoes the merge: `n` is dispersed as the sample size and `items` is\n  returned as a column, which `audit_seq()` also reads.\n* `case` is now the row number in the input data, not the position\n  among the inconsistent rows, so results can be joined back.\n* `audit_seq()` now accepts output from a single-step `dispersion`.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/d07f8889cb169d692ee32dacd25e2738ee51dbfc",
+          "type": "fix",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "87c58b2",
+          "message": "Write `expect_na()` with `pass()` and `fail()`",
+          "body": "* testthat 3.3.0 checks the inputs of `expect()`, which b5b2f3f worked\naround on main. Now using the documented pattern for custom expectations\ninstead: https://testthat.r-lib.org/articles/custom-expectation.html",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/87c58b202ad86501d52b36e7502411152b8d19da",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "f78bc8c",
+          "message": "Test that both `seq_disperse()` limits apply to both sides",
+          "body": "The fix went into edaada3; these are its tests, plus the corrected\nexpectations in `test-reverse-map-seq.R` that follow from it.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-25",
+          "url": "https://github.com/lhdjung/scrutiny/commit/f78bc8cad7b5a736b87eba92361bc072fb0c6092",
+          "type": "test",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "edaada3",
+          "message": "Add `grim_plot_values()` and `grimmer_plot_values()`",
+          "body": "",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-14",
+          "url": "https://github.com/lhdjung/scrutiny/commit/edaada3027d611a748b20187d2e6570d6cb478bf",
+          "type": "feat",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "d6d231a",
+          "message": "Improve various input checks + refactor",
+          "body": "",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-09-10",
+          "url": "https://github.com/lhdjung/scrutiny/commit/d6d231ab3a1007fc8601d767de1ec03ab3d58dca",
+          "type": "refactor",
+          "branch": "polishing",
+          "diff": {}
+        },
         {
           "sha": "72620b2",
           "message": "Treat `list_min_distance_functions` like other constants",
@@ -3869,34 +4198,7 @@
           "url": "https://github.com/lhdjung/scrutiny/commit/72620b2796b2d95fce0ce545ac4a27679a85b8f2",
           "type": "other",
           "branch": "polishing",
-          "diff": {
-            "additions": 65,
-            "deletions": 71,
-            "files": [
-              {
-                "filename": "R/aaa.R",
-                "status": "modified",
-                "additions": 64,
-                "deletions": 0,
-                "patch": "@@ -75,3 +75,67 @@ PATTERN_NAME_TEST_FN <- \"^(grim|grimmer|debit)\"\n \n # Used in `grim_plot()` if `digits > 2`\n TIBBLE_FRAC_N_ZERO <- tibble::new_tibble(list(frac = 0, n = 0L), nrow = 1L)\n+\n+\n+# List of minimal-distance functions for `audit_seq()`\n+#\n+# The functions collected in `LIST_MIN_DISTANCE_FUNCTIONS` are mapped in one\n+# particular place within `audit_seq()` and shouldn't really be used elsewhere.\n+#\n+# Instead of being individually defined as named functions or being used as\n+# anonymou"
-              },
-              {
-                "filename": "R/audit.R",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 2,
-                "patch": "@@ -174,12 +174,11 @@ audit_seq <- function(data) {\n     ) |>\n     tidyr::unnest(cols = everything())\n \n-  # Go to utils.R to see the `list_min_distance_functions` object.\n   cols_diff <- df_nested |>\n     dplyr::mutate(\n       dplyr::across(\n         .cols = everything(),\n-        .fns = list_min_distance_functions,\n+        .fns = LIST_MIN_DISTANCE_FUNCTIONS,\n         .names = \"diff_{.col}{fun_names}\"\n       ),\n       .keep = \"none\""
-              },
-              {
-                "filename": "R/utils.R",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 69,
-                "patch": "@@ -1954,75 +1954,6 @@ audit_summary_stats <- function(data, selection, total = FALSE) {\n }\n \n \n-#' List of minimal-distance functions for `audit_seq()`\n-#'\n-#' @description The functions collected in `list_min_distance_functions` are\n-#'   mapped in one particular place within `audit_seq()` and shouldn't really be\n-#'   used elsewhere.\n-#'\n-#'   Instead of being individually defined as named functions or being used as\n-#'   anonymous functions directly inside of `audit_seq()`, they are stored i"
-              }
-            ]
-          },
-          "diff_summary": ""
+          "diff": {}
         },
         {
           "sha": "23404f6",
@@ -4376,6 +4678,40 @@
           "type": "test",
           "branch": "main",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "2b30005",
+          "message": "documentation and version bump",
+          "body": "",
+          "author": "ontogenerator",
+          "author_login": "",
+          "date": "2026-08-31",
+          "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 45,
+            "deletions": 3,
+            "files": [
+              {
+                "filename": "DESCRIPTION",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,7 +1,7 @@\n Package: oddpub\n Type: Package\n Title: Detection of Open Data & Open Code statements in biomedical publications\n-Version: 7.3.0\n+Version: 7.4.0\n Authors@R: \n     c(person(\"Nico\", \"Riedel\",\n     role = \"aut\"),"
+              },
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 44,
+                "deletions": 2,
+                "patch": "@@ -90,14 +90,56 @@ Additionally returns the identified Open Data/Code categories,\n as well as the detected sentences, which can be deactivated using the\n additional parameter ```detected_sentences = FALSE```.\n \n-The output data frame can be exported to csv, with the help of the `readr`\n-package.\n+The output data frame can be exported to csv, with the help of the `write_csv` \n+function from the `readr` package.\n \n ```r\n write_csv(open_data_results, \"path/to/output/folder/open_data_results.csv\") "
+              }
+            ]
+          },
+          "diff_summary": ""
         }
       ]
     },
@@ -5699,88 +6035,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "ce7414d",
-          "message": "docs(harness): Tier-A verifiers are dispatched one per document, model set explicitly",
-          "body": "Brings README and inspect.py's docstring in line with docpluck-iterate Phase 5H-c\nand docpluck-qa 7h, which already dispatch one Agent(model=\"sonnet\") per\ndocument covering all its ready levels. Edit left uncommitted in the shared tree\nby a session that has since ended; adopted after checking both skills say the same.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-09-24",
-          "url": "https://github.com/giladfeldman/docpluck/commit/ce7414d90165bb02f126f3d4bffffbb5ea9b25e4",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 6,
-            "deletions": 4,
-            "files": [
-              {
-                "filename": "scripts/harness/README.md",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 1,
-                "patch": "@@ -62,7 +62,8 @@ python -m scripts.harness.checks --update-baseline         # accept current as b\n \n # 4. Tier-A \u2014 AI-gold deep inspection\n python -m scripts.harness.inspect prepare --affected <doc_id> ...\n-#   -> orchestrator dispatches a verifier agent per job (see VERIFIER_PROMPT.md)\n+#   -> orchestrator dispatches one Agent(model=\"sonnet\") per DOCUMENT, covering\n+#      all of its ready levels (see VERIFIER_PROMPT.md)\n python -m scripts.harness.inspect collect\n ```\n "
-              },
-              {
-                "filename": "scripts/harness/inspect.py",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 3,
-                "patch": "@@ -14,9 +14,10 @@\n   (the tiered policy: changed docs + every open Tier-D fail + a rotating\n   slice), pairs each with its gold + saved harness outputs, and writes\n   ``verify_out/inspect_jobs.json``.\n-- The orchestrator (docpluck-iterate / -qa) dispatches one verifier agent per\n-  job, using ``VERIFIER_PROMPT.md``. Each agent writes\n-  ``verify_out/<doc>/<level>/ai_verdict.json``.\n+- The orchestrator (docpluck-iterate / -qa) dispatches one verifier agent\n+  (``model=\"sonnet\"``, set explicitly)"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "5866c49",
-          "message": "test(harness): the baseline ratchet now pins the joined state",
-          "body": "test_the_committed_baseline_is_currently_unjoinable asserted the baseline shared\nno ids with the manifest, written to fail and be replaced once the re-baseline\nlanded -- which it now has (a full-suite run flagged it). Replaced by the forward\nratchet: every manifest document has a baseline entry and none is stale.\n4 passed; against the published pre-rebaseline baseline the same check reports\n135 missing / 106 stale.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-09-24",
-          "url": "https://github.com/giladfeldman/docpluck/commit/5866c49d30982f03b8765a60d1398f63b9b1a434",
-          "type": "test",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "15ecaee",
-          "message": "fix(public-repo): a test found its DOCX fixture by a manuscript's filename",
-          "body": "tests/test_pua_glyph_recovery_real_pdf.py opened redacted-docx.docx by name,\nand CHANGELOG repeated it; the docx sources are unsubmitted manuscripts, so the\nfilename is a title. The test now locates the fixture by content hash (the\nharness manifest id docxtests__8452867332d36c85); it still runs: 1 passed.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-09-24",
-          "url": "https://github.com/giladfeldman/docpluck/commit/15ecaeefdc6abb7f41ecee6c6ef2d4e1dfcca943",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "68fb115",
-          "message": "chore(harness): drop a gold key that joins no document",
-          "body": "gold_keys.json held one key in the pre-repoint filename-slug id scheme; it joins\n0 of the 135 manifest ids, so it mapped nothing, and it published a manuscript\nfilename. inspect.py discover now resolves gold keys by DOI and repopulates this.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-09-24",
-          "url": "https://github.com/giladfeldman/docpluck/commit/68fb1158feb3b5f9c9ebd77052732a62ab76fc6c",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "03da498",
-          "message": "chore(harness): re-baseline Tier-D on the re-keyed corpus, after a zero-regression A/B",
-          "body": "The committed baseline joined nothing (180 old-id docs vs 135 manifest ids, 0\noverlap), so checks.py refused it and it gated nothing -- and its keys were the\nold filename slugs, 25 of them titles of unsubmitted manuscripts. Rebuilt from a\nwhole-corpus run of library HEAD + the app service that ships with it (405\ndoc x level cells, 1620 check results: pass 1492, fail 26, skip 102).\n\nEvidence it is safe to accept: the same corpus through v2.4.143 + production's\napp (origin/master): 0 pass->fail, 6 fail->pass. Section output identical on\n403/403 cells. The 17 table-content differences are load nondeterminism: within\nEACH arm 7-8 papers' tables differ across normalization levels (tables do not\ndepend on level), and sci-rep-2 re-run standalone on v2.4.143 3x reproduces the\nnew arm's tables. All 135 keys join the manifest; non-corpus keys are all\n<source>__<16 hex>.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-09-24",
-          "url": "https://github.com/giladfeldman/docpluck/commit/03da4982f760389171803980f6ca5034c096ee52",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        }
       ]
     },
     {
@@ -6540,10 +6794,10 @@
       "commits_1d": 0,
       "commits_90d": 58,
       "authors_30d": [
-        "David Van Dijcke",
-        "Davidvandijcke",
         "Aditya Datta",
-        "ciamac moallemi"
+        "Davidvandijcke",
+        "ciamac moallemi",
+        "David Van Dijcke"
       ],
       "type_breakdown": {
         "fix": 15,
@@ -7542,71 +7796,6 @@
           "branch": "codex/security-hardening-20260901",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "1c1d925",
-          "message": "Merge pull request #299 from Davidvandijcke/dev",
-          "body": "Release subscription review model selection fix",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-09-12",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/1c1d925e58646e6df78de711d64ec6d7f485badf",
-          "type": "other",
-          "branch": "main",
-          "diff": {
-            "additions": 48,
-            "deletions": 6,
-            "files": [
-              {
-                "filename": "web/src/app/page.tsx",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 3,
-                "patch": "@@ -18,7 +18,7 @@ import {\n   HOST_LABELS,\n   HOST_GLYPHS,\n   HOST_CLI_NAME,\n-  HOST_DEFAULT_MODELS,\n+  getHostModels,\n   HOST_INSTALL_URL,\n   HOST_LAUNCH_LABEL,\n   HOST_LAUNCH_HINT,\n@@ -887,7 +887,7 @@ function PageBody() {\n       const bundle = await mintCliHandoff(id, host, handoffSecret);\n \n       // Step 3: defaults for the modal dropdowns.\n-      setSelectedModel(HOST_DEFAULT_MODELS[host][0]);\n+      setSelectedModel(getHostModels(host, model)[0]);\n       setSelectedEffort(\"high\");\n \n     "
-              },
-              {
-                "filename": "web/src/lib/mcpHandoff.ts",
-                "status": "modified",
-                "additions": 18,
-                "deletions": 2,
-                "patch": "@@ -65,16 +65,32 @@ export const HOST_CLI_NAME: Record<ChatHost, \"claude\" | \"codex\" | \"gemini\"> = {\n // pre-selected default (see page.tsx setSelectedModel). Latest generation\n // leads; the prior generation stays available as a fallback option.\n export const HOST_DEFAULT_MODELS: Record<ChatHost, string[]> = {\n-  \"claude-code\": [\"claude-opus-5\", \"claude-sonnet-5\", \"claude-opus-4-8\", \"claude-haiku-4-5\"],\n-  \"codex\": [\"gpt-5.6-sol\", \"gpt-5.6-terra\", \"gpt-5.6-luna\", \"gpt-5.5\", \"gpt-5.4\"],\n+  \"claud"
-              },
-              {
-                "filename": "web/tests/mcpHandoff.test.ts",
-                "status": "modified",
-                "additions": 27,
-                "deletions": 1,
-                "patch": "@@ -1,6 +1,6 @@\n import { describe, expect, it } from \"vitest\";\n \n-import { buildAgentPrompt, buildCliCommands } from \"@/lib/mcpHandoff\";\n+import { buildAgentPrompt, buildCliCommands, getHostModels, type ChatHost } from \"@/lib/mcpHandoff\";\n \n const baseCommands = {\n   setupCmd: \"uvx --from coarse-ink coarse install-skills --all --force\",\n@@ -57,3 +57,29 @@ describe(\"deep-literature subscription handoff\", () => {\n     expect(prompt).not.toContain(\"No OpenRouter API key is needed for this review\")"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "1e703c1",
-          "message": "fix(web): preserve subscription model selections and refresh options (#298)",
-          "body": "",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-09-12",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/1e703c1a5178e05cd462daa264da8d094ffee93e",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "b8118c7",
-          "message": "fix(web): preserve subscription model selections and refresh options",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-09-12",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/b8118c775122c3535419384063a6b2f04ba61c7f",
-          "type": "fix",
-          "branch": "codex/subscription-model-selection",
-          "diff": {}
-        }
       ]
     },
     {
@@ -7632,7 +7821,7 @@
       "topics": [],
       "pushed_at": "2026-09-20T02:00:02Z",
       "created_at": "2026-01-19",
-      "last_push_days": 6,
+      "last_push_days": 7,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -7665,9 +7854,9 @@
         }
       ],
       "commits_30d": 1,
-      "commits_7d": 1,
+      "commits_7d": 0,
       "commits_1d": 0,
-      "commits_90d": 40,
+      "commits_90d": 38,
       "authors_30d": [
         "Jamie Cummins"
       ],
@@ -7764,11 +7953,11 @@
       "commit_activity": [
         {
           "week": 1783296000,
-          "total": 18
+          "total": 19
         },
         {
           "week": 1783900800,
-          "total": 10
+          "total": 9
         },
         {
           "week": 1784505600,
@@ -7804,11 +7993,11 @@
         },
         {
           "week": 1789344000,
-          "total": 0
+          "total": 1
         },
         {
           "week": 1789948800,
-          "total": 1
+          "total": 0
         }
       ],
       "code_frequency": [
@@ -7952,6 +8141,82 @@
           },
           "diff_summary": ""
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "d2dd8a5",
+          "message": "add redis data info",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-09-20",
+          "url": "https://github.com/JamieCummins/regcheck/commit/d2dd8a5b564a4ccd69b1536969cf418d02a26a86",
+          "type": "feat",
+          "branch": "main",
+          "diff": {
+            "additions": 2146,
+            "deletions": 587,
+            "files": [
+              {
+                "filename": ".gitignore",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 0,
+                "patch": "@@ -29,5 +29,8 @@ nltk_data/\n # Local fixtures / sample documents + curated ground-truth (not redistributed)\n test_materials/\n \n+# Benchmarks (probe fixtures, generated corpora, evaluation runs): local only.\n+benchmarks/\n+\n # Native libraries\n *.dylib"
+              },
+              {
+                "filename": "CHANGELOG.md",
+                "status": "modified",
+                "additions": 42,
+                "deletions": 0,
+                "patch": "@@ -4,6 +4,48 @@ Notable changes to RegCheck. The application version lives in\n `APP_VERSION` in `backend/main.py` and is what `/openapi.json` reports.\n \n \n+## Unreleased\n+\n+### Comparison engine\n+- Fixed: multi-study runs now tell every per-dimension judgement which study\n+  the registration belongs to (the label and any user note from the wizard's\n+  \"experiment\" fields). The paper text was already isolated to that study\n+  upstream, but the judge never knew: residual mentions of sibling studi"
+              },
+              {
+                "filename": "backend/cli.py",
+                "status": "modified",
+                "additions": 59,
+                "deletions": 9,
+                "patch": "@@ -90,7 +90,8 @@ def _resolve_dimensions_arg(args, *, require: bool) -> list[dict[str, str]] | No\n \n def _resolve_general_prereg(args) -> tuple[str, str]:\n     \"\"\"Resolve the preregistration source: an OSF link (--osf-url, resolved here the\n-    same way the worker does) or a local file (--preregistration). Exactly one.\"\"\"\n+    same way the worker does) or a local file (--preregistration). Exactly one.\n+    Any --additional-preregistration files are merged in afterwards.\"\"\"\n     osf_url = getat"
+              },
+              {
+                "filename": "backend/main.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -31,7 +31,7 @@\n # Single source of truth for static-asset cache-busting. Bump this on any\n # CSS/JS change so browsers refetch; it is exposed to every template as the\n # `static_version` global (templates reference it as `?v={{ static_version }}`).\n-STATIC_VERSION = \"20260714-demo-refresh\"\n+STATIC_VERSION = \"20260914-evidence-scroll\"\n \n \n def create_app() -> FastAPI:"
+              },
+              {
+                "filename": "backend/routes/comparisons.py",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 3,
+                "patch": "@@ -86,7 +86,7 @@ def _int_env(name: str, default: int, *, minimum: int = 0) -> int:\n _MAX_DIMENSIONS_PAYLOAD_CHARS = 512 * 1024\n \n # Document types the comparison pipeline can read (mirrors documents.read_file).\n-_SUPPORTED_DOC_EXTS = {\".pdf\", \".docx\", \".txt\", \".html\", \".htm\"}\n+_SUPPORTED_DOC_EXTS = {\".pdf\", \".docx\", \".txt\", \".html\", \".htm\", \".xml\"}\n \n ComparisonType = Literal[\n     \"clinical_trials\",\n@@ -147,7 +147,7 @@ def _validate_doc_ext(ext: str, *, kind: str) -> None:\n     if (ext or \"\")"
+              },
+              {
+                "filename": "backend/services/comparisons.py",
+                "status": "modified",
+                "additions": 120,
+                "deletions": 32,
+                "patch": "@@ -20,6 +20,7 @@\n from .documents import (\n     extract_text_from_docx,\n     extract_text_from_html,\n+    extract_text_from_xml,\n     read_file,\n     read_file_as_pdf,\n )\n@@ -381,6 +382,11 @@ def _reference_chunk_ids(corpus: \"EmbeddingCorpus\") -> set[str]:\n _UNLOCATED_SPLIT_RE = re.compile(r\"[;\\n]+\")\n _SYNONYM_GROUP_RE = re.compile(r\"\\(([^)]*)\\)\")\n \n+# Cap on augment\u2192re-judge cycles in the targeted verification loop. Each round\n+# only searches elements not already searched, so the loop converg"
+              },
+              {
+                "filename": "backend/services/documents.py",
+                "status": "modified",
+                "additions": 75,
+                "deletions": 7,
+                "patch": "@@ -2,6 +2,7 @@\n \n import re\n import uuid\n+import xml.etree.ElementTree as ElementTree\n from html.parser import HTMLParser\n from pathlib import Path\n \n@@ -14,6 +15,7 @@\n     \"extract_text_from_docx\",\n     \"extract_text_from_pdf\",\n     \"extract_text_from_html\",\n+    \"extract_text_from_xml\",\n     \"convert_txt_to_pdf\",\n     \"clean_document_text\",\n     \"read_file\",\n@@ -150,6 +152,62 @@ def extract_text_from_html(file_path: str) -> str:\n     return extractor.text()\n \n \n+# Tags whose content flows inl"
+              },
+              {
+                "filename": "backend/services/evidence.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -693,7 +693,7 @@ def build_file_evidence_source(\n             embedding_model=embedding_model,\n         )\n \n-    if ext in {\".docx\", \".txt\", \".html\", \".htm\"}:\n+    if ext in {\".docx\", \".txt\", \".html\", \".htm\", \".xml\"}:\n         rendered_pdf = _build_rendered_text_pdf_evidence_source(\n             source_id=source_id,\n             label=label,"
+              }
+            ]
+          },
+          "diff_summary": ""
+        }
       ]
     },
     {
@@ -7995,7 +8260,7 @@
       "commits_30d": 1,
       "commits_7d": 0,
       "commits_1d": 0,
-      "commits_90d": 21,
+      "commits_90d": 20,
       "authors_30d": [
         "Gilad Feldman"
       ],
@@ -8406,75 +8671,6 @@
       "readme_excerpt": "> **IMPORTANT: Development Version.** This package is under heavy development\n> and has not yet been fully validated. Results should be independently verified\n> before use in any consequential context (e.g., peer review, retractions,\n> editorial decisions). Use of this package is at the sole responsibility of\n> the user. We welcome contributions, verification reports, and bug reports at\n> <https://github.com/giladfeldman/escicheck/issues> or by contacting\n> Gilad Feldman (<giladfel@gmail.com>).\n\n**EffectCheck** is a conservative, assumption-aware statistical consistency checker for published r",
       "scopus_citations": null,
       "recent_commits": [
-        {
-          "sha": "4ea4b3b",
-          "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
-          "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 69c3964cbc6c5fa72e1928aa83f610425e07cd6d\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-08-28",
-          "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 317,
-            "deletions": 74,
-            "files": [
-              {
-                "filename": ".winbuilder-logs/README.md",
-                "status": "modified",
-                "additions": 82,
-                "deletions": 42,
-                "patch": "@@ -1,53 +1,93 @@\n-# Pre-submission check evidence \u2014 effectcheck 0.6.19\n+# Pre-submission check evidence \u2014 effectcheck\n \n-CRAN submissions are **closed 2026-08-05 \u2192 2026-08-19** (team vacation +\n-maintenance), so 0.6.19 was fully validated on 2026-08-06 and parked until the\n-window reopens. These logs are archived here because win-builder deletes its\n-result directories after ~72 hours.\n+## What these logs are\n \n-## Verdicts\n+Archived win-builder results, kept because win-builder deletes its own"
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 32,
-                "deletions": 2,
-                "patch": "@@ -70,8 +70,9 @@ hand and passed -- and scanning plumber 1.3.3, webutils 1.2.2 and httpuv 1.6.17\n symbol by symbol finds `\"FILES\"` **zero times**: nothing in the serving stack\n sets it. That test was green on a branch production never takes.\n \n-Package suite unchanged at 1231 `test_that` blocks / 3719 assertions / 0\n-failures; no package logic changed in this release.\n+Package suite **1232 `test_that` blocks / 3745 assertions / 0 failures**, across\n+144 files; no package *logic* changed in this"
-              },
-              {
-                "filename": "R/check.R",
-                "status": "modified",
-                "additions": 15,
-                "deletions": 5,
-                "patch": "@@ -8344,11 +8344,21 @@ compute_and_compare_one <- function(row,\n #'   before v0.7.6 that rewrite was invisible downstream. Surfaced as the\n #'   document-level columns \\code{upstream_sign_rewrites} (integer; NA when no\n #'   report was supplied, 0 when one was supplied and reported none) and\n-#'   \\code{upstream_normalization_version}. Treat the count as a LOWER BOUND:\n-#'   docpluck's own report assigns rather than accumulates that metric, and\n-#'   three of its rules write the same key, so a "
-              },
-              {
-                "filename": "cran-comments.md",
-                "status": "modified",
-                "additions": 27,
-                "deletions": 15,
-                "patch": "@@ -1,33 +1,45 @@\n ## Submission\n \n This is an update of 'effectcheck' from 0.2.3 (the current CRAN release) to\n-0.6.20. Development has been active across 0.2.4-0.6.20 -- new test types,\n+0.7.7. Development has been active across 0.2.4-0.7.7 -- new test types,\n nonparametric and regression support, confidence-interval computation, and\n many parser and consistency fixes -- and the most significant change is\n structural, in 0.4.0 (see \"Breaking change\" below). Every intervening version\n is docume"
-              },
-              {
-                "filename": "inst/docpluck-contract/boundary_contract_golden.json",
-                "status": "added",
-                "additions": 80,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,80 @@\n+{\n+  \"schema\": \"docpluck-boundary-contract/1\",\n+  \"consumer\": \"ESCImate worker -- worker/docpluck_client.R\",\n+  \"what_this_pins\": \"The field set and statistical-symbol surface docpluck returns for two committed fixtures, captured THROUGH THE PRODUCTION CLIENT. Refresh with: Rscript worker/tests/docpluck-contract.R --refresh\",\n+  \"captured_utc\": \"2026-08-22T08:38:56Z\",\n+  \"docpluck\": {\n+    \"docpluck_version\": \"2.4.137\",\n+    \"service_version\": \"1.6.0\",\n+    \"sectioning_version\""
-              },
-              {
-                "filename": "man/check_text.Rd",
-                "status": "modified",
-                "additions": 15,
-                "deletions": 5,
-                "patch": "@@ -99,11 +99,21 @@ sign-recovery rules can turn a printed \\code{SE = 0.199} into \\code{-0.199}, and\n before v0.7.6 that rewrite was invisible downstream. Surfaced as the\n document-level columns \\code{upstream_sign_rewrites} (integer; NA when no\n report was supplied, 0 when one was supplied and reported none) and\n-\\code{upstream_normalization_version}. Treat the count as a LOWER BOUND:\n-docpluck's own report assigns rather than accumulates that metric, and\n-three of its rules write the same key,"
-              },
-              {
-                "filename": "tests/testthat/test-v076-docpluck-consumer-canary.R",
-                "status": "modified",
-                "additions": 66,
-                "deletions": 5,
-                "patch": "@@ -26,17 +26,35 @@\n # anywhere -- that blind spot is real, is why the token-set hash below exists as\n # a separate tripwire, and is why this does not replace the corpus diff.\n \n-.canary_snapshot <- function() {\n-  p <- system.file(\"docpluck-contract\", \"symbol_contract_snapshot.json\",\n-                   package = \"effectcheck\")\n+.canary_contract_file <- function(name) {\n+  p <- system.file(\"docpluck-contract\", name, package = \"effectcheck\")\n   if (!nzchar(p) || !file.exists(p)) {\n-    p <- file"
-              }
-            ]
-          },
-          "diff_summary": ""
-        }
-      ],
-      "_new_commits": [
         {
           "sha": "4ea4b3b",
           "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
@@ -9143,82 +9339,6 @@
           "type": "other",
           "branch": "main",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "40676dd",
-          "message": "Release 0.12.7",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-09-10",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/40676dd45a817ba78070d6742d1018a5be451385",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 215,
-            "deletions": 67,
-            "files": [
-              {
-                "filename": "R/report.R",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 17,
-                "patch": "@@ -932,30 +932,15 @@ build_reference_table <- function(results, config) {\n   dplyr::distinct(refs)\n }\n \n-default_effect_definition <- function() {\n-  paste(\n-    \"Extract each article's 'focal' effects.\",\n-    \"Focal effects are those that support the claims in either the title or abstract of the article\",\n-    \"(a non-focal effect, for example, would be a manipulation check).\"\n-  )\n-}\n-\n-build_system_prompt <- function(config, instruction_path, effect_definition = NULL) {\n+build_system_prompt "
-              },
-              {
-                "filename": "auto_zcurve/__init__.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,3 +1,3 @@\n \"\"\"auto-zcurve CLI package.\"\"\"\n \n-__version__ = \"0.12.6\"\n+__version__ = \"0.12.7\""
-              },
-              {
-                "filename": "auto_zcurve/artifacts.py",
-                "status": "modified",
-                "additions": 69,
-                "deletions": 8,
-                "patch": "@@ -3,7 +3,9 @@\n import csv\n import hashlib\n import json\n+import os\n import re\n+import tempfile\n from datetime import datetime, timezone\n from pathlib import Path\n from typing import Any\n@@ -82,12 +84,75 @@ def extraction_record(result: ExtractionResult) -> dict[str, Any]:\n     }\n \n \n+def _atomic_json_dump(path: Path, value: Any) -> None:\n+    \"\"\"Write JSON without exposing a partially-written file to readers.\"\"\"\n+    path.parent.mkdir(parents=True, exist_ok=True)\n+    descriptor, temporary_name"
-              },
-              {
-                "filename": "auto_zcurve/cli.py",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 1,
-                "patch": "@@ -158,7 +158,6 @@ def _settings_from_args(\n         max_upload_size_mb=(\n             existing.max_upload_size_mb if existing else app_defaults.max_upload_size_mb\n         ),\n-        effect_definition=existing.effect_definition if existing else None,\n         pdf_parser=app_defaults.pdf_parser,\n         reasoning_effort=app_defaults.reasoning_effort,\n         service_tier=app_defaults.service_tier,"
-              },
-              {
-                "filename": "auto_zcurve/config.py",
-                "status": "modified",
-                "additions": 39,
-                "deletions": 3,
-                "patch": "@@ -99,7 +99,6 @@ class RunSettings:\n     parallel_requests: int = DEFAULTS[\"parallel_requests\"]\n     request_delay_sec: int = DEFAULTS[\"request_delay_sec\"]\n     max_upload_size_mb: int = DEFAULTS[\"max_upload_size_mb\"]\n-    effect_definition: str | None = None\n     provider: str = \"gemini\"\n     pdf_parser: str = DEFAULTS[\"pdf_parser\"]\n     reasoning_effort: str = DEFAULTS[\"reasoning_effort\"]\n@@ -189,6 +188,45 @@ def settings_path(project_dir: Path) -> Path:\n     return project_dir / \".auto_zcurv"
-              },
-              {
-                "filename": "auto_zcurve/gemini.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 2,
-                "patch": "@@ -125,7 +125,6 @@ def extract_pdf(\n     response_schema: dict[str, Any],\n     schema_config: ExtractionSchema,\n     instruction_path: Path,\n-    effect_definition: str | None,\n     request_timeout_sec: int = 600,\n     input_mode: str = \"native_pdf\",\n     context_length: int | None = None,\n@@ -141,7 +140,7 @@ def extract_pdf(\n         raise RuntimeError(\"google-genai is not installed.\") from exc\n \n     client = genai.Client(api_key=api_key)\n-    prompt = build_system_prompt(schema_config, instr"
-              },
-              {
-                "filename": "auto_zcurve/openrouter.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 2,
-                "patch": "@@ -290,7 +290,6 @@ def extract_pdf(\n     response_schema: dict[str, Any],\n     schema_config: ExtractionSchema,\n     instruction_path: Path,\n-    effect_definition: str | None,\n     request_timeout_sec: int = 600,\n     input_mode: str = \"native_pdf\",\n     context_length: int | None = None,\n@@ -299,7 +298,7 @@ def extract_pdf(\n     endpoint_order: tuple[str, ...] = (),\n ) -> ExtractionResult:\n     started = time.monotonic()\n-    prompt = build_system_prompt(schema_config, instruction_path, effec"
-              },
-              {
-                "filename": "auto_zcurve/projects.py",
-                "status": "modified",
-                "additions": 22,
-                "deletions": 2,
-                "patch": "@@ -18,7 +18,12 @@\n     read_disclosure_summary,\n     read_zcurve_summary,\n )\n-from .config import DEFAULTS, load_run_settings\n+from .config import (\n+    DEFAULTS,\n+    legacy_effect_definition,\n+    load_run_settings,\n+    remove_legacy_effect_definition,\n+)\n from .models import DEFAULT_MODEL, model_request_defaults\n from .paths import DEFAULT_INSTRUCTIONS, DEFAULT_SCHEMA\n from .schema import build_response_schema, parse_extraction_schema\n@@ -28,6 +33,10 @@\n SAFE_NAME_RE = re.compile(r\"[^A-Za-"
-              }
-            ]
-          },
-          "diff_summary": ""
         }
       ]
     },
@@ -10708,9 +10828,9 @@
     }
   ],
   "digest": {
-    "week_start": "2026-09-19",
+    "week_start": "2026-09-20",
     "active_repos": 3,
-    "total_commits_7d": 40,
+    "total_commits_7d": 52,
     "dormant_revived": [
       {
         "owner": "JamieCummins",
@@ -10730,12 +10850,21 @@
         "commits": 15
       },
       {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "commits": 1
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "commits": 13
       }
     ],
     "highlights": [
+      {
+        "repo": "scrutiny",
+        "owner": "lhdjung",
+        "message": "Add mailmap to merge my IDs",
+        "body": "",
+        "type": "feat",
+        "author": "Lukas Jung",
+        "date": "2026-09-27"
+      },
       {
         "repo": "metacheck",
         "owner": "scienceverse",
@@ -10771,6 +10900,114 @@
         "type": "fix",
         "author": "Lakens",
         "date": "2026-09-26"
+      },
+      {
+        "repo": "scrutiny",
+        "owner": "lhdjung",
+        "message": "Fix `debit_plot()` and plot argument handling",
+        "body": "* `debit_plot()` recycled the `n` column along a single DEBIT line; it\n  now draws the line for the correct `n`. If `n` varies, it draws the\n  lines for the smallest and largest `n` and shades the band between\n  them, which contains all the others. `NA` rows are dropped with a\n  warning, and it returns its plot rather than printing it.\n* `debit_plot()` no longer draws outer boxes around the rectangles;\n  `show_outer_boxes` and the `tile_*` arguments are gone. Each rectangle\n  is drawn over a point at the reported mean and SD instead, so that it\n  shows up even when it is too small to see.\n* `grim_plot(n = ...)` now ends the x-axis at `n`, and\n  `split_by_digits = TRUE` always returns a list.\n* `grim_plot_values()` and `grimmer_plot_values()` reject invalid input\n  with clear errors.",
+        "type": "fix",
+        "author": "Lukas Jung",
+        "date": "2026-09-26"
+      },
+      {
+        "repo": "scrutiny",
+        "owner": "lhdjung",
+        "message": "Fix duplicate counts and audit summary statistics",
+        "body": "* `audit()` of `duplicate_detect()` output dropped columns without\n  duplicates, which also skewed `.total`.\n* `duplicate_count_colpair()`'s `rate_y` could exceed 1.\n* `audit_summary_stats()` computed `na_rate` for `.total` over rows, not\n  values, and gave `Inf`/`-Inf` for all-`NA` columns.\n* `duplicate_count()` now uses a named vector's names as `locations`.",
+        "type": "fix",
+        "author": "Lukas Jung",
+        "date": "2026-09-26"
+      },
+      {
+        "repo": "scrutiny",
+        "owner": "lhdjung",
+        "message": "Split parenthesized strings one at a time",
+        "body": "* The split pieces were pooled and re-chunked by their average count, so\none cell with an extra pair of parentheses shifted every later value\ninto the wrong row. Separators are now matched literally, `NA` no\nlonger breaks `split_by_parens()`, and `transform = TRUE` no longer\nmixes up columns such as `exp_sd`. `row_to_colnames()` handles `NA`\nheader cells.",
+        "type": "other",
+        "author": "Lukas Jung",
+        "date": "2026-09-26"
+      },
+      {
+        "repo": "scrutiny",
+        "owner": "lhdjung",
+        "message": "Fix decimal counting, `restore_zeros()`, and rounding input checks",
+        "body": "* `sep` is matched literally, as documented; the default is now `\".\"`.\n* `decimal_places()` and `decimal_places_scalar()` agree on malformed\n  strings and read `\"inf\"`/`\"nan\"` in any case.\n* `restore_zeros()` handled scientific notation and wide padding badly.\n* `reround()` and `unround()` validate `digits` alike; `unround()`\n  treats an infinite `x` as missing.\n* `rounding_bias()`, the `round_*()` functions, and\n  `reround_to_fraction()` handle strings, `symmetric`, recycling, and\n  `NA` properly.",
+        "type": "fix",
+        "author": "Lukas Jung",
+        "date": "2026-09-26"
+      },
+      {
+        "repo": "scrutiny",
+        "owner": "lhdjung",
+        "message": "Fix sequence, dispersion, and total-n edge cases",
+        "body": "* `reverse_map_total_n()` rebuilt the wrong total `n` unless\n  `dispersion` started at 0.\n* `seq_endpoint()` and `seq_distance()` drifted off the decimal level.\n* `is_seq_linear()` accepted zigzags; the other predicates returned `NA`\n  where the known values ruled a sequence out.\n* `seq_disperse()` accepted a fractional `dispersion` and compared\n  string limits as strings.\n* `disperse_total()` and the total-n mappers crashed when no pair of\n  group sizes was left, for a total below 2, and for 0-row data.",
+        "type": "fix",
+        "author": "Lukas Jung",
+        "date": "2026-09-25"
+      },
+      {
+        "repo": "scrutiny",
+        "owner": "lhdjung",
+        "message": "Make the GRIM probability exact for every rounding method",
+        "body": "* `(10^D - N * L) / 10^D` only holds for rounding methods with a single\nhalf-open range one step wide. `\"up_or_down\"` admits ties toward both\nneighbors, and `\"ceiling_or_floor\"` a range two steps wide.\n`grim_probability()` and `grim_total()` now take `rounding` and\n`threshold` and count exactly the values `grim()` rules out, and return\n`NA` where `grim()` does. `grim_map()` passes its `rounding` on.",
+        "type": "other",
+        "author": "Lukas Jung",
+        "date": "2026-09-25"
+      },
+      {
+        "repo": "scrutiny",
+        "owner": "lhdjung",
+        "message": "Close gaps in the tests' handling of untestable input",
+        "body": "* `grimmer()` checked the scale bounds before `n`, turning undecidable\n  cases into `FALSE`. A negative `sd` is now `FALSE` with its own reason.\n* `grim_values()` and `grim_closest()` skipped the decidability check.\n* `grim_binomial()` and `grim_binomial_power()` crashed R on empty\n  input inside poibin.\n* A string `n` and an infinite `digits_*` now get clear errors.\n* The missing-`digits_sd` error suggested a call that itself failed.",
+        "type": "other",
+        "author": "Lukas Jung",
+        "date": "2026-09-25"
+      },
+      {
+        "repo": "scrutiny",
+        "owner": "lhdjung",
+        "message": "Anchor the patterns of `is_map_df()` and friends",
+        "body": "* `(^scrutiny_)*` made the prefix optional, so any class ending in `_map`\nmatched, and `is_map_basic_df()` rejected mappers with `map` in their\ntest name.",
+        "type": "other",
+        "author": "Lukas Jung",
+        "date": "2026-09-25"
+      },
+      {
+        "repo": "scrutiny",
+        "owner": "lhdjung",
+        "message": "Read key arguments by value in `absorb_key_args()`",
+        "body": "* It parsed the unevaluated call, which through `lapply()` or\n`purrr::map()` is `FUN(X[[i]], ...)`, and from a wrapper names a\nvariable rather than the column. It also silently ignored a key argument\nwhenever `data` already had a column of that name. The values are now\ncaptured in the mapper's frame, and such a clash is an error.",
+        "type": "other",
+        "author": "Lukas Jung",
+        "date": "2026-09-25"
+      },
+      {
+        "repo": "scrutiny",
+        "owner": "lhdjung",
+        "message": "Fix `items` and `case` in `*_map_seq()` output",
+        "body": "* The sequence mappers re-tested `n * items` with `items = 1`. GRIMMER\n  needs `n` and `items` separately, so `grimmer_map_seq()` gave wrong\n  verdicts, even for the reported values. `function_map()` now records\n  which key column each helper is merged into, and `function_map_seq()`\n  undoes the merge: `n` is dispersed as the sample size and `items` is\n  returned as a column, which `audit_seq()` also reads.\n* `case` is now the row number in the input data, not the position\n  among the inconsistent rows, so results can be joined back.\n* `audit_seq()` now accepts output from a single-step `dispersion`.",
+        "type": "fix",
+        "author": "Lukas Jung",
+        "date": "2026-09-25"
+      },
+      {
+        "repo": "scrutiny",
+        "owner": "lhdjung",
+        "message": "Write `expect_na()` with `pass()` and `fail()`",
+        "body": "* testthat 3.3.0 checks the inputs of `expect()`, which b5b2f3f worked\naround on main. Now using the documented pattern for custom expectations\ninstead: https://testthat.r-lib.org/articles/custom-expectation.html",
+        "type": "other",
+        "author": "Lukas Jung",
+        "date": "2026-09-25"
+      },
+      {
+        "repo": "scrutiny",
+        "owner": "lhdjung",
+        "message": "Test that both `seq_disperse()` limits apply to both sides",
+        "body": "The fix went into edaada3; these are its tests, plus the corrected\nexpectations in `test-reverse-map-seq.R` that follow from it.",
+        "type": "test",
+        "author": "Lukas Jung",
+        "date": "2026-09-25"
       },
       {
         "repo": "docpluck",
@@ -11068,123 +11305,6 @@
         "type": "fix",
         "author": "Lakens",
         "date": "2026-09-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Merge pull request #415 from scienceverse/bring-413-into-dev",
-        "body": "Bring PR #413 into dev",
-        "type": "chore",
-        "author": "Daniel Lakens",
-        "date": "2026-09-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Merge pull request #413 from LukasWallrich/fix/module-bugs-from-review",
-        "body": "Fix nine small module bugs (code_check light, causal_claims regex, upper-case P, and others)",
-        "type": "fix",
-        "author": "Daniel Lakens",
-        "date": "2026-09-20"
-      },
-      {
-        "repo": "regcheck",
-        "owner": "JamieCummins",
-        "message": "add redis data info",
-        "body": "",
-        "type": "feat",
-        "author": "Jamie Cummins",
-        "date": "2026-09-20"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Merge pull request #414 from scienceverse/fix-dataone-figshare-institutional-prefixes",
-        "body": "Add DataONE and institutional Figshare DOI-prefix coverage",
-        "type": "fix",
-        "author": "Daniel Lakens",
-        "date": "2026-09-19"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Add DataONE and institutional Figshare DOI-prefix coverage",
-        "body": "DataONE: added data.piscoweb.org (PISCO, UC Santa Barbara) as a known\nmember node, and fixed .dataone_pid() not recognising a bare DOI whose\nsuffix itself contains a further slash (PISCO's own 10.6085/AA/<id>\nshape). Both found via a real paper citing this DOI with no host\ndomain in the URL at all, which dataone_links() could not resolve at\nall before this fix.\n\nFigshare: added 28 more institutional instances (found via DataCite's\nclient registry, searched for \"figshare\" in the client name) and\nMonash University's bridges.monash.edu (found separately, via a real\npaper citation, since its DataCite client is named \"Monash University\"\nrather than mentioning Figshare). Taught .figshare_id()/figshare_links()\nto recognise each instance's own DOI prefix (e.g. 10.26180 for Monash,\n10.25375 for ZivaHub/UCT) when cited as a bare DOI with no host domain\nin the URL -- previously only the generic 10.6084/m9.figshare.* DOI\nshape was recognised this way, silently missing every institutional\ninstance's own prefix regardless of how many hosts were already in\n.figshare_vanity_hosts(). Also anchored the new id-extraction pattern\non a non-digit boundary rather than end-of-string, since a trailing\nsentence period from ordinary prose (\"...19095317.v1.\") is a common\nreal-extraction artifact that end-of-string anchoring silently missed.\n\nEvery added host confirmed live to answer Figshare's own single-page-app\nshell (HTTP 202, non-JSON body) rather than a real API response, the\nsame discipline the existing 16 vanity hosts use; several DataCite-listed\ncandidates were checked and excluded because their real platform is\nsomething else entirely (DataverseNO, DTU's Orbit repository, University\nof Salford's Worktribe platform).\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-        "type": "feat",
-        "author": "Lakens",
-        "date": "2026-09-19"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Slim down regression tests to match the package style",
-        "body": "Fold the new checks into existing test blocks where possible instead of\nadding separate, longer tests.\n\nCo-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>",
-        "type": "other",
-        "author": "Lukas Wallrich",
-        "date": "2026-09-19"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Slim down regression tests to match the package style",
-        "body": "Fold the new checks into existing test blocks where possible instead of\nadding separate, longer tests.\n\nCo-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>",
-        "type": "other",
-        "author": "Lukas Wallrich",
-        "date": "2026-09-19"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Merge pull request #412 from scienceverse/fix-figshare-articles-no-type-segment",
-        "body": "Fix .figshare_id() missing the plain /articles/<slug>/<id> URL shape",
-        "type": "fix",
-        "author": "Daniel Lakens",
-        "date": "2026-09-19"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Fix .figshare_id() missing the plain /articles/<slug>/<id> URL shape",
-        "body": "figshare_com/articles/<slug>/<id> (no resource-type segment such as\n\"dataset\"/\"software\" between /articles/ and the slug) is a real, still\ncommonly-cited Figshare article URL shape -- confirmed live against\nhttps://figshare.com/articles/PxW_dataset/6934484. figshare_links()\nalready detected this as a figshare_url, but .figshare_id() returned NA\nfor it: its pattern list only covered the three-segment\ntype/name/id shape and the bare /articles/<id> shape, leaving repo_check\nunable to fetch a real article cited by its own link.\n\nFixes scienceverse/metacheck#411 (bug 3 of 3; bugs 1 and 2 in that issue\nare unresolved and need a design decision first, see the issue).\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-        "type": "fix",
-        "author": "Lakens",
-        "date": "2026-09-19"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Merge pull request #410 from scienceverse/fix-dataverse-prefix-undersampling",
-        "body": "Fix systemic under-counting in the Dataverse DOI-prefix allowlist",
-        "type": "fix",
-        "author": "Daniel Lakens",
-        "date": "2026-09-19"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Fix systemic under-counting in the Dataverse DOI-prefix allowlist",
-        "body": "The allowlist added in the previous PR was built by sampling only the\nfirst 25 DOIs DataCite's search returned per host, which missed every\nadditional prefix on any host with more real DOIs than that (63 of the\n121 known hosts, some by orders of magnitude -- dataverse.harvard.edu\nalone has 817,836 real DOIs and was missing its 10.26300 prefix\nentirely).\n\nFound when a paper citing 10.7939/DVN/M6Q2PE, the University of\nAlberta's legacy Dataverse prefix (now migrated onto the shared\nBorealis platform at borealisdata.ca), failed to resolve even though\nborealisdata.ca was already a known host, mapped to only its dominant\nprefix (10.5683).\n\nEvery host was re-queried using DataCite's facet aggregation\n(disable-facets=false on the /dois search), which returns every\ndistinct prefix actually in use for a host, with its real count, in\none request instead of a sample. The allowlist now carries 100\ndistinct prefixes across the same 87 hosts (up from 87 prefixes).\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-        "type": "fix",
-        "author": "Lakens",
-        "date": "2026-09-19"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Keep \"p \u2264 .001\" flagged as imprecise; relax on-request rule; add code_check test",
-        "body": "- stat_p_exact: revert the \u2264 change. Only \"p < .001\" is an accepted\n  inequality, so \"p \u2264 .001\" stays flagged; a test now pins this down.\n- open_practices: a sentence counts as open if it names a repository or\n  URL, even if it also mentions sharing on request. Only sentences that\n  matched the repository list through \"on request\" alone are excluded.\n- code_check: regression test for the green light and parse-error table.\n\nCo-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>",
-        "type": "feat",
-        "author": "Lukas Wallrich",
-        "date": "2026-09-19"
-      },
-      {
-        "repo": "metacheck",
-        "owner": "scienceverse",
-        "message": "Keep \"p \u2264 .001\" flagged as imprecise; relax on-request rule; add code_check test",
-        "body": "- stat_p_exact: revert the \u2264 change. Only \"p < .001\" is an accepted\n  inequality, so \"p \u2264 .001\" stays flagged; a test now pins this down.\n- open_practices: a sentence counts as open if it names a repository or\n  URL, even if it also mentions sharing on request. Only sentences that\n  matched the repository list through \"on request\" alone are excluded.\n- code_check: regression test for the green light and parse-error table.\n\nCo-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>",
-        "type": "feat",
-        "author": "Lukas Wallrich",
-        "date": "2026-09-19"
       }
     ],
     "narrative": ""
@@ -11193,12 +11313,12 @@
     "total_repos": 16,
     "total_stars": 714,
     "total_forks": 133,
-    "total_commits_30d": 237,
-    "total_commits_7d": 40,
-    "total_commits_1d": 4,
+    "total_commits_30d": 252,
+    "total_commits_7d": 52,
+    "total_commits_1d": 9,
     "active_repos_7d": 3,
     "dormant_revived": 1,
-    "total_open_issues": 184,
+    "total_open_issues": 185,
     "total_open_prs": 9,
     "unique_authors_30d": 15,
     "total_contributors": 48
