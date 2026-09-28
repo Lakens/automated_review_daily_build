@@ -1,5 +1,381 @@
 [
   {
+    "generated_at": "2026-09-28T23:06:17.830755+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 30,
+        "pushed_at": "2026-09-28T19:45:59Z",
+        "recent_commits": [
+          {
+            "sha": "17ec6fc",
+            "message": "Test DEBIT's exact formula analytically and show its basis",
+            "body": "* `\"exact\"` now takes the range of `k` from `sum_range()` and checks the\nSD bounds against `k * (n - k)` in whole-number arithmetic, folding `k`\nonto the half where that product rises. This replaces a list of every\ncandidate `k`, so a row costs the same for any `n` (2e7 went from 1.3 s\nto 0.01 s). The `\"mean_n\"` test moves into its own helper, unchanged.\n* `debit_map()` returns `sum_lower` and `sum_upper`, the range of `k`,\nwhich the old `x_lower` / `x_upper` columns could not explain.\n* `debit_plot()` marks the attainable means `k / n` on the line, and the\nvignette no longer says that a box crossing the line is enough.\n* With more than 10,000 attainable means, `debit_plot()` draws only the\nfirst mark in each cell of a 2000 x 2000 grid over the panel, found from\nwhere the line crosses the grid lines, and says so. The plot looks the\nsame; `n = 2e7` went from ~14 million marks to ~10,000.\n* `debit_plot()` errors if `data` has the DEBIT class but no recorded\n`formula`. Class and attribute survive the same verbs, so such data were\nbuilt by hand, and guessing `\"exact\"` could draw marks that don't match\nthe verdicts.\n* test-debit.R has an exhaustive oracle behind `run_full_debit_oracle`,\ncovering every rounding method with and without `symmetric`. It detects\nexact ties itself, since `base::round()` misjudges them under `\"even\"`.",
+            "author": "Lukas Jung",
+            "date": "2026-09-28",
+            "url": "https://github.com/lhdjung/scrutiny/commit/17ec6fc7ac24b38aa6595f791135f07fa452db70",
+            "type": "test",
+            "branch": "polishing"
+          },
+          {
+            "sha": "5f8779b",
+            "message": "Make DEBIT exact for attainable means",
+            "body": "* The mean of `n` binary values is `k / n`, but DEBIT treated it as\ncontinuous and accepted SDs no binary sample can have, e.g.\n`debit(0.05, 0.21, 20, 2, 2)`. `formula` now takes `\"exact\"`, the new\ndefault, which only tests means of that form, or `\"mean_n\"`, its former\nonly value, which keeps the previous test.\n* `reconstruct_sd()` is gone: DEBIT was its only user and only ever\nneeded `sd_binary_mean_n()`.",
+            "author": "Lukas Jung",
+            "date": "2026-09-28",
+            "url": "https://github.com/lhdjung/scrutiny/commit/5f8779bbf40e25e5ad2536861bd9ac98164208f6",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "e1eb1f0",
+            "message": "Turn repeated reassignments into pipe chains with `call_on()`",
+            "body": "* A variable assigned two or three times in a row, each time from its\n  previous value, is now one pipe chain. `call_on()` covers the steps\n  that are a subset or a lambda, e.g. `call_on(\\(x) x[!is.na(x)])`,\n  which also stops a vector from having to be named twice to filter it.\n\n* `head(-1L)` replaces the `x[-length(x)]` slice that started a chain in\n  `write_doc_audit_total_n()`.\n\n* `check_lengths_congruent()` and the manufactured function body in\n  `function_map_seq()` are left as they are.",
+            "author": "Lukas Jung",
+            "date": "2026-09-28",
+            "url": "https://github.com/lhdjung/scrutiny/commit/e1eb1f0d373e2202a7eb9cd48de6d6eaca851424",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "2085115",
+            "message": "Remove remnants of string key values",
+            "body": "* `grim_plot(show_data = FALSE)` built its dummy data from `x = \"0.00\"`,\n  so its default decimal count came from counting characters. It now\n  uses `x = 0` and a `digits_x` column, like mapper output.\n* `*_map_seq()` no longer guesses a missing `digits_*` column with\n  `decimal_places()` on numeric values, which lose trailing zeros.\n* `index_case_from_diff()` drops its branch for string sequences, which\n  no mapper produces anymore.\n* Drop `as.numeric()` calls and `x_orig` copies on key values that\n  `check_newly_numeric()` has already required to be numeric.",
+            "author": "Lukas Jung",
+            "date": "2026-09-28",
+            "url": "https://github.com/lhdjung/scrutiny/commit/20851155bfafab85763e7863ea7c807b2cfe163c",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "396bd16",
+            "message": "Reject a string `x` in `grim_total()` and `grim_probability()`",
+            "body": "* They coerced `x` with `as.numeric()`, so `grim_total(\"5.19\", 20, 2)`\n  returned a count where `grim()` rejects the same string. A missing `x`\n  still gives `NA`.",
+            "author": "Lukas Jung",
+            "date": "2026-09-28",
+            "url": "https://github.com/lhdjung/scrutiny/commit/396bd1638dd8662d479280e5871b2f5ceda426bf",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "1d4b1a5",
+            "message": "Start pipe chains in the tests with the object",
+            "body": "* Tests written since c3abc01 had fallen back to `f1(x) |> f2()` and\n  nested `expect_*(f(x))` calls. They now follow that commit's model:\n  `x |> f1() |> f2()`, with the expectation at the end of the chain and\n  the pipes of parallel lines aligned.\n\n* Only a compound first argument such as `list()`, `c()`, or\n  `tibble::tibble()` still starts a chain as a call. `expect_snapshot()`\n  code is unchanged.\n\n* Extracting from a call's result is a step of the chain:\n  `purrr::pluck()` for names and positions, `head()` for slices.\n\n* Add the internal `call_on()` for steps that are an operator or an\n  anonymous function, e.g. `call_on(\\(x) x %% 1 == 0)`. It also covers\n  `formals(f)$name`, since `purrr::pluck()` rejects pairlists.\n\n* The suite passes with the same 19,570 expectations as before.",
+            "author": "Lukas Jung",
+            "date": "2026-09-28",
+            "url": "https://github.com/lhdjung/scrutiny/commit/1d4b1a5f10385c479ec9ba38cfb8b199ba5faad4",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "1496c85",
+            "message": "Record call settings in one attribute, not in flag classes",
+            "body": "* Classes on scrutiny output are now for S3 dispatch only. Settings that\nfunctions downstream need live in a single list attribute, \"scrutiny\",\nread with the internal `scrutiny_meta()`.\n\n* Basic mappers record every argument that applied to the whole call,\ndefaults resolved, as `args`. This replaces the \"scrutiny_rounding_*\"\nand \"scrutiny_percent_true\" classes and makes `function_map()`'s\nunreleased `.name_class_flags` argument unnecessary, so it is removed.\n\n* Sequence mappers carry over the initial `fun()` call's record and add\n`fun_args`, `name_key_result`, and `dispersion_linear`, replacing two\nattributes and the \"scrutiny_map_seq_disp_nonlinear\" class. The\n\"scrutiny_seq_df\" and \"scrutiny_seq_test\" classes became `seq_df` and\n`seq_test` elements.\n\n* This removes the regex parsing of class strings in `grim_plot()` and\n`audit_seq()`, and the class rewrite in `function_map_seq()`. New tests\ncover the recorded arguments, the sequence-test check, and the\nrejection of non-linear dispersion.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/1496c854b38e3768d2d81c19a91c35cac049bebc",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "228fa4f",
+            "message": "Correct stale documentation found in the dead-weight audit",
+            "body": "* `disperse()`: `n_change` is an integer step count, not string labels.\n* `decimal_places_scalar()` is about 1.8x faster, not \"much faster\".\n* `row_to_colnames()` keeps the class of a data frame; only a matrix\n  becomes a tibble.\n* The in-depth vignette no longer advises counting decimal places in a\n  single-case function; since 0.6, tests take `digits_*` instead.\n* NEWS no longer says vectorized `rounding` etc. take an old path in\n  `reround()`, which requires them to have length 1.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/228fa4f273a1b8eeb808a6128174209135508ca9",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "e7fa65e",
+            "message": "Explain missing bounds columns in `debit_plot()`",
+            "body": "* `debit_map(show_rec = FALSE) |> debit_plot()` failed with a raw vctrs\n  subsetting error. It now names the missing columns and points to\n  `show_rec = TRUE`.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/e7fa65e520e682eb5732e536a29fcacacb25576b",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "a136539",
+            "message": "Add the `.name_class` class in `function_map_seq()`",
+            "body": "* It was passed into the dots of `function_map_seq_proto()`, which ignores\n  them, so the documented class never reached the output.\n  `function_map_total_n()` always added it; the seq factory now does the\n  same.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/a136539b1a713d8d2c26917111fd36d0c990a17f",
+            "type": "feat",
+            "branch": "polishing"
+          },
+          {
+            "sha": "bcbcd4d",
+            "message": "Name the separators in `split_by_parens()` warnings for any `sep`",
+            "body": "* `message_sep_if_cols_excluded()` only knew the keywords and length-2\n  vectors, so `sep = \"(\"` left the warning ending in \"elements, .\". It now\n  translates `sep` first, like the splitting itself does.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/bcbcd4db00a5a8616ac98239892d780de5d12afa",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "aaf99c5",
+            "message": "Select all-`NA` and comma columns in the `*_df()` wrappers",
+            "body": "* `restore_zeros_df()` and `decimal_places_df()` failed on an all-`NA`\n  column, where `is_numeric_like()` is `NA` and `where()` needs a flag.\n  A new internal `is_numeric_like_col()` treats such a column as\n  numeric-like and reads comma decimals with `sep_in` / `sep`, which were\n  silently skipped before.\n* `restore_zeros_df()`'s `sep_out` defaults to `sep_in`, as documented.\n* `decimal_places_df()` only warns about columns `cols` selected, and both\n  functions' warnings say what happens under `check_numeric_like = FALSE`.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/aaf99c5e0696cbf1e3e4767068816fe889c50650",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "f9e85bb",
+            "message": "Evaluate `seq_disperse_df()`'s dots in the caller's frame",
+            "body": "* The dots were captured with `rlang::enexprs()` and evaluated inside the\n  function, so a variable local to the caller was not found. They are now\n  passed on to `tibble::tibble()` as they are.\n* The `track_diff_var` docs said `seq_disperse()` ignores it; it makes the\n  function return a list.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/f9e85bb6bc046978760a31526ce937f024370f6e",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "1e48606",
+            "message": "Put the changelog link inside the missing-digits error",
+            "body": "* `error_digits_missing()` printed the link with `on.exit()`, apart\n  from the error, so it leaked into the test output wherever the error\n  was expected.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/1e48606d759845f3881c09a540ae797d29c04139",
+            "type": "fix",
+            "branch": "polishing"
+          },
+          {
+            "sha": "f563414",
+            "message": "Keep `audit()` summary columns double when all values are `NA`",
+            "body": "* 40e4e9d's `on_non_na()` returned a logical `NA` for an all-missing\n  column, so `mean`, `sd`, `median`, `min`, and `max` became logical\n  when every selected column was missing.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/f563414e8a45fb5944c902559c5ee4d6be661244",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "e5fd969",
+            "message": "Read a factor by its labels in `rounding_bias()`",
+            "body": "* d0f1c3b converted `x` with `as.numeric()`, which turns a factor into\n  its level codes, so a factor gave a bias of zero without complaint.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/e5fd96936f2bcbe65fce1c7474921aec1abdd383",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "6166dda",
+            "message": "Trim Unicode spaces before counting decimal places",
+            "body": "* d0f1c3b replaced `stringr::str_trim()` with an ASCII-only trim, so a\n  trailing no-break space hid an exponent: `decimal_places(\"1.5e3\\u00a0\")`\n  was 1 instead of 0.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/6166dda64a35d75bfef64c6257be4f627dc37a2f",
+            "type": "chore",
+            "branch": "polishing"
+          },
+          {
+            "sha": "ea28712",
+            "message": "Write out unusual number spellings in `restore_zeros()`",
+            "body": "* d0f1c3b made `restore_zeros()` append zeros to the input text rather\n  than reformat it, so spellings like `\".5\"`, `\"+1.5\"`, and `\"0x1A\"`\n  came back padded but otherwise untouched.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/ea28712da99aea7cf5aec2bad10b2ee06e606d49",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "3d4cf8c",
+            "message": "Read any escaped separator as the character itself",
+            "body": "* d0f1c3b made `sep` and `sep_in` literal, keeping only the old default\n  `\"\\\\.\"` as a regex. Other escaped separators such as `\"\\\\,\"` were\n  then not found, and `decimal_places()` silently counted 0.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/3d4cf8c974579566fa5e2cc8c4e517d74d2bab62",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "8ddefeb",
+            "message": "Bring docs and NEWS in line with the code",
+            "body": "* rounding-in-depth.Rmd and NEWS still described the old\n  `round_down_from()` threshold (26ab044).\n* `?grim_plot` didn't mention that `percent = TRUE` adds 2 decimal\n  places (b8fc076).\n* The seq mappers documented the old `out_min`/`out_max` defaults\n  (4ac58f7).\n* NEWS described a fix to DEBIT tiles that no longer exist, and\n  overstated the `is_seq_dispersed()` fix.\n* The missing-digits error suggested a DEBIT call with `x = 1.4`,\n  which itself fails.\n* A data-raw comment pointed to a moved file.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/8ddefeb52fd7b14b7bfa9f50c3e0adae134d6765",
+            "type": "docs",
+            "branch": "polishing"
+          },
+          {
+            "sha": "5ba8700",
+            "message": "Divide each branch by its own denominator in `reround_to_fraction()`",
+            "body": "* A compound method returns two values per input value, interleaved, but\n  `reround_to_fraction()` and `reround_to_fraction_level()` recycled a\n  vector `denominator` over them unpaired.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/5ba87000fce0771603d81fb20a66eb763a82d4cd",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "c1757ea",
+            "message": "Read key arguments passed through dots in `absorb_key_args()`",
+            "body": "* dbef5d1 captured only key arguments that are formals of the caller, so\n  a handwritten function forwarding them through `...` no longer had its\n  columns renamed.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/c1757eaf246285a82ac1171278e88b861d3f98e5",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "718b3a1",
+            "message": "Reject a `consistency` column under a custom `.name_key_result`",
+            "body": "* 9345d97 made the check look for `.name_key_result` only, but\n  `function_map()` builds the result as `consistency` before renaming\n  it, so a user's column of that name was silently dropped. Check both\n  names again.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/718b3a1f75fef58f8606b9f5265ad06744a4e4cc",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "2a97c98",
+            "message": "Run `debit_plot()` examples only where ggrepel is installed",
+            "body": "* 981ce94 moved ggrepel to Suggests, but the example, the vignette\n  chunk, and the tests still called `debit_plot()` with its default\n  `show_labels = TRUE`, which needs it.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/2a97c98bffe4db225700cfe3a3e376146a509345",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "40d4dae",
+            "message": "Reconstruct 0-row `*_map_total_n()` output without failing",
+            "body": "* dcb7d82 let the total-n mappers return 0 rows when no pair of group\n  sizes is left, but `reverse_map_total_n()` and `audit_total_n()` then\n  failed on it with \"wrong sign in 'by' argument\".\n* The reported columns of that output also came out logical.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/40d4dae9a2e38be29f2bff3d3034ce5cd9a1b970",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "4e25c66",
+            "message": "Clip the `debit_plot()` band instead of cutting it off",
+            "body": "* The y-axis limits sat on the scale, which drops every ribbon row with\n  an edge outside of them, so the band from 5e6fce9 showed only as\n  slivers. Put the limits on the coordinate system instead.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/4e25c66642096e7e8e2b264af3cab76d35e2c075",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "e13e59d",
+            "message": "Take `incons_to_prob` over the decidable cases only",
+            "body": "* Since c0904ba, the mean probability skipped undecidable rows while the\n  inconsistency rate still counted them, so each such row pulled the\n  ratio towards zero.\n* Correct the NEWS claim that `audit_cols_minimal()` excluded those rows.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/e13e59dc139c80bbf3df24d792f3f4fb05db4c19",
+            "type": "chore",
+            "branch": "polishing"
+          },
+          {
+            "sha": "ac653d1",
+            "message": "Keep `items` apart from `n` in `*_map_total_n()` output",
+            "body": "* The total-n tier returned `n * items`, so `reverse_map_total_n()` and\n  `audit_total_n()` reported that product as the total. Undo the merge\n  as the seq tier does.\n* `grim_plot()` now multiplies an `items` column back into `n`, which\n  the seq tier's output needed as well.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/ac653d1cfd1fa1b483b6a2e152c1f95e33c66e8f",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "b81856f",
+            "message": "Let GRIMMER check wide sum-of-squares ranges in chunks",
+            "body": "* The enumeration limit from 3b7248a also applied to the sums of\n  squares, whose range grows with the SD, not just `n`. A large SD\n  reported with few decimals was refused at `n = 20`.\n* Walk that range in chunks instead, and keep the limit only for the\n  candidate sums.",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/b81856f7c588e4985d0dd96460b18c77e82d2d86",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "82d39c4",
+            "message": "Add mailmap to merge my IDs",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-09-27",
+            "url": "https://github.com/lhdjung/scrutiny/commit/82d39c45cc77147b13cc3ec6c9cdc72b39741605",
+            "type": "feat",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-28T03:22:46Z",
+        "recent_commits": [
+          {
+            "sha": "be2fab2",
+            "message": "Widen archive-member byte-range retry beyond the fixed 403/429/5xx list (#429)",
+            "body": ".http_range_bytes() -- the call .zip_member_fetch() makes for both a\nmember's local header and its compressed data -- only retried a response\nmatching .storage_is_transient()'s fixed list (403, 429, 500, 502, 503,\n504). Any other status (a plain 401, a 400, or anything else not on that\nlist) was accepted as final after exactly one try, even when the identical\nrequest succeeded moments later on manual reproduction: nothing\ndistinguishes \"this host will never honour ranges\" from \"that one request\nhappened to fail\" for an unlisted status.\n\n.range_status_is_transient() now retries anything except 200 (host is\ndeliberately ignoring Range -- a fixed property of the host/URL a retry\ncannot change) and 206 (success). Verified against a real, unmocked local\nHTTP server that returns 401 once then 206 -- httr2's own retry loop\n(req_perform1 -> retry_is_transient(), independent of req_error()'s is_error\noverride) correctly retries and succeeds on the second attempt.\n\nhttr2::local_mocked_responses()/with_mocked_responses() do not exercise\nreq_retry()'s actual retry loop at all (mock responses return through\nhandle_resp() before the while(tries < max_tries) loop is reached) -- a\nlimitation already independently documented elsewhere in this codebase\n(test-repo-download.R's skipped \"skip_on_api_limit = TRUE gives up on a\nconfirmed rate limit fast\" test). Tests here check the request's configured\nretry policy directly instead of trying to simulate multiple attempts\nthrough a mock.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-28",
+            "url": "https://github.com/scienceverse/metacheck/commit/be2fab20a36ee48bee1f26bbce15d29058974cb9",
+            "type": "other",
+            "branch": "fix-429-zip-member-errors"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-08-31T11:22:46Z",
+        "recent_commits": [
+          {
+            "sha": "2b30005",
+            "message": "documentation and version bump",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-08-31",
+            "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "JamieCummins",
+        "repo": "regcheck",
+        "url": "https://github.com/JamieCummins/regcheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-20T02:00:02Z",
+        "recent_commits": [
+          {
+            "sha": "d2dd8a5",
+            "message": "add redis data info",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-09-20",
+            "url": "https://github.com/JamieCummins/regcheck/commit/d2dd8a5b564a4ccd69b1536969cf418d02a26a86",
+            "type": "feat",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-09-28T13:00:19.369858+00:00",
     "narrative": "",
     "repos": [
@@ -16687,182 +17063,6 @@
             "date": "2026-09-04",
             "url": "https://github.com/shaheedazaad/auto-zcurve/commit/eac55db3b148b7699a80e601ec361e14a0eeb905",
             "type": "other",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-09-06T02:55:21.214386+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "giladfeldman",
-        "repo": "docpluck",
-        "url": "https://github.com/giladfeldman/docpluck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 9,
-        "pushed_at": "2026-09-02T22:26:22Z",
-        "recent_commits": [
-          {
-            "sha": "b7d4ad5",
-            "message": "docs: README normalize_version example follows the 1.9.64 bump (docs-consistency gate was red on it)",
-            "body": "",
-            "author": "Gilad Feldman",
-            "date": "2026-09-02",
-            "url": "https://github.com/giladfeldman/docpluck/commit/b7d4ad59cbc6f289acaec3e205a0d0fb3ba92dd6",
-            "type": "docs",
-            "branch": "main"
-          },
-          {
-            "sha": "dda204b",
-            "message": "fix(version): git_state is probed per receipt \u2014 the lru_cache froze it for the process lifetime (102300Z amendment_1)",
-            "body": "The ask predicted this in writing: a dirty flag computed inside the cache\n'would pass its own test and still report a frozen answer in production.'\nShipped code cached it anyway (pair-coherence argument). Measured 2026-09-02,\nsingle process at eb3e84d: clean -> tree edited -> still clean. That is the\nHTTP consumption mode. Cache removed from the state only; the SHA stays\ncached by design (names the identity the process loaded; its staleness class\nis the app boundary's 'stale'). One porcelain subprocess per receipt.\n\nTests: tests/test_version_receipt_state_is_live.py, red first (2 failed at\n2b14d62), green after; live re-probe in one process: dirty -> dirty -> clean\nacross real tree edits.\n\nCANARY: version.py is not on the text-rendering path; the litmus render\nbyte-identity evidence for 2b14d62 (sha bc928949..., 119,051 bytes) stands.\nSKIP_CANARY bypasses the hook's nested-env limitation only.",
-            "author": "Gilad Feldman",
-            "date": "2026-09-02",
-            "url": "https://github.com/giladfeldman/docpluck/commit/dda204b76dd18ebb971ec313349273885a60e58a",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "2b14d62",
-            "message": "Merge canary-gate-work: v2.4.138 release content \u2014 normalization 1.9.59\u21921.9.64",
-            "body": "Code is byte-identical to canary-gate-work tip 9291fc3 (main contributed only\nCHANGELOG restructuring: accf97a, e0b230c). CHANGELOG resolved to a single\n[2.4.138] section holding three strata newest-first: 1.9.62-1.9.64\n(page gate first-copy-keep, watermark arm coverage/modal/value-followed,\nchanges_made exact counts), the consult record + 1.9.60 design lineage with a\ndated tag-target-updated bridge (the 2026-08-30 'v2.4.138 = 1.9.59' tables\ndescribe the superseded plan of tagging at e0b230c), and the 2026-08-27\n1.9.59 stratum. Tails from [2.4.137] down verified identical in both parents\nbefore splicing.\n\nCANARY: docpluck/*.py in this merge tree == 9291fc3 == eb3e84d (verified by\ndiff --stat empty for docpluck/); the litmus render byte-identity evidence\n(sha bc928949..., 119,051 bytes) and docpluck-33's in-session Sonnet audit of\nthat render apply verbatim. SKIP_CANARY bypasses the hook's nested-env\nlimitation only.",
-            "author": "Gilad Feldman",
-            "date": "2026-09-02",
-            "url": "https://github.com/giladfeldman/docpluck/commit/2b14d6255cf0b5d6dbd68010118e59a0a85f71d1",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "9291fc3",
-            "message": "fix(normalize): 1.9.64 \u2014 page_numbers_stripped is an exact count; headers_removed retired (closes the 114401Z residual)",
-            "body": "The v1.9.63 count= work fixed the sign/dash/quote family and left the two keys\nthe 2026-08-22 telemetry blocker was actually measured on still publishing\ncharacter deltas: page_numbers_stripped reported 2x for two-digit numbers and\n3x for three-digit (the ask's digit-count multiplier, reproduced today), and\nheaders_removed fired on zero-header documents because the S9 _track reused\nthe before snapshot captured for P0, republishing P0's page-number characters\nunder a second key. P0 now counts blanked lines (zip strict=True \u2014 the\nline-preserving construction is load-bearing and violations must be loud);\nthe S9 4-digit blanking counts its own blanked lines under\npage_numbers_stripped, the kind of thing it removes; headers_removed is\nretired (no site writes it truthfully; absent reads as 0 downstream, the true\nvalue). Text output byte-identical; observation only.\n\nTests: tests/test_page_number_telemetry_is_an_exact_count.py written RED\nfirst (6 failed on eb3e84d, incl. headers_removed:16 for 4 four-digit\nnumbers), green after; 54 pass across the telemetry/page-number/repeated-line\nneighborhood; corpus idempotency gate 1 passed 321s at eb3e84d, and the three\nnarrowed-band papers (ar_royal_society_rsos_140081, ieee_access_5,\nnat_comms_5) probed individually idempotent.\n\nCANARY: litmus render (10.1177/01461672251327169) byte-identical between\neb3e84d and this tree \u2014 sha bc928949b5d540aa..., 119,051 bytes, both renders\nlibrary_from_working_tree=true from their own trees. docpluck-33's in-session\nSonnet audit of this exact render earlier today (FAIL/14, all pre-existing,\nreconciled to ledger, 72 open) therefore covers this commit's render verbatim.\nSKIP_CANARY bypasses only the hook's nested-env limitation, not the audit.",
-            "author": "Gilad Feldman",
-            "date": "2026-09-02",
-            "url": "https://github.com/giladfeldman/docpluck/commit/9291fc35019614c53531dc6324758d7fd25c6677",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "eb3e84d",
-            "message": "fix(normalize): 1.9.62-63 \u2014 the page gate keeps the FIRST copy of every repeated line, and the watermark arm returns gated on coverage + modal>=2 + not-value-followed",
-            "body": "The accumulated, verified 2026-08-29..09-01 work, committed as the exact tree that passed the full suite on 2026-09-02: 3,091 passed, 0 failed, 29 skipped, 10 xfailed (16,321s under 4-way load). Contents per CHANGELOG [Unreleased]: page-attribution map fixed (page counted before recording), P0q first-copy-keep with per-line telemetry, watermark arm reinstated behind page-coverage>=0.90 + modal-per-page>=2 + value-followed<0.50, section goldens regenerated for the restored trailing page boundary, request-09 fixtures repointed at the article repository, sectioning_text_id shipped, and four census diagnostics. Plus 2026-09-02: the changelog's 'v2.4.137 shipped ...39337 with no title' claim corrected (refuted by a render of the tag source \u2014 the no-title state was never tagged), and release-acceptance occurrence measurements added (jmf_1 headers: prod deletes 22 of 33 occurrences silently, this tree deletes none; ieee_access_5: prod deletes 5 of 5 'Number of trained architectures', this tree none).\n\nCANARY: the pre-commit hook's Sonnet audit cannot run nested (AUDIT_DEFERRED_TO_AGENT); per the script's own design the audit was dispatched in-session instead \u2014 Agent(model=sonnet), full read of render vs reading-gold, verdict FAIL with 14 findings at tmp/iterate + scratchpad ip_feldman_audit_verdict.json. Reconciliation: 4 findings match already-open ledger entries; 10 recorded as open in the ledger now (72 open); cross-version renders (HEAD 00c6adb, v2.4.137 tag archive) show ALL 14 pre-date this commit \u2014 12 exist in production, 2 (page-number leaks 18/19) enter with 9504ad9's deliberate v1.9.59 conservatism, in the documented safe direction. ZERO findings are introduced by this commit. SKIP_CANARY bypasses only the hook's nested-env limitation, not the audit.",
-            "author": "Gilad Feldman",
-            "date": "2026-09-02",
-            "url": "https://github.com/giladfeldman/docpluck/commit/eb3e84d4f2f65a3f00f18aefdd1d4ab8f86aab8e",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "e0b230c",
-            "message": "docs(changelog): move the three sections that describe UNCOMMITTED code out of [2.4.138] and under [Unreleased]",
-            "body": "accf97a labelled them in place. A label does not travel with the content: the banner\nsits at line 5 and the first mislabelled section at line 102, so a reader arriving by\nanchor, by git diff, by a PyPI render or by a search hit lands ON the section with\nninety lines of context above that they never see. The warning only protected the\nreader who starts at the top, which is the one reader who least needs it.\ndocpluck-39's argument; I am adopting it.\n\nMOVED under `## [Unreleased] - normalization 1.9.60+ - NOT IN ANY RELEASE`, together\nwith the re-scoped 2026-08-27 consult block, which is a record about work in progress\nand now sits literally where it belongs:\n\n  - A repeated line is furniture because of WHERE ON THE PAGE it sits\n  - The page boundaries had to come back first \u2014 five steps were destroying them\n  - Delete furniture, never data \u2014 the strip now actually consults the guard\n\nKEPT under `## [2.4.138]`: `changes_made` counts minus signs by contract \u2014 the one\nsection of the four that the signal table shows actually shipped (changes_made_by_step\n4 on main against 5 in the tree).\n\nWhy it matters beyond tidiness: this is a public repo and a PyPI package. A researcher\nwho installs 2.4.138 and reads its notes would have believed they got the\npage-distribution gate and the page-boundary restoration. They did not. That is this\nproject's \"no pretending\" rule exactly \u2014 do not document a capability the code does not\nperform \u2014 and it is the same class as the defect the block itself was written about.\n\nTHE MOVE IS PROVEN WHOLESALE, NOT A REWRITE. The sections were relocated by slicing and\nreassembling lines, and the edit asserts `sorted(new) == sorted(old + [new_heading, \"\"])`\nbefore writing \u2014 a pure permutation plus exactly one heading and one blank. This matters\nbecause a serializer round-trip stripped 66 comment lines from another file tonight in a\ndiff that read as a tidy reformat, and near-equal insert/delete counts are that\nsignature. This diff is near-equal too, and the permutation assertion is why it is not\nthe same thing.\n\nALSO FIXED \u2014 A DEFECT I INTRODUCED IN accf97a. Nine lines of that commit carried literal\n`\\u2014`, `\\u2212` and `\\u2192` escapes instead of the characters, because I wrote them\ninside a Python raw string and they were never decoded. Now real em-dashes, minus signs\nand arrows. Control: the same search over ab8402c returns 5 pre-existing matches\nelsewhere in the file, so the 9 are attributable to accf97a and to nothing else.\n\nAND RE-POINTED THE BLOCK'S OWN DEICTICS. Eight lines said \"this release\" while the block\nnow sits under [Unreleased]; they name v2.4.138 explicitly instead. This is the rule the\nblock itself adds \u2014 a measurement in a release note must name its tree \u2014 applied to the\nblock. The one remaining \"this release\", at line 30, is inside the original 2026-08-27\nconsult prose and is deliberately untouched: it is a dated record of what its author\nmeant at the time.\n\nGates, pytest's own exit code captured to a file rather than read through a pipe:\ntests/test_docs_carry_no_raw_control_characters.py + tests/test_public_repo_hygiene.py\n-> 28 passed, exit 0. Independent byte scan: 628,781 bytes, 0 raw control bytes.\n\nDocs only. No source file touched.",
-            "author": "Gilad Feldman",
-            "date": "2026-09-02",
-            "url": "https://github.com/giladfeldman/docpluck/commit/e0b230c30cb8f22e96028cae00a7d869b6b7b116",
-            "type": "docs",
-            "branch": "main"
-          },
-          {
-            "sha": "accf97a",
-            "message": "docs(changelog): the 2.4.138 tag block was right about the wrong tree \u2014 main IS its baseline, not its subject",
-            "body": "The \"UNRELEASED ... DO NOT TAG\" directive is REMOVED. The 2026-08-27 three-provider\nconsult finding it carried is KEPT, with its attribution and its measurements, and\nre-scoped to the code it actually describes.\n\nWHAT WAS WRONG: the block measured the then-working-tree against a worktree at\n047b4ca. 047b4ca is NORMALIZATION_VERSION 1.9.59 \u2014 which is what this release\ncontains. The block's own baseline is this release. The gate it condemns is 1.9.60+,\nwhich lives only in the uncommitted working tree and has never been committed.\n\nREFUTED FOR THE SHIPPED CODE, by two sessions counting different units and agreeing.\nOn 10.1001/jamanetworkopen.2023.39337, where the block predicted the article title\nwould reach the consumer 0 times:\n\n  raw extract_pdf (control)        13 occurrences\n  1.9.59 \u2014 this release            13 at standard AND academic  (docpluck-7a)\n  1.9.59 \u2014 this release            11 whole-line                (docpluck-39)\n  1.9.58 \u2014 what production serves  11 whole-line                (docpluck-39)\n  1.9.63 \u2014 uncommitted tree         1 whole-line                (docpluck-39)\n\nThis release behaves identically to what production already serves, so it cannot be\nshipping a paper with no title. The 1 in the uncommitted tree is the surviving title\nblock \u2014 the defect the block found, in the code that actually has it.\n\nMECHANISM, two-sided so a zero is not a broken grep (NORMALIZATION_VERSION matches 38\ntimes in both files): distinct_pages / max_per_page / _MIN_PAGES_FOR_FURNITURE are\n0/0/0 here against 3/6/2 in the tree; keep_page_break / page_break_residue /\nkeep_break_in_rejoin are 0/0/0 against 14/13/8; and _carries_statistical_content is\nnever CALLED here \u2014 its two appearances are both in comments \u2014 while the tree has a\nreal import and call. This release still uses the old line-index proxy.\n\nALSO RECORDED, and larger than the block: THREE OF THE FOUR SECTIONS UNDER [2.4.138]\nDESCRIBE UNCOMMITTED CODE. Only \"changes_made counts minus signs by contract\" shipped\nin 1.9.59. The other three are the design record for work in progress, and are now\nlabelled as such so nobody reads them as notes for what they installed.\n\nNOT REFUTED, AND SAID SO IN THE FILE: the block's other measurement \u2014 net -4,763\ncharacters over a strided 36-paper sample, 7 papers losing content \u2014 has NOT been\nre-measured. Only the headline paper was. The same polarity argument makes those very\nlikely properties of the uncommitted tree, but that is inference, not measurement, and\nthe page gate stays unsafe until someone counts them.\n\nHOW BOTH OF US GOT IT WRONG, kept in the file because it is cheaper to read than to\nrepeat: a session and the fleet conductor independently checked whether the FIX was\nabsent from main, found it was, and each concluded the DEFECT was present \u2014 halting the\nrelease. Those are different propositions and only the second licenses a stop. Neither\nasked the question the block itself named: render the paper and count. One render\nrefuted it. A warning names a subject and a remedy; confirming the remedy is missing is\nnot confirming the subject is there. The block also carried its number without naming\nthe commit it was taken on, so it silently re-pointed at whatever tree the reader stood\non \u2014 a measurement in a release note must name its tree.\n\nDocs only. No source file touched.",
-            "author": "Gilad Feldman",
-            "date": "2026-09-02",
-            "url": "https://github.com/giladfeldman/docpluck/commit/accf97a217686b26d3cfc2a7fec7386e86d44ce0",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "00c6adb",
-            "message": "tests: pin the table channel destroying minus signs (repair cannot fire)",
-            "body": "REPRODUCED at 2.4.138 on 10.1016/j.joep.2020.102350, Camelot enabled, verified\nagainst the RASTERIZED PAGE rather than against another parser. Found by\narticlerepository-c0 in a 2.4.126 render-baseline; the load-bearing question --\n\"does CURRENT docpluck still do this?\" -- was filed COULD-NOT-VERIFY. It does.\n\n  rendered bytes 59703 \u00b7 NUL count 22\n  CONTROL, same code path, 10.5465/annals.2016.0011 : NUL count 0\n\np2 Table 1 prints   Cramer's V = 0.067 [-0.108, 0.218]      <- SPANS zero\ndocpluck emits      <td>[<NUL> 0.108, 0.218]</td>            <- reads as EXCLUDING zero\n\np4 Table 2 \"Comparison of differences across conditions\" prints\n  Tversky & Shafir, 1992 (between-subjects)  199  -1  -31  -30  213  14  31  17\ndocpluck emits the three SIGNED values as <NUL> 1 / <NUL> 31 / <NUL> 30 and the\nthree unsigned values intact. The row carries its own two-sided control. All 22\nNULs were checked against the page; every one sits where the paper prints a minus.\n\npdftotext recovers the glyph as U+2212, and docpluck's own BODY-TEXT channel gets\nit right -- the same document renders \"[- 0.108,\" in prose and \"[<NUL> 0.108,\" in\nthe table. One document, two channels, two different published values.\n\nROOT CAUSE -- THE REPAIR EXISTS AND CANNOT FIRE. cell_cleaning.py:113-118 already\ncarries it, and its comment names this exact case ('\"(cid:0) 31\" is -31'):\n\n    _html_escape(\"(cid:0) 31\")  -> \"-31\"       works\n    _html_escape(\"\\x00 31\")     -> \"\\x00 31\"   does nothing\n\nAsked of Camelot directly (page 4, flavor=stream): 21 raw cells carry a NUL and\nNONE carries \"(cid:0)\". Camelot emits the raw NUL on this path. The older\npdfminer-based spike baseline DID emit \"(cid:0)\", which is presumably why the\nrepair was written that way and why it has looked correct ever since. It is a\nrepair aimed at a representation that no longer arrives.\n\nPINNED, NOT FIXED. Five strict xfails; two controls pass. strict=True means a fix\nturns them XPASS, which pytest reports as a FAILURE -- so the defect cannot be\nfixed without updating this file. A record of a known defect, not a weakened gate.\n\nNot fixed in this commit for one reason, and it is not scope: a fix CHANGES SIGNS\nin the table channel, a full Camelot suite was already running on a frozen tree,\nand there is an 08:00 convergence stop. Landing a sign-changing edit that cannot\nbe verified by a full run is the \"a fix can be worse than the defect\" shape.\n\nTHE TRAP THE FIX MUST CLEAR, measured and pinned by the last test here: \\x00 is\nALSO docpluck's own fold sentinel (_MERGE_SEPARATOR = \"\\x00BR\\x00\"). A folded\nheader can put a DIGIT right after the closing NUL --\n  _html_escape(\"Replication\\x00BR\\x0095% CI\") -> \"Replication<br>95% CI\"\n-- so a naive \\x00-before-digit repair inside _html_escape would destroy the fold\nAND inject a minus that was never printed, turning a data-loss defect into a\ndata-fabrication one. Repair where the Camelot cell is FIRST READ, before any\nsentinel exists.\n\nNOT ESTABLISHED: prevalence (one paper, 22 sites -- proves the shape, not the\nrate); which versions are affected (2.4.126 and 2.4.138 both reproduce, everything\nbetween is presumed affected and unmeasured); whether U+FFFD reaches the same slot.\n\nFull diagnosis: docs/FINDINGS_2026-09-02_table_channel_destroys_minus_signs.md",
-            "author": "Gilad Feldman",
-            "date": "2026-09-02",
-            "url": "https://github.com/giladfeldman/docpluck/commit/00c6adb9ffd3609254ee1fbd708e43c8507e6f45",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "8cfc3e6",
-            "message": "tools+tests: 16 harness scripts imported the INSTALLED release, not the tree",
-            "body": "Python puts THE SCRIPT'S OWN DIRECTORY on sys.path[0], never the cwd, so a\nscript under tools/ or scripts/ has no route to the repo root and a bare\n`import docpluck` silently resolves to whatever is installed.\n\nMeasured 2026-09-01 on this tree, three arms:\n\n    python tools/<probe>.py         -> site-packages\\docpluck  2.4.137\n    python -c \"import docpluck\"     -> <repo>\\docpluck         2.4.138\n    python <probe-at-repo-root>.py  -> <repo>\\docpluck         2.4.138\n\nThe third arm is the control: it isolates the cause to the script's DIRECTORY\nrather than to \"running a script at all\". Arm two is structurally incapable of\nshowing the defect, which is why it survived -- the obvious check measures a\ndifferent thing.\n\nCensus of all 34 docpluck importers under tools/ + scripts/: 16 resolved the\ninstalled 2.4.137, INCLUDING scripts/verify_corpus.py, the 26-paper baseline\nthat gates every iterate cycle. A fix could be verified all night against a\nlibrary it had not touched, with every log line naming the tree.\n\nThis generalises W-0011 (52903fe), which repaired ONE script -- render_for_audit\n-- while the same defect sat in fifteen others.\n\nTHE FIX is keyed on the pyproject.toml marker rather than a parents[N] count:\ntools/*.py needs 1 and tools/diag/*.py needs 2, so a count encodes the file's\ncurrent location into its correctness and silently regresses the moment a file\nmoves -- regresses in the direction that resolves site-packages again.\n\nTHE GATE is now a test, not a one-off census: 16 failed -> 35 passed, watched\nred first. It runs each script for real under runpy with sys.path[0] set to the\nscript's own directory and halts at the moment docpluck is imported.\n\nFour earlier probe designs each made correctly-guarded scripts look defective:\n`python -c` has no __file__, so every Path(__file__).parents[N] guard raised\nNameError; line-slicing the prologue left a multi-line `from docpluck.x import (`\nunclosed; extending the block ran on into argparse; an empty argparse Namespace\nstub crashed four scripts that read their own options at module level. Each was\ncaught only because the test scores a failed MEASUREMENT as a failure, never as\na pass -- a skip, an N/A and an indeterminate are all green-shaped and none of\nthem is a measurement.\n\nNOT INCLUDED, deliberately. Three scripts also carry this fix in the working\ntree but are NOT in this commit, because each already held another stream's\nuncommitted work and committing them would sign it:\n  scripts/verify_corpus.py                       (+ a stdout/stderr reconfigure block)\n  tools/diag/form_feed_page_attribution_census.py   (untracked, page-gate stream)\n  tools/diag/repeated_line_gate_census.py            (untracked, page-gate stream)\nThe gate test will therefore report verify_corpus.py red on a fresh checkout.\nThat is accurate and visible rather than hidden, and the authorship decision is\nthe owner's.\n\nEVIDENTIARY CONSEQUENCE for anyone citing past measurements: every zero proved\nwith tools/diag/repair_site_scan.py before this commit describes released\n2.4.137, not this repository. Same for any prevalence figure from the two\ncensus scripts named above.\n\nSuite: 3060 passed / 13 failed (was 3024 / 14). All 13 pre-date this change:\nthe guard is provably inert under pytest (the repo root is already on sys.path,\nso the insert is a no-op) and tools/diag/_corpus.py, the only module the failing\ntests import from tools/, is untouched and not dirty.",
-            "author": "Gilad Feldman",
-            "date": "2026-09-02",
-            "url": "https://github.com/giladfeldman/docpluck/commit/8cfc3e63a849ea448d3262513ff0d138b3eb98cb",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "Davidvandijcke",
-        "repo": "coarse",
-        "url": "https://github.com/Davidvandijcke/coarse",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-09-01T23:34:18Z",
-        "recent_commits": [
-          {
-            "sha": "6a1942c",
-            "message": "fix(security): close remaining high-risk findings",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-09-01",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/6a1942ccad41f2a92d4747416dbde2b7fb38c43a",
-            "type": "fix",
-            "branch": "codex/security-hardening-20260901"
-          },
-          {
-            "sha": "c0bfcea",
-            "message": "fix(cli): close subscription isolation gaps",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-09-01",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/c0bfcea2187d084c22cea2f3afb84d7aa3bc4022",
-            "type": "fix",
-            "branch": "codex/security-hardening-20260901"
-          }
-        ]
-      },
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-09-05T13:12:37Z",
-        "recent_commits": [
-          {
-            "sha": "b909615",
-            "message": "Fix silent truncation of zip members over 32KB (#384)",
-            "body": ".zip_inflate_member() called zip::inflate() with size = NULL, because\npassing the member's known uncompressed size raised \"Failed to inflate\ndata\" (an apparent quirk of the zip package's exact-size path). Leaving\nsize unset avoids that error, but its documented \"resize the output\nbuffer multiple times\" behaviour does not happen in practice: any\nmember larger than the default 32768-byte buffer came back silently\ntruncated at exactly 32768 bytes, with no error or warning.\n.zip_member_fetch()'s own length check caught the resulting mismatch\nand discarded the bytes, so this looked identical to a genuine network\nor host-compatibility failure -- accounting for the large majority of\nissue #384's code_download disagreements in the Cooper et al.\nvalidation (confirmed live against real Zenodo-hosted zip members).\n\nPassing size + 1 instead of the exact size or NULL avoids both failure\nmodes and was verified against real Zenodo members both under and over\n32KB, plus a new offline regression test using a local zip.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-            "author": "Lakens",
-            "date": "2026-09-05",
-            "url": "https://github.com/scienceverse/metacheck/commit/b9096151b6d00f78e1abb6b734ca001856178871",
-            "type": "fix",
-            "branch": "repocheck_improvements"
-          }
-        ]
-      },
-      {
-        "owner": "quest-bih",
-        "repo": "oddpub",
-        "url": "https://github.com/quest-bih/oddpub",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-31T11:22:46Z",
-        "recent_commits": [
-          {
-            "sha": "2b30005",
-            "message": "documentation and version bump",
-            "body": "",
-            "author": "ontogenerator",
-            "date": "2026-08-31",
-            "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
-            "type": "chore",
             "branch": "main"
           }
         ]
