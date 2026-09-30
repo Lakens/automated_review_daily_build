@@ -1,5 +1,331 @@
 [
   {
+    "generated_at": "2026-09-30T12:02:26.789113+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 9,
+        "pushed_at": "2026-09-30T11:18:07Z",
+        "recent_commits": [
+          {
+            "sha": "15a1d87",
+            "message": "Merge pull request #442 from scienceverse/fix-441-shapefile-and-domain-data-extensions",
+            "body": "Add Tier-1 extension rules for GIS, phylogenetics, mass spec, and 3D scan data",
+            "author": "Daniel Lakens",
+            "date": "2026-09-30",
+            "url": "https://github.com/scienceverse/metacheck/commit/15a1d87e230024a107655ef880b9b3c1a1399fc3",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "505e19c",
+            "message": "Add Tier-1 extension rules for GIS, phylogenetics, mass spec, and 3D scan data",
+            "body": "data_classify_files() had no format-locked rule for ESRI Shapefile\ncomponents, GeoPackage, phylogenetic tree formats, mass spectrometry\ndata, 3D scan data, or generic tabular text, so recognition depended\nentirely on folder/filename-keyword fallback. A file with no such hint\n(e.g. sitting at an archive's root) fell through to \"unknown\" even\nwhen the extension alone is unambiguous evidence of research data.\n\nAdded .shp/.dbf/.shx/.prj/.sbn/.sbx/.cpg/.gpkg, .nex/.nwk/.tre/.phy,\n.mzxml/.mztab, .ply, and .tab/.table as Tier-1 data extensions, and\nwired .tab/.table into data_read_head()'s delimited-text reader so the\nreadable=TRUE flag has a matching parser. .stl is deliberately left\nalone (stays \"materials\"), since it conventionally names a\n3D-printable model rather than scan data, unlike .ply.\n\nFixes #441\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-30",
+            "url": "https://github.com/scienceverse/metacheck/commit/505e19cb9d4b0c2be9ed75ba23c643ce43b7417d",
+            "type": "feat",
+            "branch": "dev"
+          },
+          {
+            "sha": "5af3162",
+            "message": "Merge pull request #440 from scienceverse/fix-439-figshare-institutional-doi-shapes",
+            "body": "Fix .figshare_id() for institutional DOIs with chained sub-prefixes",
+            "author": "Daniel Lakens",
+            "date": "2026-09-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/5af31625ebbfd2d64a277437e552786d7e46d4de",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "44aa36e",
+            "message": "Fix .figshare_id() for institutional DOIs with chained sub-prefixes",
+            "body": "The institutional-prefix regex only matched zero or one sub-prefix\nsegment between the DOI prefix and the numeric article id, so Auckland\n(k6.auckland.<id>) and Sheffield/ORDA (shef.data.<id>), which each\nchain two segments, resolved to NA and made repo_check error out\ndownstream.\n\nFixes #439\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/44aa36e56d9548d8ddacda6a95f768de19fad730",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "8a531f9",
+            "message": "Merge pull request #438 from scienceverse/fix-429-zip-member-errors-rebased",
+            "body": "Finish archive-member download failure recording and widen byte-range retry (#429)",
+            "author": "Daniel Lakens",
+            "date": "2026-09-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/8a531f913feaa35bed4ed17de1102c1b550ce9d7",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "c4b316a",
+            "message": "Merge pull request #437 from scienceverse/fix-434-435-dspace7-dataone-figshare-followups",
+            "body": "Fix DSpace7/DataONE metadata-and-file gaps and Figshare collection-DOI routing",
+            "author": "Daniel Lakens",
+            "date": "2026-09-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/c4b316ad9e69e9cb60b3c4d3c66cb426835fdad2",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "ba661c7",
+            "message": "Fix DSpace7/DataONE metadata-and-file gaps and Figshare collection-DOI routing",
+            "body": "DSpace7 file listings never surfaced doi/license into repo_metadata\n(archive-dspace7.R had no equivalent to legacy DSpace's attribute\nmechanism). DataONE records whose EML lists a file as a bare\n<otherEntity> with no <physical> child returned zero files even\nthough the record's own metadata (title/authors/license) resolved\nfine. A Figshare collection DOI (10.6084/m9.figshare.c.<id>) was\nmisrouted through Dataverse because dataverse.no's DOI-prefix list\nwrongly included 10.6084, Figshare's own globally-registered prefix,\nand even once routed correctly had no id-extraction pattern of its\nown.\n\nFixes scienceverse/metacheck#434, scienceverse/metacheck#435.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/ba661c7e56e6714494a817b5599bb2c57312d2c8",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "8d96175",
+            "message": "Merge pull request #436 from scienceverse/fix-431-432-434-435-repo-detection",
+            "body": "Fix repo_check misses for 4TU, Dataverse, Figshare, DSpace7, and DataONE (#431, #432, #434, #435)",
+            "author": "Daniel Lakens",
+            "date": "2026-09-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/8d96175a8f3c74eb990a18d0b99fc8e38c4acf5c",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "57f480d",
+            "message": "Fix repo_check misses for 4TU, Dataverse, Figshare, DSpace7, and DataONE",
+            "body": "4TU (#431): .researchdata4tu_id() extracted a DOI-embedded uuid and passed\nit straight to v2/articles/<id>, but the API needs a different numeric id\nonly a live DOI redirect reveals. Added .researchdata4tu_resolve_uuid() to\nfollow that redirect before querying.\n\nDataverse (#432): .dataverse_host_from_doi() returned the first host sharing\nan ambiguous DOI prefix, picking the wrong DANS Data Station for a shared\nprefix (10.17026, used by 4 separate installations). Now resolves via live\nDOI redirect when a prefix maps to more than one host; also added the\nmissing phys-techsciences.datastations.nl prefix entry.\n\nFigshare (#434): added collection-URL/DOI detection\n(.figshare_collection_id()/.figshare_collection_articles()), mirroring the\nexisting project-expansion pattern. Share-links remain correctly flagged as\nunsupported (no public API resolves them).\n\nDSpace7/DataONE (#435): dataone_links() missed KNB's real #view/doi: URL\nshape and had no fallback for a bare legacy KNB docid (knb.1404.1) cited\nwith no DOI at all. dspace7_links() had no DOI-based detection whatsoever,\nso a paper citing only a DOI (never the host string) was invisible to it --\nadded live DOI resolution against known DSpace7 hosts.\n\n#433 needed no change: 10.6078 was already added to\n.dryad_doi_prefixes() by an earlier commit, before the issue was filed.\n\nAll fixes verified live against each issue's reported example. No\nregressions in existing archive-dataone/dataverse/dryad/figshare tests.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+            "author": "Lakens",
+            "date": "2026-09-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/57f480df81d4e81dd6a4dfe87b78a8ea61dd23d8",
+            "type": "fix",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 5,
+        "pushed_at": "2026-09-02T03:58:35Z",
+        "recent_commits": [
+          {
+            "sha": "7729a28",
+            "message": "Built site for tenzing@0.4.1: 5554f64",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "5554f64",
+            "message": "temporarily cmmment out new test that failed for Load instead of Upload",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
+            "type": "feat",
+            "branch": "master"
+          },
+          {
+            "sha": "e07088e",
+            "message": "move papaja UI output down, retitle affiliations page",
+            "body": "",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "e4217bd",
+            "message": "Built site for tenzing@0.4.1: 6944931",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "6944931",
+            "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
+            "body": "Reorder output actions and clarify URL loading",
+            "author": "Alex O. Holcombe",
+            "date": "2026-09-02",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-09-28T07:46:03Z",
+        "recent_commits": [
+          {
+            "sha": "f0237ba",
+            "message": "test(glyph): a raster failure leaves W0s text exactly as declared",
+            "body": "review of 2.4.147: glyph_evidence records raster_failed:<Type> per pair but no\ntest forced that path. Forced on 10.5465/amj.2016.1196: nothing is proven, both\noperator codes are named raster_failed:OSError, and the p15 sentence passes\nthrough normalize_text unchanged with no W0s step. Control: a healthy run\nrecords no raster_failed reason.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-28",
+            "url": "https://github.com/giladfeldman/docpluck/commit/f0237baeb537123d4a72b28c72247adda3730fd6",
+            "type": "test",
+            "branch": "main"
+          },
+          {
+            "sha": "05fb622",
+            "message": "style(diag): sort the artifact_path imports",
+            "body": "",
+            "author": "Gilad Feldman",
+            "date": "2026-09-28",
+            "url": "https://github.com/giladfeldman/docpluck/commit/05fb62205463edb769f260f339454147dd43917a",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "0221d1c",
+            "message": "fix(release): 2.4.147 against the 2.4.146 public-repository rules",
+            "body": "- tools/render_for_audit.py: the repo-root import guard now runs before the\n  module-level article-finder check. With ARTICLE_FINDER_HOME unset (2.4.146\n  made it env-only) the script exited first and the import probe resolved\n  site-packages; red on the shipped 2.4.146 as well.\n- tools/diag/_corpus.py: --json output defaults to <system temp>/docpluck-diag\n  (DOCPLUCK_DIAG_OUT overrides), no portfolio-root variable.\n- Three citations of an internal decision note replaced by its date.\n- sdist control plants PLANTED_NOTES.md instead of CLAUDE.md, which\n  .gitignore now excludes (so it could not prove the control).\n- figure-docs test skips CLAUDE.md / LESSONS.md where they are absent\n  (untracked since 2.4.146); runs on them where they exist.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-28",
+            "url": "https://github.com/giladfeldman/docpluck/commit/0221d1ca7cffbff5e335039285b13cbbcd42bf7f",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "5e63c59",
+            "message": "release: v2.4.147 \u2014 normalization 1.9.70, table extraction 2.4.18",
+            "body": "The table, normalization and tooling fixes queued since 2.4.145, on top of the\npackage-only 2.4.146. CHANGELOG [2.4.147] assembled from the nineteen merged\nbranches; W0s added to docs/NORMALIZATION.md; CITATION.cff, README and the\nget_version_info example pinned to 2.4.147 / table extraction 2.4.18.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-28",
+            "url": "https://github.com/giladfeldman/docpluck/commit/5e63c59e78c1e242454a578f9baf75592ea04bfa",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-09-12T16:45:11Z",
+        "recent_commits": [
+          {
+            "sha": "1c1d925",
+            "message": "Merge pull request #299 from Davidvandijcke/dev",
+            "body": "Release subscription review model selection fix",
+            "author": "David Van Dijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/1c1d925e58646e6df78de711d64ec6d7f485badf",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "1e703c1",
+            "message": "fix(web): preserve subscription model selections and refresh options (#298)",
+            "body": "",
+            "author": "David Van Dijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/1e703c1a5178e05cd462daa264da8d094ffee93e",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "b8118c7",
+            "message": "fix(web): preserve subscription model selections and refresh options",
+            "body": "",
+            "author": "Davidvandijcke",
+            "date": "2026-09-12",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/b8118c775122c3535419384063a6b2f04ba61c7f",
+            "type": "fix",
+            "branch": "codex/subscription-model-selection"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-09-28T05:25:47Z",
+        "recent_commits": [
+          {
+            "sha": "18204e7",
+            "message": "sync from escicheckapp@65ff03e (effectcheck v0.7.13) (#44)",
+            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 65ff03e292b780831ed5120fd857d6430fd14db7\nPackage version: 0.7.13\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-28",
+            "url": "https://github.com/giladfeldman/escicheck/commit/18204e775a574096a9c8b11e8bda599d087e3b69",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "ea5bc07",
+            "message": "sync from escicheckapp@e0afa78 (effectcheck v0.7.13) (#43)",
+            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: e0afa783206f0291ad2b2ec0e24c2e19e1004691\nPackage version: 0.7.13\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
+            "author": "Gilad Feldman",
+            "date": "2026-09-28",
+            "url": "https://github.com/giladfeldman/escicheck/commit/ea5bc07cc2e790d86305430cefb46738be063d1f",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-28T08:39:11Z",
+        "recent_commits": [
+          {
+            "sha": "88378d2",
+            "message": "Release 0.12.8: filter z-curve inputs by eligibility",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-09-28",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/88378d2db0962698e1439568c0d956c414a4fc40",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "brandmaier",
+        "repo": "reproducibleRchunks",
+        "url": "https://github.com/brandmaier/reproducibleRchunks",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-09-30T05:58:14Z",
+        "recent_commits": [
+          {
+            "sha": "1fed484",
+            "message": "fixed rendering of LaTeX warning",
+            "body": "",
+            "author": "brandmaier",
+            "date": "2026-09-30",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/1fed484b95e6e1a663996ebd928ad39093420679",
+            "type": "other",
+            "branch": "styling"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-09-30T04:00:00.597941+00:00",
     "narrative": "",
     "repos": [
@@ -16967,112 +17293,6 @@
             "date": "2026-08-31",
             "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
             "type": "chore",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-09-07T11:41:24.557096+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "marton-balazs-kovacs",
-        "repo": "tenzing",
-        "url": "https://github.com/marton-balazs-kovacs/tenzing",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 5,
-        "pushed_at": "2026-09-02T03:58:35Z",
-        "recent_commits": [
-          {
-            "sha": "7729a28",
-            "message": "Built site for tenzing@0.4.1: 5554f64",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/7729a282098f6d7828dd2c1db18a9ff506126d43",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "5554f64",
-            "message": "temporarily cmmment out new test that failed for Load instead of Upload",
-            "body": "",
-            "author": "Alex O. Holcombe",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/5554f642c325870f008719dd5550987199c5b11d",
-            "type": "feat",
-            "branch": "master"
-          },
-          {
-            "sha": "e07088e",
-            "message": "move papaja UI output down, retitle affiliations page",
-            "body": "",
-            "author": "Alex O. Holcombe",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e07088e81ce7f0ea9f4219f178b55463a704b385",
-            "type": "other",
-            "branch": "master"
-          },
-          {
-            "sha": "e4217bd",
-            "message": "Built site for tenzing@0.4.1: 6944931",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/e4217bdf93893c645f0226bd382c51d85f8d9366",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "6944931",
-            "message": "Merge pull request #110 from floze-the-genius/fix/108-output-order",
-            "body": "Reorder output actions and clarify URL loading",
-            "author": "Alex O. Holcombe",
-            "date": "2026-09-02",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/69449310d04f426158463014c2dd9cf7be6bed33",
-            "type": "fix",
-            "branch": "master"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "escicheck",
-        "url": "https://github.com/giladfeldman/escicheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-28T15:19:13Z",
-        "recent_commits": [
-          {
-            "sha": "4ea4b3b",
-            "message": "sync from escicheckapp@69c3964 (effectcheck v0.7.7) (#42)",
-            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 69c3964cbc6c5fa72e1928aa83f610425e07cd6d\nPackage version: 0.7.7\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
-            "author": "Gilad Feldman",
-            "date": "2026-08-28",
-            "url": "https://github.com/giladfeldman/escicheck/commit/4ea4b3b8d5305399d80e1bf2475b1bc996ebfcb1",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-09-04T17:34:35Z",
-        "recent_commits": [
-          {
-            "sha": "eac55db",
-            "message": "Clarify quality-checking caveat in docs",
-            "body": "Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_016fAVfHLS9MvLTWCh7jPusd",
-            "author": "Shaheed Azaad",
-            "date": "2026-09-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/eac55db3b148b7699a80e601ec361e14a0eeb905",
-            "type": "other",
             "branch": "main"
           }
         ]
