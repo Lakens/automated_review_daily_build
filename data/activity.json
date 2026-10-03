@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-03T15:50:24.543307+00:00",
+  "generated_at": "2026-10-03T20:44:44.820790+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -32,7 +32,7 @@
       "topics": [
         "metascience"
       ],
-      "pushed_at": "2026-10-03T06:24:13Z",
+      "pushed_at": "2026-10-03T16:57:15Z",
       "created_at": "2025-02-04",
       "last_push_days": 0,
       "default_branch": "main",
@@ -48,7 +48,7 @@
         },
         {
           "name": "dev",
-          "last_commit": "2026-10-02"
+          "last_commit": "2026-10-03"
         },
         {
           "name": "fix-429-zip-member-errors-rebased",
@@ -110,7 +110,7 @@
       "branch_activity": [
         {
           "name": "dev",
-          "last_commit": "2026-10-02",
+          "last_commit": "2026-10-03",
           "commits_30d": 89
         },
         {
@@ -130,21 +130,21 @@
         }
       ],
       "commits_30d": 102,
-      "commits_7d": 26,
-      "commits_1d": 9,
+      "commits_7d": 27,
+      "commits_1d": 1,
       "commits_90d": 253,
       "authors_30d": [
-        "Jakub Werner",
-        "Lukas Wallrich",
-        "Daniel Lakens",
         "Lakens",
-        "Lisa DeBruine"
+        "Lisa DeBruine",
+        "Lukas Wallrich",
+        "Jakub Werner",
+        "Daniel Lakens"
       ],
       "type_breakdown": {
-        "other": 27,
+        "other": 28,
         "fix": 54,
         "chore": 7,
-        "feat": 12,
+        "feat": 11,
         "test": 2
       },
       "dormant_revived": false,
@@ -623,27 +623,27 @@
         },
         {
           "week": 1787529600,
-          "total": 3
+          "total": 4
         },
         {
           "week": 1788134400,
-          "total": 23
+          "total": 22
         },
         {
           "week": 1788739200,
-          "total": 23
+          "total": 29
         },
         {
           "week": 1789344000,
-          "total": 25
+          "total": 27
         },
         {
           "week": 1789948800,
-          "total": 23
+          "total": 15
         },
         {
           "week": 1790553600,
-          "total": 26
+          "total": 27
         }
       ],
       "code_frequency": [
@@ -746,6 +746,80 @@
       "scopus_citations": null,
       "recent_commits": [
         {
+          "sha": "8f2de4e",
+          "message": "Warn and self-explain when a Dryad API key is missing",
+          "body": "Dryad allows listing a dataset's files without a key, but requires one\n(dryad_pat()/dryad_auth()) to download file bytes even from a fully\npublic dataset. data_check and code_check depend on those bytes, so a\nmissing key silently zeroed out columns/code analysis with only a bare\n\"HTTP 401\" to go on.\n\nNow a one-time session message fires as soon as a Dryad dataset is\nresolved with no key set, and a 401 caused by a missing key is named\nexplicitly in the download-failure report instead of a bare HTTP\nstatus. Documented the limitation in repo_check/data_check/code_check.\n\nAlso fixes two unrelated issues found while verifying this change:\n- osf_file_download() crashed with \"could not find function\n  cap_report\" (missing leading dot) whenever a repo's per-repository\n  download budget was hit with files still remaining.\n- A live OSF fixture test had stale expected paths after the real\n  project's folder structure changed; and a stale/missing CrossRef\n  mock fixture made the \"longer bib\" test fail.",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-10-03",
+          "url": "https://github.com/scienceverse/metacheck/commit/8f2de4e27d83b8cbbfbccef8ead974502fa63730",
+          "type": "other",
+          "branch": "dev",
+          "diff": {
+            "additions": 292,
+            "deletions": 11,
+            "files": [
+              {
+                "filename": "R/archive-dryad.R",
+                "status": "modified",
+                "additions": 26,
+                "deletions": 0,
+                "patch": "@@ -249,6 +249,8 @@ dryad_info <- function(dryad_url, id_col = 1, pb = NULL, cache = FALSE) {\n     on.exit(pb$terminate())\n   }\n \n+  .dryad_warn_if_no_key()\n+\n   paste0(\"* Retrieving info from Dryad DOI \", dryad_doi, \"...\") |>\n     list(what = _) |>\n     pb$tick(0, tokens = _)\n@@ -471,6 +473,30 @@ dryad_auth <- function(client_id = NULL, client_secret = NULL,\n   .dryad_auth()\n }\n \n+# Warn, once per session, the first time a Dryad dataset is resolved with no\n+# key set (dryad_pat() nor dryad_auth"
+              },
+              {
+                "filename": "R/archive-osf.R",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1495,7 +1495,7 @@ osf_file_download <- function(osf_id,\n         if (length(dropped) > 0) {\n           budget_skipped <- c(budget_skipped, files$osf_id[dropped])\n           need_total <- ceiling((used + sum(files$size[wanted], na.rm = TRUE)) / mb)\n-          cap_report(sprintf(\n+          .cap_report(sprintf(\n             paste0(\"%d file%s in %s did not fit in the %s MB per-repository \",\n                    \"limit and %s not downloaded. \",\n                    \"Set `max_download_size >= %s` t"
+              },
+              {
+                "filename": "R/repo-download.R",
+                "status": "modified",
+                "additions": 18,
+                "deletions": 2,
+                "patch": "@@ -296,6 +296,20 @@ repo_cache_clear <- function(repo_url = NULL, quiet = FALSE) {\n   req\n }\n \n+# A 401 from Dryad almost always means the same thing: no API key was set, and\n+# Dryad (unlike OSF/Zenodo/Figshare/Dataverse) REQUIRES one to download file\n+# bytes even from a fully public dataset (see .dryad_headers()'s own comment).\n+# Appended to the raw HTTP error so the existing failure-reporting message in\n+# download_repo_files() names the real cause instead of a bare \"HTTP 401\".\n+.dryad_401"
+              },
+              {
+                "filename": "inst/modules/code_check.R",
+                "status": "modified",
+                "additions": 11,
+                "deletions": 1,
+                "patch": "@@ -6,12 +6,22 @@\n #' @details\n #' The Code Check module checks R, Rmd, Qmd, SAS, SPSS, and Stata files, using regular expressions to check the code. The regular expression search will detect the number of comments, the lines at which libraries/imports are loaded, attempts to detect absolute paths to files, and lists files that are loaded, and checks if these files are in the repository. The module will return suggestions to improve the code if there are no comments, if libraries/imports are loa"
+              },
+              {
+                "filename": "inst/modules/data_check.R",
+                "status": "modified",
+                "additions": 24,
+                "deletions": 5,
+                "patch": "@@ -40,6 +40,16 @@\n #' `NA`) are classified but not column-extracted; pass `local_path` to point at\n #' a downloaded copy of the repository.\n #'\n+#' For a paper whose repository is on Dryad, this means column extraction\n+#' never happens unless a Dryad API key is set: Dryad requires one to\n+#' download file bytes, even from a fully public dataset (dataset listing\n+#' and metadata do not need one). Without a key, every Dryad file stays\n+#' classified but un-downloaded, column_n is 0, and a warnin"
+              },
+              {
+                "filename": "inst/modules/repo_check.R",
+                "status": "modified",
+                "additions": 14,
+                "deletions": 0,
+                "patch": "@@ -6,6 +6,18 @@\n #' @details\n #' The Repository Check module lists files on the OSF, GitHub, ResearchBox, DSpace (PsychArchives and other legacy- and DSpace 7-based installations), Zenodo, Dataverse, Figshare, Dryad, ReShare, 4TU.ResearchData, Mendeley Data, and DataONE (Arctic Data Center, KNB, and other member nodes) based on links in the manuscript.\n #'\n+#' Listing a repository's files never requires an API key, but some hosts\n+#' answer faster or more completely with one: OSF allows 100 req"
+              },
+              {
+                "filename": "tests/testthat/apis/api.crossref.org/works-1a69f1.json",
+                "status": "added",
+                "additions": 196,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,196 @@\n+{\n+    \"status\": \"ok\",\n+    \"message-type\": \"work-list\",\n+    \"message-version\": \"1.0.0\",\n+    \"message\": {\n+        \"facets\": {\n+\n+        },\n+        \"total-results\": 2,\n+        \"items\": [\n+            {\n+                \"indexed\": {\n+                    \"date-parts\": [\n+                        [\n+                            2022,\n+                            4,\n+                            6\n+                        ]\n+                    ],\n+                    \"date-time"
+              },
+              {
+                "filename": "tests/testthat/test-archive-osf_file_download.R",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 2,
+                "patch": "@@ -448,9 +448,9 @@ test_that(\"osf_file_download github\", {\n   dl <- osf_file_download(osf_id, download_to, metadata = FALSE, mode = \"select\")\n   f <- file.path(download_to, osf_id)\n   expect_true(dir.exists(f))\n-  expect_true(file.path(f, \"osfstorage\", \"DESCRIPTION\") |>\n+  expect_true(file.path(f, \"osfstorage\", \"Testing\", \"DESCRIPTION\") |>\n                 file.exists())\n-  expect_true(file.path(f, \"github\", \"README.md\") |>\n+  expect_true(file.path(f, \"github\", \"Testing\", \"README.md\") |>\n      "
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
           "sha": "ac9befe",
           "message": "Label an unmatched subscripted Hedges' g_av as indeterminate, not no_match",
           "body": "d_z and d_rm(r=0.5) are fully determined by t and df alone, so a\nreported value that doesn't match either really is a confirmed\ninconsistency. Hedges' g_av (Cumming, 2012's bias-corrected\naverage-variance standardizer) also depends on the individual\ncondition SDs and the true observed correlation between them --\ninformation a bare t(df) does not preserve -- so a correctly-computed\ng_av can legitimately fail every tested formula without being wrong.\nReusing \"no_match\" for both cases made a verified-correct g_av\nindistinguishable from a real reporting error.\n\nWhen the reported effect size is an explicitly subscripted Hedges' g\n(g_av/g_z/g_rm/gs -- not bare, unsubscripted \"g\", which is ambiguous\nwith the original Hedges, 1981 correction that IS a deterministic\nmultiplier of d) and matches none of the three tested formulas, label\nit \"indeterminate\" (cannot verify) instead of \"no_match\" (verified and\ninconsistent) -- the same distinction the module already draws for a\nWelch's t-test's non-integer df.\n\nAlso normalizes parse_d_stats()'s label before checking it: without an\napostrophe (\"Hedges g av\" vs \"Hedges' g av\", as GROBID sometimes\nrenders it), the whole phrase is captured as one label rather than\njust \"g av\", so a leading Hedges'/Cohen's word is stripped first (#455).\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
@@ -755,27 +829,7 @@
           "url": "https://github.com/scienceverse/metacheck/commit/ac9befe5e408fb87b0eb67fbae956cabe74dd74c",
           "type": "other",
           "branch": "dev",
-          "diff": {
-            "additions": 91,
-            "deletions": 0,
-            "files": [
-              {
-                "filename": "inst/modules/stat_effect_size.R",
-                "status": "modified",
-                "additions": 35,
-                "deletions": 0,
-                "patch": "@@ -294,6 +294,41 @@ stat_effect_size <- function(paper) {\n         \"Match under independent-samples unequal-n range assumption (closest split n1 = %d, n2 = %d, N = %d).\",\n         n1[best], n2[best], n_total\n       )\n+    } else if ({\n+      # parse_d_stats()'s \"Hedges(?:'|\u2019)?s...\" alternative only matches\n+      # when an apostrophe follows \"Hedges\" -- without one (\"Hedges g av\",\n+      # as GROBID sometimes drops it along with the subscript), the engine\n+      # falls through to the plain \"g "
-              },
-              {
-                "filename": "tests/testthat/test-module-stat_effect_size.R",
-                "status": "modified",
-                "additions": 56,
-                "deletions": 0,
-                "patch": "@@ -221,3 +221,59 @@ test_that(\"stat_effect_size recognizes a GROBID subscript collapse like 'g av' (\n   expect_equal(mod_output$table$d_coherence[[1]], \"match_under_assumptions\")\n })\n \n+test_that(\"stat_effect_size labels an unmatched subscripted Hedges' g as indeterminate, not no_match (#455)\", {\n+  module <- \"stat_effect_size\"\n+\n+  # Hedges' g_av (Cumming, 2012's bias-corrected average-variance\n+  # standardizer) also depends on the individual condition SDs and the true\n+  # observed correlati"
-              }
-            ]
-          },
-          "diff_summary": ""
+          "diff": {}
         },
         {
           "sha": "afda8a2",
@@ -1112,18 +1166,82 @@
           "type": "fix",
           "branch": "dev",
           "diff": {}
-        },
+        }
+      ],
+      "_new_commits": [
         {
-          "sha": "214bd46",
-          "message": "Fix zip listing on S3-backed hosts (#424), install-loop variables as packages (#421), empty code files (#425)",
-          "body": "#424: zip_peek() on Dryad, Figshare and Harvard Dataverse\n- These hosts redirect downloads to Amazon S3, which refuses HEAD (403)\n  but honours ranged GETs. When HEAD gives no size, the tail is now\n  requested by distance from the end (\"bytes=-n\") and the total read\n  from Content-Range; a 416 answer is handled. The fallback reads the\n  status before any body and accepts only 206, so a host that ignores\n  the range cannot send a whole archive.\n- A size is taken from HEAD only when the answer is 2xx; a 403 on a\n  size request is no longer retried.\n- .remote_size() falls back to a one-byte ranged GET the same way.\n- Removed the OSF, Zenodo and Dataverse whole-archive routes in\n  download_repo_files(): those archives never report a size, so the\n  routes never ran. Removed .remote_content_length().\n- Dryad, GitHub and GitLab archives now follow one rule: size estimated\n  from listed file sizes, skipped when unknown or above 2x\n  max_download_size, and stopped during download at 2x. GitHub and\n  GitLab previously had no limit.\n- osf_file_download(mode = \"zip\"): max_download_size is a budget for the\n  whole project. A node whose archive does not fit is downloaded file by\n  file within the budget (previously reported as \"not downloaded\" and\n  then downloaded without limit). Partial archives are deleted.\n- peek_zips now defaults to TRUE in data_check and reproducibility_check.\n\n#421: dependency extraction\n- code_library_names() no longer reports a variable's name as a package\n  in install.packages(), requireNamespace(), or library()/require() with\n  character.only = TRUE. Variables are resolved to the literal names\n  assigned in the file (including for-loop variables, lapply(pkgs,\n  library), p_load(char = pkgs)), and dropped otherwise.\n- A package install.packages() cannot find is reported with its \"not\n  available\" warning instead of \"installed but not loadable\".\n- A 404 from the CRAN Archive is reported as \"not found in the CRAN\n  Archive\", not as a network failure.\n\n#425: empty code files\n- code_abs_path(), code_setwd(), code_install_packages() and\n  code_line_stats() handle an empty file without warnings or errors;\n  code_parse_r() no longer reads the first line of an empty file.\n  code_check previously recorded empty files as errored.\n\nTests\n- New tests for all of the above.\n- Existing tests: restore the real zip_peek() after tests that replace\n  it; give new download tests their own repository names; add an\n  renv.lock to the code_check green-light test (required since 9285b1f).",
+          "sha": "8f2de4e",
+          "message": "Warn and self-explain when a Dryad API key is missing",
+          "body": "Dryad allows listing a dataset's files without a key, but requires one\n(dryad_pat()/dryad_auth()) to download file bytes even from a fully\npublic dataset. data_check and code_check depend on those bytes, so a\nmissing key silently zeroed out columns/code analysis with only a bare\n\"HTTP 401\" to go on.\n\nNow a one-time session message fires as soon as a Dryad dataset is\nresolved with no key set, and a 401 caused by a missing key is named\nexplicitly in the download-failure report instead of a bare HTTP\nstatus. Documented the limitation in repo_check/data_check/code_check.\n\nAlso fixes two unrelated issues found while verifying this change:\n- osf_file_download() crashed with \"could not find function\n  cap_report\" (missing leading dot) whenever a repo's per-repository\n  download budget was hit with files still remaining.\n- A live OSF fixture test had stale expected paths after the real\n  project's folder structure changed; and a stale/missing CrossRef\n  mock fixture made the \"longer bib\" test fail.",
           "author": "Lakens",
           "author_login": "Lakens",
-          "date": "2026-09-26",
-          "url": "https://github.com/scienceverse/metacheck/commit/214bd4628df92d7132769aa07e90a90a525a44ec",
-          "type": "fix",
+          "date": "2026-10-03",
+          "url": "https://github.com/scienceverse/metacheck/commit/8f2de4e27d83b8cbbfbccef8ead974502fa63730",
+          "type": "other",
           "branch": "dev",
-          "diff": {}
+          "diff": {
+            "additions": 292,
+            "deletions": 11,
+            "files": [
+              {
+                "filename": "R/archive-dryad.R",
+                "status": "modified",
+                "additions": 26,
+                "deletions": 0,
+                "patch": "@@ -249,6 +249,8 @@ dryad_info <- function(dryad_url, id_col = 1, pb = NULL, cache = FALSE) {\n     on.exit(pb$terminate())\n   }\n \n+  .dryad_warn_if_no_key()\n+\n   paste0(\"* Retrieving info from Dryad DOI \", dryad_doi, \"...\") |>\n     list(what = _) |>\n     pb$tick(0, tokens = _)\n@@ -471,6 +473,30 @@ dryad_auth <- function(client_id = NULL, client_secret = NULL,\n   .dryad_auth()\n }\n \n+# Warn, once per session, the first time a Dryad dataset is resolved with no\n+# key set (dryad_pat() nor dryad_auth"
+              },
+              {
+                "filename": "R/archive-osf.R",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1495,7 +1495,7 @@ osf_file_download <- function(osf_id,\n         if (length(dropped) > 0) {\n           budget_skipped <- c(budget_skipped, files$osf_id[dropped])\n           need_total <- ceiling((used + sum(files$size[wanted], na.rm = TRUE)) / mb)\n-          cap_report(sprintf(\n+          .cap_report(sprintf(\n             paste0(\"%d file%s in %s did not fit in the %s MB per-repository \",\n                    \"limit and %s not downloaded. \",\n                    \"Set `max_download_size >= %s` t"
+              },
+              {
+                "filename": "R/repo-download.R",
+                "status": "modified",
+                "additions": 18,
+                "deletions": 2,
+                "patch": "@@ -296,6 +296,20 @@ repo_cache_clear <- function(repo_url = NULL, quiet = FALSE) {\n   req\n }\n \n+# A 401 from Dryad almost always means the same thing: no API key was set, and\n+# Dryad (unlike OSF/Zenodo/Figshare/Dataverse) REQUIRES one to download file\n+# bytes even from a fully public dataset (see .dryad_headers()'s own comment).\n+# Appended to the raw HTTP error so the existing failure-reporting message in\n+# download_repo_files() names the real cause instead of a bare \"HTTP 401\".\n+.dryad_401"
+              },
+              {
+                "filename": "inst/modules/code_check.R",
+                "status": "modified",
+                "additions": 11,
+                "deletions": 1,
+                "patch": "@@ -6,12 +6,22 @@\n #' @details\n #' The Code Check module checks R, Rmd, Qmd, SAS, SPSS, and Stata files, using regular expressions to check the code. The regular expression search will detect the number of comments, the lines at which libraries/imports are loaded, attempts to detect absolute paths to files, and lists files that are loaded, and checks if these files are in the repository. The module will return suggestions to improve the code if there are no comments, if libraries/imports are loa"
+              },
+              {
+                "filename": "inst/modules/data_check.R",
+                "status": "modified",
+                "additions": 24,
+                "deletions": 5,
+                "patch": "@@ -40,6 +40,16 @@\n #' `NA`) are classified but not column-extracted; pass `local_path` to point at\n #' a downloaded copy of the repository.\n #'\n+#' For a paper whose repository is on Dryad, this means column extraction\n+#' never happens unless a Dryad API key is set: Dryad requires one to\n+#' download file bytes, even from a fully public dataset (dataset listing\n+#' and metadata do not need one). Without a key, every Dryad file stays\n+#' classified but un-downloaded, column_n is 0, and a warnin"
+              },
+              {
+                "filename": "inst/modules/repo_check.R",
+                "status": "modified",
+                "additions": 14,
+                "deletions": 0,
+                "patch": "@@ -6,6 +6,18 @@\n #' @details\n #' The Repository Check module lists files on the OSF, GitHub, ResearchBox, DSpace (PsychArchives and other legacy- and DSpace 7-based installations), Zenodo, Dataverse, Figshare, Dryad, ReShare, 4TU.ResearchData, Mendeley Data, and DataONE (Arctic Data Center, KNB, and other member nodes) based on links in the manuscript.\n #'\n+#' Listing a repository's files never requires an API key, but some hosts\n+#' answer faster or more completely with one: OSF allows 100 req"
+              },
+              {
+                "filename": "tests/testthat/apis/api.crossref.org/works-1a69f1.json",
+                "status": "added",
+                "additions": 196,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,196 @@\n+{\n+    \"status\": \"ok\",\n+    \"message-type\": \"work-list\",\n+    \"message-version\": \"1.0.0\",\n+    \"message\": {\n+        \"facets\": {\n+\n+        },\n+        \"total-results\": 2,\n+        \"items\": [\n+            {\n+                \"indexed\": {\n+                    \"date-parts\": [\n+                        [\n+                            2022,\n+                            4,\n+                            6\n+                        ]\n+                    ],\n+                    \"date-time"
+              },
+              {
+                "filename": "tests/testthat/test-archive-osf_file_download.R",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 2,
+                "patch": "@@ -448,9 +448,9 @@ test_that(\"osf_file_download github\", {\n   dl <- osf_file_download(osf_id, download_to, metadata = FALSE, mode = \"select\")\n   f <- file.path(download_to, osf_id)\n   expect_true(dir.exists(f))\n-  expect_true(file.path(f, \"osfstorage\", \"DESCRIPTION\") |>\n+  expect_true(file.path(f, \"osfstorage\", \"Testing\", \"DESCRIPTION\") |>\n                 file.exists())\n-  expect_true(file.path(f, \"github\", \"README.md\") |>\n+  expect_true(file.path(f, \"github\", \"Testing\", \"README.md\") |>\n      "
+              }
+            ]
+          },
+          "diff_summary": ""
         }
       ]
     },
@@ -1744,7 +1862,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.6.1.9000",
@@ -2566,7 +2745,7 @@
       "topics": [],
       "pushed_at": "2026-10-01T15:47:12Z",
       "created_at": "2021-11-21",
-      "last_push_days": 1,
+      "last_push_days": 2,
       "default_branch": "main",
       "license": "NOASSERTION",
       "branches": [
@@ -2607,7 +2786,7 @@
         }
       ],
       "commits_30d": 82,
-      "commits_7d": 65,
+      "commits_7d": 64,
       "commits_1d": 0,
       "commits_90d": 217,
       "authors_30d": [
@@ -3152,7 +3331,7 @@
         },
         {
           "week": 1787529600,
-          "total": 15
+          "total": 16
         },
         {
           "week": 1788134400,
@@ -3160,7 +3339,7 @@
         },
         {
           "week": 1788739200,
-          "total": 5
+          "total": 4
         },
         {
           "week": 1789344000,
@@ -3168,11 +3347,11 @@
         },
         {
           "week": 1789948800,
-          "total": 8
+          "total": 9
         },
         {
           "week": 1790553600,
-          "total": 65
+          "total": 64
         }
       ],
       "code_frequency": [
@@ -3643,6 +3822,93 @@
           "author_login": "lhdjung",
           "date": "2026-09-30",
           "url": "https://github.com/lhdjung/scrutiny/commit/7e391db7223cccab57627da6d11a82cfbe6f2bdb",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "002fa86",
+          "message": "Test that `grimmer_plot_values()` draws every valid input",
+          "body": "* `plot_comb()` would fail on an `NA` from `grimmer()`. Each input that\n  makes it return `NA` is rejected up front today; a grid over the edges\n  catches a future `NA` branch in `grimmer_scalar()` without a matching\n  check.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-01",
+          "url": "https://github.com/lhdjung/scrutiny/commit/002fa863cb151b82af1066bcbf20b50d66787f84",
+          "type": "test",
+          "branch": "polishing",
+          "diff": {
+            "additions": 29,
+            "deletions": 0,
+            "files": [
+              {
+                "filename": "tests/testthat/test-plot-values.R",
+                "status": "modified",
+                "additions": 29,
+                "deletions": 0,
+                "patch": "@@ -203,3 +203,32 @@ test_that(\"large `n` is not labeled in scientific notation\", {\n     purrr::pluck(\"labels\", \"x\") |>\n     expect_equal(\"Reported mean (n = 100000)\")\n })\n+\n+# `plot_comb()` would fail on an `NA` from `grimmer()`, in `rep()` or `if ()`.\n+# Every input that makes `grimmer()` return `NA` is rejected up front, so valid\n+# input must always be drawn. A new `NA` branch in `grimmer_scalar()` without a\n+# matching check in `grimmer_plot_values()` fails here:\n+test_that(\"`grimmer_plot_v"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "0526303",
+          "message": "Stop guessing where a mapper with disabled args was made",
+          "body": "* Through `lapply()`, the error said that `FUN()` was created within\n  some package, found by `getAnywhere()` on that name. It now names the\n  function factory's `.args_disabled` argument and nothing else.\n* Remove a stray sentence fragment from the docs.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-01",
+          "url": "https://github.com/lhdjung/scrutiny/commit/05263038dfa3eb07ae4ff203477cda352d41b145",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "0517544",
+          "message": "Split 0-row character columns in `split_by_parens()`",
+          "body": "* `check_sep = TRUE` returned the input unsplit, while `check_sep = FALSE`\n  split it and warned that it could not. Both now split it quietly, so\n  the output has its usual columns.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-01",
+          "url": "https://github.com/lhdjung/scrutiny/commit/05175440d416a56a51690c83018765253a5605c4",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "e92c2cc",
+          "message": "Read the string `\"NA\"` as missing in `decimal_places()`",
+          "body": "* It had 0 decimal places, while `restore_zeros()` reads it as missing.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-01",
+          "url": "https://github.com/lhdjung/scrutiny/commit/e92c2cce231f4e094e5ef7953199c3ac42101fe1",
+          "type": "chore",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "72aa83f",
+          "message": "Fit the no-cases warning of `*_map_seq()` to the call",
+          "body": "* It suggested `include_consistent = TRUE` even when that was set, and\n  said nothing about cases that could not be tested.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-01",
+          "url": "https://github.com/lhdjung/scrutiny/commit/72aa83f5600729c0ac69d9849af84361195c8fb2",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "aa74059",
+          "message": "Apply the limits of `seq_disperse()` to `from` itself",
+          "body": "* With `include_reported = TRUE`, `seq_disperse(30, out_max = 25)`\n  returned `\"25\" \"30\"`, breaking the limit it was given. A reported value\n  outside of the limits is now left out like any other value.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-01",
+          "url": "https://github.com/lhdjung/scrutiny/commit/aa74059ba1759cc59aefd97a9e36f56029aed1ec",
           "type": "other",
           "branch": "polishing",
           "diff": {}
@@ -4676,7 +4942,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.1.21.1",
@@ -4861,11 +5188,11 @@
         },
         {
           "week": 1788134400,
-          "total": 18
+          "total": 19
         },
         {
           "week": 1788739200,
-          "total": 20
+          "total": 19
         },
         {
           "week": 1789344000,
@@ -4880,7 +5207,68 @@
           "total": 39
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 6689,
+          "deletions": -755
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 22727,
+          "deletions": -1542
+        },
+        {
+          "week": 1787443200,
+          "additions": 2460,
+          "deletions": -82
+        },
+        {
+          "week": 1788048000,
+          "additions": 10042,
+          "deletions": -350
+        },
+        {
+          "week": 1788652800,
+          "additions": 2969,
+          "deletions": -178
+        },
+        {
+          "week": 1789257600,
+          "additions": 5538,
+          "deletions": -2377
+        },
+        {
+          "week": 1789862400,
+          "additions": 19636,
+          "deletions": -4000
+        },
+        {
+          "week": 1790467200,
+          "additions": 6810,
+          "deletions": -4322
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "**Text, section, table and statistic extraction from academic papers (PDF, DOCX, HTML), built\nfor meta-science.**\n\ndocpluck turns a research article into text you can run statistical checks on. It extracts the\ntext layer, repairs the damage extraction itself causes (lost minus signs, split ligatures,\ninterleaved columns, Greek letters decoded as Latin), identifies the paper's sections, pulls\ntables out as cell grids, flattens table rows into records a statistics checker can read, and\nrenders the whole paper as Markdown. Every output carries a record of what the library had to\nguess or refused ",
@@ -5259,165 +5647,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "005385e",
-          "message": "docs(changelog): 2.4.149 names the lattice_renderer_probe_failed method piece",
-          "body": "",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-03",
-          "url": "https://github.com/giladfeldman/docpluck/commit/005385e66bf4597df38c2583028f526aef5bdc3b",
-          "type": "docs",
-          "branch": "main",
-          "diff": {
-            "additions": 3,
-            "deletions": 0,
-            "files": [
-              {
-                "filename": "CHANGELOG.md",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 0,
-                "patch": "@@ -26,6 +26,9 @@ pass, and `method` stayed identical to a healthy run's.\n - The lattice raster always comes from pdfium (`backend=\"pdfium\", use_fallback=False`), and a\n   failed page render is retried like a memory failure (`camelot_render_retry` in `fallbacks`).\n - A failed glyph raster (`glyph_evidence`) is recorded as `glyph_raster_exception`.\n+- A failed probe of Camelot's lattice renderer options (`_lattice_renderer_kwargs`) is recorded as\n+  `lattice_renderer_probe_exception` and named `+"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "d218919",
-          "message": "fix(review): record a failed lattice-renderer probe; harness glyph check exempts a bare U+FFFD by count, not by set membership",
-          "body": "",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-03",
-          "url": "https://github.com/giladfeldman/docpluck/commit/d218919b44fbe6f8022f684447f24885f2914df0",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "c5a75e3",
-          "message": "fix(harness): glyph check counts only a U+FFFD the pipeline introduced",
-          "body": "Since 2026-09-24 an undecodable glyph passes through as U+FFFD as the file\ndeclares it. The check failed on ANY U+FFFD, so plos-med-1 (9 in its own text\nlayer, 15 in the render because the table channel re-reads the same printed\nsigns) regressed against a 2026-09-26 baseline on every level. A U+FFFD now\ncounts only if the token glued after it never follows a U+FFFD in raw.txt;\nwith no raw view every U+FFFD still counts. Two-sided: plos-med-1 passes, a\nduplicated real glyph passes, a newly introduced one fails.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-03",
-          "url": "https://github.com/giladfeldman/docpluck/commit/c5a75e3fa4b846309f6f69feee961f732a89b88d",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "0859c45",
-          "message": "fix(lint): FN skips a numbered note inside a table's note block",
-          "body": "FN flagged a table's own numbered note (printed under the table, after its\nsignificance legend and Note line, matching a header superscript) as a footnote\nleaked into prose, every release since at least 2.4.126. A numbered line inside\nthe block that opens with Note:/Notes./a significance legend is now not FN; a\nblank line ends the block. On 123 renders (28 current + 95 custody baselines)\nthe only hit removed is that note; it still fires where the 2.4.126 render had\ndetached it from its table, and the three older real footnote leaks still fire.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-02",
-          "url": "https://github.com/giladfeldman/docpluck/commit/0859c45381258f70963e068d697bad98662748d1",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "3517e60",
-          "message": "fix(verify_corpus): tag C fires on a concatenated caption, not a long one",
-          "body": "Tag C was \"longest figure caption > 800 chars\", a proxy for the v2.3.0 Bug 4\nleak. It false-FAILed every release since 2.4.145 on an 864-char Nature legend\nthat is correct against the printed page, and it read only captions whose line\nstarts with \"*Figure\" (14 of 116 figures in the 28-paper corpus).\n\nNow: every caption line under a \"### Figure N\" heading is read (116 of 116);\nC = a second caption start inside one caption line (FAIL); c = a caption over\n800 chars with no second label (WARN, still visible). Measured on the 28\ncorpus renders: 0 real firings, 0 of 27 body sentences opening with a figure\nreference, 92 of 92 spliced adjacent real captions caught. The new tests fail\n10/10 against the old rule.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-02",
-          "url": "https://github.com/giladfeldman/docpluck/commit/3517e60e10f1063ee323884faf43bcebcd7b2309",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "2264fa9",
-          "message": "test(docs): LESSONS.md is now a table-free index, so the figures-row control no longer reads it",
-          "body": "",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-02",
-          "url": "https://github.com/giladfeldman/docpluck/commit/2264fa928e52a336c1a3fe8d1c928b01a35c8f30",
-          "type": "test",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "a47691c",
-          "message": "fix(tables): review round -- labels in the consumers' _failed form; narrower sign and header rules; release 2.4.149",
-          "body": "Sonnet review (tier 2, 2026-10-01), each finding reproduced before fixing:\n- \"M and CI\" in a table with an F column was typed eta2 = <the mean>: the\n  \"<effect> and CI\" form now requires the header to name an effect\n- an em-dash placeholder (\"- 0.35\") became -0.35 and \"0.20a-0.38\" lost\n  its range: only an en dash glued to a number after a cell start or\n  [ ( , ; : = < > +- / is a minus\n- symbol_font_scan_exception (diagnostic only) no longer labels a result\n- the lattice renderer probe is cached only once it succeeds\n- glyph_evidence raster failures are recorded (glyph_raster_exception)\n\nDownstream: ESCImate's and Scimeto's table readers classify a\nmethod piece as degraded only if its name ends in _failed, so the label is\n<stage>_failed (camelot_lattice_failed ...). Checked through ESCImate's guard:\nthe 2.4.147 piece incomplete:resource_exhausted read as ok; it now comes\nwith resources_failed:exhausted and reads degraded.\n\nRelease 2.4.149: table extraction 2.4.20, normalization 1.9.70 unchanged.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-01",
-          "url": "https://github.com/giladfeldman/docpluck/commit/a47691cfbca4ef2146d3ff5f6f43f253591a5aa6",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "f06407f",
-          "message": "fix(tables): name every lost table pass in method; one lattice renderer, retried; type 'd and CI' columns; en-dash minus in sign position",
-          "body": "ESCImate saw 6 of 27 papers return different table sets across two\nidentical runs, unlabelled. Reproduced: a memory-starved run loses the\nCamelot lattice pass, giving exactly ESCImate's first-run numbers. When\nthe failing allocation is pdfium's page bitmap, pypdfium2 raises a plain\nPdfiumError the memory classifier cannot see, and Camelot either silently\nre-renders with Ghostscript/Poppler or drops the pass; method stayed\nbyte-identical to a healthy run's.\n\n- every *_exception event during structured extraction is named in\n  method as +incomplete:<event> (0 of 125 healthy manifest papers fire)\n- lattice is pinned to pdfium (no silent renderer swap) and a failed\n  page render is retried like a memory failure\n- flatten types a combined column headed '<effect> and CI'\n  (10.1177/01461672251327169 Table 6 'Cohen's d and CI')\n- flatten reads an en/em dash in sign position as a minus\n  (10.1017/s1930297500009189 Table 17 '-1.44 [-2.17, -0.72]' had\n  become d = 1.44)",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-01",
-          "url": "https://github.com/giladfeldman/docpluck/commit/f06407f076d4cede27f5b0c8a93261f59470cc21",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "21df024",
-          "message": "fix(release): review/cleanup fixes for 2.4.148",
-          "body": "- tests also assert the real heading survives, so the absence check cannot be\n  satisfied by losing the section (rule 0g)\n- a missing Hurst PDF fails instead of skipping (rule 40)\n- sync_header_rows docstring no longer claims header_rows is read back\n- ignore TODO-archive.md (untracked and un-ignored: one git add -A from the\n  public repo)",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-01",
-          "url": "https://github.com/giladfeldman/docpluck/commit/21df0249dae89e1d0c5754c8e19d38213dc50b1a",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "ab94f64",
-          "message": "release: v2.4.148 \u2014 table extraction 2.4.19 (normalization 1.9.70 unchanged)",
-          "body": "Caption / header_rows / placement bundle (fix/caption-header-bundle-2.4.148):\ncaptions stop at their own header row, header_rows states the html's thead\ncount, new field header_text_below_caption, four mislabelled means no longer\nemitted as r (10.1037/pspp0000586 Table 9), ligature-safe caption anchors, and a\ntrailing section number only rejoins its heading when the paper vouches for it.\nCHANGELOG [2.4.148]; CITATION.cff, README and the get_version_info example pinned\nto 2.4.148 / table extraction 2.4.19.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-01",
-          "url": "https://github.com/giladfeldman/docpluck/commit/ab94f64b7bb585cc02cacb67be810206465eb60b",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "b7050de",
-          "message": "fix(tables): declare header_text_below_caption on every path and in the API reference",
-          "body": "5a6ab1f added the field to the PDF path and the Table TypedDict only. The full\nsuite at 17daccd failed 11 tests on it: the DOCX path did not carry it (the\nadditive-shape contract), the TypedDict pin did not list it, and the docs\ncoverage gate found it undocumented. DOCX sets it to None (a DOCX table declares\nits own header rows); docs/README.md documents it.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-01",
-          "url": "https://github.com/giladfeldman/docpluck/commit/b7050de85a95241710d36bbc5866646b6c62a810",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "17daccd",
-          "message": "fix(render): a trailing bare number moves onto the next heading only when the paper numbers its sections",
-          "body": "5a6ab1f moved any trailing single-level \"N.\" past a section's appended\nfloats, which let the arabic folder glue it onto the next heading. A\n125-paper census (2026-10-01, every case checked on the rendered page,\nsecond model concurring) found four headings manufactured that way:\na running page number (10.5334/irsp.945 \"43. Discussion\", 10.5334/irsp.946\n\"31. References\"), a sentence-final reference digit pulled out of its\nsentence (10.1525/collabra.57785 \"...in Table\" / \"8. Discussion\") and a\nnotes item number (10.1177/19485506211056761 \"4. Author Contributions\").\n\nMulti-level numbers still move on shape (every one in the census was\nprinted with its heading); components are 1-2 digits with a non-zero first,\nso a bare cell value like 0.05 never qualifies. A single-level N moves only\nwhen the document prints a numbered subsection of N or N-1 (10.1017/\njdm.2023.15 keeps \"3. Results\" now that Table 1 sits between \"3.\" and\n\"Results\"). Census after: the four wrong headings gone, no numbered heading\nlost relative to v2.4.147, the multi-level and vouched single-level\nrestorations kept.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-01",
-          "url": "https://github.com/giladfeldman/docpluck/commit/17daccdd14c4b17c137668c7cda8bb9eca8c4a4b",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        }
       ]
     },
     {
@@ -5560,7 +5789,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.0.0.9000",
@@ -5705,7 +5995,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.2.6",
@@ -5764,7 +6115,7 @@
       "topics": [],
       "pushed_at": "2026-09-12T16:45:11Z",
       "created_at": "2026-03-03",
-      "last_push_days": 20,
+      "last_push_days": 21,
       "default_branch": "dev",
       "license": "MIT",
       "branches": [
@@ -6055,8 +6406,8 @@
       "commits_1d": 0,
       "commits_90d": 56,
       "authors_30d": [
-        "David Van Dijcke",
-        "Davidvandijcke"
+        "Davidvandijcke",
+        "David Van Dijcke"
       ],
       "type_breakdown": {
         "fix": 10,
@@ -6634,11 +6985,11 @@
         },
         {
           "week": 1788739200,
-          "total": 19
+          "total": 20
         },
         {
           "week": 1789344000,
-          "total": 1
+          "total": 0
         },
         {
           "week": 1789948800,
@@ -6983,71 +7334,6 @@
           "branch": "codex/latest-default-models",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "1c1d925",
-          "message": "Merge pull request #299 from Davidvandijcke/dev",
-          "body": "Release subscription review model selection fix",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-09-12",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/1c1d925e58646e6df78de711d64ec6d7f485badf",
-          "type": "other",
-          "branch": "main",
-          "diff": {
-            "additions": 48,
-            "deletions": 6,
-            "files": [
-              {
-                "filename": "web/src/app/page.tsx",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 3,
-                "patch": "@@ -18,7 +18,7 @@ import {\n   HOST_LABELS,\n   HOST_GLYPHS,\n   HOST_CLI_NAME,\n-  HOST_DEFAULT_MODELS,\n+  getHostModels,\n   HOST_INSTALL_URL,\n   HOST_LAUNCH_LABEL,\n   HOST_LAUNCH_HINT,\n@@ -887,7 +887,7 @@ function PageBody() {\n       const bundle = await mintCliHandoff(id, host, handoffSecret);\n \n       // Step 3: defaults for the modal dropdowns.\n-      setSelectedModel(HOST_DEFAULT_MODELS[host][0]);\n+      setSelectedModel(getHostModels(host, model)[0]);\n       setSelectedEffort(\"high\");\n \n     "
-              },
-              {
-                "filename": "web/src/lib/mcpHandoff.ts",
-                "status": "modified",
-                "additions": 18,
-                "deletions": 2,
-                "patch": "@@ -65,16 +65,32 @@ export const HOST_CLI_NAME: Record<ChatHost, \"claude\" | \"codex\" | \"gemini\"> = {\n // pre-selected default (see page.tsx setSelectedModel). Latest generation\n // leads; the prior generation stays available as a fallback option.\n export const HOST_DEFAULT_MODELS: Record<ChatHost, string[]> = {\n-  \"claude-code\": [\"claude-opus-5\", \"claude-sonnet-5\", \"claude-opus-4-8\", \"claude-haiku-4-5\"],\n-  \"codex\": [\"gpt-5.6-sol\", \"gpt-5.6-terra\", \"gpt-5.6-luna\", \"gpt-5.5\", \"gpt-5.4\"],\n+  \"claud"
-              },
-              {
-                "filename": "web/tests/mcpHandoff.test.ts",
-                "status": "modified",
-                "additions": 27,
-                "deletions": 1,
-                "patch": "@@ -1,6 +1,6 @@\n import { describe, expect, it } from \"vitest\";\n \n-import { buildAgentPrompt, buildCliCommands } from \"@/lib/mcpHandoff\";\n+import { buildAgentPrompt, buildCliCommands, getHostModels, type ChatHost } from \"@/lib/mcpHandoff\";\n \n const baseCommands = {\n   setupCmd: \"uvx --from coarse-ink coarse install-skills --all --force\",\n@@ -57,3 +57,29 @@ describe(\"deep-literature subscription handoff\", () => {\n     expect(prompt).not.toContain(\"No OpenRouter API key is needed for this review\")"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "1e703c1",
-          "message": "fix(web): preserve subscription model selections and refresh options (#298)",
-          "body": "",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-09-12",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/1e703c1a5178e05cd462daa264da8d094ffee93e",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "b8118c7",
-          "message": "fix(web): preserve subscription model selections and refresh options",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-09-12",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/b8118c775122c3535419384063a6b2f04ba61c7f",
-          "type": "fix",
-          "branch": "codex/subscription-model-selection",
-          "diff": {}
-        }
       ]
     },
     {
@@ -7215,7 +7501,7 @@
       "commit_activity": [
         {
           "week": 1783900800,
-          "total": 11
+          "total": 10
         },
         {
           "week": 1784505600,
@@ -7395,6 +7681,66 @@
           "author_login": "JamieCummins",
           "date": "2026-09-20",
           "url": "https://github.com/JamieCummins/regcheck/commit/d2dd8a5b564a4ccd69b1536969cf418d02a26a86",
+          "type": "feat",
+          "branch": "bibr-jobs-connector",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "079d5a6",
+          "message": "Fix CI: keep cost-tracking test offline; bump nltk to 3.10.3",
+          "body": "- test_general_orchestrator_attaches_cost made a real OpenAI embeddings\n  call while building the evidence index (key picked up from .env via\n  load_dotenv locally; 401 in CI). Stub openai_embed_segments.\n- Bump nltk 3.10.0 -> 3.10.3 (fixes 12 PYSEC advisories surfaced once the\n  test step passed); requirements.lock regenerated (nltk lines only).\n- pip-audit: ignore PYSEC-2026-3740 (no fixed nltk release; affects model\n  save/load APIs RegCheck does not use).",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-10-01",
+          "url": "https://github.com/JamieCummins/regcheck/commit/079d5a64adfa7695aec363761003cee828a8a2b6",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 23,
+            "deletions": 6,
+            "files": [
+              {
+                "filename": ".github/workflows/ci.yml",
+                "status": "modified",
+                "additions": 6,
+                "deletions": 1,
+                "patch": "@@ -37,4 +37,9 @@ jobs:\n         run: alembic upgrade head\n \n       - name: Dependency audit\n-        run: pip-audit -r requirements.txt --no-deps\n+        # PYSEC-2026-3740 (CVE-2026-81726): path traversal in NLTK's model save/load\n+        # APIs (TransitionParser, AveragedPerceptron, PerceptronTagger, maxent params).\n+        # No fixed release exists (3.10.3 is latest); RegCheck only uses NLTK's\n+        # sentence tokenizer with a fixed data path, never those APIs. Drop the\n+        # ignor"
+              },
+              {
+                "filename": "requirements.lock",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 3,
+                "patch": "@@ -868,9 +868,9 @@ markupsafe==3.0.3 \\\n     # via\n     #   jinja2\n     #   mako\n-nltk==3.10.0 \\\n-    --hash=sha256:4fbac1d98203cbcd1b5d94a2877fb822300072d80604a5e7fae49d2c5f84e8c1 \\\n-    --hash=sha256:54ff84d4916d3ef127e8953bee0023f6a6b320b75d634a19e06ef056d3d244bf\n+nltk==3.10.3 \\\n+    --hash=sha256:bb9327a461c3811c2fa4900e03840401f2126adfb30c0072827c433bd2444ea4 \\\n+    --hash=sha256:ff9598a8e20518ee0d557745890cc4435b9578489e2dcbc69c4f81fa060caf7c\n     # via -r requirements.txt\n numpy==1.26.4 \\"
+              },
+              {
+                "filename": "requirements.txt",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -13,7 +13,7 @@ Jinja2==3.1.6\n itsdangerous==2.2.0\n limits==5.8.0\n SQLAlchemy==2.0.31\n-nltk==3.10.0\n+nltk==3.10.3\n numpy==1.26.4\n openai==2.6.0\n pydantic==2.13.4"
+              },
+              {
+                "filename": "tests/test_cost_tracking.py",
+                "status": "modified",
+                "additions": 13,
+                "deletions": 1,
+                "patch": "@@ -123,7 +123,19 @@ def test_openai_response_schema_excludes_chain_of_thought():\n # \u2500\u2500 orchestrator cost attachment \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n \n \n-def test_general_orchestrator_attaches_cost(tmp_path):\n+def test_general_orchestrator_attaches_cost(tmp_path, monkeypatch):\n+    # Keep the test offline: the orchestrator embeds both documents for the evidence\n+    # index before calling the (faked) runner. Without this stub the test made a real\n+    # OpenAI call locally (key f"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "ac05237",
+          "message": "Rename external parser connector to bibr and support its jobs API",
+          "body": "- pdf2bibr: submit to /papers/jobs, poll the job, fetch /result\n  (hosted bibr service); BIBR_URL / BIBR_API_KEY (also BIBR_TOKEN),\n  legacy EXTERNAL_PARSER_* env names still honoured.\n- Parser choice \"bibr\"; \"external\" kept as an alias (CLI, API, extractor).\n- extract_bibr_text: schema 12.1 support; drop the references section;\n  keep headings of sections without their own text; append captions,\n  footnotes and tables; tolerant HTML table flattening; strip inline\n  LaTeX and literal \"\\n\" from OCR output.\n- Tests for the job flow, failure handling and text reconstruction.",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-10-01",
+          "url": "https://github.com/JamieCummins/regcheck/commit/ac05237c8244105eb2fd1ee557f5bea9c8270ff8",
           "type": "feat",
           "branch": "bibr-jobs-connector",
           "diff": {}
@@ -7719,11 +8065,11 @@
         },
         {
           "week": 1785715200,
-          "total": 8
+          "total": 9
         },
         {
           "week": 1786320000,
-          "total": 3
+          "total": 2
         },
         {
           "week": 1786924800,
@@ -7951,82 +8297,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "32d6445",
-          "message": "sync from escicheckapp@e17c25e (effectcheck v0.7.14) (#45)",
-          "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: e17c25e3586a157d59da9c951574f57884794a04\nPackage version: 0.7.14\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-01",
-          "url": "https://github.com/giladfeldman/escicheck/commit/32d6445af244da1ccab6fa6fcd6ae20d97183458",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 1279,
-            "deletions": 131,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,7 +1,7 @@\n Package: effectcheck\n Type: Package\n Title: Statistical Consistency Checker for Published Research Results\n-Version: 0.7.13\n+Version: 0.7.14\n Authors@R: c(person(given = \"Gilad\", family = \"Feldman\", role = c(\"aut\", \"cre\"),\n     email = \"giladfel@gmail.com\", comment = c(ORCID = \"0000-0003-2812-6599\")))\n Description: A conservative, assumption-aware statistical consistency checker"
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 114,
-                "deletions": 0,
-                "patch": "@@ -1,3 +1,117 @@\n+# effectcheck 0.7.14\n+\n+Ten open defects, re-tested on 0.7.13 first; the ones that still reproduced are fixed here. Every\n+new test was watched failing on 0.7.13. **Several published values change** -- listed in full so a\n+consumer can tell a fix from a regression.\n+\n+**A confidence-interval verdict of INCONSISTENT now requires an interval comparable with the\n+paper's.** `ci_check_status = \"INCONSISTENT\"` says the paper's interval is wrong; 0.7.9 withdrew\n+its status escalatio"
-              },
-              {
-                "filename": "R/check.R",
-                "status": "modified",
-                "additions": 436,
-                "deletions": 16,
-                "patch": "@@ -427,7 +427,7 @@ VARIANT_METADATA <- list(\n     closest_method = NA_character_,\n     delta_effect_abs = NA_real_, ci_match = as.logical(NA),\n     ci_delta_lower = NA_real_, ci_delta_upper = NA_real_,\n-    ci_check_status = NA_character_, ci_method_match = NA_character_, ci_referent = NA_character_,\n+    ci_check_status = NA_character_, ci_method_match = NA_character_, ci_referent = NA_character_, ci_unverifiable_reason = NA_character_,\n     effect_guard_rejected = isTRUE(g1(\"effect_guard_reje"
-              },
-              {
-                "filename": "R/compute.R",
-                "status": "modified",
-                "additions": 14,
-                "deletions": 35,
-                "patch": "@@ -796,28 +796,17 @@ partial_eta2_from_F <- function(F_val, df1, df2) {\n   (F_val * df1) / (F_val * df1 + df2)\n }\n \n-# Generalized eta-squared (eta_G^2) from F-statistic\n-# Formula: eta_G^2 = SS_effect / (SS_effect + SS_error + SS_subjects)\n-# This requires more information than just F, df1, df2\n-# Approximation for between-subjects: same as eta^2\n-# For within-subjects: requires knowledge of design structure\n-generalized_eta2_from_F <- function(F_val, df1, df2, design = \"between\") {\n-  # Ensur"
-              },
-              {
-                "filename": "R/parse.R",
-                "status": "modified",
-                "additions": 58,
-                "deletions": 23,
-                "patch": "@@ -1835,6 +1835,27 @@ parse_text <- function(text, context_window_size = 2) {\n   # source stays pure ASCII (R CMD check warns on non-ASCII in code).\n   chi_tok <- \"(?:chi-?square|Chi-?square|chi\\\\s*\\\\^?2|\\u03c7\\\\s*\\\\^?2|\\u03c7\\u00b2|X\\\\s*\\\\^?2|X\\u00b2)\"\n \n+  # v0.6.16 (E10 / E-bare-mediation-ci): a BOOTSTRAPPED mediation effect is\n+  # reported with a CI (and usually a p), never a Sobel Z -- so the Sobel-anchored\n+  # pattern above never fired and the result was silently dropped. Cognition &\n+ "
-              },
-              {
-                "filename": "cran-comments.md",
-                "status": "modified",
-                "additions": 27,
-                "deletions": 21,
-                "patch": "@@ -1,7 +1,7 @@\n ## Submission\n \n This is an update of 'effectcheck' from 0.2.3 (the current CRAN release) to\n-0.7.13. Development has been active across 0.2.4-0.7.13 -- new test types,\n+0.7.14. Development has been active across 0.2.4-0.7.14 -- new test types,\n nonparametric and regression support, confidence-interval computation, and\n many parser and consistency fixes -- and the most significant change is\n structural, in 0.4.0 (see \"Breaking change\" below). Every intervening version\n@@ -11,10 "
-              },
-              {
-                "filename": "inst/docpluck-contract/boundary_contract_golden.json",
-                "status": "modified",
-                "additions": 7,
-                "deletions": 7,
-                "patch": "@@ -2,16 +2,16 @@\n   \"schema\": \"docpluck-boundary-contract/1\",\n   \"consumer\": \"ESCImate worker -- worker/docpluck_client.R\",\n   \"what_this_pins\": \"The field set and statistical-symbol surface docpluck returns for two committed fixtures, captured THROUGH THE PRODUCTION CLIENT. Refresh with: Rscript worker/tests/docpluck-contract.R --refresh\",\n-  \"captured_utc\": \"2026-09-27T12:38:27Z\",\n+  \"captured_utc\": \"2026-09-29T14:05:06Z\",\n   \"docpluck\": {\n-    \"docpluck_version\": \"2.4.145\",\n-    \"docpluck_id"
-              },
-              {
-                "filename": "man/check_text.Rd",
-                "status": "modified",
-                "additions": 34,
-                "deletions": 1,
-                "patch": "@@ -76,7 +76,26 @@ check_text(\n \n \\item{method_context_action}{Action when method context detected in chunk (\"NOTE\", \"WARN\", or \"SKIP\"; default \"NOTE\")}\n \n-\\item{design_ambiguous_action}{Action when design-ambiguous t-test (or F(1,df)) effect size ERROR occurs (\"WARN\", \"NOTE\", or \"ERROR\"; default \"WARN\")}\n+\\item{design_ambiguous_action}{Action when a design-ambiguous t-test (or\n+F(1,df), or z with d/g) effect-size ERROR occurs (\"WARN\", \"NOTE\", or\n+\"ERROR\"; default \"WARN\").\n+\n+\\strong{It has one "
-              }
-            ]
-          },
-          "diff_summary": ""
-        }
       ]
     },
     {
@@ -8232,7 +8502,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.3.1",
@@ -8579,82 +8910,6 @@
           "type": "other",
           "branch": "main",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "88378d2",
-          "message": "Release 0.12.8: filter z-curve inputs by eligibility",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-09-28",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/88378d2db0962698e1439568c0d956c414a4fc40",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 231,
-            "deletions": 18,
-            "files": [
-              {
-                "filename": "R/report.R",
-                "status": "modified",
-                "additions": 43,
-                "deletions": 4,
-                "patch": "@@ -815,15 +815,48 @@ prepare_zcurve_results <- function(parsed, row_map, disclosure_table) {\n   )\n }\n \n+# Old projects selected effects at extraction time and have no eligibility field.\n+# Preserve that behavior without rewriting their schema, prompts, or raw results.\n+normalize_effect_eligibility <- function(effect_table, config) {\n+  lookup <- build_role_lookup(config)\n+  available <- union(names(config$effects), names(effect_table))\n+  eligible_field <- lookup_field(lookup$effect, c(\"eligibl"
-              },
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 18,
-                "deletions": 0,
-                "patch": "@@ -239,3 +239,21 @@ The local service uses:\n The browser app is local software, not a hosted service. Anyone with access to\n your operating-system account and managed project directory can read the local\n project files.\n+\n+### Extraction coverage and eligibility\n+\n+New projects extract all reported statistical tests, including those in tables,\n+figures, captions, and available appendices. Every test stays in\n+`disclosure_table.csv`, with `eligible` and `eligibility_explanation` columns.\n+Only e"
-              },
-              {
-                "filename": "auto_zcurve/__init__.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,3 +1,3 @@\n \"\"\"auto-zcurve CLI package.\"\"\"\n \n-__version__ = \"0.12.7\"\n+__version__ = \"0.12.8\""
-              },
-              {
-                "filename": "auto_zcurve/prompts.py",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 0,
-                "patch": "@@ -27,5 +27,7 @@ def build_system_prompt(\n             handle.read(),\n             {\n                 \"reported_statistic_field\": reported_field,\n+                \"eligible_field\": lookup[\"effect\"].get(\"eligible\") or \"eligible\",\n+                \"eligibility_explanation_field\": lookup[\"effect\"].get(\"eligibility_explanation\") or \"eligibility_explanation\",\n             },\n         )"
-              },
-              {
-                "filename": "auto_zcurve/schema.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -157,7 +157,7 @@ def build_response_schema(config: ExtractionSchema) -> dict[str, Any]:\n     properties: dict[str, Any] = {\n         \"effects\": {\n             \"type\": \"array\",\n-            \"description\": \"One entry per extracted focal effect or statistical test.\",\n+            \"description\": \"One entry per extracted statistical test, including ineligible tests and tests reported in tables and figures.\",\n             \"items\": effect_schema,\n         }\n     }"
-              },
-              {
-                "filename": "auto_zcurve/templates/project.html",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 1,
-                "patch": "@@ -402,7 +402,9 @@ <h2 data-key-heading>Add a {{ provider_label }} API key to run</h2>\n           </div>\n           <div class=\"alert\" data-variant=\"warning\" data-slow-extraction-warning hidden>\n             <h2>This paper is taking longer than a minute.</h2>\n-            <section>Flex tier can queue requests to reduce cost. For faster processing, change the Gemini usage tier in <a href=\"/{{ token }}/settings\">Settings</a>.</section>\n+            <section>\n+              <p>Flex tier can queue "
-              },
-              {
-                "filename": "config/extraction_schema.yml",
-                "status": "modified",
-                "additions": 11,
-                "deletions": 1,
-                "patch": "@@ -11,6 +11,16 @@ meta_data:\n     description: A brief description of the study, including its main research question, design, and conclusions.\n \n effects:\n+  eligible:\n+    type: boolean\n+    role: eligible\n+    required: true\n+    description: Whether this test meets the instructions' effects-of-interest criteria for inclusion in z-curve. Retain ineligible tests in effects too.\n+  eligibility_explanation:\n+    type: string\n+    role: eligibility_explanation\n+    required: true\n+    descriptio"
-              },
-              {
-                "filename": "config/statistic_extraction_instructions.md",
-                "status": "modified",
-                "additions": 13,
-                "deletions": 7,
-                "patch": "@@ -9,22 +9,28 @@ Use the provided response schema exactly.\n Use `null` when a field is not reported.\n Only extract information grounded in the provided document.\n Place study-level document details in `meta_data`.\n-Each item in `effects` should represent one statistic.\n-Only extract statistics that match the description under \"Effects of interest\" below.\n-If the paper contains multiple eligible tests, include them all in `effects`.\n-When a paper reports an omnibus test (e.g., an ANOVA), do not "
-              }
-            ]
-          },
-          "diff_summary": ""
         }
       ]
     },
@@ -9398,33 +9653,6 @@
           },
           "diff_summary": ""
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "1fed484",
-          "message": "fixed rendering of LaTeX warning",
-          "body": "",
-          "author": "brandmaier",
-          "author_login": "brandmaier",
-          "date": "2026-09-30",
-          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/1fed484b95e6e1a663996ebd928ad39093420679",
-          "type": "other",
-          "branch": "styling",
-          "diff": {
-            "additions": 1,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "R/symbols.R",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -20,5 +20,5 @@ warning_symbol <- function(fmt=\"undef\") {\n   if (fmt==\"html\")\n     return(\"&#9888;\")\n   else\n-    return(\"/!\\\\\")\n+    return(\"/!\\\\\\\\textbackslash\")\n }"
-              }
-            ]
-          },
-          "diff_summary": ""
-        }
       ]
     },
     {
@@ -9529,7 +9757,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1783814400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1784419200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\nOIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailoring the extension to your discipline requires no programming expertise, just edit a list.\n\nFollow this link: https://chr",
@@ -10173,7 +10462,7 @@
       {
         "owner": "lhdjung",
         "repo": "scrutiny",
-        "commits": 65
+        "commits": 64
       },
       {
         "owner": "giladfeldman",
@@ -10183,7 +10472,7 @@
       {
         "owner": "scienceverse",
         "repo": "metacheck",
-        "commits": 26
+        "commits": 27
       },
       {
         "owner": "giladfeldman",
@@ -10197,6 +10486,15 @@
       }
     ],
     "highlights": [
+      {
+        "repo": "metacheck",
+        "owner": "scienceverse",
+        "message": "Warn and self-explain when a Dryad API key is missing",
+        "body": "Dryad allows listing a dataset's files without a key, but requires one\n(dryad_pat()/dryad_auth()) to download file bytes even from a fully\npublic dataset. data_check and code_check depend on those bytes, so a\nmissing key silently zeroed out columns/code analysis with only a bare\n\"HTTP 401\" to go on.\n\nNow a one-time session message fires as soon as a Dryad dataset is\nresolved with no key set, and a 401 caused by a missing key is named\nexplicitly in the download-failure report instead of a bare HTTP\nstatus. Documented the limitation in repo_check/data_check/code_check.\n\nAlso fixes two unrelated issues found while verifying this change:\n- osf_file_download() crashed with \"could not find function\n  cap_report\" (missing leading dot) whenever a repo's per-repository\n  download budget was hit with files still remaining.\n- A live OSF fixture test had stale expected paths after the real\n  project's folder structure changed; and a stale/missing CrossRef\n  mock fixture made the \"longer bib\" test fail.",
+        "type": "other",
+        "author": "Lakens",
+        "date": "2026-10-03"
+      },
       {
         "repo": "docpluck",
         "owner": "giladfeldman",
@@ -10637,15 +10935,6 @@
         "type": "other",
         "author": "Lukas Jung",
         "date": "2026-09-30"
-      },
-      {
-        "repo": "scrutiny",
-        "owner": "lhdjung",
-        "message": "Compare `duplicate_count_colpair()` values as strings",
-        "body": "* The other `duplicate_*()` functions compare strings, so the two\n  disagreed on values like `0.1 + 0.2` and `0.3`.\n* The docs now say that `total_x` and `total_y` exclude ignored values.\n* `restore_zeros()` names the non-numbers it turns into `NA`, instead of\n  leaking base R's coercion warning.",
-        "type": "other",
-        "author": "Lukas Jung",
-        "date": "2026-09-30"
       }
     ],
     "narrative": ""
@@ -10656,7 +10945,7 @@
     "total_forks": 133,
     "total_commits_30d": 385,
     "total_commits_7d": 137,
-    "total_commits_1d": 12,
+    "total_commits_1d": 4,
     "active_repos_7d": 7,
     "dormant_revived": 3,
     "total_open_issues": 193,
