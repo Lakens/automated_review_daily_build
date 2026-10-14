@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-13T22:27:45.003877+00:00",
+  "generated_at": "2026-10-14T03:34:40.454468+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -132,11 +132,11 @@
       "commits_1d": 0,
       "commits_90d": 276,
       "authors_30d": [
-        "Daniel Lakens",
-        "Lisa DeBruine",
         "Jakub Werner",
+        "Lukas Wallrich",
         "Lakens",
-        "Lukas Wallrich"
+        "Daniel Lakens",
+        "Lisa DeBruine"
       ],
       "type_breakdown": {
         "other": 22,
@@ -605,11 +605,11 @@
         },
         {
           "week": 1786320000,
-          "total": 29
+          "total": 30
         },
         {
           "week": 1786924800,
-          "total": 71
+          "total": 70
         },
         {
           "week": 1787529600,
@@ -1157,6 +1157,75 @@
           "type": "fix",
           "branch": "dev",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "109a9aa",
+          "message": "Fetch Dryad zip members by downloading the archive once (#471)",
+          "body": "Fetching members by byte range costs two requests per member, which\nexhausts Dryad's daily request limit on corpus runs. .zip_fetch_members()\ngains a whole-archive mode: when at least 3 members are wanted and the\narchive (size estimated from its central directory) fits the budget, it\ndownloads the archive once, keeps it on disk for restarted runs, and\nextracts the wanted members locally; anything not delivered falls back to\nthe per-member fetch. Enabled only for datadryad.org archives, in\ndownload_repo_files() and code_check's zip expansion. Version 0.3.2.2.",
+          "author": "Lakens",
+          "author_login": "Lakens",
+          "date": "2026-10-10",
+          "url": "https://github.com/scienceverse/metacheck/commit/109a9aa580a920e9c647a3eef1142493ae2c483c",
+          "type": "other",
+          "branch": "dev",
+          "diff": {
+            "additions": 204,
+            "deletions": 17,
+            "files": [
+              {
+                "filename": "DESCRIPTION",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,6 +1,6 @@\n Package: metacheck\n Title: Check Research Outputs for Best Practices\n-Version: 0.3.2.1\n+Version: 0.3.2.2\n Date: 2026-10-06\n Authors@R: c(\n   person(  given = \"Lisa\","
+              },
+              {
+                "filename": "NEWS.md",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 0,
+                "patch": "@@ -1,5 +1,7 @@\n # metacheck 0.3.2\n \n+* Members of a Dryad zip archive are now fetched by downloading the archive once and extracting them locally, when at least 3 members are wanted and the archive fits within `max_download_size`. Fetching member by member cost two requests per member against Dryad's daily request limit, so a corpus run either took days or left most archive contents undownloaded. The downloaded archive is kept, so a restarted run does not request it again. Other hosts still fet"
+              },
+              {
+                "filename": "R/code_check.R",
+                "status": "modified",
+                "additions": 12,
+                "deletions": 2,
+                "patch": "@@ -591,7 +591,8 @@ code_lang <- function(file_name) {\n # own NULL-return cases); such a row is left for the normal download path,\n # which will fetch the whole archive and (if data_check expands it) recover\n # its contents that way instead.\n-.code_expand_zip <- function(all_files, skip_on_api_limit = FALSE, cache = FALSE) {\n+.code_expand_zip <- function(all_files, skip_on_api_limit = FALSE, cache = FALSE,\n+                             max_download_size = 500) {\n   is_zip <- grepl(\"\\\\.zip$\", all"
+              },
+              {
+                "filename": "R/repo-download.R",
+                "status": "modified",
+                "additions": 14,
+                "deletions": 5,
+                "patch": "@@ -1324,19 +1324,28 @@ download_repo_files <- function(files,\n         # paste0(zip_path, \".contents\")).\n         arc_key <- gsub(\"^https?://\", \"\", arc)\n         arc_key <- gsub(\"[^A-Za-z0-9._-]+\", \"_\", arc_key)\n-        member_dest <- paste0(cache_path(files$repo_url[idx[1]],\n-                                         file.path(\".archive_members\", arc_key)),\n-                              \".contents\")\n-        member_dest <- .safe_write_path(member_dest)\n+        arc_path <- .safe_write_path(ca"
+              },
+              {
+                "filename": "R/zip-peek.R",
+                "status": "modified",
+                "additions": 119,
+                "deletions": 8,
+                "patch": "@@ -629,8 +629,27 @@ zip_peek <- function(url, tail_bytes = 131072, cache = FALSE,\n # failure. Without this a row simply had ok == FALSE with nothing to say why,\n # so a transient failure worth retrying and a host that will never support\n # this looked identical after the fact (#429).\n+#\n+# Whole-archive mode (issue #471): every member costs two range requests\n+# (.zip_member_fetch()), so an archive with N wanted members costs about 2N + 2\n+# requests, against 1 for downloading the archive once."
+              },
+              {
+                "filename": "inst/modules/code_check.R",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 1,
+                "patch": "@@ -165,7 +165,8 @@ code_check <- function(paper, local_path = NULL,\n   # its code-classified members via range requests (no full download). See\n   # .code_expand_zip() and issue #383 (Gap 2).\n   if (any(grepl(\"\\\\.zip$\", all_files$file_name, ignore.case = TRUE))) {\n-    all_files <- .code_expand_zip(all_files, skip_on_api_limit, cache)\n+    all_files <- .code_expand_zip(all_files, skip_on_api_limit, cache,\n+                                  max_download_size = max_download_size)\n     all_files$l"
+              },
+              {
+                "filename": "tests/testthat/test-zip-peek.R",
+                "status": "modified",
+                "additions": 54,
+                "deletions": 0,
+                "patch": "@@ -165,6 +165,60 @@ test_that(\".zip_fetch_members reports a per-member error instead of a silent ok=\n   expect_match(got$error, \"Zip64\")\n })\n \n+test_that(\".zip_fetch_members downloads the archive once in whole-archive mode (#471)\", {\n+  # A real local zip, served through a file:// URL so .download_one() can fetch\n+  # it without a network; zip_peek() is stubbed with the zip's own central\n+  # directory, as repo_check would have read it.\n+  d <- withr::local_tempdir()\n+  writeLines(rep(\"id,x\", 2"
+              }
+            ]
+          },
+          "diff_summary": ""
         }
       ]
     },
@@ -1777,7 +1846,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.6.1.9000",
@@ -1929,8 +2059,8 @@
       "commits_1d": 0,
       "commits_90d": 17,
       "authors_30d": [
-        "Alex O. Holcombe",
-        "Anka"
+        "Anka",
+        "Alex O. Holcombe"
       ],
       "type_breakdown": {
         "other": 1,
@@ -2636,45 +2766,6 @@
           "branch": "master",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "48c89b8",
-          "message": "Built site for tenzing@0.4.1: 61c9930",
-          "body": "",
-          "author": "Anka",
-          "author_login": "",
-          "date": "2026-10-10",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/48c89b872901db7a707a388020de75e62ad5987b",
-          "type": "other",
-          "branch": "gh-pages",
-          "diff": {
-            "additions": 1,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "pkgdown.yml",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -5,7 +5,7 @@ articles:\n   app_use: app_use.html\n   local_use: local_use.html\n   validation: validation.html\n-last_built: 2026-09-02T03:57Z\n+last_built: 2026-10-10T09:21Z\n urls:\n   reference: https://marton-balazs-kovacs.github.io/tenzing/reference\n   article: https://marton-balazs-kovacs.github.io/tenzing/articles"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "61c9930",
-          "message": "Add CITATION.cff for preferred citation details",
-          "body": "main citation the paper by Kovacs et al.,\r\nsecondary the older paper Holcombe et al.",
-          "author": "Alex O. Holcombe",
-          "author_login": "alexholcombe",
-          "date": "2026-10-10",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/61c9930c1f00cae4521772ff6ceaef05d17d9cce",
-          "type": "feat",
-          "branch": "master",
-          "diff": {}
-        }
       ]
     },
     {
@@ -2738,7 +2829,7 @@
       ],
       "commits_30d": 115,
       "commits_7d": 24,
-      "commits_1d": 20,
+      "commits_1d": 11,
       "commits_90d": 258,
       "authors_30d": [
         "Lukas Jung"
@@ -3775,189 +3866,6 @@
           "date": "2026-10-04",
           "url": "https://github.com/lhdjung/scrutiny/commit/9684112c231996f5d556058fe72b610b8b443e34",
           "type": "other",
-          "branch": "polishing",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "97206d3",
-          "message": "Rewrite the handwritten-mapper section around the kept helpers",
-          "body": "* The examples use absorb_key_args() for renaming key columns, which replaces the reference to manage_key_colnames(), and the requirements describe helper columns as returned rather than merged.",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/97206d302f8f10a7c619b4bd4f38012e6249f8c6",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {
-            "additions": 15,
-            "deletions": 9,
-            "files": [
-              {
-                "filename": "vignettes/consistency-tests-in-depth.Rmd",
-                "status": "modified",
-                "additions": 15,
-                "deletions": 9,
-                "patch": "@@ -220,7 +220,7 @@ The rest of section 3 explains how to write a mapper by hand. The requirements a\n \n It's important to distinguish between *key arguments or columns* and other arguments or columns. The key arguments in a scalar or vectorized consistency-testing function are the values that are tested for consistency with each other, such as `x` and `n` in `grim()`. By extension, key columns are those that contain such values. Every key column has the same name as the respective key argument.\n"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "eb948b4",
-          "message": "Stop multiplying items into n in grim_map() and grimmer_map()",
-          "body": "* A helper column is now returned as itself, right after the key columns, if it was given as an argument or a column. The n column is the sample size as given.\n* This removes function_map(.cols_helper_merge), the scrutiny_cols_helper_merge attribute, and the code in function_map_seq() and function_map_total_n() that undid the merge before re-testing. grim_plot() already placed tiles at n * items.\n* Breaking change for grim_map() and grimmer_map() output with items > 1.",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/eb948b497554315f4748cf68e77bd2c103d07816",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "e427093",
-          "message": "Drop GRIMMER's test 2 and deprecate grimmer(tolerance)",
-          "body": "* Test 1 derives the admissible sums of squares from exact integer bounds that are the inverse of the SD's rounding, so every integer between them rounds back to the reported SD. Test 2 re-rounded each of them anyway, with a floating-point tolerance that could only lose matches.\n* The parity test now needs no enumeration: two or more admissible integers include both parities, and a single one is compared to the sum. GRIMMER_CHUNK_SIZE goes with the loop.\n* A sweep of 9,000 random cases over every rounding method, symmetric, items, and scale bounds gives the same verdicts and reasons as before. \"GRIMMER inconsistent (test 2)\" is no longer a possible reason.\n* tolerance is deprecated the way grim()'s is.",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/e42709333602f7bf154299f407d054c8e18ab3f7",
-          "type": "test",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "cba8057",
-          "message": "Name the test in seq_test_ranking() messages from the attribute, not the class",
-          "body": "* function_map() now records .name_test in the \"scrutiny\" attribute. seq_test_ranking() read the mapper's name by regex-matching class strings, which the attribute replaced everywhere else.",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/cba80571466c2c9c82798fba0127233356e6c547",
-          "type": "test",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "4ac377e",
-          "message": "Remove seq_length() and seq_length<-",
-          "body": "* They did little that seq() does not, and the names clashed with seq_len().",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/4ac377e16967fbb8ccebb839547bf21034dd3cfc",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "eaa0645",
-          "message": "Remove the constant_index argument from the dispersers and the total-n factory",
-          "body": "* It only moved the constant columns, which dplyr::relocate() does on the output, and the total-n factory had to re-implement it on its own output because the dispersion tibble and the final one differ.\n* The constant columns now always follow n_change.",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/eaa0645dd0000c14b1c737aff9eb995ab10bf037",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "6cb53c4",
-          "message": "Remove dead code and two long-deprecated arguments",
-          "body": "* Remove the uncalled internals call_arg_list(), is_seq_linear_basic(), and parcel_nth_elements() with its tests, and the stale globalVariables() entries \"numeric_only\" and \"dupe_count\".\n* Remove seq_disperse(track_var_change) and seq_disperse_df(.track_var_change), deprecated since 0.3.1, and with them the only use of the bare deprecated() import.\n* Remove the dots of restore_zeros_df() and split_by_parens(), which existed only to catch the pre-0.2.4 argument names, along with check_new_args_without_dots().\n* Remove the branch in grim_plot() that zeroed the data under show_data = FALSE: the data are only drawn under show_data = TRUE, so the branch had no effect.",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/6cb53c48efb259713d30bb3528197ff74f7f8d0d",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "b68f3df",
-          "message": "Replace class_with() by grepl() in the is_map_*() predicates",
-          "body": "* class_with() and inherits_class_with() were ~95 lines serving three one-line predicates. Each is now any(grepl(pattern, class(x))).",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/b68f3df062199e5c18a980d4d7ff383e04fc4770",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "2f1722d",
-          "message": "Speed up unround() and accept only a string or number as `x`",
-          "body": "* Count decimal places only for values that `round()` leaves unsettled,\n  and skip the check when `digits` was counted from `x` itself. A single\n  call with `digits` takes 62 instead of 109 \u00b5s.\n* A factor or logical `x` with `digits` gave the bounds of its level\n  code or of 1 next to `x`'s own spelling; it is now an error.\n* Put the `digits_given` branch first and correct three inaccuracies in\n  the docs and comments.",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/2f1722d6bf7540c3964be1710079bc06f1c6370c",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "a1565da",
-          "message": "Name utils::data explicitly in the undefined-`data` test",
-          "body": "* A bare `data` found any `data` object in the global environment first when devtools::test() ran interactively, so the test failed whenever the session had one",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/a1565da85fa21079a7ebb2a7af192fbf8b47b79b",
-          "type": "test",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "bf3a027",
-          "message": "Check the input of grim_plot_rates() more closely",
-          "body": "* Name the missing column if `consistency` or `probability` was dropped, e.g. by select(), instead of passing on dplyr's error\n* Drop value sets without a study with a warning; they used to become a point labeled \"NA\"\n* Say that red marks 1 rather than the middle of the colour scale, which is true only when no ratio exceeds 2\n* Move the tests to test-grim-plot-rates.R, after the file they test",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/bf3a02710f6f3adc0f1849bd39c5ecaf73c66a2b",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "6bb374e",
-          "message": "Move the GRIM comparison with 0.6.1 out of the test suite",
-          "body": "* The test downloaded and installed 0.6.1 from CRAN once its switch was flipped in the source, which a commit could carry into R CMD check; it is now special-scripts/grim-vs-0-6-1.R, next to the benchmark\n* Both scripts install 0.6.1 through install_scrutiny_0_6_1() in special-scripts/install-0-6-1.R\n* Drop the benchmark's top-level on.exit(), which Rscript never runs",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/6bb374e855ec1e8e26fd26566c804b824b5cb48b",
-          "type": "test",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "5542954",
-          "message": "Limit the floating-point fix in NEWS to GRIMMER",
-          "body": "* 0.6.1's GRIM rerounded the possible means instead of comparing candidates to bounds, and it returns FALSE for every GRIM case in #86; those false passes were regressions on this branch\n* GRIMMER's false passes in #86 were also branch regressions, so what 1.0.0 fixes relative to 0.6.1 is the false flags\n* #85 keeps its own bullet",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/554295447c66971731151ba2dedf933b0ba7ca04",
-          "type": "fix",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "69020c9",
-          "message": "Restore the categories of the related-software vignette from main",
-          "body": "* main sorted the tools into established, up-and-coming, and possibly helpful ones for 0.6.1, which this branch never received\n* Keep this branch's newer SPRITE and TIDES text, take main's newer ScrutiPy text, and file tidychain under possibly helpful",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-10-13",
-          "url": "https://github.com/lhdjung/scrutiny/commit/69020c9fb0195ca26d37d4833751481cf6238294",
-          "type": "docs",
           "branch": "polishing",
           "diff": {}
         }
@@ -5190,6 +5098,94 @@
           "branch": "master",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "ed306b5",
+          "message": "Deploying to gh-pages from @ cjvanlissa/worcs@d883359de0250edf90f4f88c2384bdb23e2d1d9f \ud83d\ude80",
+          "body": "",
+          "author": "cjvanlissa",
+          "author_login": "cjvanlissa",
+          "date": "2026-10-07",
+          "url": "https://github.com/cjvanlissa/worcs/commit/ed306b5195d5b2d856478a82bbb20cdbaa8c8607",
+          "type": "other",
+          "branch": "gh-pages",
+          "diff": {
+            "additions": 367,
+            "deletions": 323,
+            "files": [
+              {
+                "filename": "404.html",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 4,
+                "patch": "@@ -12,8 +12,8 @@\n <link rel=\"icon\" sizes=\"any\" href=\"https://cjvanlissa.github.io/worcs/favicon.ico\">\n <link rel=\"manifest\" href=\"https://cjvanlissa.github.io/worcs/site.webmanifest\">\n <script src=\"https://cjvanlissa.github.io/worcs/deps/jquery-3.6.0/jquery-3.6.0.min.js\"></script><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n-<link href=\"https://cjvanlissa.github.io/worcs/deps/bootstrap-5.3.1/bootstrap.min.css\" rel=\"stylesheet\">\n-<script src=\"https://cjv"
+              },
+              {
+                "filename": "LICENSE.html",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 3,
+                "patch": "@@ -1,13 +1,13 @@\n <!DOCTYPE html>\n-<!-- Generated by pkgdown: do not edit by hand --><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\"><title>NA \u2022 worcs</title><!-- favicons --><link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href=\"favicon-96x96.png\"><link rel=\"icon\" type=\"\u201dimage/svg+xml\u201d\" href=\"fav"
+              },
+              {
+                "filename": "articles/citation.html",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 4,
+                "patch": "@@ -12,8 +12,8 @@\n <link rel=\"icon\" sizes=\"any\" href=\"../favicon.ico\">\n <link rel=\"manifest\" href=\"../site.webmanifest\">\n <script src=\"../deps/jquery-3.6.0/jquery-3.6.0.min.js\"></script><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n-<link href=\"../deps/bootstrap-5.3.1/bootstrap.min.css\" rel=\"stylesheet\">\n-<script src=\"../deps/bootstrap-5.3.1/bootstrap.bundle.min.js\"></script><link href=\"../deps/font-awesome-6.5.2/css/all.min.css\" rel=\"stylesheet\">\n+<link "
+              },
+              {
+                "filename": "articles/create_project.html",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 4,
+                "patch": "@@ -12,8 +12,8 @@\n <link rel=\"icon\" sizes=\"any\" href=\"../favicon.ico\">\n <link rel=\"manifest\" href=\"../site.webmanifest\">\n <script src=\"../deps/jquery-3.6.0/jquery-3.6.0.min.js\"></script><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n-<link href=\"../deps/bootstrap-5.3.1/bootstrap.min.css\" rel=\"stylesheet\">\n-<script src=\"../deps/bootstrap-5.3.1/bootstrap.bundle.min.js\"></script><link href=\"../deps/font-awesome-6.5.2/css/all.min.css\" rel=\"stylesheet\">\n+<link "
+              },
+              {
+                "filename": "articles/create_project.md",
+                "status": "modified",
+                "additions": 8,
+                "deletions": 0,
+                "patch": "@@ -27,6 +27,7 @@ Reproducing the project\n Open RStudio. Load the `worcs` package, and run the installation check:\n \n ``` r\n+\n library(worcs)\n check_worcs_installation()\n ```\n@@ -95,6 +96,7 @@ Below is a minimal `prepare_data.R` script. Adapt it for your own data\n directory, and load them into memory).\n \n ``` r\n+\n # Inside prepare_data.R:\n library(worcs)\n \n@@ -122,6 +124,7 @@ instead. This tutorial assumes you use\n [`open_data()`](https://cjvanlissa.github.io/worcs/reference/open_data.md).\n \n ``"
+              },
+              {
+                "filename": "articles/endpoints.html",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 4,
+                "patch": "@@ -12,8 +12,8 @@\n <link rel=\"icon\" sizes=\"any\" href=\"../favicon.ico\">\n <link rel=\"manifest\" href=\"../site.webmanifest\">\n <script src=\"../deps/jquery-3.6.0/jquery-3.6.0.min.js\"></script><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n-<link href=\"../deps/bootstrap-5.3.1/bootstrap.min.css\" rel=\"stylesheet\">\n-<script src=\"../deps/bootstrap-5.3.1/bootstrap.bundle.min.js\"></script><link href=\"../deps/font-awesome-6.5.2/css/all.min.css\" rel=\"stylesheet\">\n+<link "
+              },
+              {
+                "filename": "articles/endpoints.md",
+                "status": "modified",
+                "additions": 7,
+                "deletions": 0,
+                "patch": "@@ -1,6 +1,7 @@\n # Using Endpoints to Check Reproducibility\n \n ``` r\n+\n library(worcs)\n #> Welcome to WORCS: Workflow for Open Reproducible Code in Science. Run\n #> `check_worcs_installation()` to make sure all dependencies are installed. For\n@@ -77,6 +78,7 @@ explicitly allow for rounding error.\n For example, imagine that you conduct the following analysis:\n \n ``` r\n+\n # Run analysis\n res <- lm(Sepal.Length ~ Sepal.Width + Petal.Length, iris)\n # Extract regression coefficients\n@@ -92,6 +94,7 @@"
+              },
+              {
+                "filename": "articles/git_cloud.html",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 4,
+                "patch": "@@ -12,8 +12,8 @@\n <link rel=\"icon\" sizes=\"any\" href=\"../favicon.ico\">\n <link rel=\"manifest\" href=\"../site.webmanifest\">\n <script src=\"../deps/jquery-3.6.0/jquery-3.6.0.min.js\"></script><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n-<link href=\"../deps/bootstrap-5.3.1/bootstrap.min.css\" rel=\"stylesheet\">\n-<script src=\"../deps/bootstrap-5.3.1/bootstrap.bundle.min.js\"></script><link href=\"../deps/font-awesome-6.5.2/css/all.min.css\" rel=\"stylesheet\">\n+<link "
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "d883359",
+          "message": "update 2026-10-07 10:58:54.664894",
+          "body": "",
+          "author": "cjvanlissa",
+          "author_login": "cjvanlissa",
+          "date": "2026-10-07",
+          "url": "https://github.com/cjvanlissa/worcs/commit/d883359de0250edf90f4f88c2384bdb23e2d1d9f",
+          "type": "other",
+          "branch": "master",
+          "diff": {}
+        }
       ]
     },
     {
@@ -5235,8 +5231,8 @@
         }
       ],
       "commits_30d": 176,
-      "commits_7d": 29,
-      "commits_1d": 9,
+      "commits_7d": 28,
+      "commits_1d": 8,
       "commits_90d": 267,
       "authors_30d": [
         "Gilad Feldman"
@@ -5313,11 +5309,11 @@
         },
         {
           "week": 1785715200,
-          "total": 12
+          "total": 13
         },
         {
           "week": 1786320000,
-          "total": 15
+          "total": 14
         },
         {
           "week": 1786924800,
@@ -5329,11 +5325,11 @@
         },
         {
           "week": 1788134400,
-          "total": 6
+          "total": 8
         },
         {
           "week": 1788739200,
-          "total": 34
+          "total": 32
         },
         {
           "week": 1789344000,
@@ -5349,14 +5345,75 @@
         },
         {
           "week": 1791158400,
-          "total": 19
+          "total": 20
         },
         {
           "week": 1791763200,
-          "total": 29
+          "total": 28
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 6689,
+          "deletions": -755
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 22727,
+          "deletions": -1542
+        },
+        {
+          "week": 1787443200,
+          "additions": 2460,
+          "deletions": -82
+        },
+        {
+          "week": 1788048000,
+          "additions": 10042,
+          "deletions": -350
+        },
+        {
+          "week": 1788652800,
+          "additions": 2969,
+          "deletions": -178
+        },
+        {
+          "week": 1789257600,
+          "additions": 5538,
+          "deletions": -2377
+        },
+        {
+          "week": 1789862400,
+          "additions": 19636,
+          "deletions": -4000
+        },
+        {
+          "week": 1790467200,
+          "additions": 6810,
+          "deletions": -4322
+        },
+        {
+          "week": 1791072000,
+          "additions": 2455,
+          "deletions": -185
+        },
+        {
+          "week": 1791676800,
+          "additions": 914,
+          "deletions": -79
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "**Text, section, table and statistic extraction from academic papers (PDF, DOCX, HTML), built\nfor meta-science.**\n\ndocpluck turns a research article into text you can run statistical checks on. It extracts the\ntext layer, repairs the damage extraction itself causes (lost minus signs, split ligatures,\ninterleaved columns, Greek letters decoded as Latin), identifies the paper's sections, pulls\ntables out as cell grids, flattens table rows into records a statistics checker can read, and\nrenders the whole paper as Markdown. Every output carries a record of what the library had to\nguess or refused ",
@@ -5749,155 +5806,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "ca4e816",
-          "message": "docs(cleanup): document W0t, flattened CI level (CI_level) and the table-text-duplicate marker",
-          "body": "",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-13",
-          "url": "https://github.com/giladfeldman/docpluck/commit/ca4e8166dc3be03eb1c3c1afc1a925161dca2fb1",
-          "type": "refactor",
-          "branch": "main",
-          "diff": {
-            "additions": 17,
-            "deletions": 2,
-            "files": [
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -245,7 +245,7 @@ fingerprints the text buffer the offsets index into.\n \n `flatten_tables_for_paper(tables)` (or `flatten_table(table)` for one) turns each body row of\n each table into a `FlattenedRow`: its table, page, row label, header, cells, an English sentence\n-(`\"Importance: t(741) = 3.93, p < .001, d = 0.29\"`) and parsed `fields`. This is the input\n+(`\"Importance: t(741) = 3.93, p < .001, d = 0.29\"`) and parsed `fields`. A confidence interval is stated at the level the table prints (`90"
-              },
-              {
-                "filename": "docs/NORMALIZATION.md",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 1,
-                "patch": "@@ -476,6 +476,7 @@ consumers, not bookkeeping:\n | W0p | a superscript footnote marker fused into a number (`2,5801`) | **TYPOGRAPHIC** | font size + baseline. Emits caret notation (`2,580^1`) \u2014 lossless, never deletion |\n | **W0q** | a CI upper bound whose minus is DETACHED (`[-0.58,  -  0.18]`) | **TYPOGRAPHIC** | new in v2.4.134 |\n | **W0s** | `=` / minus drawn by an operator-only font whose map says `5` / `2` (`t 5 20.63`) | **TYPOGRAPHIC, two origins** | declared font repertoire AND the ras"
-              },
-              {
-                "filename": "docs/README.md",
-                "status": "modified",
-                "additions": 13,
-                "deletions": 0,
-                "patch": "@@ -498,6 +498,12 @@ figures), so **if you run statistical checks on these rows, decide explicitly wh\n with `uncaptioned_candidate`** \u2014 they are included so that real statistics are not lost,\n and labelled so that you can filter them.\n \n+**The flattened sentence states the interval level the table prints** (table extraction 2.4.23):\n+`90% CI [lo, hi]`, `95% CrI [...]`, `99% HDI [...]`, read from the column header, a super-header arm,\n+the caption or a note. When the table states no level, or two"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "46207c5",
-          "message": "fix(naming): the compound-hyphen rule is W0t; W0o already names the '<'-as-'b' recovery",
-          "body": "",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-13",
-          "url": "https://github.com/giladfeldman/docpluck/commit/46207c5e33565b156089b02b28743144e32cec72",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "5112521",
-          "message": "fix(tests,docs): v2.4.153 suite follow-ups - citation version, Well-Being heading, flatten helper passes level context",
-          "body": "Full suite on eccd3fa: 5 failed / 3796 passed. Two timing tests failed under machine load and pass\nalone (5.8 s). CITATION.cff and README cited 2.4.152. The ip_feldman heading test asserted the\ndehyphenated \"WellBeing\" that W0o now restores to the printed \"Well-Being\". The blank-header test\nhelper copies flatten_table's row loop but did not pass level_context, so its caption\n\"d or dz [95% CI]\" never reached _interval_level; production passes it (flatten.py:2040).",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-13",
-          "url": "https://github.com/giladfeldman/docpluck/commit/51125214e7df2a423d5f504637a8d5bb6553a3ed",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "ab8a3ef",
-          "message": "fix(diag): render_deletion_scan counts a table-text copy that yields to its grid separately",
-          "body": "QA 3c on v2.4.153 flagged 76 lines in 6 papers deleted by _suppress_orphan_table_cell_text; every\nnumber of them is in an emitted <table>. The \"survives near the same position\" rule cannot see a grid\nplaced elsewhere. A step output carrying a table-text-duplicate marker folds out its removed lines\nonly when their combined numbers (the scan's own tokenizer, with multiplicity) are all in the\n<table> blocks; they are printed as YIELDED TO GRID, never silently. A planted missing value and a\nduplicated value still fail the fold.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-13",
-          "url": "https://github.com/giladfeldman/docpluck/commit/ab8a3efbc9ab50ecfd92c1167b1fbf3de25942b6",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "eccd3fa",
-          "message": "release: v2.4.153 - W0o compound hyphens, table-text duplicate yields to its grid, flattened CI level is the table's own",
-          "body": "normalization 1.9.73, table extraction 2.4.23. Corpus (101 manifest PDFs): 313 hyphen restorations,\n64 duplicate markers in 30 papers with 0 numbers lost, 69 of 10,713 flattened rows change level.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-13",
-          "url": "https://github.com/giladfeldman/docpluck/commit/eccd3fa7d3f5e0f4eb08def104a9029a8c3f0345",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "22b2565",
-          "message": "fix(normalize): W0o leaves a glued span two compounds claim; test that ranges tokenize as ranges",
-          "body": "Tier-2 consult round 3 (Sonnet, 2026-10-13) on c55b34c: pooling sites per prefix let `re-sent`\nand `res-ent` both rewrite one glued `resent`, giving `re-sentres-ent` (reproduced). A span with\ntwo claims is ambiguous, so neither fires. Also pins that `2008\u20132013` and `2008-2013` tokenize as\n2008 and 2013 in the table-text duplicate coverage test.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-13",
-          "url": "https://github.com/giladfeldman/docpluck/commit/22b2565f6ac221242a3f38f567c2f502bfe39e26",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "c55b34c",
-          "message": "fix: W0o never hyphenates a word the page prints glued; table-text duplicate compares every label and symbol",
-          "body": "Tier-2 consult round 2 (Sonnet, 2026-10-13), each finding reproduced before the fix:\n- W0o: the \"printed glued\" test compared whole layout words, so a glued word inside a\n  space-less pdfplumber token was missed. 10.1016/j.jesp.2020.103977 p9 prints \"nonmoral\"\n  and 10.1109/access.2024.3358206 p14 prints \"multimodal\" (rasterized); both rendered\n  hyphenated. The test now searches every hyphen-free letter stretch (NFKC-folded) of every\n  layout word.\n- W0o: one line-end \"A-\" fragment licensed a site in every compound starting A (annals\n  human-: 13 sites, 6 fragments). Sites are now pooled per prefix against the fragments.\n- table-text duplicate: Greek letters, single-letter labels (p, F, d) and the symbols\n  * x ~ != + are compared too; grid tokens come only from grids that survive the later\n  phantom-table strip.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-13",
-          "url": "https://github.com/giladfeldman/docpluck/commit/c55b34c75859b7edc8d0ffebbaa1e597226c7ed0",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "378a2bd",
-          "message": "fix(render): table-text duplicate compares operators, needs specific values, reads ranges as ranges",
-          "body": "Tier-2 consult (Sonnet, 2026-10-13) on ad36764: coverage ignored < > = +- * daggers %, a run of small\nintegers could be covered by coincidence, and 12-15 tokenized as 12 and -15. Operators/markers are\nnow a multiset that must be covered, a run needs 3+ values with a decimal or 3+ digits, and a minus\nafter a word character or dot is a dash. Canary: ip_feldman Table 2 plain caption is italicized\nin the duplicate arm as in the deletion arm.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-13",
-          "url": "https://github.com/giladfeldman/docpluck/commit/378a2bdb3111da3ccfaed907990bc656534e6392",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "ad36764",
-          "message": "fix: duplicate table text yields to its grid; W0o restores dehyphenated compound hyphens; flattened CI level is the table's own",
-          "body": "- render: a text-channel copy of a table whose every number (multiset) and word is in the same\n  table's structured grid becomes a labelled table-text-duplicate marker (ar_apa\n  10.1016/j.jesp.2009.12.011 Table 1); a bare 'Table N' label line is recognised\n- normalize W0o: AB -> A-B when the paper prints A-B inline, the layout never holds AB as a word,\n  and holds a line-end A- fragment per glued copy; never inside a URL/DOI (ip_feldman WellBeing)\n- render: caption anchoring tolerates a hyphen difference; W0o also runs on the assembled page\n- flatten: the sentence states the interval level the table prints (header, super-header,\n  caption, note); none or conflicting -> bare CI; fields.CI_level when stated\n- tests: W0o, interval level, chan_feldman partial-grid pin (strict xfail, blocked on d-095325)",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-12",
-          "url": "https://github.com/giladfeldman/docpluck/commit/ad367645938a5d3dd0a0eabcdaa1b4adbd11913d",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "c71bd6a",
-          "message": "fix(render): kept affiliation markers do not reshape the Abstract",
-          "body": "2.4.152 keeps bare affiliation markers ('2', '3' on their own line) that the\npage-number strip used to delete. A marker followed by an affiliation line is\nnow part of the remnant stripped from the start of ## Abstract, and an orphan\nnumber is never folded into an Abstract/Keywords heading (0 of 47 ground-truth\nreadings number either). 4 of 125 manifest papers had affiliation lines under\n## Abstract or a '## 2. Abstract' heading (pre-push canary, 10.15626/MP.2022.3108);\nall 4 now match 2.4.151, 10.1016/j.jesp.2022.104372 gains its correct heading,\n120 renders unchanged.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-12",
-          "url": "https://github.com/giladfeldman/docpluck/commit/c71bd6a14106118e3493341d842bda8e9dd6610a",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        }
       ]
     },
     {
@@ -6040,7 +5948,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.0.0.9000",
@@ -6185,7 +6154,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.2.6",
@@ -6555,8 +6585,8 @@
       "commits_1d": 0,
       "commits_90d": 74,
       "authors_30d": [
-        "Davidvandijcke",
-        "David Van Dijcke"
+        "David Van Dijcke",
+        "Davidvandijcke"
       ],
       "type_breakdown": {
         "docs": 1,
@@ -7052,15 +7082,15 @@
         },
         {
           "week": 1788134400,
-          "total": 18
+          "total": 19
         },
         {
           "week": 1788739200,
-          "total": 8
+          "total": 10
         },
         {
           "week": 1789344000,
-          "total": 13
+          "total": 10
         },
         {
           "week": 1789948800,
@@ -7146,244 +7176,6 @@
       "readme_excerpt": "Free, open-source AI academic paper reviewer that outperforms popular paid AI reviewers.\n\nYou provide your own API key and pay the LLM provider directly \u2014 typically **under $2 per review**.\n\nDon't want to run it locally? Use the [web interface](https://coarse.ink/) instead.\n\n\nGet an API key from [OpenRouter](https://openrouter.ai/keys) (free to sign up), then:\n\n```bash\nuvx coarse-ink review paper.pdf --api-key sk-or-v1-YOUR_KEY\n```\n\nThat's it. The review is written to `paper_review.md` in the current directory.\n\n\ncoarse requires Python 3.12+. If you don't have `uvx`, install [uv](https://docs.",
       "scopus_citations": null,
       "recent_commits": [
-        {
-          "sha": "7af2cca",
-          "message": "fix: preserve native Unicode text and avoid unused credential loading (#309)",
-          "body": "",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/7af2cca465dffb31337fa50b9f95ce956d348a32",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {
-            "additions": 40,
-            "deletions": 3,
-            "files": [
-              {
-                "filename": "src/coarse/native_review.py",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 3,
-                "patch": "@@ -65,7 +65,8 @@ def prepare(\n             bundle = _fetch_handoff(handoff) if handoff else None\n             source = _download_handoff_source(bundle, Path(tmp)) if bundle else paper\n             assert source is not None\n-            _ensure_openrouter_key_loaded(pre_extracted)\n+            if source.suffix.lower() == \".pdf\" and pre_extracted is None:\n+                _ensure_openrouter_key_loaded(None)\n             error = openrouter_key_preflight_error(source, pre_extracted)\n             if"
-              },
-              {
-                "filename": "tests/test_native_review.py",
-                "status": "modified",
-                "additions": 36,
-                "deletions": 0,
-                "patch": "@@ -325,3 +325,39 @@ def test_author_notes_reach_native_review_prompts(tmp_path, paper):\n     tasks = [read_json(p) for p in (workspace / \"tasks\").glob(\"*.json\")]\n     overview = next(t for t in tasks if t[\"response_type\"] == \"OverviewFeedback\")\n     assert any(note in message[\"content\"] for message in overview[\"messages\"])\n+\n+\n+def test_text_preparation_does_not_load_unused_api_credentials(tmp_path, paper):\n+    with patch(\n+        \"coarse.native_review._ensure_openrouter_key_loaded\",\n+       "
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "a15825c",
-          "message": "fix: preserve native Unicode text and avoid unused credential loading",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/a15825cc290a3b5fc1a6dce800b9959d6176ad51",
-          "type": "fix",
-          "branch": "codex/native-pilot-text",
-          "diff": {}
-        },
-        {
-          "sha": "a81633d",
-          "message": "Clarify native pilot app handoff (#308)",
-          "body": "* fix(web): clarify native pilot app handoff copy\n\n* docs: clarify native pilot publication lifetime",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/a81633d58a403539cdc6b9064414dee9f9cb760c",
-          "type": "other",
-          "branch": "codex/native-pilot-text",
-          "diff": {}
-        },
-        {
-          "sha": "e76c24c",
-          "message": "docs: clarify native pilot publication lifetime",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/e76c24cd52cf5d4be93c8a3f5c6cf6fa3a4714d8",
-          "type": "other",
-          "branch": "codex/native-pilot-copy",
-          "diff": {}
-        },
-        {
-          "sha": "22c9e76",
-          "message": "fix(web): clarify native pilot app handoff copy",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/22c9e76ee2e9a5ba2a213dbb87a164b9a2ec9a56",
-          "type": "fix",
-          "branch": "codex/native-pilot-copy",
-          "diff": {}
-        },
-        {
-          "sha": "1132cb4",
-          "message": "Add opt-in native app review pilot (#307)",
-          "body": "* feat: add opt-in native app review pilot\n\n* fix: preserve native author notes and checkpoint dependencies",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/1132cb49062633510e34ae3067fe9a3b3834b9cd",
-          "type": "feat",
-          "branch": "codex/native-pilot-copy",
-          "diff": {}
-        },
-        {
-          "sha": "be810bb",
-          "message": "fix: preserve native author notes and checkpoint dependencies",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/be810bbfbd6898e179c3995c63fcbadde0087538",
-          "type": "fix",
-          "branch": "codex/native-review-pilot",
-          "diff": {}
-        },
-        {
-          "sha": "91e17db",
-          "message": "feat: add opt-in native app review pilot",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/91e17dbecc2657478cb68aceee045a11326bc359",
-          "type": "feat",
-          "branch": "codex/native-review-pilot",
-          "diff": {}
-        },
-        {
-          "sha": "2e813b2",
-          "message": "Merge pull request #306 from Davidvandijcke/dev",
-          "body": "Release v1.9.6: fix subscription handoff links",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/2e813b28b76ee0679aa48bb174f6de8700f692db",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "6aedb6f",
-          "message": "Fix Markdown-wrapped subscription review handoffs (#305)",
-          "body": "* fix: normalize Markdown-wrapped subscription handoff URLs\n\n* test: exercise all subscription handoff transports and shell arguments\n\n* release: prepare subscription handoff hotfix v1.9.6\n\n* docs: synchronize README with hotfix package version",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/6aedb6f55d3635df462dac8130cc4497726d8648",
-          "type": "fix",
-          "branch": "codex/native-pilot-copy",
-          "diff": {}
-        },
-        {
-          "sha": "38e7e64",
-          "message": "docs: synchronize README with hotfix package version",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/38e7e640a737805869b29659c65ceb822eb1c407",
-          "type": "docs",
-          "branch": "codex/fix-handoff-markdown",
-          "diff": {}
-        },
-        {
-          "sha": "72063e2",
-          "message": "release: prepare subscription handoff hotfix v1.9.6",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/72063e20b0c917bc8daeb1008506fd47c689a15d",
-          "type": "chore",
-          "branch": "codex/fix-handoff-markdown",
-          "diff": {}
-        },
-        {
-          "sha": "1736525",
-          "message": "test: exercise all subscription handoff transports and shell arguments",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/1736525fc748154715cefa0d3ff05abf30ac1678",
-          "type": "test",
-          "branch": "codex/fix-handoff-markdown",
-          "diff": {}
-        },
-        {
-          "sha": "f9e66a6",
-          "message": "fix: normalize Markdown-wrapped subscription handoff URLs",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/f9e66a631b57894d00549376f21ceac4310e4834",
-          "type": "fix",
-          "branch": "codex/fix-handoff-markdown",
-          "diff": {}
-        },
-        {
-          "sha": "f02f00e",
-          "message": "Merge pull request #304 from Davidvandijcke/dev",
-          "body": "Release v1.9.5: current model defaults and subscription handoffs",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/f02f00e8208bc65a065409e845da4099be19e0a4",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "1a0cb67",
-          "message": "Refresh model defaults and Claude Code/Codex handoffs for October (#303)",
-          "body": "* Refresh October model defaults and subscription handoffs\n\n* Verify native handoffs and update urllib3 security floor",
-          "author": "David Van Dijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/1a0cb67aedd3aede256802319339865dddcd1ec4",
-          "type": "other",
-          "branch": "codex/fix-handoff-markdown",
-          "diff": {}
-        },
-        {
-          "sha": "bba0213",
-          "message": "Verify native handoffs and update urllib3 security floor",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/bba0213481ec6417e037063ec1776c39cfa7424e",
-          "type": "other",
-          "branch": "fix/october-model-refresh",
-          "diff": {}
-        },
-        {
-          "sha": "23aac17",
-          "message": "Refresh October model defaults and subscription handoffs",
-          "body": "",
-          "author": "Davidvandijcke",
-          "author_login": "Davidvandijcke",
-          "date": "2026-10-05",
-          "url": "https://github.com/Davidvandijcke/coarse/commit/23aac179ca8813678c38b02f66d810567bddbf5d",
-          "type": "other",
-          "branch": "fix/october-model-refresh",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
         {
           "sha": "7af2cca",
           "message": "fix: preserve native Unicode text and avoid unused credential loading (#309)",
@@ -7981,40 +7773,6 @@
           "branch": "bibr-jobs-connector",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "50c8017",
-          "message": "fix clinical trials versioning issue",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-10-12",
-          "url": "https://github.com/JamieCummins/regcheck/commit/50c80178e8baa3858760cf0d3d04786e23a8602b",
-          "type": "fix",
-          "branch": "main",
-          "diff": {
-            "additions": 85,
-            "deletions": 9,
-            "files": [
-              {
-                "filename": "backend/services/trials.py",
-                "status": "modified",
-                "additions": 24,
-                "deletions": 9,
-                "patch": "@@ -36,22 +36,28 @@ def parse_date(date_str: str | None) -> date | None:\n     return None\n \n \n-def fetch_latest_study(nct_id: str) -> Dict[str, Any]:\n-    response = requests.get(V2_STUDY_URL.format(nct_id=nct_id), timeout=30)\n+def fetch_latest_study(\n+    nct_id: str, session: requests.Session | None = None\n+) -> Dict[str, Any]:\n+    response = (session or requests).get(V2_STUDY_URL.format(nct_id=nct_id), timeout=30)\n     response.raise_for_status()\n     return response.json()\n \n \n-def fetch_hi"
-              },
-              {
-                "filename": "tests/test_trials_session.py",
-                "status": "added",
-                "additions": 61,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,61 @@\n+from backend.services import trials\n+\n+\n+class _Response:\n+    def __init__(self, payload):\n+        self._payload = payload\n+\n+    def raise_for_status(self):\n+        pass\n+\n+    def json(self):\n+        return self._payload\n+\n+\n+class _CookieGatedSession:\n+    \"\"\"Mimics ClinicalTrials.gov: history endpoints need the cookie set by the study call.\"\"\"\n+\n+    instances: list[\"_CookieGatedSession\"] = []\n+\n+    def __init__(self):\n+        self.has_cookie = False\n+        self.url"
-              }
-            ]
-          },
-          "diff_summary": ""
-        }
       ]
     },
     {
@@ -8579,82 +8337,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "a12feaf",
-          "message": "sync from escicheckapp@7e5f5d8 (effectcheck v0.7.17) (#46)",
-          "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 7e5f5d8364916e5c0fce80982efe976b7b60e906\nPackage version: 0.7.17\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-10-08",
-          "url": "https://github.com/giladfeldman/escicheck/commit/a12feafb5becbae29ce6d6360eb221becba51efa",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 1483,
-            "deletions": 372,
-            "files": [
-              {
-                "filename": ".Rbuildignore",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 0,
-                "patch": "@@ -7,3 +7,7 @@\n ^\\.claude$\n ^effectcheck_.*\\.tar\\.gz$\n ^\\.winbuilder-logs$\n+^docs$\n+^tools$\n+^CITATION\\.cff$\n+^CONTRIBUTING\\.md$"
-              },
-              {
-                "filename": "CITATION.cff",
-                "status": "added",
-                "additions": 34,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,34 @@\n+cff-version: 1.2.0\n+message: \"If you use effectcheck, please cite it as below.\"\n+title: \"effectcheck: Statistical Consistency Checker for Published Research Results\"\n+type: software\n+authors:\n+  - family-names: Feldman\n+    given-names: Gilad\n+    affiliation: University of Innsbruck\n+    orcid: \"https://orcid.org/0000-0003-2812-6599\"\n+version: \"0.7.17\"\n+license: MIT\n+repository-code: \"https://github.com/giladfeldman/escicheck\"\n+url: \"https://escimate.app\"\n+abstract: >-\n+  A co"
-              },
-              {
-                "filename": "CONTRIBUTING.md",
-                "status": "added",
-                "additions": 40,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,40 @@\n+# Contributing to effectcheck\n+\n+Thank you for helping. effectcheck is a research tool whose output people rely on, so the most\n+valuable contributions are **verification reports**: a published result where effectcheck's\n+verdict is wrong, with the exact input text.\n+\n+## Reporting a wrong verdict\n+\n+Open an issue at <https://github.com/giladfeldman/escicheck/issues> with:\n+\n+1. the exact text you passed to `check_text()` (a sentence or two is enough \u2014 please do not\n+   paste w"
-              },
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,7 +1,7 @@\n Package: effectcheck\n Type: Package\n Title: Statistical Consistency Checker for Published Research Results\n-Version: 0.7.14\n+Version: 0.7.17\n Authors@R: c(person(given = \"Gilad\", family = \"Feldman\", role = c(\"aut\", \"cre\"),\n     email = \"giladfel@gmail.com\", comment = c(ORCID = \"0000-0003-2812-6599\")))\n Description: A conservative, assumption-aware statistical consistency checker"
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 211,
-                "deletions": 0,
-                "patch": "@@ -1,3 +1,196 @@\n+# effectcheck 0.7.17\n+\n+## Welch t-test effect sizes (changes verdicts on Welch rows with a stated N far above df + 2 only)\n+\n+- **A stated sample size that already reproduces the reported d is no longer replaced.** A\n+  Welch df only bounds N from below (N >= df + 2), so a stated N far above df + 2 is legitimate\n+  when variances and group sizes are unequal. The Welch branch treated any scraped N above\n+  1.5 x (df + 2) as \"likely from a different study\" and replaced it with "
-              },
-              {
-                "filename": "R/check.R",
-                "status": "modified",
-                "additions": 39,
-                "deletions": 6,
-                "patch": "@@ -919,7 +919,7 @@ no_variants_reason <- function(reported_type) {\n #' @param cross_type_action Action when cross-type match found (\"NOTE\", \"WARN\", or \"ERROR\")\n #' @param ci_affects_status Whether CI mismatches affect status (default TRUE)\n #' @param plausibility_filter Whether to apply plausibility bounds filter (default TRUE)\n-#' @param sign_sensitive Whether sign differences affect status (default FALSE)\n+#' @param sign_sensitive Intended to make sign differences affect status (default FALSE"
-              },
-              {
-                "filename": "R/compute.R",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 1,
-                "patch": "@@ -88,7 +88,11 @@ has_effectsize <- function() {\n }\n \n # CI computation priority system\n-# Priority 1: effectsize::confidence_interval()\n+# Priority 1: effectsize::confidence_interval() -- NOT WIRED. The two\n+#   `if (has_effectsize())` blocks below have empty bodies, so the effectsize\n+#   package is never called, installed or not (verified 2026-09-27). The CIs\n+#   come from MBESS where it is used (ci.smd / ci.sm) and otherwise from the\n+#   analytic formulas. Do not describe effectsize as a "
-              },
-              {
-                "filename": "R/parse.R",
-                "status": "modified",
-                "additions": 35,
-                "deletions": 0,
-                "patch": "@@ -478,6 +478,19 @@ normalize_text <- function(x) {\n     }\n   }\n \n+  # --- Markdown emphasis around a short token (*t*, **p**, _d_, ***F***) ---\n+  # APA italicises statistic symbols, so markdown and DOCX/HTML-converted text\n+  # carries `*t*(17) = -1.32, *p* = .453`. Every pattern below anchors on the bare\n+  # symbol, so an italic statistic lost the whole row and an italic p alone was\n+  # dropped silently (row kept, p_reported NA, status SKIP). Reported by a\n+  # downstream consumer 2026-08-"
-              }
-            ]
-          },
-          "diff_summary": ""
-        }
       ]
     },
     {
@@ -8860,7 +8542,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.3.1",
@@ -9218,6 +8961,106 @@
           "date": "2026-09-28",
           "url": "https://github.com/shaheedazaad/auto-zcurve/commit/88378d2db0962698e1439568c0d956c414a4fc40",
           "type": "chore",
+          "branch": "main",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "d9c3ec7",
+          "message": "docs: add screenshots for provider settings and run defaults",
+          "body": "",
+          "author": "Shaheed Azaad",
+          "author_login": "shaheedazaad",
+          "date": "2026-10-04",
+          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d9c3ec77a1a78d2cf8104b1c9b53796717360ae1",
+          "type": "feat",
+          "branch": "main",
+          "diff": {
+            "additions": 16,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "docs/api-key.md",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 0,
+                "patch": "@@ -18,6 +18,8 @@ quotas, and available models before running a large project.\n 3. Click **Add key**, paste the key, and click **Save key**.\n 4. Tick **Store securely on this computer** to save it between sessions.\n \n+![Gemini API key dialog with an empty key field and Store securely on this computer selected](assets/screenshots/settings-api-key-dialog.png)\n+\n The provider shows **Ready** when its key is available for the current\n session. Default model settings live in the same provider section"
+              },
+              {
+                "filename": "docs/assets/screenshots/settings-extraction-instructions.png",
+                "status": "added",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "docs/assets/screenshots/settings-gemini.png",
+                "status": "added",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "docs/assets/screenshots/settings-openai-compatible.png",
+                "status": "added",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "docs/assets/screenshots/settings-openrouter.png",
+                "status": "added",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "docs/assets/screenshots/settings-run-defaults.png",
+                "status": "added",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "docs/assets/screenshots/settings.png",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "docs/settings.md",
+                "status": "modified",
+                "additions": 14,
+                "deletions": 1,
+                "patch": "@@ -4,6 +4,8 @@ Open **Settings** in the top bar. The sidebar links to provider connections,\n run defaults, and the bundled extraction instructions. On a narrow screen,\n this navigation appears above the settings.\n \n+![Settings overview with sidebar links, collapsed provider connections, and run defaults](assets/screenshots/settings.png)\n+\n ## Provider connections\n \n Each provider has an expandable section. Click its heading to open or close\n@@ -20,6 +22,8 @@ Expand **Gemini** to manage its key,"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "a4a2f9a",
+          "message": "Release 0.12.9",
+          "body": "",
+          "author": "Shaheed Azaad",
+          "author_login": "shaheedazaad",
+          "date": "2026-10-04",
+          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4a2f9a9c91bd227d574872a6572d581c4c2843f",
+          "type": "chore",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "23a6a90",
+          "message": "updated docs",
+          "body": "",
+          "author": "Shaheed Azaad",
+          "author_login": "shaheedazaad",
+          "date": "2026-10-04",
+          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/23a6a903c46eda361e0c833a77118195afbd7c10",
+          "type": "other",
           "branch": "main",
           "diff": {}
         }
@@ -9963,33 +9806,6 @@
           },
           "diff_summary": ""
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "1fed484",
-          "message": "fixed rendering of LaTeX warning",
-          "body": "",
-          "author": "brandmaier",
-          "author_login": "brandmaier",
-          "date": "2026-09-30",
-          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/1fed484b95e6e1a663996ebd928ad39093420679",
-          "type": "other",
-          "branch": "styling",
-          "diff": {
-            "additions": 1,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "R/symbols.R",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -20,5 +20,5 @@ warning_symbol <- function(fmt=\"undef\") {\n   if (fmt==\"html\")\n     return(\"&#9888;\")\n   else\n-    return(\"/!\\\\\")\n+    return(\"/!\\\\\\\\textbackslash\")\n }"
-              }
-            ]
-          },
-          "diff_summary": ""
-        }
       ]
     },
     {
@@ -10094,7 +9910,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1785024000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1785628800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\nOIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailoring the extension to your discipline requires no programming expertise, just edit a list.\n\nFollow this link: https://chr",
@@ -10710,9 +10587,9 @@
     }
   ],
   "digest": {
-    "week_start": "2026-10-06",
+    "week_start": "2026-10-07",
     "active_repos": 7,
-    "total_commits_7d": 64,
+    "total_commits_7d": 63,
     "dormant_revived": [
       {
         "owner": "marton-balazs-kovacs",
@@ -10732,7 +10609,7 @@
       {
         "owner": "giladfeldman",
         "repo": "docpluck",
-        "commits": 29
+        "commits": 28
       },
       {
         "owner": "lhdjung",
@@ -11214,8 +11091,8 @@
     "total_stars": 725,
     "total_forks": 134,
     "total_commits_30d": 414,
-    "total_commits_7d": 64,
-    "total_commits_1d": 29,
+    "total_commits_7d": 63,
+    "total_commits_1d": 19,
     "active_repos_7d": 7,
     "dormant_revived": 3,
     "total_open_issues": 213,
