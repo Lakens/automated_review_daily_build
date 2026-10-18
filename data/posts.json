@@ -1,5 +1,381 @@
 [
   {
+    "generated_at": "2026-10-18T15:30:34.369769+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 20,
+        "pushed_at": "2026-10-18T14:58:39Z",
+        "recent_commits": [
+          {
+            "sha": "fa7df62",
+            "message": "Give a value that would look like a bound just enough places",
+            "body": "* format_number() fell back to 12 significant digits for a value that\nwould look whole or like a bound, e.g. 0.146504464074. It now adds the\nfewest decimal places that set the value apart, e.g. 0.146504.",
+            "author": "Lukas Jung",
+            "date": "2026-10-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/fa7df6237e92f2ea54a97a617a1fc4071b9fd36f",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "064687c",
+            "message": "Say that explain_map()'s data was tested with formula = \"mean_n\"",
+            "body": "* Through explain_map(), debit_explain()'s own check said `formula` is\n\"mean_n\", though the user never passed `formula`.",
+            "author": "Lukas Jung",
+            "date": "2026-10-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/064687cdd5a5868d437031f530e0d55d4e6ee530",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "d35e628",
+            "message": "Make unexplainable GRIMMER reasons an internal error",
+            "body": "* \"GRIM undecidable\" and \"SD rounding bounds undefined\" can't happen,\nand explain_undecidable() has no words for them: it said the number of\nitems had to be a positive whole number, but was 1.",
+            "author": "Lukas Jung",
+            "date": "2026-10-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/d35e6285c7e21c6c774ec27e541a768d57fc4497",
+            "type": "fix",
+            "branch": "polishing"
+          },
+          {
+            "sha": "7b8834f",
+            "message": "Don't show DEBIT's example SD as an excluded bound",
+            "body": "* Picking the k closest to the middle of the range didn't help when only\none k passes: debit_explain(0, sd = 0.147, n = 320, digits_x = 1,\ndigits_sd = 3, rounding = \"down\") showed an SD of 0.1465 as in a range\nabove 0.1465. format_number() now takes the bounds a value is compared\nto and shows it in more detail if it would look like one of them.",
+            "author": "Lukas Jung",
+            "date": "2026-10-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/7b8834f63490e8a2205d11f9c50444e28314f8de",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "d71b74b",
+            "message": "Share explanation helpers with the tests they explain",
+            "body": "* spread_out_most() gives the values behind sum_squares_scale_max() to\nboth it and describe_spread_out(), and binary_spread_root() the root\nbehind binary_sd_attainable() to both it and binary_ones_shown().\n* debit_explain() gets a `formula` argument that rejects \"mean_n\", so\nexplain_map() no longer has to know what the explainer can't do.\n* Align the pipes in the mapper-tier test.",
+            "author": "Lukas Jung",
+            "date": "2026-10-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/d71b74b47046fcb0a3970642d0489684eb811968",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "d342bed",
+            "message": "Don't blame the scale for a GRIMMER range that was already empty",
+            "body": "* grimmer_candidate() applied the scale ceiling even when the sum of\nsquares range held no whole number without it, so the reason became\n\"scale range\" instead of \"test 1\", and grimmer_explain() said the\nceiling was \"too small\" rather than that the range was empty.",
+            "author": "Lukas Jung",
+            "date": "2026-10-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/d342bedead7882c14f1c020a4816b6885cbdb445",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "b153535",
+            "message": "Show rounding bounds in full at 4+ decimal places",
+            "body": "* format_number() rounded to 4 places, so the bounds of a value reported\nwith 4 or more decimals were cut off, and describe_range() could then\ncall an interval a single point. It now shows `digits + 2` places, at\nleast four.\n* grimmer_explain() routes the \"GRIM undecidable\" and \"SD rounding\nbounds undefined\" reasons to explain_undecidable() rather than letting\nthem reach the candidate loop with an NA verdict.",
+            "author": "Lukas Jung",
+            "date": "2026-10-18",
+            "url": "https://github.com/lhdjung/scrutiny/commit/b15353540c7dc773d8a4378901c43127b290dc56",
+            "type": "chore",
+            "branch": "polishing"
+          },
+          {
+            "sha": "7ccd063",
+            "message": "Let explain_map() dispatch on any class",
+            "body": "* The class check ran in the generic ahead of `UseMethod()`, so no method\nfor another class could ever be reached. It is `explain_map.default()` now,\nwith the same error, and `explain_print()` only checks for a tibble before\nslicing.",
+            "author": "Lukas Jung",
+            "date": "2026-10-16",
+            "url": "https://github.com/lhdjung/scrutiny/commit/7ccd063e473fb987fefd996e29f56a10dc95baad",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "91dc797",
+            "message": "Pass explain_map() rows as plain vectors",
+            "body": "* `explain_row()` subset the tibble with `data[i, cols]` per row. It now\nindexes a list of the columns, which saves about 6% on a 932-row\n`grim_map_seq()` output; the rest is the `*_explain()` calls themselves.",
+            "author": "Lukas Jung",
+            "date": "2026-10-16",
+            "url": "https://github.com/lhdjung/scrutiny/commit/91dc797c46c2458254d6ee3a820f312d35504319",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "4984364",
+            "message": "Write GRIMMER explanations only for candidates that are shown",
+            "body": "* The loop built a paragraph for every failing candidate sum and then kept\nthe first three. It now counts the failures after the third without writing\nthem out.",
+            "author": "Lukas Jung",
+            "date": "2026-10-16",
+            "url": "https://github.com/lhdjung/scrutiny/commit/49843647f150455928f196b6d5ec6a9c4ad61e12",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "adcbfcf",
+            "message": "Share DEBIT's bounds with debit_explain() and stop listing every k",
+            "body": "* `debit_bounds()` clamps the mean's and the SD's rounding bounds once, for\n`debit_scalar()` and `debit_explain()` alike, so the text can't drift from\nthe bounds that decided the test.\n* `debit_explain()` listed every number of ones from `sum_lower` to\n`sum_upper`, millions for a large `n`. `binary_ones_shown()` finds the few\nthe text needs next to the roots of `k * (n - k) = spread`; a brute-force test\nchecks it against the full list.\n* The example `k` is now the passing one whose SD is closest to the middle of\nthe range. The smallest one sat at a bound, and once rounded for display, its\nSD could read as exactly the bound the text had just excluded.",
+            "author": "Lukas Jung",
+            "date": "2026-10-16",
+            "url": "https://github.com/lhdjung/scrutiny/commit/adcbfcf51ba63f91bf18e7108e72a0fc01cfafb8",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "4e6be85",
+            "message": "Write out large numbers in explanations",
+            "body": "* `paste()` wrote round numbers like 100000 as 1e+05 in the text and in the\nheader. Each `*_explain()` function now raises `scipen` while it runs.",
+            "author": "Lukas Jung",
+            "date": "2026-10-16",
+            "url": "https://github.com/lhdjung/scrutiny/commit/4e6be85afbc18c07696c7ecf60e8bca1190c170b",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "7bc4e27",
+            "message": "Explain a missing `items` value instead of erroring",
+            "body": "* `grim_explain()` and `grimmer_explain()` tested `items != 1` for the\nheader, which failed on `NA`, so one such row aborted `explain_map()`.",
+            "author": "Lukas Jung",
+            "date": "2026-10-16",
+            "url": "https://github.com/lhdjung/scrutiny/commit/7bc4e2774ec41c0ab7dbd6c780dd08f0aebb3c3b",
+            "type": "fix",
+            "branch": "polishing"
+          },
+          {
+            "sha": "74f990f",
+            "message": "Pick explain_print() rows like dplyr::slice() and check for mapper output",
+            "body": "* explain_print(data, ...) passes the dots to dplyr::slice() instead of\n  taking `n`, so any rows can be printed, not just the first ones.\n* explain_map() and explain_print() call check_explainable(), which\n  requires output of grim_map(), grimmer_map(), or debit_map() (or\n  their sequence and total-n mappers) instead of failing in dispatch.\n* The re-test error names the row by its values, not by a position that\n  slice() or filter() had already shifted.",
+            "author": "Lukas Jung",
+            "date": "2026-10-16",
+            "url": "https://github.com/lhdjung/scrutiny/commit/74f990f7b28f4275896e73ffbe63b20d9b9dd463",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "0b32b40",
+            "message": "Add explain_print() and rename the `text` element to `paragraphs`",
+            "body": "* explain_print() prints the `explanation` column of mapper output,\n  optionally only the first `n` rows. Without the column, it calls\n  explain_map() on these rows only, so the others are not re-tested.\n* The `text` element of `scrutiny_explain` objects is now `paragraphs`,\n  which is harder to mix up with `test`.\n* Blank lines between the steps of the longer explain functions, and\n  Lukas's pipe and control-flow edits to R/grim-explain.R.\n* The explain sweep test uses one decimal count and fewer sample sizes,\n  cutting test-explain.R from 18 to 7.5 seconds.",
+            "author": "Lukas Jung",
+            "date": "2026-10-16",
+            "url": "https://github.com/lhdjung/scrutiny/commit/0b32b400ff97299846fe66e04574f4418e6e53f1",
+            "type": "feat",
+            "branch": "polishing"
+          },
+          {
+            "sha": "2cd5bdf",
+            "message": "Store explain_map() output in a column and flatten the explain helpers",
+            "body": "* explain_map() returns its input with an `explanation` column of\n  format()ed explanations instead of a list; format.scrutiny_explain()\n  replaces print.scrutiny_explain_list(). explain_rows() becomes\n  add_explanation_col().\n* grimmer_explain() reuses grim_explain() for the GRIM part, and the\n  single-use grim_explain_text(), grimmer_explain_text(),\n  debit_explain_text(), summarize_candidates(), and describe_parity()\n  are inlined into their callers.\n* describe_reported() replaces describe_digits() and the four copies of\n  the sentence on a reported value's rounding range.",
+            "author": "Lukas Jung",
+            "date": "2026-10-16",
+            "url": "https://github.com/lhdjung/scrutiny/commit/2cd5bdf89b11633957ce9dac4595111099c59045",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "821f1bb",
+            "message": "Rename explain() to explain_map() and mark verdicts with ==>",
+            "body": "* `explain()` is also exported by DALEX and lime, which would mask it,\nand reusing dplyr's generic did not help against them. `explain_map()`\nis a scrutiny generic like `audit()`, so the dplyr re-export and the\n`name_data` argument of `check_cols_needed()` are gone.\n\n* `=>` read like the `>=` operator.\n\n* `explain_rows()` pipes the row indices into a separate\n`explain_row()` instead of nesting an anonymous function.",
+            "author": "Lukas Jung",
+            "date": "2026-10-16",
+            "url": "https://github.com/lhdjung/scrutiny/commit/821f1bb302e0c4468f6960cab95aef353165d09d",
+            "type": "refactor",
+            "branch": "polishing"
+          },
+          {
+            "sha": "d9d72ac",
+            "message": "Add explain() for mapper output and mark verdicts with =>",
+            "body": "* `explain()` methods for `grim_map()`, `grimmer_map()`, and `debit_map()`\noutput, which also covers the seq and total-n tiers. Each row is tested\nagain from its values plus the settings in the \"scrutiny\" attribute, and\na verdict that differs from the row's `consistency` is an error.\n\n* The generic is `dplyr::explain()`, re-exported, so attaching both\npackages masks nothing.\n\n* `check_cols_needed()` takes the name of the data argument, which is `x`\nfor S3 methods of a dplyr generic.",
+            "author": "Lukas Jung",
+            "date": "2026-10-16",
+            "url": "https://github.com/lhdjung/scrutiny/commit/d9d72aceaa997c6655ea3c7b902b935e184ebddf",
+            "type": "feat",
+            "branch": "polishing"
+          },
+          {
+            "sha": "2803346",
+            "message": "Add grim_explain(), grimmer_explain(), and debit_explain()",
+            "body": "* Each tests a single case and lays out the calculation in plain words,\nfrom the rounding bounds of the reported values to the verdict.\n\n* GRIM's text comes from `grim_scalar(show_rec = TRUE)` plus\n`bound_numerators()`. GRIMMER's and DEBIT's come from the helpers their\ntests use, and abort if their reading disagrees with the verdict; a sweep\nin test-explain.R exercises that check.",
+            "author": "Lukas Jung",
+            "date": "2026-10-16",
+            "url": "https://github.com/lhdjung/scrutiny/commit/28033469e196a602ea925cc39b4bfd08c1bea707",
+            "type": "feat",
+            "branch": "polishing"
+          },
+          {
+            "sha": "c79fd52",
+            "message": "Factor GRIMMER's candidate test and DEBIT's spread range into helpers",
+            "body": "* `grimmer_sd_bounds()` and `grimmer_candidate()` hold the SD bounds and\nthe per-candidate tests 1 and 3; `binary_spread_range()` holds the spread\nbounds of `binary_sd_attainable()`. The explain functions reuse them, so\ntheir text cannot drift from the verdict.\n\n* About 6% slower on `grimmer()` from the extra call per candidate sum.",
+            "author": "Lukas Jung",
+            "date": "2026-10-16",
+            "url": "https://github.com/lhdjung/scrutiny/commit/c79fd52c225c8e7c2df7a5a19d67f8d0df872ee6",
+            "type": "test",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-10-15T15:25:58Z",
+        "recent_commits": [
+          {
+            "sha": "b977710",
+            "message": "Built site for tenzing@0.4.1: 85425d1",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/b977710bb300115ece3b676f92b9a062db2605e2",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "85425d1",
+            "message": "bumped roxygen version and updated the doc files",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/85425d19e4527b05928eacb15626612f762c300f",
+            "type": "docs",
+            "branch": "master"
+          },
+          {
+            "sha": "f267e64",
+            "message": "Built site for tenzing@0.4.1: 7116563",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/f267e64ea83d2c419d91390fb164ca52feed6a33",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "7116563",
+            "message": "bug fix: certain outputs included acknowledgees even though those outputs should not use them",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/71165636d127f1f7ce22276af54d4207751f018b",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-10-18T10:27:27Z",
+        "recent_commits": [
+          {
+            "sha": "147b2d0",
+            "message": "Show everything in the file tree; classify licences, models, .vcd, .pgf and package lists (0.4.0.3)",
+            "body": "- File tree: a local folder is listed itself, with hidden files, junk files\n  and empty folders; a repository link also shows repo_check's junk files.\n  Marks: \"junk: remove\", \"junk: keep only on purpose\" (a junk folder is one\n  line with its number of files), \"hidden file\", \"empty folder\". Folders,\n  empty ones included, before files. The tree sits in a scroll box, and the\n  repository apps show it open instead of folded. data_check passes\n  repo_check's useless_files to it.\n- Classifier: LICENSE/LICENCE/COPYING without extension -> documentation\n  (licence role); .slx and .mph -> code; .vcd -> data; .pgf -> output;\n  requirements*.txt and Pipfile -> code\n- .mc_request() moved above .batch_query()'s roxygen block, so it no longer\n  takes over that help page",
+            "author": "Lakens",
+            "date": "2026-10-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/147b2d07476f175e85337cd14acb4d4f54c8d5cf",
+            "type": "other",
+            "branch": "external-modules"
+          },
+          {
+            "sha": "d5e28ff",
+            "message": "repo_check flags junk files as TU/e's data managers do; share the file tree (0.4.0.2)",
+            "body": "- .useless_file_kind() adds the junk rules of TU/e's data managers: editor\n  backups (file~, .bak, .swp, .swo), temporary files (.tmp, .temp),\n  .Rhistory, .TemporaryItems and every ~$ lock file as problems; version\n  control (.git, .svn, .hg) and editor settings (.idea, .vscode) as\n  suggestions (.useless_file_severity())\n- repo_check: a problem kind turns the light red, a suggestion kind yellow;\n  the files are returned as useless_files (paper_id, repo_url, file_path,\n  kind, severity), and the report says which to remove and which to keep\n  only on purpose\n- local_files() lists hidden files of these kinds (.DS_Store, .Rhistory,\n  .git/), so repo_check finds them in a local folder too\n- R/file-tree.R: data_check's file tree (.file_tree_rows(),\n  .file_tree_block()) moved into the package, with .file_tree() for the\n  repository apps' brief report and external modules; the apps no longer\n  keep their own copy",
+            "author": "Lakens",
+            "date": "2026-10-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/d5e28ff7ed2a75c94c7d66eb8049752ff584b41e",
+            "type": "other",
+            "branch": "external-modules"
+          },
+          {
+            "sha": "ef7b957",
+            "message": "Install modules from GitHub with module_install() (0.4.0.1)",
+            "body": "- module_install(\"owner/repo\", ref) downloads a repository into the\n  metacheck user data folder (or METACHECK_MODULES_DIR); every .R file\n  with a roxygen header in its top folder or modules/ becomes a module\n  that module_run(), report(), module_info() and module_help() find by\n  name. Nothing is saved when a name is already used by a built-in\n  module, another installed repository, or twice in the same repository.\n  A module can state its lowest metacheck version (#' @metacheck x.y.z),\n  checked by module_install() and module_run().\n- module_update(), module_remove() and module_installed()\n- module_list() lists installed modules, with their repository in a new\n  source column; module_list(external = FALSE) lists built-in ones only\n- report: an installed module's How It Works names its repository and\n  commit instead of linking to a manual chapter\n- test-module-repo_check.R: the three summary tables include the\n  repo_unchecked column added in c5c98a1",
+            "author": "Lakens",
+            "date": "2026-10-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/ef7b95773b07c7ffdc740e822fdeebc34281a876",
+            "type": "other",
+            "branch": "external-modules"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-10-04T09:25:40Z",
+        "recent_commits": [
+          {
+            "sha": "d9c3ec7",
+            "message": "docs: add screenshots for provider settings and run defaults",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-10-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d9c3ec77a1a78d2cf8104b1c9b53796717360ae1",
+            "type": "feat",
+            "branch": "main"
+          },
+          {
+            "sha": "a4a2f9a",
+            "message": "Release 0.12.9",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-10-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4a2f9a9c91bd227d574872a6572d581c4c2843f",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "23a6a90",
+            "message": "updated docs",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-10-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/23a6a903c46eda361e0c833a77118195afbd7c10",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "cjvanlissa",
+        "repo": "worcs",
+        "url": "https://github.com/cjvanlissa/worcs",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-10-07T09:04:00Z",
+        "recent_commits": [
+          {
+            "sha": "ed306b5",
+            "message": "Deploying to gh-pages from @ cjvanlissa/worcs@d883359de0250edf90f4f88c2384bdb23e2d1d9f \ud83d\ude80",
+            "body": "",
+            "author": "cjvanlissa",
+            "date": "2026-10-07",
+            "url": "https://github.com/cjvanlissa/worcs/commit/ed306b5195d5b2d856478a82bbb20cdbaa8c8607",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "d883359",
+            "message": "update 2026-10-07 10:58:54.664894",
+            "body": "",
+            "author": "cjvanlissa",
+            "date": "2026-10-07",
+            "url": "https://github.com/cjvanlissa/worcs/commit/d883359de0250edf90f4f88c2384bdb23e2d1d9f",
+            "type": "other",
+            "branch": "master"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-10-18T10:30:21.015544+00:00",
     "narrative": "",
     "repos": [
@@ -24147,52 +24523,6 @@
             "date": "2026-09-10",
             "url": "https://github.com/shaheedazaad/auto-zcurve/commit/40676dd45a817ba78070d6742d1018a5be451385",
             "type": "chore",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-09-23T03:19:25.176577+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "quest-bih",
-        "repo": "oddpub",
-        "url": "https://github.com/quest-bih/oddpub",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-31T11:22:46Z",
-        "recent_commits": [
-          {
-            "sha": "2b30005",
-            "message": "documentation and version bump",
-            "body": "",
-            "author": "ontogenerator",
-            "date": "2026-08-31",
-            "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-09-20T02:00:02Z",
-        "recent_commits": [
-          {
-            "sha": "d2dd8a5",
-            "message": "add redis data info",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-09-20",
-            "url": "https://github.com/JamieCummins/regcheck/commit/d2dd8a5b564a4ccd69b1536969cf418d02a26a86",
-            "type": "feat",
             "branch": "main"
           }
         ]
