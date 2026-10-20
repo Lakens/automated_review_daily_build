@@ -1,5 +1,551 @@
 [
   {
+    "generated_at": "2026-10-20T21:23:44.760086+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 30,
+        "pushed_at": "2026-10-20T21:08:50Z",
+        "recent_commits": [
+          {
+            "sha": "b91ffbb",
+            "message": "SPSS/jamovi/JASP HTML export: empty trailing labels, undrawable charts, repeated and odd images (#507: U148)",
+            "body": "- New .spv_split_levels() keeps empty labels, also a trailing one (strsplit() dropped it and [[d]] stopped the export).\n- A chart .spv_chart_html() cannot draw is replaced by a note instead of failing the export.\n- .html_inline_images(): gsub() so every occurrence is embedded; a malformed %-escape is kept as written.\n- spv_assemble_table(): leaf lookup with format(scientific = FALSE).\nNot changed: template values (\"^1 of ^2\") are still shown as written.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/b91ffbbd6042bdbe2de7d9c6ef436d0f099d6292",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "ac41803",
+            "message": "GROBID: edge-case TEI files load; paper DOI from the header only (#507: U17)",
+            "body": "- Paper DOI from .//teiHeader//idno[@type='DOI'] (the whole-document search gave the first reference's DOI).\n- Raw reference text per biblStruct, \"\" without a note (the texts shifted or failed).\n- A page biblScope with only from or to.\n- URL link texts that are empty or NA are not used as gsub() patterns.\nNot changed: nested-div paragraph repeats, back matter outside an inner div, figure/table first-div detection, tables without rows (wrong results, left for the wrong-result round).",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/ac418031608df2423d0998a6476492ac835dc35f",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "630efdf",
+            "message": "convert() of XML works offline; papers_available() without .rds assets (#507: U18)",
+            "body": "- convert(): no server lookup for method xml.\n- .papers_release_assets() returns an empty table when no release has an .rds file, and papers_available() builds its cached column only for corpora that exist (paste0(character(0), \".rds\") is length 1).\n- Already fixed: read() skips a file it cannot read.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/630efdfa21e2839fb993f3503cc759bfe782dc09",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "d35f2e4",
+            "message": "Variable labels read exactly; short JASP/jamovi columns padded; missing JASP column type (#507: U145)",
+            "body": "- attr(x, \"label\", exact = TRUE) in .extract_haven_labels(), .read_jasp_binary(), .read_jasp_sqlite() and the jamovi reader: the partial match returned the value labels, and the first code became the variable label.\n- New .pad_to(): a column read short of rowCount is padded with NA (as.data.frame() stopped).\n- .read_jasp_sqlite(): a NULL columnType is read as nominal (NA stopped the if ()).",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/d35f2e41b3b9c641bf73b0a94d4d2d6d8b4b2f5a",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "47399c0",
+            "message": "match_reported_output: missing/empty test_id, Inf values, paper lists (#507: U142)",
+            "body": "- val_in() compares with na.rm = TRUE: Inf - Inf and NA gave NA and if (NA) stopped.\n- jamovi residuals siblings skip rows without a test_id (startsWith(NA) made an NA site).\n- A site named \"\" is renamed internally (by_site[[\"\"]] stopped).\n- A paper list is refused with a clear error (nrow(NULL) inside || stopped).\nNot changed: the table-test parts (no table_id / section_id) and text_id-less test tables.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/47399c0bce75c7ada7f8e451ab57e357733443be",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "b794888",
+            "message": "llm(): partial failures keep the other answers; answers joined to the texts as given (#507: U19)",
+            "body": "- Unstructured answers are stored as plain text and failures as NA_character_ (bind_rows() could not combine ellmer_output with NA).\n- orig_text (distinct, non-NA texts as given) is what answers are joined back to, in both modes; unique_text is its sanitised copy that is sent.\n- NA texts are not sent; an input of only NA returns NA answers instead of stopping.\n- The unstructured warning lists every failed row (isTRUE() of the column was never TRUE for several rows).",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/b794888e40a7445cb7d4f6f1e11c08cbaa63d511",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "533d090",
+            "message": "API /paper/search: the section parameter selects the sections searched (#507: U2)",
+            "body": "section (comma-separated section types, any case) selects the sentences text_search() runs on; references includes the reference list (include_refs). It was passed to text_search() as an unused argument, failing every request. Checked on the demo paper (method, references, both); the plumber endpoints have no test harness in the package.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/533d0907ce4a3f74d436c3caab7d6adc17c83955",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "ebfbb27",
+            "message": "psychds_file_plan: missing file names from the path, files with neither excluded (#507: U113, part)",
+            "body": "A missing name became the target unknown/NA, and a structure without file_name stopped. Not changed: psychds_check checks a paper list's files together (one summary row); per-paper rows need a decision on how several papers are reported.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/ebfbb278852ecd19f0ea02ea1695e3b52dd4ecef",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "2b040db",
+            "message": "power fallback: local schema, missing fields count as missing (#507: U108)",
+            "body": "- The prompt-based fallback uses the module's schema string instead of readLines() from scienceverse.org.\n- Columns of llm_cols that no answer gives are added as NA before complete is computed (any_of() skipped them).",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/2b040dbacb76839b351c08943df5187dbf0039bf",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "ef06b54",
+            "message": "repo_check: invalid OSF links reported; nameless files skipped by the naming check (#507: U122)",
+            "body": "- repo_check: osf_type is added when missing; links without an osf_type get repo_error \"not a valid OSF link\" and are kept out of the registration removal.\n- check_file_naming(): files without a name or path are skipped.\n- Already fixed: a Figshare share link keeps its informative error. Left: a failed lookup of a registration's source after the registration rows were removed.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/ef06b5466fe7e4bf5025d6e938a61b0d05daf357",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "48775e7",
+            "message": "github_files: empty folder, single file, dir for several repositories; github_languages ignores error answers (#507: U48)",
+            "body": "- github_files(): a single-object answer is wrapped in a list, an empty one gives NULL (sort_by(NULL) and $ on atomic stopped); the vectorised call passes dir on.\n- github_languages(): a non-200 answer gives no languages instead of its message fields.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/48775e75833517c8c627a2afa5a661c61b2d867f",
+            "type": "fix",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "a33c62e",
+            "message": "ref_pubpeer: a failed PubPeer request is reported, not fatal (#507: U23)",
+            "body": "pubpeer_comments() returns NULL for an error answer, and inner_join(bib, NULL) stopped; the module now returns traffic light fail with a sentence saying PubPeer could not be reached.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/a33c62e8fd842a484f4d00ea9eba1c3a980152bb",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "2073cb8",
+            "message": "funding_check: several title lines no longer stop the module (#507: U103)",
+            "body": "New .title_lines_with_next() in the module replaces the identical block in get_fund_2, get_financial_1, get_grant_1 and get_acknow_1: each title line gets its next line (or the one after an empty line), only lines that exist. if (!is.na(article[a + 1])) on a vector stopped the module, and a + 2 past the end pasted NA.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/2073cb88a04a3e1d12cefafebaba0777ffaddfbe",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "3ed6b5a",
+            "message": "coi_check: a heading as the last sentence, no pasted NA (#507: U97)",
+            "body": "The follow-up read after a short heading only reads lines that exist: nchar(NA) as the condition stopped the module, and a read past the end pasted \"NA\". A heading that is the last line is used as found.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/3ed6b5abaf339f6a86657d52f2bd06b61512d28b",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "7b431b9",
+            "message": "causal_claims: no stop on a missing title; every paper's title is checked (#507: U84)",
+            "body": "- Titles come from paper_table(paper, \"info\", \"title\") (one per paper, also for lists), without NA or empty ones.\n- causal_relations() drops NA sentences: all(trimws(NA) == \"\") stopped it, and NA went out as \"NA\".\n- The pooling of identical abstract sentences across papers of a list (summary join by text) is left as is.\n- New test file with the web classifier replaced.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/7b431b926313d07488ef6b6e6487b0e33b25f158",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "1b72b02",
+            "message": "json_expand() of a table without rows returns it unchanged (#507: U151)",
+            "body": "The join on the empty expansion stopped. The _row and .temp_id. key handling pytacheck also changed is left as is: model answers do not use those keys.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/1b72b027a363c56c716f7b7315361c436bf827d0",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "ac0b0c0",
+            "message": "Version 0.4.1: the bug fixes since the 0.4.0 release",
+            "body": "DESCRIPTION 0.4.1; NEWS.md gets a 0.4.1 section holding the entries added since the release.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/ac0b0c0203e8459983c5412818d90030d96656f6",
+            "type": "fix",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "d078ccc",
+            "message": "Python dependencies from pyproject.toml: only the declared dependencies, pip-readable versions (#507: U236)",
+            "body": ".repro_py_manifest_pins(): new .py_toml_requirements() reads [project] dependencies and [tool.poetry(.group.*).dependencies] (not python) section by section; .poetry_to_pip() turns ^/~/bare/* into pip ranges. requirements.txt lines lose inline comments and --options. regexpr() instead of regmatches() keeps package and requirement aligned (a misaligned pair stopped data.frame()).",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/d078ccc263919299ee02f1083850865b074a5efe",
+            "type": "chore",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "3cd8c20",
+            "message": "check_orcid(NA), PubPeer single DOIs, empty OpenAlex abstracts, RegCheck Docker port (#507: U14)",
+            "body": "- check_orcid(): FALSE for NA and for anything but 15 digits and a digit or X.\n- pubpeer_comments(): dois sent with I() (an array, also for one DOI); feedback without an id is skipped; a DOI reported twice keeps its first row. Saved test responses copied to the new request hashes (single-DOI requests).\n- .openalex_add_abstract(): only with a non-empty inverted index.\n- regcheck_start_local(method = \"docker\"): REGCHECK_PORT passed to docker compose, which maps ${REGCHECK_PORT:-8000}.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/3cd8c202b6676c6e58db28697290e300fcaad444",
+            "type": "chore",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "8a0c6fe",
+            "message": "read_stat_tables() of a non-zip path has no tables (#507: U137)",
+            "body": "utils::unzip() gives NULL for it, and basename(NULL) stopped; it now returns list().",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/8a0c6fe906a4f959c7c677d2ede1048f1c387ce2",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "38a090c",
+            "message": "AsPredicted pages answering an error or unreachable are recorded, not fatal (#507: U54)",
+            "body": ".aspredicted_info(): req_error(is_error = FALSE) so an HTTP error status reaches the status check (req_perform() raised before it), and a failed connection gives error \"the connection failed\".",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/38a090c4df15b8ad5f7a60c946237f46b718fc0f",
+            "type": "fix",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "7af0a8a",
+            "message": "Papers sharing a paper_id are renamed where a list comes in (#507: U208, U101)",
+            "body": "New .unique_paper_ids(): the second and later papers of a repeated id get \"~2\", \"~3\", ..., with a warning naming them. Called in paperlist(), module_run() (paper lists) and report() (paper lists). A shared id doubled rows through the sentence-section join, gave summaries with more rows than papers, pooled references, stopped ethics_check and open_practices (factor levels duplicated), and made report() write two papers to one file.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/7af0a8a1aec1edd9ae1a66d9fb0f8bd52aaae522",
+            "type": "refactor",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "9ac375b",
+            "message": "code_lang(): odd Quarto front matter and notebooks no longer stop code_check (#507: U68)",
+            "body": "- .qmd_lang(): yaml$jupyter only when the front matter is a list of fields.\n- .ipynb_lang(): the kernel lookup is wrapped in tryCatch(), so a notebook that is not a JSON object, or whose metadata is not an object, gives NA.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/9ac375b6d041a909a54e1707dba27ce3400f25fa",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "a26ba76",
+            "message": "ResearchBox, DSpace and PsychArchives: several failed links give NULL; an empty ResearchBox page is not an error (#507: U43, U45)",
+            "body": "- The vectorised *_file_download() return NULL when bind_rows() of the per-link results has no rows (the join on it stopped).\n- repo_check: a NULL ResearchBox result is reported as \"ResearchBox did not serve the box\" (filter(NULL) stopped and its text became the reason).\n- .rbox_info(): the body is read only when there is one, and a 200 page without content is \"unfound\".",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/a26ba76de918a53b18866cbf233c81e217808f3c",
+            "type": "fix",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "919bf85",
+            "message": "osf_file_download on a folders-only project; osf_api_check offline applies on_error (#507: U53)",
+            "body": "- osf_file_download(): the result's single-value columns (path, downloaded, download_path, osf_project, osf_url) are rep()ed to nrow(ret); a 0-row result stopped.\n- osf_api_check(): stop(\"no internet\") instead of return() inside tryCatch(), so the handler records it and on_error applies.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/919bf85a4370301557a7f627cd5f0a1e489ea5b9",
+            "type": "fix",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "858f30f",
+            "message": "Merge pull request #518 from scienceverse/address/new-collaboration",
+            "body": "convert_bibr(): the SURF API's new address (0.4.0.2)",
+            "author": "Daniel Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/858f30f274d02242f65115f909b865c98855fb29",
+            "type": "feat",
+            "branch": "dev"
+          },
+          {
+            "sha": "8263d3a",
+            "message": "*_file_download(): omitted files stay listed; a zero-byte file no longer stops the download (#507: U36)",
+            "body": "- New .omit_for_size() marks the files the size limits leave out (same rules and messages as before) and .all_omitted_table() returns them all with downloaded = FALSE and folder NA when nothing is left; dryad, figshare, dataverse, zenodo and reshare use them instead of dropping rows (or returning NULL). Omitted files are skipped in the download loops and left out of the 'did not arrive intact' warning; Zenodo's files-archive now also requires !any(omit).\n- New .resp_bytes(): raw(0) for an empty body, where resp_body_raw() stopped the whole download.\n- on.exit(unlink(temppath), add = TRUE), so the progress bar is still terminated.\n- The Dataverse and Zenodo download tests expected the dropped file; they now expect it listed. New test: a zero-byte file and an all-omitted dataset.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/8263d3ad9bf867a0f62b35d506f182d403f2eb4f",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "c676dbd",
+            "message": "Repository *_info() take an NA link; a failed connection does not stop Zenodo, CrossRef or DOI lookups (#507: U33)",
+            "body": "- The id helpers (.dryad_doi(), .figshare_id() and three other Figshare ones, .zenodo_id(), .researchdata4tu_id(), .dataone_host(), .dataone_pid(), .reshare_id(), .mendeley_id()) use vapply(USE.NAMES = FALSE): URL names became row names in data.frame(), and an NA name stopped it.\n- researchdata4tu_info(): a table keeps its columns, a vector is unique()d without NAs, like the other *_info().\n- .batch_query() returns NULL for a connection failure; zenodo_info(), DataCite, CrossRef by DOI, OpenAlex and the DOI checks in doi.R tested only inherits(resp, \"error\") or nothing, and called resp_status(NULL).",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/c676dbd76bccdb87ea4d86c6cd0be772ff4fbcf7",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "ed727a3",
+            "message": "paper = NULL checks a local folder only, as documented (#507: U78)",
+            "body": "- module_run(): paper = NULL becomes an empty paper() with paper_id NA, so repo_check (and code_check, data_check, psychds_check, codebook_check, reproducibility_check) list local_path as one paper of unknown id; paper_id(NULL) stopped them.\n- module_run()'s na_replace never fills paper_id: an unnamed na_replace = 0 turned the unknown id into \"0\".\n- module_run()'s documentation names NULL; test added.",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/ed727a3eb6dd2814ddefb52e82d0d298a7f08942",
+            "type": "other",
+            "branch": "bug_fix"
+          },
+          {
+            "sha": "da88846",
+            "message": "prereg_check: AsPredicted-only papers run, one row per AsPredicted preregistration (#507: U109)",
+            "body": "- osf_type() is only called with OSF ids (osf_type(character(0)) stopped an AsPredicted-only paper).\n- Each AsPredicted preregistration is its own row before the fields are collapsed, so it joins to the paper(s) that link it; a field that is all NA stays NA instead of becoming \"NA\".\n- aspredicted_info() is only called with AsPredicted links (it checks that aspredicted.org is online, which failed OSF-only papers offline).",
+            "author": "Lakens",
+            "date": "2026-10-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/da88846273bfe96d579fd53b03ea83c74ea16ab1",
+            "type": "other",
+            "branch": "bug_fix"
+          }
+        ]
+      },
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 5,
+        "pushed_at": "2026-10-19T12:57:21Z",
+        "recent_commits": [
+          {
+            "sha": "d3a2369",
+            "message": "Give sequence and total-n mappers a named `items_averaged` argument",
+            "body": "* Both factories now copy the helper arguments of `.fun`, as recorded in its `\"scrutiny_args_helper\"` attribute, with the defaults they have there. `items_averaged` was passed through the dots, where it was required but invisible to `formals()`, to tab-completion, and to the help pages. It now follows the key arguments, as in the basic mappers.\n\n* The ones given are collected at the very start of the body, before any local variable could shadow one, and passed on to `fun()`. A missing one is left out, so that it reaches `fun()` as missing and the bespoke error still fires. The sequence mapper passes them to its initial `fun()` call only; the re-tests read them from the column that call returned.\n\n* The rename hint in `check_factory_dots()` is gone again: `items` now partially matches the named argument in these mappers as well, so the dots never see it.",
+            "author": "Lukas Jung",
+            "date": "2026-10-19",
+            "url": "https://github.com/lhdjung/scrutiny/commit/d3a2369cdd89cddadb63a9f5d465d5d5ca259297",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "f641683",
+            "message": "Say that `items` was renamed where the dots see it",
+            "body": "* The basic mappers and test functions match `items` to `items_averaged` by partial matching, but the sequence and total-n mappers take it through the dots, which only said that `items` is no valid argument. `check_factory_dots()` now adds that it was renamed.\n\n* The `...` docs of these mappers say that `items_averaged` must be among the dots unless `data` has such a column, and test titles use the new name.",
+            "author": "Lukas Jung",
+            "date": "2026-10-19",
+            "url": "https://github.com/lhdjung/scrutiny/commit/f64168354ae97b0089b7351c17ed809fb1b9995d",
+            "type": "refactor",
+            "branch": "polishing"
+          },
+          {
+            "sha": "2eadd5e",
+            "message": "Say which columns precede `consistency` in the mapper requirements",
+            "body": "* The vignette said that `consistency` follows the key and helper columns, and that its index is their number plus one. The `digits_*` columns sit to its left as well, which the counting rule missed. Now that `items_averaged` is always returned, the count is off in every GRIM and GRIMMER mapper.",
+            "author": "Lukas Jung",
+            "date": "2026-10-19",
+            "url": "https://github.com/lhdjung/scrutiny/commit/2eadd5e704d80d65a183aaec3b80b912fae21748",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "e823400",
+            "message": "Rename `items` to `items_averaged` without a default, close #94",
+            "body": "* `items` was mistaken for the number of scale points, and its default of 1 let multi-item scales be tested as single items without anyone noticing. Like `digits_x`, the renamed argument must now be stated in every GRIM and GRIMMER function, or given as an `items_averaged` column in the mappers. `grim_granularity()` keeps its default.\n\n* A missing `items_averaged` calls `error_items_missing()`, which explains the argument and says that it replaces `items`. It fires after the `digits_*` checks.\n\n* `manage_helper_col()` can be called without `default`, for helper arguments that have none. `function_map()` does that for such arguments and leaves required arguments out of the length check, so that a missing one reaches `fun()` as missing.\n\n* Mapper output now always has an `items_averaged` column, which changes the expected shapes in many tests.",
+            "author": "Lukas Jung",
+            "date": "2026-10-19",
+            "url": "https://github.com/lhdjung/scrutiny/commit/e823400db47e6443d8c43c0e8356e74989a1a1a0",
+            "type": "refactor",
+            "branch": "polishing"
+          },
+          {
+            "sha": "cc76c62",
+            "message": "Cut GRIMMER's scale bounds, close #88",
+            "body": "* `min_val` and `max_val` are gone from `grimmer()`, `grimmer_map()`,\n`grimmer_explain()`, and `grimmer_plot_values()`, along with the\n`fail_scale` column of `audit()` and the comb's third tooth state. They\nwere never released, so no deprecation is needed.\n\n* strait already covers this ground: `brimmer()` flags every case the\nbounds flagged, and `brimmest()` decides exactly. strait imports\nscrutiny and never passed the bounds on any branch. `?grimmer` and the\nGRIMMER vignette now point there.",
+            "author": "Lukas Jung",
+            "date": "2026-10-19",
+            "url": "https://github.com/lhdjung/scrutiny/commit/cc76c62083164b454c7a5bc584b9887f812a3473",
+            "type": "other",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-10-15T15:25:58Z",
+        "recent_commits": [
+          {
+            "sha": "b977710",
+            "message": "Built site for tenzing@0.4.1: 85425d1",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/b977710bb300115ece3b676f92b9a062db2605e2",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "85425d1",
+            "message": "bumped roxygen version and updated the doc files",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/85425d19e4527b05928eacb15626612f762c300f",
+            "type": "docs",
+            "branch": "master"
+          },
+          {
+            "sha": "f267e64",
+            "message": "Built site for tenzing@0.4.1: 7116563",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/f267e64ea83d2c419d91390fb164ca52feed6a33",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "7116563",
+            "message": "bug fix: certain outputs included acknowledgees even though those outputs should not use them",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/71165636d127f1f7ce22276af54d4207751f018b",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "brandmaier",
+        "repo": "reproducibleRchunks",
+        "url": "https://github.com/brandmaier/reproducibleRchunks",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-10-20T18:44:06Z",
+        "recent_commits": [
+          {
+            "sha": "9e77076",
+            "message": "Merge pull request #31 from brandmaier/styling",
+            "body": "Styling",
+            "author": "Andreas Brandmaier",
+            "date": "2026-10-20",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/9e7707674cfd755405af5c56457ae7ac128f34ef",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "cb778ad",
+            "message": "fixed some package check issues",
+            "body": "",
+            "author": "brandmaier",
+            "date": "2026-10-20",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/cb778adfbd2d0fc1e2f90be37eb3c1a8054779da",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "4ca2056",
+            "message": "added test for canonical representation",
+            "body": "",
+            "author": "brandmaier",
+            "date": "2026-10-20",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/4ca2056446e2139342ae86706af26ae8363dba9d",
+            "type": "test",
+            "branch": "main"
+          },
+          {
+            "sha": "5c2c33f",
+            "message": "updated version number",
+            "body": "",
+            "author": "brandmaier",
+            "date": "2026-10-20",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/5c2c33fb8c03306bdeeb6ad5cf4ace32c72c97a4",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-10-04T09:25:40Z",
+        "recent_commits": [
+          {
+            "sha": "d9c3ec7",
+            "message": "docs: add screenshots for provider settings and run defaults",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-10-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d9c3ec77a1a78d2cf8104b1c9b53796717360ae1",
+            "type": "feat",
+            "branch": "main"
+          },
+          {
+            "sha": "a4a2f9a",
+            "message": "Release 0.12.9",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-10-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4a2f9a9c91bd227d574872a6572d581c4c2843f",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "23a6a90",
+            "message": "updated docs",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-10-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/23a6a903c46eda361e0c833a77118195afbd7c10",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "cjvanlissa",
+        "repo": "worcs",
+        "url": "https://github.com/cjvanlissa/worcs",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-10-07T09:04:00Z",
+        "recent_commits": [
+          {
+            "sha": "ed306b5",
+            "message": "Deploying to gh-pages from @ cjvanlissa/worcs@d883359de0250edf90f4f88c2384bdb23e2d1d9f \ud83d\ude80",
+            "body": "",
+            "author": "cjvanlissa",
+            "date": "2026-10-07",
+            "url": "https://github.com/cjvanlissa/worcs/commit/ed306b5195d5b2d856478a82bbb20cdbaa8c8607",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "d883359",
+            "message": "update 2026-10-07 10:58:54.664894",
+            "body": "",
+            "author": "cjvanlissa",
+            "date": "2026-10-07",
+            "url": "https://github.com/cjvanlissa/worcs/commit/d883359de0250edf90f4f88c2384bdb23e2d1d9f",
+            "type": "other",
+            "branch": "master"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-10-20T16:29:59.035582+00:00",
     "narrative": "",
     "repos": [
@@ -25777,52 +26323,6 @@
             "date": "2026-09-10",
             "url": "https://github.com/shaheedazaad/auto-zcurve/commit/40676dd45a817ba78070d6742d1018a5be451385",
             "type": "chore",
-            "branch": "main"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-09-25T03:27:00.506910+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "quest-bih",
-        "repo": "oddpub",
-        "url": "https://github.com/quest-bih/oddpub",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-08-31T11:22:46Z",
-        "recent_commits": [
-          {
-            "sha": "2b30005",
-            "message": "documentation and version bump",
-            "body": "",
-            "author": "ontogenerator",
-            "date": "2026-08-31",
-            "url": "https://github.com/quest-bih/oddpub/commit/2b300054b5039d2fcd29d5c2eae95380bdccb754",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-09-20T02:00:02Z",
-        "recent_commits": [
-          {
-            "sha": "d2dd8a5",
-            "message": "add redis data info",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-09-20",
-            "url": "https://github.com/JamieCummins/regcheck/commit/d2dd8a5b564a4ccd69b1536969cf418d02a26a86",
-            "type": "feat",
             "branch": "main"
           }
         ]
