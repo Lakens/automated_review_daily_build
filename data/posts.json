@@ -1,5 +1,221 @@
 [
   {
+    "generated_at": "2026-10-30T04:24:08.299792+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 8,
+        "pushed_at": "2026-10-30T03:54:18Z",
+        "recent_commits": [
+          {
+            "sha": "bf36918",
+            "message": "Merge pull request #553 from scienceverse/dev",
+            "body": "Merge dev into main: 0.4.1.13",
+            "author": "Daniel Lakens",
+            "date": "2026-10-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/bf36918f6aef5ed55c820baeb8486e4ae56f9fe7",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "e636c88",
+            "message": "Merge pull request #552 from scienceverse/ci_fixes",
+            "body": "Remove the Teams notification; skip four tests that fail only on GitHub",
+            "author": "Daniel Lakens",
+            "date": "2026-10-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/e636c88ac0d2ba8b6bcd9407de8afb330dbbdab0",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "07fb0c6",
+            "message": "Remove the Teams notification; skip four tests that fail only on GitHub",
+            "body": "- The Teams workflow is removed: Teams has refused every notification\n  since at least 2026-09-20 (\"The request must be authenticated only by\n  Shared Access scheme\")\n- Skipped on GitHub (skip_on_ci()), still run locally: two ResearchBox\n  download tests (the box came from an earlier test's download there), the\n  8-second total-time test (covr slows R down too much), and the Docker\n  write test (the container's uid 1000 cannot write in a folder owned by\n  the runner's uid 1001)\n- Version 0.4.1.13",
+            "author": "Lakens",
+            "date": "2026-10-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/07fb0c604bb1362e296acd8d94c70954d47fa93d",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "dd31d01",
+            "message": "Merge pull request #551 from scienceverse/dev",
+            "body": "Merge dev into main: 0.4.1.12",
+            "author": "Daniel Lakens",
+            "date": "2026-10-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/dd31d01e93f82ee36bbc0e53e05dd186e0c9ac16",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "1f68d4d",
+            "message": "Merge pull request #550 from scienceverse/renv_files",
+            "body": "renv's own files are not the paper's code; stored results and halfway values are found (#548, #549)",
+            "author": "Daniel Lakens",
+            "date": "2026-10-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/1f68d4d5e1a76d3e726780fda29d45f82da541a0",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "12aa58c",
+            "message": "renv's own files are not the paper's code; stored results and halfway values are found (#548, #549)",
+            "body": "- code_check and reproducibility_check leave out files in a renv/ folder\n  (renv/activate.R, renv/library/), and code_check no longer downloads\n  them. The old exclusion looked for the folder in file_name, which holds\n  no folder, so it never matched (#548)\n- reproducibility_check reads the right-hand side of an assignment, so a\n  stored sapply()/tapply()/aggregate() summary is typed by its FUN, and it\n  reads effectsize results from the object, typed as Cohen's d with its\n  interval (#549)\n- match_reported_output() accepts both roundings of a value exactly\n  halfway (13.625 reported as 13.63 or 13.62); round() accepted only R's\n- Tests run in quick mode unless METACHECK_FULL_TESTS=true; the GitHub\n  test workflow sets it\n- Version 0.4.1.12",
+            "author": "Lakens",
+            "date": "2026-10-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/12aa58ce0cafb33721b24c034e41510fc48ba60d",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "e96c05a",
+            "message": "Merge pull request #547 from scienceverse/api_keys",
+            "body": "API keys work the same way for every repository, and visitors can use their own when the server's run out",
+            "author": "Daniel Lakens",
+            "date": "2026-10-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/e96c05ac93ba5ca8ac45cde412aab74909ac12a2",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "52dcd4f",
+            "message": "API keys work the same way for every repository, and visitors can use their own when the server's run out",
+            "body": "- R/api-keys.R: each key is read from an option first and an environment\n  variable second, checked once per R session, and left out with a warning\n  when the service refuses it. A refused key or a reached limit is recorded in\n  a state folder all R sessions share (METACHECK_STATE_DIR), and\n  api_key_status() gives the message for the visitor. api_keys_use() sets a\n  visitor's own keys for one job. New github_pat() and openalex_key().\n- GitHub, GitLab, OSF, Dataverse, Dryad, ResearchBox and OpenAlex use this;\n  keys go only to their own host; a GitHub or GitLab limit now reports the\n  repository as not listed instead of empty; ResearchBox's count of \"unfound\"\n  answers moved to the state folder, where it is no longer lost after each job.\n- osf_app(): a wrong typed token no longer clears OSF_PAT.\n- The three apps: a folded box \"Your own API keys (optional)\" and a notice\n  when a key of the server was refused or used up; the keys go to the\n  visitor's own job only. The plumber API takes key_<service> fields.\n- Tests: setup.R's resets now run when all tests have run (teardown_env());\n  before, they ran at once, so tests wrote to the package source and the\n  user's own state folder. test-app-repocheck.R puts metacheck.repo_cache.dir\n  back after the app's job.",
+            "author": "Lakens",
+            "date": "2026-10-29",
+            "url": "https://github.com/scienceverse/metacheck/commit/52dcd4f1ed2e135298c3d64418888a8dfa8ec80b",
+            "type": "other",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-10-15T15:25:58Z",
+        "recent_commits": [
+          {
+            "sha": "b977710",
+            "message": "Built site for tenzing@0.4.1: 85425d1",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/b977710bb300115ece3b676f92b9a062db2605e2",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "85425d1",
+            "message": "bumped roxygen version and updated the doc files",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/85425d19e4527b05928eacb15626612f762c300f",
+            "type": "docs",
+            "branch": "master"
+          },
+          {
+            "sha": "f267e64",
+            "message": "Built site for tenzing@0.4.1: 7116563",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/f267e64ea83d2c419d91390fb164ca52feed6a33",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "7116563",
+            "message": "bug fix: certain outputs included acknowledgees even though those outputs should not use them",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/71165636d127f1f7ce22276af54d4207751f018b",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-10-04T09:25:40Z",
+        "recent_commits": [
+          {
+            "sha": "d9c3ec7",
+            "message": "docs: add screenshots for provider settings and run defaults",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-10-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d9c3ec77a1a78d2cf8104b1c9b53796717360ae1",
+            "type": "feat",
+            "branch": "main"
+          },
+          {
+            "sha": "a4a2f9a",
+            "message": "Release 0.12.9",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-10-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4a2f9a9c91bd227d574872a6572d581c4c2843f",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "23a6a90",
+            "message": "updated docs",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-10-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/23a6a903c46eda361e0c833a77118195afbd7c10",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "cjvanlissa",
+        "repo": "worcs",
+        "url": "https://github.com/cjvanlissa/worcs",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-10-07T09:04:00Z",
+        "recent_commits": [
+          {
+            "sha": "ed306b5",
+            "message": "Deploying to gh-pages from @ cjvanlissa/worcs@d883359de0250edf90f4f88c2384bdb23e2d1d9f \ud83d\ude80",
+            "body": "",
+            "author": "cjvanlissa",
+            "date": "2026-10-07",
+            "url": "https://github.com/cjvanlissa/worcs/commit/ed306b5195d5b2d856478a82bbb20cdbaa8c8607",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "d883359",
+            "message": "update 2026-10-07 10:58:54.664894",
+            "body": "",
+            "author": "cjvanlissa",
+            "date": "2026-10-07",
+            "url": "https://github.com/cjvanlissa/worcs/commit/d883359de0250edf90f4f88c2384bdb23e2d1d9f",
+            "type": "other",
+            "branch": "master"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-10-29T22:34:30.413605+00:00",
     "narrative": "",
     "repos": [
@@ -36338,192 +36554,6 @@
             "url": "https://github.com/brandmaier/reproducibleRchunks/commit/1fed484b95e6e1a663996ebd928ad39093420679",
             "type": "other",
             "branch": "styling"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-10-04T11:54:55.855585+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 9,
-        "pushed_at": "2026-10-04T10:19:03Z",
-        "recent_commits": [
-          {
-            "sha": "71292eb",
-            "message": "Move cbc_dir()/cbc_run() into helper.R so they load under every test runner",
-            "body": "test-module-codebook_check.R depends on both, but they were defined in a\nsibling test file (test-codebook-helpers.R) that never itself calls\nthem. That only worked by alphabetical-ordering accident under\ndevtools::test(), which leaves one session's globals around across\nfiles -- testthat::test_file() on test-module-codebook_check.R alone (a\ncompletely standard way to run one file) failed outright with \"could\nnot find function cbc_dir\", as did the full test_dir() run. Moved both\ninto helper.R, which testthat guarantees is sourced before any test\nfile runs, under every runner.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-            "author": "Lakens",
-            "date": "2026-10-04",
-            "url": "https://github.com/scienceverse/metacheck/commit/71292ebae88b65f6017c42af770270d4e110c5f2",
-            "type": "test",
-            "branch": "dev"
-          },
-          {
-            "sha": "61cd827",
-            "message": "Restore the two file_tabset()/report_type() tests dropped from dev",
-            "body": "These were committed to dev alongside the file_tabset() report_type()\ncall site (8f2de4e) but never belonged there without report_type()'s\nown definition, which only ever existed as uncommitted changes -- now\non this branch. Removed from dev (where they tested a function that\ndoesn't exist there) and restored here, where the feature they cover\nactually lives.",
-            "author": "Lakens",
-            "date": "2026-10-04",
-            "url": "https://github.com/scienceverse/metacheck/commit/61cd8277fa997233af223eeb2274831f604a0373",
-            "type": "other",
-            "branch": "updated_report"
-          },
-          {
-            "sha": "19c431d",
-            "message": "Fix two report_type() test calls left over from the same dangling commit",
-            "body": "Same root cause as 52a2b7d: these two tests exercised the report_type()\n\"simple\"-mode feature, but the function itself was never committed to\ndev. Removed the simple-mode test (the feature it covers lives on the\nupdated_report branch now, where it belongs) and dropped the dead\nreport_type(\"full\") call from the full-mode test, which no longer needs\nit now that file_tabset() always builds a tabset again.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-            "author": "Lakens",
-            "date": "2026-10-04",
-            "url": "https://github.com/scienceverse/metacheck/commit/19c431d00b8fe2774d27f002ed2efa8083aed482",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "2fd71f8",
-            "message": "Merge remote-tracking branch 'origin/dev' into dev",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-04",
-            "url": "https://github.com/scienceverse/metacheck/commit/2fd71f8c5a47d23cd40e76fb410d100adf55aa8b",
-            "type": "other",
-            "branch": "dev"
-          },
-          {
-            "sha": "52a2b7d",
-            "message": "Fix data_check() crashing on any multi-file report tabset",
-            "body": "file_tabset() in inst/modules/data_check.R called report_type(), a\nfunction that was never defined anywhere in the package: its call site\nhad been committed (8f2de4e) without report_type()'s own definition\nlanding alongside it, which had only ever existed as uncommitted\nworking-tree changes (now preserved on the updated_report branch).\nEvery data/codebook report with more than one file builds a tabset, so\nthis broke report generation outright for any such run.\n\nReverted file_tabset() to its previous, unconditional-tabset behaviour.\nConfirmed working end-to-end against the exact code path that surfaced\nthis (a two-CSV local data_check() report).\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
-            "author": "Lakens",
-            "date": "2026-10-04",
-            "url": "https://github.com/scienceverse/metacheck/commit/52a2b7d580106aa248854f287d725b7a421a8723",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "029bf63",
-            "message": "WIP: add report_type(\"simple\") email-safe static report option",
-            "body": "Preserves in-progress work that was sitting uncommitted on dev (moved to\nits own branch during a repo cleanup). Adds a report_type() setting to\nchoose between the normal interactive report (theme toggle, sortable/\npaginated JS tables, tabbed sections) and a static \"simple\" report with\nnone of that, for a report meant to be emailed (mail clients and scanners\nroutinely flag embedded JavaScript even though it's inert without a\nbrowser).\n\nNot yet reviewed or finished -- this commit is a checkpoint, not a\nfinished feature.",
-            "author": "Lakens",
-            "date": "2026-10-04",
-            "url": "https://github.com/scienceverse/metacheck/commit/029bf633143663f5c9af749166c574cef6640a4d",
-            "type": "feat",
-            "branch": "updated_report"
-          },
-          {
-            "sha": "1f391ed",
-            "message": "Merge pull request #457 from scienceverse/fix/issue-456-441-411-validation-audit",
-            "body": "Fix archive download promotion, extend extension registry, normalize GROBID DOI whitespace",
-            "author": "Daniel Lakens",
-            "date": "2026-10-04",
-            "url": "https://github.com/scienceverse/metacheck/commit/1f391ede1590b1adc7d7316225af9c972e5b1b45",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "e4b74e1",
-            "message": "Fix archive download promotion, extend data/code extension registry, normalize GROBID DOI whitespace (#456, #441, #411)",
-            "body": "A 317-paper validation audit (issues #456, #441, #411) was run against a\npinned 0.3.1 snapshot predating several fixes already on dev (the\npeek_zips default mismatch, the #441 Shapefile/.gpkg additions, and the\nDryad 401 hint in download_repo_files() were all already fixed) -- this\ncommit addresses the remaining, still-live gaps confirmed against current\ndev:\n\n- data_check(): the archive-rescue `want` formula used an AND where a\n  freshly-discovered archive (typed \"unknown\") needed its FALSE promoted\n  to TRUE; an AND can only narrow an already-TRUE value, so every unopened\n  archive under download = \"data\" silently never got expanded (#456.1).\n- .ext_registry: added .rdat, .str, .dtg (data) and .nlogo, .jl (code),\n  each confirmed against a real corpus example in #456's audit.\n- import-grobid.R: GROBID's PDF-to-text extraction sometimes re-flows a\n  PDF line-wrap boundary as a literal space, splitting a repository DOI\n  mid-string (\"https ://...\", \"doi. org/...\"). Collapsed centrally in\n  .process_full_text() rather than per-regex in each archive-*.R backend\n  (#411 bug 2).\n- archive-dryad.R: factored the standalone dryad_file_download() export's\n  per-file byte fetch into .dryad_download_one_file(), and gave it the\n  same Dryad-401-vs-API-key-missing hint download_repo_files() already\n  has, so a missing-key failure isn't indistinguishable from any other\n  download problem in this less-used export either (#456.6 polish).\n\nLeft for a follow-up, since both explicitly call for a design decision\nrather than a mechanical fix:\n- #411 bug 1 (text_search()'s include_refs = FALSE hiding a reference-\n  list-only DOI) -- needs a decision on the misattribution risk the issue\n  itself raises.\n- #443 (data_classify_files() Tier 2 provenance/redesign proposal) -- a\n  structural redesign, not a bug fix.\n\nAlso confirmed #456.3 (.rar/.7z unsupported) is an explicitly acknowledged,\nunaddressable limitation, to note when closing that item.",
-            "author": "Lakens",
-            "date": "2026-10-04",
-            "url": "https://github.com/scienceverse/metacheck/commit/e4b74e10b02d3f79c89e1c181edc1325fa661674",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "8f2de4e",
-            "message": "Warn and self-explain when a Dryad API key is missing",
-            "body": "Dryad allows listing a dataset's files without a key, but requires one\n(dryad_pat()/dryad_auth()) to download file bytes even from a fully\npublic dataset. data_check and code_check depend on those bytes, so a\nmissing key silently zeroed out columns/code analysis with only a bare\n\"HTTP 401\" to go on.\n\nNow a one-time session message fires as soon as a Dryad dataset is\nresolved with no key set, and a 401 caused by a missing key is named\nexplicitly in the download-failure report instead of a bare HTTP\nstatus. Documented the limitation in repo_check/data_check/code_check.\n\nAlso fixes two unrelated issues found while verifying this change:\n- osf_file_download() crashed with \"could not find function\n  cap_report\" (missing leading dot) whenever a repo's per-repository\n  download budget was hit with files still remaining.\n- A live OSF fixture test had stale expected paths after the real\n  project's folder structure changed; and a stale/missing CrossRef\n  mock fixture made the \"longer bib\" test fail.",
-            "author": "Lakens",
-            "date": "2026-10-03",
-            "url": "https://github.com/scienceverse/metacheck/commit/8f2de4e27d83b8cbbfbccef8ead974502fa63730",
-            "type": "other",
-            "branch": "dev"
-          }
-        ]
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 4,
-        "pushed_at": "2026-10-04T09:25:40Z",
-        "recent_commits": [
-          {
-            "sha": "d9c3ec7",
-            "message": "docs: add screenshots for provider settings and run defaults",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d9c3ec77a1a78d2cf8104b1c9b53796717360ae1",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "a4a2f9a",
-            "message": "Release 0.12.9",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4a2f9a9c91bd227d574872a6572d581c4c2843f",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "23a6a90",
-            "message": "updated docs",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/23a6a903c46eda361e0c833a77118195afbd7c10",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "88378d2",
-            "message": "Release 0.12.8: filter z-curve inputs by eligibility",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-09-28",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/88378d2db0962698e1439568c0d956c414a4fc40",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-10-01T15:40:33Z",
-        "recent_commits": [
-          {
-            "sha": "079d5a6",
-            "message": "Fix CI: keep cost-tracking test offline; bump nltk to 3.10.3",
-            "body": "- test_general_orchestrator_attaches_cost made a real OpenAI embeddings\n  call while building the evidence index (key picked up from .env via\n  load_dotenv locally; 401 in CI). Stub openai_embed_segments.\n- Bump nltk 3.10.0 -> 3.10.3 (fixes 12 PYSEC advisories surfaced once the\n  test step passed); requirements.lock regenerated (nltk lines only).\n- pip-audit: ignore PYSEC-2026-3740 (no fixed nltk release; affects model\n  save/load APIs RegCheck does not use).",
-            "author": "Jamie Cummins",
-            "date": "2026-10-01",
-            "url": "https://github.com/JamieCummins/regcheck/commit/079d5a64adfa7695aec363761003cee828a8a2b6",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "ac05237",
-            "message": "Rename external parser connector to bibr and support its jobs API",
-            "body": "- pdf2bibr: submit to /papers/jobs, poll the job, fetch /result\n  (hosted bibr service); BIBR_URL / BIBR_API_KEY (also BIBR_TOKEN),\n  legacy EXTERNAL_PARSER_* env names still honoured.\n- Parser choice \"bibr\"; \"external\" kept as an alias (CLI, API, extractor).\n- extract_bibr_text: schema 12.1 support; drop the references section;\n  keep headings of sections without their own text; append captions,\n  footnotes and tables; tolerant HTML table flattening; strip inline\n  LaTeX and literal \"\\n\" from OCR output.\n- Tests for the job flow, failure handling and text reconstruction.",
-            "author": "Jamie Cummins",
-            "date": "2026-10-01",
-            "url": "https://github.com/JamieCummins/regcheck/commit/ac05237c8244105eb2fd1ee557f5bea9c8270ff8",
-            "type": "feat",
-            "branch": "bibr-jobs-connector"
           }
         ]
       }
