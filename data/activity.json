@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-30T22:05:35.653170+00:00",
+  "generated_at": "2026-10-31T04:06:06.429437+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -124,13 +124,13 @@
       ],
       "commits_30d": 278,
       "commits_7d": 36,
-      "commits_1d": 15,
+      "commits_1d": 13,
       "commits_90d": 504,
       "authors_30d": [
-        "Jakub Werner",
-        "Lakens",
+        "Lisa DeBruine",
         "Daniel Lakens",
-        "Lisa DeBruine"
+        "Lakens",
+        "Jakub Werner"
       ],
       "type_breakdown": {
         "fix": 50,
@@ -639,11 +639,11 @@
         },
         {
           "week": 1791763200,
-          "total": 11
+          "total": 14
         },
         {
           "week": 1792368000,
-          "total": 191
+          "total": 188
         },
         {
           "week": 1792972800,
@@ -1168,226 +1168,6 @@
           "date": "2026-10-27",
           "url": "https://github.com/scienceverse/metacheck/commit/6562c61074f06ace847d36c976d9d9a7a1d6eea5",
           "type": "other",
-          "branch": "convert_repo_FAIR",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "e62da2e",
-          "message": "Merge pull request #563 from scienceverse/dev-archive-member-reuse",
-          "body": "Reuse saved archive files (#561); make saved file names safe on every system (#557)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-10-30",
-          "url": "https://github.com/scienceverse/metacheck/commit/e62da2eab6a45aebc993336c21e176b5cebe569a",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {
-            "additions": 155,
-            "deletions": 5,
-            "files": [
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 0,
-                "patch": "@@ -1,5 +1,7 @@\n # metacheck 0.4.2\n \n+* A file or folder name that cannot be written on some operating system no longer stops a check (#557). A colon, the characters `* ? \" < > |`, control characters, a final dot or space, and names like `CON` and `NUL` are changed in the same way on every system, wherever metacheck saves a file, so a result does not depend on the computer. In `reproducibility_check`, a script that still cannot be written is reported as failed, and the paper's other scripts run."
-              },
-              {
-                "filename": "R/psychds-file-plan.R",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 0,
-                "patch": "@@ -311,6 +311,11 @@ psychds_file_plan <- function(structure_df, group_no_evidence = FALSE) {\n   # a script's own read/write references -- see data_group_llm()). A plain\n   # list column so a future converter can write a reference into each of\n   # those studies' own metadata instead of copying the file.\n+  # Scripts' paths are rewritten from this plan, so the plan itself must hold names\n+  # every operating system can write.\n+  target_path <- .portable_path(target_path)\n+  original_target <- .p"
-              },
-              {
-                "filename": "R/repo-download.R",
-                "status": "modified",
-                "additions": 14,
-                "deletions": 0,
-                "patch": "@@ -1478,6 +1478,20 @@ download_repo_files <- function(files,\n                                                 file.path(\".archive_members\", arc_key)))\n         member_dest <- .safe_write_path(paste0(arc_path, \".contents\"))\n         dir.create(member_dest, showWarnings = FALSE, recursive = TRUE)\n+\n+        # A member saved by an earlier run is used as it is. `already` above\n+        # cannot see it: it looks at .cache_path, and a member is stored here,\n+        # under \".contents\" (#561). Withou"
-              },
-              {
-                "filename": "R/reproducibility_check.R",
-                "status": "modified",
-                "additions": 10,
-                "deletions": 4,
-                "patch": "@@ -1819,7 +1819,7 @@ repro_materialize_layout <- function(plan, structure_df, root) {\n     src <- sources[i]\n     if (is.na(src))\n       return(data.frame(target_path = tgt, source = NA_character_, ok = FALSE))\n-    dest <- file.path(root, tgt)\n+    dest <- file.path(root, .portable_path(tgt))\n     dir.create(dirname(dest), recursive = TRUE, showWarnings = FALSE)\n     ok <- isTRUE(file.copy(src, dest, overwrite = TRUE))\n     # The copy is the code's to change: in the Docker sandbox the code run"
-              },
-              {
-                "filename": "R/utils.R",
-                "status": "modified",
-                "additions": 30,
-                "deletions": 0,
-                "patch": "@@ -394,6 +394,33 @@ path_sanitize <- function(path, replacement = \"_\",\n .max_path_chars <- if (.Platform$OS.type == \"windows\") 250L else 4000L\n .max_component_chars <- 255L    # per-directory / filename limit on all platforms\n \n+# Make the parts of a path usable on every operating system. A name that is fine\n+# on one can stop a run on another: a colon or * in a deposit's folder or file\n+# name cannot be written on Windows, which also drops a final dot or space and\n+# reserves names like CON an"
-              },
-              {
-                "filename": "R/zip-peek.R",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1280,7 +1280,7 @@ zip_peek <- function(url, tail_bytes = 131072, cache = FALSE,\n   rel <- gsub(\"\\\\\\\\\", \"/\", name)\n   rel <- sub(\"^([A-Za-z]:)?/+\", \"\", rel)\n   if (any(strsplit(rel, \"/\", fixed = TRUE)[[1]] == \"..\")) return(NA_character_)\n-  file.path(dest, rel)\n+  file.path(dest, .portable_path(rel))\n }\n \n # Size in bytes of a remote zip, estimated from its central directory (`cd`,"
-              },
-              {
-                "filename": "tests/testthat/test-psychds-file-plan.R",
-                "status": "modified",
-                "additions": 8,
-                "deletions": 0,
-                "patch": "@@ -103,3 +103,11 @@ test_that(\"psychds_check gives each paper of a list its own row and report secti\n   expect_equal(mo$summary_table$required_missing, c(1, 0))\n   expect_equal(sum(grepl(\"^#### Paper \", unlist(mo$report))), 2)\n })\n+\n+test_that(\"psychds_file_plan gives targets every operating system can write (#557)\", {\n+  s <- data.frame(paper_id = \"p\", file_name = c(\"code.R\", \"PTHR1:SF7\"),\n+                  file_path = c(\"Title: a subtitle/code.R\", \"Title: a subtitle/PTHR1:SF7\"),\n+           "
-              },
-              {
-                "filename": "tests/testthat/test-repo-download.R",
-                "status": "modified",
-                "additions": 28,
-                "deletions": 0,
-                "patch": "@@ -244,6 +244,34 @@ test_that(\"a per-member ok=FALSE from .zip_fetch_members is recorded in `failed`\n   expect_match(fa$error, \"CRC32 mismatch\")\n })\n \n+test_that(\"an archive member saved by an earlier run is not fetched again (#561)\", {\n+  files <- make_archive_member_files()\n+  unlink(metacheck:::.repo_cache_subdir(files$repo_url[1]), recursive = TRUE)\n+\n+  local_mocked_bindings(\n+    .zip_fetch_members = function(url, names, dest, ...) {\n+      path <- file.path(dest, names)\n+      writeBin(r"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "091e411",
-          "message": "Merge pull request #564 from scienceverse/dev-docker-available",
-          "body": "repro_docker_available() tries again when Docker answers late (#560)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-10-30",
-          "url": "https://github.com/scienceverse/metacheck/commit/091e41179e3e9d1ce643c90acc8a7f9b67d0e2ed",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "ce68e4a",
-          "message": "repro_docker_available() tries again when Docker answers late (#560)",
-          "body": "A docker info that took more than 15 seconds was reported as Docker not\nrunning, which stopped the paper. A late answer now gets two more tries, of\n30 and 60 seconds. If all three are late, the message says Docker did not\nanswer. An error answer still reports at once that Docker is not running.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-10-30",
-          "url": "https://github.com/scienceverse/metacheck/commit/ce68e4ad9256ebc21bec44c9728b5d759c7a5a78",
-          "type": "other",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "61143a8",
-          "message": "Reuse saved archive files (#561); make saved file names safe on every system (#557)",
-          "body": "Files inside an archive that were already saved are now found by their\nsize and reused, so they are not fetched or unpacked again on every run.\n\nNames that are not valid on some operating system (a colon, * ? \" < > |,\ncontrol characters, a final dot or space, reserved names) are now changed\nin the same way on every system, wherever metacheck saves a file. A script\nthat cannot be written no longer stops reproducibility_check for the paper.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-10-30",
-          "url": "https://github.com/scienceverse/metacheck/commit/61143a8b08f0acfbed4ef053eb22e3df5cdb50c2",
-          "type": "other",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "d0b5b66",
-          "message": "Merge pull request #556 from scienceverse/convert_repo_FAIR",
-          "body": "FAIR_repo() converts a local folder into a FAIR copy; data_check reads every sheet and is faster (0.4.2.1)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-10-30",
-          "url": "https://github.com/scienceverse/metacheck/commit/d0b5b66ab1c1cadcae7c264c51a319b9bf28bfce",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "cb9bb00",
-          "message": "NEWS: fix the 0.4.1 heading",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-10-30",
-          "url": "https://github.com/scienceverse/metacheck/commit/cb9bb00114a29807fae2bdf73e86f9c40cc1f2e8",
-          "type": "fix",
-          "branch": "convert_repo_FAIR",
-          "diff": {}
-        },
-        {
-          "sha": "b19bd71",
-          "message": "Version 0.4.2.1",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-10-30",
-          "url": "https://github.com/scienceverse/metacheck/commit/b19bd71075d5cddf29896763d21b22bb978ca189",
-          "type": "chore",
-          "branch": "convert_repo_FAIR",
-          "diff": {}
-        },
-        {
-          "sha": "0268391",
-          "message": "data_check reads every sheet of a spreadsheet that holds a table (#555)",
-          "body": "Each table of a file with several has its columns under source_file = \"file.xlsx [sheet]\", and a new column sheet names the sheet; a file with one table keeps its own name. Sheets of notes and codebooks are documentation when the file has another table. FAIR_repo() names each variable's CSV by its sheet, writes a CSV per sheet of an .ods file, and writes dataset_description.json also when the first sheet's CSV went to documentation/.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-10-30",
-          "url": "https://github.com/scienceverse/metacheck/commit/0268391d09141dad94a6032f939886f91b74d1e0",
-          "type": "other",
-          "branch": "convert_repo_FAIR",
-          "diff": {}
-        },
-        {
-          "sha": "7230615",
-          "message": "FAIR_repo() works on a temporary copy and keeps recovered code; data_check is faster on large files (#554); code_check no longer writes into your folder",
-          "body": "FAIR_repo() runs its checks on a temporary copy, so the folder is only read. It keeps code recovered from output files as scripts, changes the paths scripts write to, replaces setwd() only for a written-out folder, no folder or the script's own folder, changes links in the folder's README to the files' new places, names each variable's file as it is in the copy, and has an execute argument for the library() calls reproducibility_check adds.\n\ndata_check's column checks work on each distinct value once and skip text work for plain number columns; 498 columns compared gave identical results. codebook_check no longer converts columns without documented codes. Pages made by pkgdown are not taken for rendered analyses.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-10-30",
-          "url": "https://github.com/scienceverse/metacheck/commit/723061523ad5fa2e6f9ecedd6a14517096d0c5c1",
-          "type": "other",
-          "branch": "convert_repo_FAIR",
-          "diff": {}
-        },
-        {
-          "sha": "d1e2a8e",
-          "message": "FAIR_repo() keeps folders, the authors' README and results apart; requirements.txt lists only installable Python packages; output readers keep backslashes",
-          "body": "From converting 20 real repositories:\n- psychds_file_plan() keeps a file's folders inside data/, materials/ and\n  documentation/ as well as analysis/, ignores a top folder that holds\n  every file (GitHub downloads), and drops a first folder that only names\n  the kind of file. Data in one folder per condition lost which condition\n  it was, and the authors' README was moved out of the top.\n- FAIR_repo() puts a file a script writes and no script reads, and a\n  fitted model, in outputs/, and points scripts there; converts an R data\n  file only when it holds a table and no CSV of that name is next to it;\n  writes requirements.txt with Python packages only, without the standard\n  library and under their pip names; takes the title from the folder's own\n  README; marks missing authors \"unknown\"; shows variable tables only when\n  there are labels; writes no dataset_description.json without data.\n- The R, Mplus and Stata output readers pad lines in characters instead of\n  with formatC(), which dropped a backslash and split columns wrongly.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-10-30",
-          "url": "https://github.com/scienceverse/metacheck/commit/d1e2a8e91817a170cd1576c40e33db6417604342",
-          "type": "docs",
-          "branch": "convert_repo_FAIR",
-          "diff": {}
-        },
-        {
-          "sha": "f777866",
-          "message": "Scripts keep their folders inside analysis/",
-          "body": "psychds_file_plan() put every script flat in analysis/, so two scripts\nwith one name collided and code that finds its own modules by folder\nstopped working. A script now keeps its folders below the folder all\nscripts of its study share.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-10-30",
-          "url": "https://github.com/scienceverse/metacheck/commit/f7778662346116468e575253b9f71c55ed9e97b6",
-          "type": "other",
-          "branch": "convert_repo_FAIR",
-          "diff": {}
-        },
-        {
-          "sha": "7437cbf",
-          "message": "FAIR_repo() converts a local folder and never goes online; identical files are left out; READMEs in subfolders keep their folder; archives of your own are not unpacked into your folder",
-          "body": "FAIR_repo(path, output_dir, paper) now converts a folder on the\nresearcher's own computer, running the checks as report_repository()\ndoes, with local_only for every check. Nothing is downloaded, no link is\nfollowed, and the folder is not changed. The paper is optional and gives\nthe title, authors, CRediT roles and funding. Online sources, result\nreuse and the download arguments are removed.\n\nA file from an archive that is identical to a file next to it, and a\nREADME identical to another, are left out and listed in CHANGES.md. A data\nfile that holds no table is kept as it is instead of reported as failed,\nand two different originals with one name no longer overwrite each other.\nPaths of the folder are removed from the saved check results.\n\npsychds_file_plan() puts a README in a subfolder in documentation/, named\nafter its folder; every README went to the top and they replaced each\nother. .archive_dest() unpacks next to itself only an archive metacheck\ndownloaded; any archive in the temporary folder counted, so an uploaded\nfolder got a \"<zip>.contents\" folder written into it.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-10-30",
-          "url": "https://github.com/scienceverse/metacheck/commit/7437cbfe714ccfd3d7bb23b2895b3ac5e720c196",
-          "type": "docs",
-          "branch": "convert_repo_FAIR",
-          "diff": {}
-        },
-        {
-          "sha": "f6fbf4d",
-          "message": "FAIR_repo() writes a reorganised, documented copy of a paper's repository; reproducibility_check copies same-named files from their own place and changes only quoted paths",
-          "body": "FAIR_repo() places every file where the Psych-DS layout puts it, writes\nnon-CSV data as CSV next to the original, changes the paths and setwd()\nlines of R and Python scripts, and writes dataset_description.json,\nro-crate-metadata.json, a README (only where the repository has none),\nrequirements.txt, CHANGES.md and logs/. It reuses the checks in a captured\nresult and runs only the missing ones.\n\nreproducibility_check looked up a file's copy by name and took the first,\nso same-named files from different folders got one file's content, and it\nreplaced a path wherever its text appeared, so x.csv also changed\n\"old_x.csv\".",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-10-30",
-          "url": "https://github.com/scienceverse/metacheck/commit/f6fbf4dacae8c1503c609c811adcf5989ac97b8e",
-          "type": "refactor",
           "branch": "convert_repo_FAIR",
           "diff": {}
         }
@@ -2501,6 +2281,114 @@
           "branch": "master",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "1088bb1",
+          "message": "Merge pull request #121 from MicheleNuijten/update-manual",
+          "body": "Add the statcheck manual source (updated for 1.6.1)",
+          "author": "Mich\u00e8le Nuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-10-29",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/1088bb199331145c4eaa4cbdb14e79ba02bafa92",
+          "type": "other",
+          "branch": "master",
+          "diff": {
+            "additions": 643,
+            "deletions": 452,
+            "files": [
+              {
+                "filename": "vignettes/articles/.gitignore",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 0,
+                "patch": "@@ -1,2 +1,3 @@\n *.html\n *.R\n+rsconnect/\n\\ No newline at end of file"
+              },
+              {
+                "filename": "vignettes/articles/figures/html-report.png",
+                "status": "added",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "vignettes/articles/figures/infograph.png",
+                "status": "added",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "vignettes/articles/manual.Rmd",
+                "status": "modified",
+                "additions": 642,
+                "deletions": 452,
+                "patch": "@@ -7,6 +7,9 @@ output:\n     toc: true\n     toc_float: true\n     number_sections: true\n+editor_options: \n+  markdown: \n+    wrap: 72\n ---\n \n ```{r, include = FALSE}\n@@ -24,154 +27,224 @@ library(statcheck)\n knitr::include_graphics(\"../../man/figures/statcheck-logo.png\")\n ```\n \n-# What's new in 1.6.1\n-\n-statcheck now reads PDF files with the R package pdftools. You no longer need\n-to install the external program Xpdf. Furthermore, `statcheckReport()` has\n-been rewritten and its argument `outputFi"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "0251fa8",
+          "message": "don't sync rsconnect files (to publish manual)",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-10-29",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/0251fa8bf03f598fa5a89958eb050d7e573d0706",
+          "type": "other",
+          "branch": "master",
+          "diff": {}
+        },
+        {
+          "sha": "b67f521",
+          "message": "small fixes",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-10-29",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/b67f5214b899f6a4c2d21dd06b38ebd2bd04f786",
+          "type": "other",
+          "branch": "master",
+          "diff": {}
+        },
+        {
+          "sha": "7d4b667",
+          "message": "type setting",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-10-29",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/7d4b66754126292d77dc1fc1becdb3aef38cc7c5",
+          "type": "other",
+          "branch": "master",
+          "diff": {}
+        },
+        {
+          "sha": "7403951",
+          "message": "restructure some text",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-10-29",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/7403951adc699710248d80b48f3aa6fedf342b99",
+          "type": "refactor",
+          "branch": "master",
+          "diff": {}
+        },
+        {
+          "sha": "03f602d",
+          "message": "update text and add additional screenshots and figs",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-10-29",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/03f602d1e61e76efb44e82e82a45fe4a13af2107",
+          "type": "feat",
+          "branch": "master",
+          "diff": {}
+        }
       ]
     },
     {
@@ -2627,8 +2515,8 @@
       "commits_90d": 12,
       "authors_30d": [
         "Anka",
-        "Marton Kovacs",
-        "Alex O. Holcombe"
+        "Alex O. Holcombe",
+        "Marton Kovacs"
       ],
       "type_breakdown": {
         "other": 3,
@@ -3433,118 +3321,6 @@
           "branch": "master",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "b977710",
-          "message": "Built site for tenzing@0.4.1: 85425d1",
-          "body": "",
-          "author": "Anka",
-          "author_login": "",
-          "date": "2026-10-15",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/b977710bb300115ece3b676f92b9a062db2605e2",
-          "type": "other",
-          "branch": "gh-pages",
-          "diff": {
-            "additions": 161,
-            "deletions": 182,
-            "files": [
-              {
-                "filename": "pkgdown.yml",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -5,7 +5,7 @@ articles:\n   app_use: app_use.html\n   local_use: local_use.html\n   validation: validation.html\n-last_built: 2026-10-15T15:11Z\n+last_built: 2026-10-15T15:25Z\n urls:\n   reference: https://marton-balazs-kovacs.github.io/tenzing/reference\n   article: https://marton-balazs-kovacs.github.io/tenzing/articles"
-              },
-              {
-                "filename": "reference/ColumnValidator.html",
-                "status": "modified",
-                "additions": 43,
-                "deletions": 41,
-                "patch": "@@ -1,7 +1,19 @@\n <!DOCTYPE html>\n-<!-- Generated by pkgdown: do not edit by hand --><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\"><title>ColumnValidator Class for Contributors Table \u2014 ColumnValidator \u2022 tenzing</title><!-- favicons --><link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href=\"../favi"
-              },
-              {
-                "filename": "reference/ColumnValidator.md",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 11,
-                "patch": "@@ -1,11 +1,5 @@\n # ColumnValidator Class for Contributors Table\n \n-ColumnValidator Class for Contributors Table\n-\n-ColumnValidator Class for Contributors Table\n-\n-## Details\n-\n The `ColumnValidator` class performs column-level validation for a\n contributors table. It ensures that required columns exist, applying\n logical validation rules such as:\n@@ -99,7 +93,7 @@ which integrates this class for validation.\n \n ### Public methods\n \n-- [`ColumnValidator$new()`](#method-ColumnValidator-new)\n+- [`C"
-              },
-              {
-                "filename": "reference/ValidateOutput.html",
-                "status": "modified",
-                "additions": 44,
-                "deletions": 38,
-                "patch": "@@ -1,7 +1,23 @@\n <!DOCTYPE html>\n-<!-- Generated by pkgdown: do not edit by hand --><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\"><title>ValidateOutput Class for Contributors Table Validation \u2014 ValidateOutput \u2022 tenzing</title><!-- favicons --><link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href"
-              },
-              {
-                "filename": "reference/ValidateOutput.md",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 10,
-                "patch": "@@ -1,11 +1,5 @@\n # ValidateOutput Class for Contributors Table Validation\n \n-ValidateOutput Class for Contributors Table Validation\n-\n-ValidateOutput Class for Contributors Table Validation\n-\n-## Details\n-\n The `ValidateOutput` class runs both **column-based validation**\n (ensuring required columns exist) and **data-based validation**\n (checking correctness of values) for a contributors table.\n@@ -146,15 +140,15 @@ The class runs in the following order:\n \n ### Public methods\n \n-- [`ValidateOutp"
-              },
-              {
-                "filename": "reference/Validator.html",
-                "status": "modified",
-                "additions": 55,
-                "deletions": 58,
-                "patch": "@@ -1,7 +1,15 @@\n <!DOCTYPE html>\n-<!-- Generated by pkgdown: do not edit by hand --><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\"><title>Validator Class for Contributors Table \u2014 Validator \u2022 tenzing</title><!-- favicons --><link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href=\"../favicon-96x96.pn"
-              },
-              {
-                "filename": "reference/Validator.md",
-                "status": "modified",
-                "additions": 8,
-                "deletions": 14,
-                "patch": "@@ -1,11 +1,5 @@\n # Validator Class for Contributors Table\n \n-Validator Class for Contributors Table\n-\n-Validator Class for Contributors Table\n-\n-## Details\n-\n The `Validator` class runs a set of user-defined validation functions on\n a contributors table. It allows for configuring which validations should\n be executed, handling dependencies between validations, evaluating\n@@ -135,7 +129,7 @@ Example:\n \n ### Public methods\n \n-- [`Validator$new()`](#method-Validator-new)\n+- [`Validator$new()`](#me"
-              },
-              {
-                "filename": "reference/dot-config_cache.html",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 4,
-                "patch": "@@ -51,10 +51,6 @@ <h2 id=\"ref-usage\">Usage<a class=\"anchor\" aria-label=\"anchor\" href=\"#ref-usage\">\n     <div class=\"sourceCode\"><pre class=\"sourceCode r\"><code><span><span class=\"va\">.config_cache</span></span></code></pre></div>\n     </div>\n \n-    <div class=\"section level2\">\n-    <h2 id=\"format\">Format<a class=\"anchor\" aria-label=\"anchor\" href=\"#format\"></a></h2>\n-    <p>An object of class <code>environment</code> of length 0.</p>\n-    </div>\n     <div class=\"section level2\">\n     <h2 id=\"det"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "85425d1",
-          "message": "bumped roxygen version and updated the doc files",
-          "body": "",
-          "author": "Marton Kovacs",
-          "author_login": "marton-balazs-kovacs",
-          "date": "2026-10-15",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/85425d19e4527b05928eacb15626612f762c300f",
-          "type": "docs",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "f267e64",
-          "message": "Built site for tenzing@0.4.1: 7116563",
-          "body": "",
-          "author": "Anka",
-          "author_login": "",
-          "date": "2026-10-15",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/f267e64ea83d2c419d91390fb164ca52feed6a33",
-          "type": "other",
-          "branch": "gh-pages",
-          "diff": {}
-        },
-        {
-          "sha": "7116563",
-          "message": "bug fix: certain outputs included acknowledgees even though those outputs should not use them",
-          "body": "",
-          "author": "Marton Kovacs",
-          "author_login": "marton-balazs-kovacs",
-          "date": "2026-10-15",
-          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/71165636d127f1f7ce22276af54d4207751f018b",
-          "type": "fix",
-          "branch": "master",
-          "diff": {}
-        }
       ]
     },
     {
@@ -3603,10 +3379,10 @@
         {
           "name": "polishing",
           "last_commit": "2026-10-29",
-          "commits_30d": 291
+          "commits_30d": 269
         }
       ],
-      "commits_30d": 291,
+      "commits_30d": 269,
       "commits_7d": 108,
       "commits_1d": 0,
       "commits_90d": 473,
@@ -3614,10 +3390,10 @@
         "Lukas Jung"
       ],
       "type_breakdown": {
-        "other": 174,
-        "fix": 32,
+        "other": 157,
+        "fix": 30,
         "docs": 26,
-        "chore": 13,
+        "chore": 10,
         "test": 21,
         "feat": 16,
         "refactor": 9
@@ -4667,6 +4443,138 @@
           "branch": "polishing",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "5288581",
+          "message": "Round, not truncate, n and digits_* to integer",
+          "body": "* `as_integer_if_lossless()` admits values within tolerance of a whole number\nbut truncated them, so `n = 100 * 0.29` (28.999999999999996) was shown as 28\nnext to the verdict for 29. b8536d3 extended this to `digits_*`: a\n`digits_x` just below 2 was shown as 1, and `grim_map_seq()` then failed.\n* `function_map()` and `function_map_seq()` turn `digits_*` into integers\nbefore testing or dispersing, so the column is the value used. Non-numeric\ninput passes through unchanged, for `fn()`'s own error.\n* Two long lines in `R/utils.R` and `R/function-map.R` formatted with air.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-29",
+          "url": "https://github.com/lhdjung/scrutiny/commit/52885813cf8ac45b8b33aecf83a4810cd49c4b2a",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {
+            "additions": 43,
+            "deletions": 18,
+            "files": [
+              {
+                "filename": "R/function-map-seq.R",
+                "status": "modified",
+                "additions": 7,
+                "deletions": 2,
+                "patch": "@@ -329,7 +329,12 @@ function_map_seq <- function(\n       digits_vals <- list()\n       for (arg_digits in `!!`(digits_args_names)) {\n         if (!eval(call(\"missing\", as.name(arg_digits)))) {\n-          digits_vals[arg_digits] <- list(get(arg_digits))\n+          # As integer, since the step between dispersed values is\n+          # `10^-digits`:\n+          digits_vals[arg_digits] <- arg_digits |>\n+            get() |>\n+            as_integer_if_lossless() |>\n+            list()\n         }\n      "
+              },
+              {
+                "filename": "R/function-map.R",
+                "status": "modified",
+                "additions": 9,
+                "deletions": 9,
+                "patch": "@@ -309,7 +309,10 @@ function_map <- function(\n \n   # The whole sets, for the manufactured function to recognize one given as\n   # such (`eval_defaults()` below resolves them to their first string):\n-  enum_defaults <- eval_enum_defaults(formals_promoted[args_enum], environment(.fn))\n+  enum_defaults <- eval_enum_defaults(\n+    formals_promoted[args_enum],\n+    environment(.fn)\n+  )\n \n   # For the `default` column of the \"scrutiny\" attribute:\n   defaults_const <- eval_defaults(\n@@ -517,11 +520,1"
+              },
+              {
+                "filename": "R/utils.R",
+                "status": "modified",
+                "additions": 16,
+                "deletions": 7,
+                "patch": "@@ -209,7 +209,13 @@ check_values_size <- function(size, what, values) {\n     with {.arg digits_x}.\"\n   }\n   limit <- format(VALUES_MAX, big.mark = \",\", scientific = FALSE)\n-  values <- vapply(values, format, character(1L), scientific = FALSE, digits = 15L)\n+  values <- vapply(\n+    values,\n+    format,\n+    character(1L),\n+    scientific = FALSE,\n+    digits = 15L\n+  )\n   value_set <- paste0(\"`\", names(values), \" = \", values, \"`\", collapse = \", \")\n   abort_in_export(\n     \"Too many achievable {"
+              },
+              {
+                "filename": "tests/testthat/test-function-map.R",
+                "status": "modified",
+                "additions": 11,
+                "deletions": 0,
+                "patch": "@@ -798,6 +798,17 @@ test_that(\"a setting whose default is not a single value may stay that way\", {\n })\n \n \n+test_that(\"integer `n` and `digits_*` columns are rounded, not truncated\", {\n+  # `100 * 0.29` is 28.999999999999996, which was shown as 28 next to the\n+  # verdict for 29:\n+  tibble::tibble(x = 5.31, n = 100 * 0.29) |> grim_map(digits_x = 2, items_averaged = 1) |> _$n |> expect_identical(29L)\n+  # A `digits_x` just below 2 was shown as 1, and the seq mapper's re-tests\n+  # then found the"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "af6966f",
+          "message": "Check only single-value defaults for length in function_map()",
+          "body": "* d540b95 required every setting to be length 1, so a mapper made from a\n`.fn` with a setting such as `bounds = NULL` or `scale = c(1, 7)` failed on\nevery call, even at its default. Only settings whose default is a single\nvalue are checked now; enums count, since their default resolves to one\nstring.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-29",
+          "url": "https://github.com/lhdjung/scrutiny/commit/af6966f3d0ccb578e0dd4be2e33cb4ac2cc5bc9c",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "4fc7ed9",
+          "message": "Expect the length error for length-2 settings in two stale tests",
+          "body": "* d540b95 checks every setting's length before its value, so\n`sd_meaning = c(\"se\", \"sd_pop\")` and `percent = c(TRUE, FALSE)` now fail with\n\"must be length 1, not 2\". Two expectations still had the old wording.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-29",
+          "url": "https://github.com/lhdjung/scrutiny/commit/4fc7ed98f41720e981bf077953fdade8bf36d4e2",
+          "type": "fix",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "26ec57c",
+          "message": "Return the digits_* columns as integers in all mapper tiers",
+          "body": "* `n` was already integer when lossless, but `digits_x` and `digits_sd` were\ndouble although they are always whole numbers. `function_map()` and\n`function_map_seq()` now pass them through `as_integer_if_lossless()`; the\ntotal-n tier inherits the basic mapper's columns.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-29",
+          "url": "https://github.com/lhdjung/scrutiny/commit/26ec57c6f5bf525b575518d674bc0c2afb3a64ca",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "aeddf6f",
+          "message": "Cut NEWS items that describe changes since 0.6.1 only within the branch",
+          "body": "* Each item was checked against scrutiny 0.6.1, installed from main. Dropped:\nthe integer `digits_*` columns, the `items = 2` partial match, the error for\ntwo key arguments naming one column, the `grim_binomial()` and\n`grim_plot_rates()` clause, GRIMMER running indefinitely, the integer\n`diff_var`, `1e-300` having 315 decimal places, and mappers failing under\n`lapply()`.\n* Reworded items that 0.6.1 handled differently from the stated earlier\nstate: a seq mapper with nothing to disperse already warned, and a total-n\ncase without group pairs failed rather than vanishing.\n* `grim_map(percent = TRUE)` now says that `x` stays a percentage, which is\nthe actual change from 0.6.1.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-29",
+          "url": "https://github.com/lhdjung/scrutiny/commit/aeddf6f381bb2cc44458c2d6adb503bd5c804a97",
+          "type": "docs",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "11c646c",
+          "message": "Require every setting to be length 1 in the mappers",
+          "body": "* The mappers checked the settings with `check_lengths_congruent()`,\nwhich allowed one of them to be longer than 1. An enum such as\n`sd_meaning = c(\"se\", \"sd_pop\")` then reached `rlang::arg_match()`,\nwhose error says it is 'not \"se\"', though \"se\" is valid; `percent =\nc(TRUE, FALSE)` reached the test. The vectorized functions had their\nown length-1 check with a better message.\n\n* `check_setting_length()` is that check, shared by `map_value_sets()`,\n`function_map()`, and the total-n factory, which reads an enum before\n`fn()` does. In the mappers it runs after `check_rounding_args()`, which\nkeeps its own message for the rounding arguments.\n\n* `check_lengths_congruent()` had no caller left and is deleted with its\ntests.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-29",
+          "url": "https://github.com/lhdjung/scrutiny/commit/11c646c91d2b7690c0300d8fabd7ca7cacd923f3",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "d351164",
+          "message": "Compare x to a power of 10 in the 15-digit check",
+          "body": "* `abs(x) >= 10^(15 - digits)` is the same condition as the one on\n`floor(log10(abs(x)))`, but exact for every power of ten, so it needs\nno correction for `log10()` rounding up just below one. The count in\nthe message comes from the integer part written out.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-29",
+          "url": "https://github.com/lhdjung/scrutiny/commit/d3511647392a8782a8f436a36e1af9da34128907",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {}
+        },
+        {
+          "sha": "637548c",
+          "message": "Show the reported values in full in the size error",
+          "body": "* `check_values_size()` formatted the value set with `format()`'s\ndefault 7 significant digits, so a reported `x = 0.123456789` was\nnamed as `x = 0.1234568`.",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-10-29",
+          "url": "https://github.com/lhdjung/scrutiny/commit/637548cb7d00eac8a1139ebc6ed92abd5bd5a4ab",
+          "type": "fix",
+          "branch": "polishing",
+          "diff": {}
+        }
       ]
     },
     {
@@ -5090,6 +4998,45 @@
       "readme_excerpt": "ODDPub is a text mining algorithm that parses a set of publications and detects\nwhich publications disseminated Open Data or Open Code together with the\npublication. It is tailored towards biomedical literature.\n\n\nNico Riedel, Vladislav Nachev (vladislav.nachev@charite.de), Miriam Kip, Evgeny Bobrov (evgeny.bobrov@bih-charite.de) - QUEST Center for Transforming Biomedical Research, Berlin Institute of Health\n\n\nMore information on the development and validation of the algorithm can be found in the publication https://doi.org/10.5334/dsj-2020-042. The related training and validation datasets can",
       "scopus_citations": null,
       "recent_commits": [
+        {
+          "sha": "16a3cea",
+          "message": "version bump",
+          "body": "",
+          "author": "ontogenerator",
+          "author_login": "",
+          "date": "2026-10-23",
+          "url": "https://github.com/quest-bih/oddpub/commit/16a3cea30aa4742fc6a6fb5321f58864ffb9dbae",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 1,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "DESCRIPTION",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,7 +1,7 @@\n Package: oddpub\n Type: Package\n Title: Detection of Open Data & Open Code statements in biomedical publications\n-Version: 7.4.0\n+Version: 7.4.1\n Authors@R: \n     c(person(\"Nico\", \"Riedel\",\n     role = \"aut\"),"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "eb4f800",
+          "message": "patch nature portfolio removal",
+          "body": "",
+          "author": "ontogenerator",
+          "author_login": "",
+          "date": "2026-10-23",
+          "url": "https://github.com/quest-bih/oddpub/commit/eb4f8006c823ae6bd3a17e26ef90b68a2a320a95",
+          "type": "other",
+          "branch": "main",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
         {
           "sha": "16a3cea",
           "message": "version bump",
@@ -5944,94 +5891,6 @@
           "branch": "master",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "ed306b5",
-          "message": "Deploying to gh-pages from @ cjvanlissa/worcs@d883359de0250edf90f4f88c2384bdb23e2d1d9f \ud83d\ude80",
-          "body": "",
-          "author": "cjvanlissa",
-          "author_login": "cjvanlissa",
-          "date": "2026-10-07",
-          "url": "https://github.com/cjvanlissa/worcs/commit/ed306b5195d5b2d856478a82bbb20cdbaa8c8607",
-          "type": "other",
-          "branch": "gh-pages",
-          "diff": {
-            "additions": 367,
-            "deletions": 323,
-            "files": [
-              {
-                "filename": "404.html",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 4,
-                "patch": "@@ -12,8 +12,8 @@\n <link rel=\"icon\" sizes=\"any\" href=\"https://cjvanlissa.github.io/worcs/favicon.ico\">\n <link rel=\"manifest\" href=\"https://cjvanlissa.github.io/worcs/site.webmanifest\">\n <script src=\"https://cjvanlissa.github.io/worcs/deps/jquery-3.6.0/jquery-3.6.0.min.js\"></script><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n-<link href=\"https://cjvanlissa.github.io/worcs/deps/bootstrap-5.3.1/bootstrap.min.css\" rel=\"stylesheet\">\n-<script src=\"https://cjv"
-              },
-              {
-                "filename": "LICENSE.html",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 3,
-                "patch": "@@ -1,13 +1,13 @@\n <!DOCTYPE html>\n-<!-- Generated by pkgdown: do not edit by hand --><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\"><title>NA \u2022 worcs</title><!-- favicons --><link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href=\"favicon-96x96.png\"><link rel=\"icon\" type=\"\u201dimage/svg+xml\u201d\" href=\"fav"
-              },
-              {
-                "filename": "articles/citation.html",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 4,
-                "patch": "@@ -12,8 +12,8 @@\n <link rel=\"icon\" sizes=\"any\" href=\"../favicon.ico\">\n <link rel=\"manifest\" href=\"../site.webmanifest\">\n <script src=\"../deps/jquery-3.6.0/jquery-3.6.0.min.js\"></script><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n-<link href=\"../deps/bootstrap-5.3.1/bootstrap.min.css\" rel=\"stylesheet\">\n-<script src=\"../deps/bootstrap-5.3.1/bootstrap.bundle.min.js\"></script><link href=\"../deps/font-awesome-6.5.2/css/all.min.css\" rel=\"stylesheet\">\n+<link "
-              },
-              {
-                "filename": "articles/create_project.html",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 4,
-                "patch": "@@ -12,8 +12,8 @@\n <link rel=\"icon\" sizes=\"any\" href=\"../favicon.ico\">\n <link rel=\"manifest\" href=\"../site.webmanifest\">\n <script src=\"../deps/jquery-3.6.0/jquery-3.6.0.min.js\"></script><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n-<link href=\"../deps/bootstrap-5.3.1/bootstrap.min.css\" rel=\"stylesheet\">\n-<script src=\"../deps/bootstrap-5.3.1/bootstrap.bundle.min.js\"></script><link href=\"../deps/font-awesome-6.5.2/css/all.min.css\" rel=\"stylesheet\">\n+<link "
-              },
-              {
-                "filename": "articles/create_project.md",
-                "status": "modified",
-                "additions": 8,
-                "deletions": 0,
-                "patch": "@@ -27,6 +27,7 @@ Reproducing the project\n Open RStudio. Load the `worcs` package, and run the installation check:\n \n ``` r\n+\n library(worcs)\n check_worcs_installation()\n ```\n@@ -95,6 +96,7 @@ Below is a minimal `prepare_data.R` script. Adapt it for your own data\n directory, and load them into memory).\n \n ``` r\n+\n # Inside prepare_data.R:\n library(worcs)\n \n@@ -122,6 +124,7 @@ instead. This tutorial assumes you use\n [`open_data()`](https://cjvanlissa.github.io/worcs/reference/open_data.md).\n \n ``"
-              },
-              {
-                "filename": "articles/endpoints.html",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 4,
-                "patch": "@@ -12,8 +12,8 @@\n <link rel=\"icon\" sizes=\"any\" href=\"../favicon.ico\">\n <link rel=\"manifest\" href=\"../site.webmanifest\">\n <script src=\"../deps/jquery-3.6.0/jquery-3.6.0.min.js\"></script><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n-<link href=\"../deps/bootstrap-5.3.1/bootstrap.min.css\" rel=\"stylesheet\">\n-<script src=\"../deps/bootstrap-5.3.1/bootstrap.bundle.min.js\"></script><link href=\"../deps/font-awesome-6.5.2/css/all.min.css\" rel=\"stylesheet\">\n+<link "
-              },
-              {
-                "filename": "articles/endpoints.md",
-                "status": "modified",
-                "additions": 7,
-                "deletions": 0,
-                "patch": "@@ -1,6 +1,7 @@\n # Using Endpoints to Check Reproducibility\n \n ``` r\n+\n library(worcs)\n #> Welcome to WORCS: Workflow for Open Reproducible Code in Science. Run\n #> `check_worcs_installation()` to make sure all dependencies are installed. For\n@@ -77,6 +78,7 @@ explicitly allow for rounding error.\n For example, imagine that you conduct the following analysis:\n \n ``` r\n+\n # Run analysis\n res <- lm(Sepal.Length ~ Sepal.Width + Petal.Length, iris)\n # Extract regression coefficients\n@@ -92,6 +94,7 @@"
-              },
-              {
-                "filename": "articles/git_cloud.html",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 4,
-                "patch": "@@ -12,8 +12,8 @@\n <link rel=\"icon\" sizes=\"any\" href=\"../favicon.ico\">\n <link rel=\"manifest\" href=\"../site.webmanifest\">\n <script src=\"../deps/jquery-3.6.0/jquery-3.6.0.min.js\"></script><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n-<link href=\"../deps/bootstrap-5.3.1/bootstrap.min.css\" rel=\"stylesheet\">\n-<script src=\"../deps/bootstrap-5.3.1/bootstrap.bundle.min.js\"></script><link href=\"../deps/font-awesome-6.5.2/css/all.min.css\" rel=\"stylesheet\">\n+<link "
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "d883359",
-          "message": "update 2026-10-07 10:58:54.664894",
-          "body": "",
-          "author": "cjvanlissa",
-          "author_login": "cjvanlissa",
-          "date": "2026-10-07",
-          "url": "https://github.com/cjvanlissa/worcs/commit/d883359de0250edf90f4f88c2384bdb23e2d1d9f",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        }
       ]
     },
     {
@@ -6073,10 +5932,10 @@
         {
           "name": "main",
           "last_commit": "2026-10-29",
-          "commits_30d": 120
+          "commits_30d": 118
         }
       ],
-      "commits_30d": 120,
+      "commits_30d": 118,
       "commits_7d": 65,
       "commits_1d": 0,
       "commits_90d": 343,
@@ -6085,7 +5944,7 @@
       ],
       "type_breakdown": {
         "chore": 12,
-        "fix": 83,
+        "fix": 81,
         "test": 7,
         "docs": 7,
         "other": 5,
@@ -6687,6 +6546,106 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "2dc5369",
+          "message": "release: docpluck 2.4.156",
+          "body": "normalization 1.9.79, table extraction 2.4.27, sectioning 1.2.9. Each new\nrewriting step names its class (REPAIR, ours / FURNITURE) in its code comment\nand CHANGELOG entry. Section goldens differ only in sectioning_version.",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-10-29",
+          "url": "https://github.com/giladfeldman/docpluck/commit/2dc5369b67a033b80bc4ed9c2b19ef20c828a274",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 42,
+            "deletions": 26,
+            "files": [
+              {
+                "filename": "CHANGELOG.md",
+                "status": "modified",
+                "additions": 12,
+                "deletions": 9,
+                "patch": "@@ -1,34 +1,34 @@\n # Changelog\n \n-## [Unreleased]\n+## [2.4.156] - 2026-10-29 - normalization 1.9.79 - table extraction 2.4.27 - sectioning 1.2.9\n \n Fixes from a check of 10 psychology papers docpluck had never processed (each read against the\n rasterized pages by two models) and from defects reported by downstream consumers.\n \n ### Normalization\n \n-- **Plain-text callers now get line-end hyphen repairs (`extract_pdf`).** pdftotext drops a real\n+- **Plain-text callers now get line-end hyphen repa"
+              },
+              {
+                "filename": "CITATION.cff",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 2,
+                "patch": "@@ -14,8 +14,8 @@ authors:\n repository-code: \"https://github.com/giladfeldman/docpluck\"\n url: \"https://docpluck.app\"\n license: MIT\n-version: \"2.4.155\"\n-date-released: \"2026-10-25\"\n+version: \"2.4.156\"\n+date-released: \"2026-10-29\"\n keywords:\n   - meta-science\n   - PDF extraction"
+              },
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 2,
+                "patch": "@@ -75,7 +75,7 @@ Requires Python 3.10 or newer.\n pip install \"docpluck[all] @ git+https://github.com/giladfeldman/docpluck.git\"\n ```\n \n-To pin a release, append its tag: `...docpluck.git@v2.4.155`. The package is also on PyPI\n+To pin a release, append its tag: `...docpluck.git@v2.4.156`. The package is also on PyPI\n (`pip install docpluck`); the GitHub tags are the release of record and PyPI can trail them,\n so check `pip index versions docpluck` if you need a specific version from PyPI.\n \n@@ -"
+              },
+              {
+                "filename": "docpluck/__init__.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -115,7 +115,7 @@\n     parse_references,\n )\n \n-__version__ = \"2.4.155\"\n+__version__ = \"2.4.156\"\n __author__ = \"Gilad Feldman\"\n __license__ = \"MIT\"\n "
+              },
+              {
+                "filename": "docpluck/extract.py",
+                "status": "modified",
+                "additions": 2,
+                "deletions": 0,
+                "patch": "@@ -349,6 +349,8 @@ def _bbox_word_layout(bbox_html: str):\n def _restore_line_end_hyphens(text: str, pdf_path: str, timeout: int) -> str:\n     \"\"\"Re-hyphenate compounds and digit ranges pdftotext joined at a line end.\n \n+    Class: REPAIR (ours) -- the page prints each hyphen; pdftotext removed it.\n+\n     Uses the page's own words from ``pdftotext -bbox`` (same engine and file as\n     the text, so a word the text prints glued mid-line is glued in the words\n     too) and the gates of ``normalize."
+              },
+              {
+                "filename": "docpluck/extract_structured.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -71,7 +71,7 @@\n # `_pick_better_table`, shipped. Both of those defects are OPEN, pinned by the xfail in\n # tests/test_r1_whitespace_cells_wiring_real_pdf.py. The claim below read as current for 16\n # days and a mandatory gate was built on it, so it is corrected here and kept there.\n-TABLE_EXTRACTION_VERSION = \"2.4.26\" # v2.4.26 (2026-10-24, v2.4.155): a grid opening with a printed \"TABLE N (Continued)\" is labelled Table N (matched, new optional key continuation_of); a grid whose first row is "
+              },
+              {
+                "filename": "docpluck/normalize.py",
+                "status": "modified",
+                "additions": 12,
+                "deletions": 1,
+                "patch": "@@ -25,7 +25,7 @@ class NormalizationLevel(str, Enum):\n     academic = \"academic\"\n \n \n-NORMALIZATION_VERSION = \"1.9.78\"  # v1.9.78 (2026-10-25, v2.4.155): the two-column reorder of interleaved pages (DOCPLUCK_COLUMN_CORRECT_GENERAL) is ON by default, behind a region plan: a page that is a table across the gutter, or two two-column blocks stacked apart or in different type, keeps pdftotext's order; a full-width table above or below the columns is read in place. The column crops also leave a rotat"
+              },
+              {
+                "filename": "docpluck/sections/__init__.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -13,7 +13,7 @@\n from .taxonomy import SectionLabel, Confidence, DetectedVia\n from .types import Section, SectionedDocument, sectioning_text_id\n \n-SECTIONING_VERSION = \"1.2.8\"  # v1.2.8 (v2.4.155): references found under a German \"Literatur\" heading, as an unheaded numbered list of reference entries, and under a \"References\" heading that follows an abbreviation list; \"Literature Survey\" is a literature review, not the bibliography; a numbered appendix label opens its appendix whatever the prev"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "b2bccbd",
+          "message": "fix(tables): a row label printed alone over a data row is a body row, not a header line; fallback tests; stale xfail",
+          "body": "- _header_row_count stops before a label-only row that sits directly above a\n  data row (10.1001/jamanetworkopen.2023.16111 Table 2: \"Continued smoking\"\n  had become a header line once the caption left the grid, so the first\n  block's records lost their block label). Measured on the 125-paper corpus:\n  4 papers change, each a label-only row moving from the header to the body.\n- The amj Figure 7 \"Meta-Processes\" test is no longer xfail: the line-end\n  hyphen repair restores it.\n- Tests: a failed or empty pdftotext -bbox words pass records\n  line_end_hyphen_words_unavailable and keeps the text; a healthy pass does not.",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-10-29",
+          "url": "https://github.com/giladfeldman/docpluck/commit/b2bccbdb31781f14df1d7de7980e4f776960ccc1",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "4b6ff14",
+          "message": "fix(tables): keep a recurring section line out of the header; still join a one-word label wrap",
+          "body": "A section line printed under the column header (\"Posttreatment\" ... \"Follow-up\",\n10.1037/a0012616 Table 4) was folded into the header cell, so every record of both\nblocks carried the first section as its group. A lone line now stays its own row when\nthe same column prints another such line further down with data between, it reads like\na short title, it sits in a column of values directly under a data row, and it\ncontinues no cell above it.\n\nIn a lowercase-label table a single wrapped word still joins its label\n(10.1098/rsos.250908 Table 14: \"ethnic\" / \"minorities\").\n\n125-paper render vs the previous commit: 3 papers change, all page-checked corrections.",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-10-29",
+          "url": "https://github.com/giladfeldman/docpluck/commit/4b6ff147e512d453e50e19b214d081dd6c37bfc1",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -6829,7 +6788,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.0.0.9000",
@@ -6974,7 +6994,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.2.6",
@@ -8168,6 +8249,244 @@
           "branch": "fix/october-model-refresh",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "7af2cca",
+          "message": "fix: preserve native Unicode text and avoid unused credential loading (#309)",
+          "body": "",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/7af2cca465dffb31337fa50b9f95ce956d348a32",
+          "type": "fix",
+          "branch": "dev",
+          "diff": {
+            "additions": 40,
+            "deletions": 3,
+            "files": [
+              {
+                "filename": "src/coarse/native_review.py",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 3,
+                "patch": "@@ -65,7 +65,8 @@ def prepare(\n             bundle = _fetch_handoff(handoff) if handoff else None\n             source = _download_handoff_source(bundle, Path(tmp)) if bundle else paper\n             assert source is not None\n-            _ensure_openrouter_key_loaded(pre_extracted)\n+            if source.suffix.lower() == \".pdf\" and pre_extracted is None:\n+                _ensure_openrouter_key_loaded(None)\n             error = openrouter_key_preflight_error(source, pre_extracted)\n             if"
+              },
+              {
+                "filename": "tests/test_native_review.py",
+                "status": "modified",
+                "additions": 36,
+                "deletions": 0,
+                "patch": "@@ -325,3 +325,39 @@ def test_author_notes_reach_native_review_prompts(tmp_path, paper):\n     tasks = [read_json(p) for p in (workspace / \"tasks\").glob(\"*.json\")]\n     overview = next(t for t in tasks if t[\"response_type\"] == \"OverviewFeedback\")\n     assert any(note in message[\"content\"] for message in overview[\"messages\"])\n+\n+\n+def test_text_preparation_does_not_load_unused_api_credentials(tmp_path, paper):\n+    with patch(\n+        \"coarse.native_review._ensure_openrouter_key_loaded\",\n+       "
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "a15825c",
+          "message": "fix: preserve native Unicode text and avoid unused credential loading",
+          "body": "",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/a15825cc290a3b5fc1a6dce800b9959d6176ad51",
+          "type": "fix",
+          "branch": "codex/native-pilot-text",
+          "diff": {}
+        },
+        {
+          "sha": "a81633d",
+          "message": "Clarify native pilot app handoff (#308)",
+          "body": "* fix(web): clarify native pilot app handoff copy\n\n* docs: clarify native pilot publication lifetime",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/a81633d58a403539cdc6b9064414dee9f9cb760c",
+          "type": "other",
+          "branch": "codex/native-pilot-text",
+          "diff": {}
+        },
+        {
+          "sha": "e76c24c",
+          "message": "docs: clarify native pilot publication lifetime",
+          "body": "",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/e76c24cd52cf5d4be93c8a3f5c6cf6fa3a4714d8",
+          "type": "other",
+          "branch": "codex/native-pilot-copy",
+          "diff": {}
+        },
+        {
+          "sha": "22c9e76",
+          "message": "fix(web): clarify native pilot app handoff copy",
+          "body": "",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/22c9e76ee2e9a5ba2a213dbb87a164b9a2ec9a56",
+          "type": "fix",
+          "branch": "codex/native-pilot-copy",
+          "diff": {}
+        },
+        {
+          "sha": "1132cb4",
+          "message": "Add opt-in native app review pilot (#307)",
+          "body": "* feat: add opt-in native app review pilot\n\n* fix: preserve native author notes and checkpoint dependencies",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/1132cb49062633510e34ae3067fe9a3b3834b9cd",
+          "type": "feat",
+          "branch": "codex/native-pilot-copy",
+          "diff": {}
+        },
+        {
+          "sha": "be810bb",
+          "message": "fix: preserve native author notes and checkpoint dependencies",
+          "body": "",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/be810bbfbd6898e179c3995c63fcbadde0087538",
+          "type": "fix",
+          "branch": "codex/native-review-pilot",
+          "diff": {}
+        },
+        {
+          "sha": "91e17db",
+          "message": "feat: add opt-in native app review pilot",
+          "body": "",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/91e17dbecc2657478cb68aceee045a11326bc359",
+          "type": "feat",
+          "branch": "codex/native-review-pilot",
+          "diff": {}
+        },
+        {
+          "sha": "2e813b2",
+          "message": "Merge pull request #306 from Davidvandijcke/dev",
+          "body": "Release v1.9.6: fix subscription handoff links",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/2e813b28b76ee0679aa48bb174f6de8700f692db",
+          "type": "other",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "6aedb6f",
+          "message": "Fix Markdown-wrapped subscription review handoffs (#305)",
+          "body": "* fix: normalize Markdown-wrapped subscription handoff URLs\n\n* test: exercise all subscription handoff transports and shell arguments\n\n* release: prepare subscription handoff hotfix v1.9.6\n\n* docs: synchronize README with hotfix package version",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/6aedb6f55d3635df462dac8130cc4497726d8648",
+          "type": "fix",
+          "branch": "codex/native-pilot-copy",
+          "diff": {}
+        },
+        {
+          "sha": "38e7e64",
+          "message": "docs: synchronize README with hotfix package version",
+          "body": "",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/38e7e640a737805869b29659c65ceb822eb1c407",
+          "type": "docs",
+          "branch": "codex/fix-handoff-markdown",
+          "diff": {}
+        },
+        {
+          "sha": "72063e2",
+          "message": "release: prepare subscription handoff hotfix v1.9.6",
+          "body": "",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/72063e20b0c917bc8daeb1008506fd47c689a15d",
+          "type": "chore",
+          "branch": "codex/fix-handoff-markdown",
+          "diff": {}
+        },
+        {
+          "sha": "1736525",
+          "message": "test: exercise all subscription handoff transports and shell arguments",
+          "body": "",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/1736525fc748154715cefa0d3ff05abf30ac1678",
+          "type": "test",
+          "branch": "codex/fix-handoff-markdown",
+          "diff": {}
+        },
+        {
+          "sha": "f9e66a6",
+          "message": "fix: normalize Markdown-wrapped subscription handoff URLs",
+          "body": "",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/f9e66a631b57894d00549376f21ceac4310e4834",
+          "type": "fix",
+          "branch": "codex/fix-handoff-markdown",
+          "diff": {}
+        },
+        {
+          "sha": "f02f00e",
+          "message": "Merge pull request #304 from Davidvandijcke/dev",
+          "body": "Release v1.9.5: current model defaults and subscription handoffs",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/f02f00e8208bc65a065409e845da4099be19e0a4",
+          "type": "other",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "1a0cb67",
+          "message": "Refresh model defaults and Claude Code/Codex handoffs for October (#303)",
+          "body": "* Refresh October model defaults and subscription handoffs\n\n* Verify native handoffs and update urllib3 security floor",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/1a0cb67aedd3aede256802319339865dddcd1ec4",
+          "type": "other",
+          "branch": "codex/fix-handoff-markdown",
+          "diff": {}
+        },
+        {
+          "sha": "bba0213",
+          "message": "Verify native handoffs and update urllib3 security floor",
+          "body": "",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/bba0213481ec6417e037063ec1776c39cfa7424e",
+          "type": "other",
+          "branch": "fix/october-model-refresh",
+          "diff": {}
+        },
+        {
+          "sha": "23aac17",
+          "message": "Refresh October model defaults and subscription handoffs",
+          "body": "",
+          "author": "Davidvandijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-10-05",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/23aac179ca8813678c38b02f66d810567bddbf5d",
+          "type": "other",
+          "branch": "fix/october-model-refresh",
+          "diff": {}
+        }
       ]
     },
     {
@@ -8516,6 +8835,40 @@
           "type": "feat",
           "branch": "bibr-jobs-connector",
           "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "50c8017",
+          "message": "fix clinical trials versioning issue",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-10-12",
+          "url": "https://github.com/JamieCummins/regcheck/commit/50c80178e8baa3858760cf0d3d04786e23a8602b",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 85,
+            "deletions": 9,
+            "files": [
+              {
+                "filename": "backend/services/trials.py",
+                "status": "modified",
+                "additions": 24,
+                "deletions": 9,
+                "patch": "@@ -36,22 +36,28 @@ def parse_date(date_str: str | None) -> date | None:\n     return None\n \n \n-def fetch_latest_study(nct_id: str) -> Dict[str, Any]:\n-    response = requests.get(V2_STUDY_URL.format(nct_id=nct_id), timeout=30)\n+def fetch_latest_study(\n+    nct_id: str, session: requests.Session | None = None\n+) -> Dict[str, Any]:\n+    response = (session or requests).get(V2_STUDY_URL.format(nct_id=nct_id), timeout=30)\n     response.raise_for_status()\n     return response.json()\n \n \n-def fetch_hi"
+              },
+              {
+                "filename": "tests/test_trials_session.py",
+                "status": "added",
+                "additions": 61,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,61 @@\n+from backend.services import trials\n+\n+\n+class _Response:\n+    def __init__(self, payload):\n+        self._payload = payload\n+\n+    def raise_for_status(self):\n+        pass\n+\n+    def json(self):\n+        return self._payload\n+\n+\n+class _CookieGatedSession:\n+    \"\"\"Mimics ClinicalTrials.gov: history endpoints need the cookie set by the study call.\"\"\"\n+\n+    instances: list[\"_CookieGatedSession\"] = []\n+\n+    def __init__(self):\n+        self.has_cookie = False\n+        self.url"
+              }
+            ]
+          },
+          "diff_summary": ""
         }
       ]
     },
@@ -9057,6 +9410,82 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "a12feaf",
+          "message": "sync from escicheckapp@7e5f5d8 (effectcheck v0.7.17) (#46)",
+          "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 7e5f5d8364916e5c0fce80982efe976b7b60e906\nPackage version: 0.7.17\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-10-08",
+          "url": "https://github.com/giladfeldman/escicheck/commit/a12feafb5becbae29ce6d6360eb221becba51efa",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 1483,
+            "deletions": 372,
+            "files": [
+              {
+                "filename": ".Rbuildignore",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 0,
+                "patch": "@@ -7,3 +7,7 @@\n ^\\.claude$\n ^effectcheck_.*\\.tar\\.gz$\n ^\\.winbuilder-logs$\n+^docs$\n+^tools$\n+^CITATION\\.cff$\n+^CONTRIBUTING\\.md$"
+              },
+              {
+                "filename": "CITATION.cff",
+                "status": "added",
+                "additions": 34,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,34 @@\n+cff-version: 1.2.0\n+message: \"If you use effectcheck, please cite it as below.\"\n+title: \"effectcheck: Statistical Consistency Checker for Published Research Results\"\n+type: software\n+authors:\n+  - family-names: Feldman\n+    given-names: Gilad\n+    affiliation: University of Innsbruck\n+    orcid: \"https://orcid.org/0000-0003-2812-6599\"\n+version: \"0.7.17\"\n+license: MIT\n+repository-code: \"https://github.com/giladfeldman/escicheck\"\n+url: \"https://escimate.app\"\n+abstract: >-\n+  A co"
+              },
+              {
+                "filename": "CONTRIBUTING.md",
+                "status": "added",
+                "additions": 40,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,40 @@\n+# Contributing to effectcheck\n+\n+Thank you for helping. effectcheck is a research tool whose output people rely on, so the most\n+valuable contributions are **verification reports**: a published result where effectcheck's\n+verdict is wrong, with the exact input text.\n+\n+## Reporting a wrong verdict\n+\n+Open an issue at <https://github.com/giladfeldman/escicheck/issues> with:\n+\n+1. the exact text you passed to `check_text()` (a sentence or two is enough \u2014 please do not\n+   paste w"
+              },
+              {
+                "filename": "DESCRIPTION",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,7 +1,7 @@\n Package: effectcheck\n Type: Package\n Title: Statistical Consistency Checker for Published Research Results\n-Version: 0.7.14\n+Version: 0.7.17\n Authors@R: c(person(given = \"Gilad\", family = \"Feldman\", role = c(\"aut\", \"cre\"),\n     email = \"giladfel@gmail.com\", comment = c(ORCID = \"0000-0003-2812-6599\")))\n Description: A conservative, assumption-aware statistical consistency checker"
+              },
+              {
+                "filename": "NEWS.md",
+                "status": "modified",
+                "additions": 211,
+                "deletions": 0,
+                "patch": "@@ -1,3 +1,196 @@\n+# effectcheck 0.7.17\n+\n+## Welch t-test effect sizes (changes verdicts on Welch rows with a stated N far above df + 2 only)\n+\n+- **A stated sample size that already reproduces the reported d is no longer replaced.** A\n+  Welch df only bounds N from below (N >= df + 2), so a stated N far above df + 2 is legitimate\n+  when variances and group sizes are unequal. The Welch branch treated any scraped N above\n+  1.5 x (df + 2) as \"likely from a different study\" and replaced it with "
+              },
+              {
+                "filename": "R/check.R",
+                "status": "modified",
+                "additions": 39,
+                "deletions": 6,
+                "patch": "@@ -919,7 +919,7 @@ no_variants_reason <- function(reported_type) {\n #' @param cross_type_action Action when cross-type match found (\"NOTE\", \"WARN\", or \"ERROR\")\n #' @param ci_affects_status Whether CI mismatches affect status (default TRUE)\n #' @param plausibility_filter Whether to apply plausibility bounds filter (default TRUE)\n-#' @param sign_sensitive Whether sign differences affect status (default FALSE)\n+#' @param sign_sensitive Intended to make sign differences affect status (default FALSE"
+              },
+              {
+                "filename": "R/compute.R",
+                "status": "modified",
+                "additions": 5,
+                "deletions": 1,
+                "patch": "@@ -88,7 +88,11 @@ has_effectsize <- function() {\n }\n \n # CI computation priority system\n-# Priority 1: effectsize::confidence_interval()\n+# Priority 1: effectsize::confidence_interval() -- NOT WIRED. The two\n+#   `if (has_effectsize())` blocks below have empty bodies, so the effectsize\n+#   package is never called, installed or not (verified 2026-09-27). The CIs\n+#   come from MBESS where it is used (ci.smd / ci.sm) and otherwise from the\n+#   analytic formulas. Do not describe effectsize as a "
+              },
+              {
+                "filename": "R/parse.R",
+                "status": "modified",
+                "additions": 35,
+                "deletions": 0,
+                "patch": "@@ -478,6 +478,19 @@ normalize_text <- function(x) {\n     }\n   }\n \n+  # --- Markdown emphasis around a short token (*t*, **p**, _d_, ***F***) ---\n+  # APA italicises statistic symbols, so markdown and DOCX/HTML-converted text\n+  # carries `*t*(17) = -1.32, *p* = .453`. Every pattern below anchors on the bare\n+  # symbol, so an italic statistic lost the whole row and an italic p alone was\n+  # dropped silently (row kept, p_reported NA, status SKIP). Reported by a\n+  # downstream consumer 2026-08-"
+              }
+            ]
+          },
+          "diff_summary": ""
+        }
       ]
     },
     {
@@ -9262,7 +9691,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.3.1",
@@ -9403,11 +9893,11 @@
         },
         {
           "week": 1786924800,
-          "total": 9
+          "total": 10
         },
         {
           "week": 1787529600,
-          "total": 2
+          "total": 1
         },
         {
           "week": 1788134400,
@@ -9513,106 +10003,6 @@
       "readme_excerpt": "> [!TIP]\n> New to auto-zcurve? The [user guide](https://shaheedazaad.github.io/auto-zcurve/)\n> is written for researchers, not developers, and covers install, adding an\n> API key, running your first project, and reading the results.\n\nauto-zcurve reads PDF articles, uses a supported LLM provider to extract focal\nstatistical results, and creates a z-curve analysis report with a plot, summary\nstatistics, and full disclosure table.\n\nThe default interface is a private browser app running only on your computer.\nYour PDFs, projects, and results stay local; only the PDF or its locally parsed\ntext is s",
       "scopus_citations": null,
       "recent_commits": [
-        {
-          "sha": "d9c3ec7",
-          "message": "docs: add screenshots for provider settings and run defaults",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-10-04",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d9c3ec77a1a78d2cf8104b1c9b53796717360ae1",
-          "type": "feat",
-          "branch": "main",
-          "diff": {
-            "additions": 16,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "docs/api-key.md",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 0,
-                "patch": "@@ -18,6 +18,8 @@ quotas, and available models before running a large project.\n 3. Click **Add key**, paste the key, and click **Save key**.\n 4. Tick **Store securely on this computer** to save it between sessions.\n \n+![Gemini API key dialog with an empty key field and Store securely on this computer selected](assets/screenshots/settings-api-key-dialog.png)\n+\n The provider shows **Ready** when its key is available for the current\n session. Default model settings live in the same provider section"
-              },
-              {
-                "filename": "docs/assets/screenshots/settings-extraction-instructions.png",
-                "status": "added",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "docs/assets/screenshots/settings-gemini.png",
-                "status": "added",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "docs/assets/screenshots/settings-openai-compatible.png",
-                "status": "added",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "docs/assets/screenshots/settings-openrouter.png",
-                "status": "added",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "docs/assets/screenshots/settings-run-defaults.png",
-                "status": "added",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "docs/assets/screenshots/settings.png",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "docs/settings.md",
-                "status": "modified",
-                "additions": 14,
-                "deletions": 1,
-                "patch": "@@ -4,6 +4,8 @@ Open **Settings** in the top bar. The sidebar links to provider connections,\n run defaults, and the bundled extraction instructions. On a narrow screen,\n this navigation appears above the settings.\n \n+![Settings overview with sidebar links, collapsed provider connections, and run defaults](assets/screenshots/settings.png)\n+\n ## Provider connections\n \n Each provider has an expandable section. Click its heading to open or close\n@@ -20,6 +22,8 @@ Expand **Gemini** to manage its key,"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "a4a2f9a",
-          "message": "Release 0.12.9",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-10-04",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4a2f9a9c91bd227d574872a6572d581c4c2843f",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "23a6a90",
-          "message": "updated docs",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-10-04",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/23a6a903c46eda361e0c833a77118195afbd7c10",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
         {
           "sha": "d9c3ec7",
           "message": "docs: add screenshots for provider settings and run defaults",
@@ -10609,6 +10999,106 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "eabbdb8",
+          "message": "updated JSON files for vignettes",
+          "body": "",
+          "author": "brandmaier",
+          "author_login": "brandmaier",
+          "date": "2026-10-22",
+          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/eabbdb8b4a66c3b2386c824fe49b5c37b1b5f064",
+          "type": "docs",
+          "branch": "main",
+          "diff": {
+            "additions": 269,
+            "deletions": 84,
+            "files": [
+              {
+                "filename": "vignettes/.repro_regression_example.Rmd_bootstrap.json",
+                "status": "modified",
+                "additions": 41,
+                "deletions": 13,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
+              },
+              {
+                "filename": "vignettes/.repro_regression_example.Rmd_linreg.json",
+                "status": "modified",
+                "additions": 39,
+                "deletions": 11,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
+              },
+              {
+                "filename": "vignettes/.repro_regression_example.Rmd_loadData.json",
+                "status": "modified",
+                "additions": 39,
+                "deletions": 11,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
+              },
+              {
+                "filename": "vignettes/.repro_regression_example.Rmd_outliers.json",
+                "status": "modified",
+                "additions": 41,
+                "deletions": 13,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
+              },
+              {
+                "filename": "vignettes/.repro_renv_example.Rmd_unnamed-chunk-4.json",
+                "status": "modified",
+                "additions": 29,
+                "deletions": 12,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,1"
+              },
+              {
+                "filename": "vignettes/.repro_use_case_simulation.Rmd_unnamed-chunk-1.json",
+                "status": "modified",
+                "additions": 39,
+                "deletions": 11,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
+              },
+              {
+                "filename": "vignettes/.repro_use_case_simulation.Rmd_unnamed-chunk-2.json",
+                "status": "modified",
+                "additions": 40,
+                "deletions": 12,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
+              },
+              {
+                "filename": "vignettes/plots.Rmd",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -22,7 +22,7 @@ library(reproducibleRchunks)\n \n Note that base R plots typically produce graphical output directly to the current graphics device, without assigning the result to a variable. By design, the `reproducibleRchunks` package only tracks metadata for variables that are explicitly created within each code chunk. Since standard plotting commands do not involve variable assignment, their output is not checked for reproducibility. See the following example, in which only the newly declar"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "376f7e2",
+          "message": "updated docs/vignettes",
+          "body": "",
+          "author": "brandmaier",
+          "author_login": "brandmaier",
+          "date": "2026-10-22",
+          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/376f7e25612ec8b26a9b5c790cd0beaf4eede676",
+          "type": "docs",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "f494d4c",
+          "message": "vignettes",
+          "body": "",
+          "author": "brandmaier",
+          "author_login": "brandmaier",
+          "date": "2026-10-22",
+          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/f494d4cf88aea95c861814c6d795a452215d59e1",
+          "type": "docs",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -10713,7 +11203,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1786233600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1786838400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\nOIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailoring the extension to your discipline requires no programming expertise, just edit a list.\n\nFollow this link: https://chr",
@@ -11329,7 +11880,7 @@
     }
   ],
   "digest": {
-    "week_start": "2026-10-23",
+    "week_start": "2026-10-24",
     "active_repos": 4,
     "total_commits_7d": 223,
     "dormant_revived": [
@@ -11825,9 +12376,9 @@
     "total_repos": 16,
     "total_stars": 728,
     "total_forks": 135,
-    "total_commits_30d": 770,
+    "total_commits_30d": 746,
     "total_commits_7d": 223,
-    "total_commits_1d": 15,
+    "total_commits_1d": 13,
     "active_repos_7d": 4,
     "dormant_revived": 1,
     "total_open_issues": 204,
