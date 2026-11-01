@@ -1,5 +1,271 @@
 [
   {
+    "generated_at": "2026-11-01T12:48:44.989885+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 10,
+        "pushed_at": "2026-11-01T09:42:24Z",
+        "recent_commits": [
+          {
+            "sha": "9d9af5b",
+            "message": "Return every whole-number key and helper column as integer",
+            "body": "* `function_map()` made only `n` integer, so `items_averaged` and\n`absolute` came back as doubles next to an integer `n`. Now every\n`ARGS_WHOLE` column of the output goes through `as_integer_if_lossless()`.\n\n* Reflow the `ARGS_WHOLE` comment, which a54c2eb left with a three-word\nline in the middle.",
+            "author": "Lukas Jung",
+            "date": "2026-11-01",
+            "url": "https://github.com/lhdjung/scrutiny/commit/9d9af5b16a26da1d9718e2f582b023c0295ae8a7",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "4844fdc",
+            "message": "Make only decimal counts integer among the by-row arguments",
+            "body": "* `function_map()` ran every `.args_by_row` value through\n`as_integer_if_lossless()`, so a custom by-row argument such as `tol =\n1e-8`, within tolerance of 0, was tested and returned as 0L. Now only\narguments named in `ARGS_WHOLE` or starting with `digits_` are, as\n`.args_by_row` documents. Every by-row argument of scrutiny's own\nmappers is such a decimal count.\n\n* The `.reported` docs name the whole-number columns that `ARGS_WHOLE`\ncovers since a54c2eb.",
+            "author": "Lukas Jung",
+            "date": "2026-11-01",
+            "url": "https://github.com/lhdjung/scrutiny/commit/4844fdc02de45914c2957a91d7a80c79ad7e110b",
+            "type": "chore",
+            "branch": "polishing"
+          },
+          {
+            "sha": "372e311",
+            "message": "Break the near-whole total-n expectation into parallel lines",
+            "body": "* 5caeb39 broke the chain after its last pipe only.",
+            "author": "Lukas Jung",
+            "date": "2026-11-01",
+            "url": "https://github.com/lhdjung/scrutiny/commit/372e311b75cffd845d7e3f8ddb8615255407f1a9",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "d13919b",
+            "message": "Compare a near-whole n to the limits as the whole number in disperse()",
+            "body": "* `disperse()` filtered the raw `n` against `n_min` and `n_max` but\nshowed the group sizes as integers, so `disperse(2 - 1e-9, dispersion =\n0:2)` lost the pair (1, 3), and `disperse(10 + 1e-9, dispersion = 0:3,\nn_max = 12)` the pair (8, 12). `disperse2()` rounds its two values\nitself, since their mean is no longer near-whole. The total-n mappers\nwere not affected: `disperse_total()` already rounded.",
+            "author": "Lukas Jung",
+            "date": "2026-11-01",
+            "url": "https://github.com/lhdjung/scrutiny/commit/d13919b0432fca43599e2254d337f5eb8629e281",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "a54c2eb",
+            "message": "Test a near-whole count in is_percentage_of() as the whole number",
+            "body": "* `is_percentage_of_scalar()` accepted an `absolute` within tolerance of a\nwhole number, then compared it to the range of counts as is:\n`is_percentage_of(100 * 0.29, 72.5, 40, digits_percentage = 1)` was\nFALSE, where 29 is TRUE, and so was `is_percentage_of_map()`. A\nnear-whole `digits_percentage` was used as is by `is_percentage_of()`,\nthough not by its mapper, which rounds by-row arguments.\n\n* Both names join `ARGS_WHOLE`, so `map_value_sets()` and\n`function_map()` round them like `n`.",
+            "author": "Lukas Jung",
+            "date": "2026-11-01",
+            "url": "https://github.com/lhdjung/scrutiny/commit/a54c2eb8a008588902fc8b2f5d774e7f381da077",
+            "type": "test",
+            "branch": "polishing"
+          },
+          {
+            "sha": "1fea163",
+            "message": "Round near-whole arguments in the exports that read them directly",
+            "body": "* 5caeb39 rounded `n`, `items_averaged`, and `digits_*` only where they\npass through `function_map()`, `map_value_sets()`, the `*_explain()`\nfunctions, `disperse_total()`, and the total-n body. Other exports used\nthe raw values. `grim_total()` and `grim_exp_incon()` counted ties off a\ncommon divisor that needs whole numbers: `grim_exp_incon(1.5, 100 *\n0.56, 2, 1)` was 0.44 rather than 0.4, `digits_x = 2 - 1e-9` at `n =\n40` gave 60 inconsistent values rather than 40, and `n = 1 - 1e-9` was\n`NA` where `grim()` decides. The `exp_incon` column of `grim_map()` was\nright all along.\n\n* The `sd_binary_*()` functions returned `NA` for `n = 2 - 1e-9`, the\ncomb plots refused `n` at the minimum as \"0.999999999\", and the\n`*_explain()` functions wrote a near-whole `digits_*` as \"0.999999999\ndecimal places\". All of them now call `round_whole()` too.\n\n* The NEWS item moves to the bug fixes and names the functions covered.\n`function_map()` documents that it rounds columns of these names in\ncustom mappers as well.",
+            "author": "Lukas Jung",
+            "date": "2026-11-01",
+            "url": "https://github.com/lhdjung/scrutiny/commit/1fea163ce2f951f66e9b87747e132895f5faafac",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "7b7ae64",
+            "message": "Round near-whole totals before the comment on rejecting them",
+            "body": "* 5caeb39 put the call between the comment on `offenders` and the code\nit describes.",
+            "author": "Lukas Jung",
+            "date": "2026-11-01",
+            "url": "https://github.com/lhdjung/scrutiny/commit/7b7ae6427d5a8a9c56497ab665527272edd637dd",
+            "type": "docs",
+            "branch": "polishing"
+          },
+          {
+            "sha": "fce2a19",
+            "message": "Run `air format` on root",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-10-31",
+            "url": "https://github.com/lhdjung/scrutiny/commit/fce2a1909de05ef064c3dd3c711a0730b0d495fc",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "934ed61",
+            "message": "Restore the NEWS item on calling mappers through lapply()",
+            "body": "* aeddf6f cut it as describing a change within the branch, but 0.6.1's\n`absorb_key_args()` read the key arguments off `rlang::caller_call()`,\nwhich through `lapply()` is `FUN(X[[i]], ...)`, so `lapply(dfs, grim_map,\nx = \"mean\")` could not find the renamed column there either.",
+            "author": "Lukas Jung",
+            "date": "2026-10-31",
+            "url": "https://github.com/lhdjung/scrutiny/commit/934ed610c7b9f3d315232dc5efcb858607a22fa0",
+            "type": "docs",
+            "branch": "polishing"
+          },
+          {
+            "sha": "5caeb39",
+            "message": "Test a near-whole n as the whole number it is shown as",
+            "body": "* `is_whole_number()` accepts a value within 1.5e-8 of a whole number,\nsuch as `100 * 0.29`, but the arithmetic used it as is. 5288581 rounded\nthe `n` column of mapper output, yet only after the test, so `grim_map(x\n= 1.5, n = 2 - 1e-9, rounding = \"ceiling\")` was FALSE next to `n = 2`,\nwhere it is TRUE; GRIMMER and DEBIT compared the raw value to their\nminimum `n` of 2 and left the verdict NA; `disperse_total()` and the\ntotal-n mappers split `40 - 1e-9` as odd, into 19.5 and 20.5.\n\n* `round_whole()` rounds the values the tolerance accepts and leaves the\nrest, which the tests reject as before. It runs at the export boundaries,\non the `ARGS_WHOLE` arguments: `function_map()`'s tested columns, which\nthe output now takes its key and helper columns from, `map_value_sets()`,\nthe `*_explain()` functions, `disperse_total()`, and the totals of the\ntotal-n body. The `*_scalar()` functions see whole numbers only.",
+            "author": "Lukas Jung",
+            "date": "2026-10-31",
+            "url": "https://github.com/lhdjung/scrutiny/commit/5caeb39495fba033720e1026dd5779e22375865e",
+            "type": "test",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-10-15T15:25:58Z",
+        "recent_commits": [
+          {
+            "sha": "b977710",
+            "message": "Built site for tenzing@0.4.1: 85425d1",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/b977710bb300115ece3b676f92b9a062db2605e2",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "85425d1",
+            "message": "bumped roxygen version and updated the doc files",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/85425d19e4527b05928eacb15626612f762c300f",
+            "type": "docs",
+            "branch": "master"
+          },
+          {
+            "sha": "f267e64",
+            "message": "Built site for tenzing@0.4.1: 7116563",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/f267e64ea83d2c419d91390fb164ca52feed6a33",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "7116563",
+            "message": "bug fix: certain outputs included acknowledgees even though those outputs should not use them",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/71165636d127f1f7ce22276af54d4207751f018b",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-10-04T09:25:40Z",
+        "recent_commits": [
+          {
+            "sha": "d9c3ec7",
+            "message": "docs: add screenshots for provider settings and run defaults",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-10-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d9c3ec77a1a78d2cf8104b1c9b53796717360ae1",
+            "type": "feat",
+            "branch": "main"
+          },
+          {
+            "sha": "a4a2f9a",
+            "message": "Release 0.12.9",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-10-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4a2f9a9c91bd227d574872a6572d581c4c2843f",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "23a6a90",
+            "message": "updated docs",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-10-04",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/23a6a903c46eda361e0c833a77118195afbd7c10",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-10-31T20:18:44Z",
+        "recent_commits": [
+          {
+            "sha": "f7949c0",
+            "message": "Merge pull request #565 from scienceverse/dev-manifest-reasons",
+            "body": "Real reasons for files not fetched; KNB identifiers; reported results compared again",
+            "author": "Daniel Lakens",
+            "date": "2026-10-31",
+            "url": "https://github.com/scienceverse/metacheck/commit/f7949c05f9bf6dfa277be234b8023bf7021172c6",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "5c4feb1",
+            "message": "Real reasons for files not fetched; KNB identifiers; reported results compared again",
+            "body": "Fixes found during a run over 1861 papers:\n\n- reproducibility_check compared no output with the paper when given a list of\n  one paper: match_reported_output() stopped on it and the module hid the error.\n- The data manifest called every file in an archive \"no download URL\"; it now\n  gives the real reason, such as the size limit or the archive's error. A file\n  in an archive with no size is reported, not dropped.\n- DataONE: file identifiers with slashes are kept whole; a file with no usable\n  identifier is found by file name; the search works on KNB, which labels its\n  reply text/json.\n- Dataverse: restricted files are not requested and are reported as skipped; a\n  guestbook requirement is named in the error.\n- repo_check removes the punctuation that ends a sentence from an address, which\n  made one repository into two.",
+            "author": "Lakens",
+            "date": "2026-10-31",
+            "url": "https://github.com/scienceverse/metacheck/commit/5c4feb1ebbecc8721d4ef0f3d0c644ae5c7b3b4f",
+            "type": "other",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "cjvanlissa",
+        "repo": "worcs",
+        "url": "https://github.com/cjvanlissa/worcs",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-10-07T09:04:00Z",
+        "recent_commits": [
+          {
+            "sha": "ed306b5",
+            "message": "Deploying to gh-pages from @ cjvanlissa/worcs@d883359de0250edf90f4f88c2384bdb23e2d1d9f \ud83d\ude80",
+            "body": "",
+            "author": "cjvanlissa",
+            "date": "2026-10-07",
+            "url": "https://github.com/cjvanlissa/worcs/commit/ed306b5195d5b2d856478a82bbb20cdbaa8c8607",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "d883359",
+            "message": "update 2026-10-07 10:58:54.664894",
+            "body": "",
+            "author": "cjvanlissa",
+            "date": "2026-10-07",
+            "url": "https://github.com/cjvanlissa/worcs/commit/d883359de0250edf90f4f88c2384bdb23e2d1d9f",
+            "type": "other",
+            "branch": "master"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-11-01T04:19:22.241393+00:00",
     "narrative": "",
     "repos": [
@@ -37278,102 +37544,6 @@
             "url": "https://github.com/brandmaier/reproducibleRchunks/commit/1fed484b95e6e1a663996ebd928ad39093420679",
             "type": "other",
             "branch": "styling"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-10-06T22:26:55.544131+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 3,
-        "pushed_at": "2026-10-04T09:25:40Z",
-        "recent_commits": [
-          {
-            "sha": "d9c3ec7",
-            "message": "docs: add screenshots for provider settings and run defaults",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d9c3ec77a1a78d2cf8104b1c9b53796717360ae1",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "a4a2f9a",
-            "message": "Release 0.12.9",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4a2f9a9c91bd227d574872a6572d581c4c2843f",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "23a6a90",
-            "message": "updated docs",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/23a6a903c46eda361e0c833a77118195afbd7c10",
-            "type": "other",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-10-01T15:40:33Z",
-        "recent_commits": [
-          {
-            "sha": "079d5a6",
-            "message": "Fix CI: keep cost-tracking test offline; bump nltk to 3.10.3",
-            "body": "- test_general_orchestrator_attaches_cost made a real OpenAI embeddings\n  call while building the evidence index (key picked up from .env via\n  load_dotenv locally; 401 in CI). Stub openai_embed_segments.\n- Bump nltk 3.10.0 -> 3.10.3 (fixes 12 PYSEC advisories surfaced once the\n  test step passed); requirements.lock regenerated (nltk lines only).\n- pip-audit: ignore PYSEC-2026-3740 (no fixed nltk release; affects model\n  save/load APIs RegCheck does not use).",
-            "author": "Jamie Cummins",
-            "date": "2026-10-01",
-            "url": "https://github.com/JamieCummins/regcheck/commit/079d5a64adfa7695aec363761003cee828a8a2b6",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "ac05237",
-            "message": "Rename external parser connector to bibr and support its jobs API",
-            "body": "- pdf2bibr: submit to /papers/jobs, poll the job, fetch /result\n  (hosted bibr service); BIBR_URL / BIBR_API_KEY (also BIBR_TOKEN),\n  legacy EXTERNAL_PARSER_* env names still honoured.\n- Parser choice \"bibr\"; \"external\" kept as an alias (CLI, API, extractor).\n- extract_bibr_text: schema 12.1 support; drop the references section;\n  keep headings of sections without their own text; append captions,\n  footnotes and tables; tolerant HTML table flattening; strip inline\n  LaTeX and literal \"\\n\" from OCR output.\n- Tests for the job flow, failure handling and text reconstruction.",
-            "author": "Jamie Cummins",
-            "date": "2026-10-01",
-            "url": "https://github.com/JamieCummins/regcheck/commit/ac05237c8244105eb2fd1ee557f5bea9c8270ff8",
-            "type": "feat",
-            "branch": "bibr-jobs-connector"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "docpluck",
-        "url": "https://github.com/giladfeldman/docpluck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-10-06T04:05:52Z",
-        "recent_commits": [
-          {
-            "sha": "60517fa",
-            "message": "fix(extract): decode Linotype Pi glyph names (/H11005 ...) in fonts with no ToUnicode",
-            "body": "Operators and Greek set in Linotype Pi fonts arrived as \"!\" \"'\" \"&\" (Linux\npoppler) or U+2AFD (Windows poppler), so an APA paper's statistics could not\nbe parsed. docpluck/glyph_names.py adds a ToUnicode map to an in-memory copy\nof the PDF from a table of raster-verified glyph names; text, layout and\nCamelot read that copy. method names the repaired fonts and any H-named glyph\nit could not map. rho is emitted as printed. Ordinary PDFs are byte-identical\n(40 corpus papers). 2.4.150, normalization 1.9.71, table extraction 2.4.21.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-06",
-            "url": "https://github.com/giladfeldman/docpluck/commit/60517fa80200e7854b7d99fd9519d5be12fb40d0",
-            "type": "fix",
-            "branch": "main"
           }
         ]
       }
