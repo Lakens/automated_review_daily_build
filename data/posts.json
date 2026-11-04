@@ -1,5 +1,461 @@
 [
   {
+    "generated_at": "2026-11-04T13:55:37.439709+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 30,
+        "pushed_at": "2026-11-02T16:22:28Z",
+        "recent_commits": [
+          {
+            "sha": "6ca9ea7",
+            "message": "Divide each count by n before multiplying in sd_binary_*()",
+            "body": "* n^2 overflowed to Inf from about 1e154, so sd_binary_0_n(3, 1e300)\nwas 0 rather than the tiny SD it is. The variance is now\n(group_0 / n) * (group_1 / n).",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/6ca9ea78fc7ee0aa5e303efb50f6ae81990b99af",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "7161f5d",
+            "message": "Rule out a dispersed sequence with a known infinity",
+            "body": "* is_seq_dispersed(c(Inf, 1, NA), from = 1, test_linear = FALSE) was NA,\nbut no number is centered with an infinity on a finite from, nor is an\ninfinite from the center of any sequence. The same held with a missing\nfrom. With test_linear = TRUE, the linear test already said FALSE.\n* is_seq_dispersed(c(1, Inf, 2), from = Inf, test_linear = FALSE) failed\nwith a base R error: near(Inf, Inf) is NA. This predates the audit fixes.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/7161f5da66da2749af36176e045451f7b7ef0ff1",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "34456eb",
+            "message": "Check test_linear and tolerance in the is_seq_*() functions",
+            "body": "* A missing tolerance made every comparison NA, so every sequence was\nnot linear, and a missing test_linear failed in if () with a base R\nerror.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/34456ebe31e66e0956c3f6d7f7f001edfcaa2532",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "775971f",
+            "message": "Reject an infinite by in seq_disperse()",
+            "body": "* by = Inf passed the check for a positive number and gave a sequence of\nNAs.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/775971f344e44ce476a0b7d5b11e903c7d01730c",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "c4731c6",
+            "message": "Check the type of n in the total-n mappers",
+            "body": "* A string or factor n column reached is_whole_number() or round() and\nfailed in base R, where the basic and seq tiers give a type error. The\ntotal-n tier now gives the same one.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/c4731c6b51c92bfc2e8a661a9a533e9d535a5a97",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "8e010e5",
+            "message": "Handle NULL and string by-row arguments in function_map()",
+            "body": "* A by-row argument left at a NULL default has no column, but the output\nwas assembled as if it had one, so it got a column named NA.\n* A by-row argument that is both an argument and a column of data was\nchecked for agreement as numbers, so two different strings both became\nNA, agreed, and the column was silently replaced, with two coercion\nwarnings. Values that are not both numbers are now compared as text, in\nthe new values_agree().",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/8e010e5d76284b9368ceda058332d275bb2ffe68",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "c07aad0",
+            "message": "Reserve every name function_map() assigns before reading arguments",
+            "body": "* enum_defaults and enum_vals are assigned before the arguments are read,\nand cols_tested, col_variadic, arg_given, and vals before the by-row\narguments are checked for missingness, but none was reserved, so an\nargument of .fn by one of these names was silently shadowed.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/c07aad0dca46e80af9bd82630cec16850934f0f0",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "381d49a",
+            "message": "Record the reported columns for reverse_map_total_n()",
+            "body": "* It took the columns before n to be the statistics reported for both\ngroups, so a custom basic mapper with n first rebuilt n1 and n2, and one\nwith n in the middle lost the columns after it; audit_total_n() inherited\nboth. Total-n output now records its .reported as the reported element of\nthe \"scrutiny\" attribute, which reverse_map_total_n() reads.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/381d49af4612c1476fde0c57c3c0b60c88f3fda7",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "e299b9f",
+            "message": "Cap the width that restore_zeros() pads to",
+            "body": "* A width beyond what strrep() can build, such as 1e10, made it return NA\nfor the zeros, which was pasted into \"1.5NA\". width is now capped at\nWRITTEN_OUT_MAX, the limit for written-out exponents.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/e299b9f946d4426a8920db1b1a2c7bae45703b22",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "ec9af32",
+            "message": "Round a tied SD both ways in debit(formula = \"mean_n\") under \"even\"",
+            "body": "* The bounds of \"even\" include both ties, so \"exact\" accepts an SD of 0.3\nfor a reconstructed SD of exactly 0.25, but \"mean_n\" rerounded that SD\nto 0.2 only and rejected it, against its documented role as the looser\ntest. A tie is now rounded both ways, as \"up_or_down\" does. Swept over\nevery rounding method and sd_meaning: \"mean_n\" never rejects what\n\"exact\" accepts.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/ec9af3291c2c70f8d55c3e1fc5d6404da41b718f",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "521864f",
+            "message": "Rule out sequences whose missing values would have to pass an infinity",
+            "body": "* is_seq_ascending(c(1, Inf, NA), test_linear = FALSE) was NA, but no\nnumber comes after Inf; the same held for a leading NA before -Inf and\nthe mirror cases in is_seq_descending(). The known values are now padded\nat a missing end with the infinity it would have to pass.\n* is_seq_linear(c(Inf, NA, NA)) was NA, but an infinity among more than\ntwo values is never linear, also when it is the only known one.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/521864fe09ea90bb53a8eb74fda24993b4e121b8",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "4cf105a",
+            "message": "Return NA from grim() for a character NA as x",
+            "body": "* grim_scalar() divided or multiplied x before its check for an\nundecidable case, so a character NA failed in base R in grim(),\ngrim_explain(), and grim_map(). The check now comes first and takes any\nnon-finite x as undecidable, as the other tests do.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/4cf105a3bedaca789feba278e9104bbd46e65105",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "eca0cf2",
+            "message": "Keep integer counts from overflowing in the sd_binary_*() functions",
+            "body": "* group_0 * group_1 was an integer product, so counts from about 46,341\neach gave NA, with the overflow warning suppressed along with sqrt()'s.\nThe counts are now doubles.\n* An infinite or NaN count, n, or mean gave NaN rather than the\ndocumented NA: which() skipped the NA that the whole-number test\nreturned for them.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/eca0cf2201cf6f845151c2d844ae88b798f12171",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "ae64ca7",
+            "message": "Compare near-whole n_min and n_max as whole numbers in disperse*()",
+            "body": "* n_max = 100 * 0.29 was compared as 28.999999999999996, so disperse()\nand the total-n mappers dropped the group sizes that reach 29. The limits\nare now rounded like n and dispersion; disperse2() rounds them before its\nhalf-unit shift.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/ae64ca7251f297d7fa9e6965521e7744f0bb8eaf",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "83e9f66",
+            "message": "Leave out a key argument that a wrapper forwards as NULL",
+            "body": "* A variable holding NULL, as from a wrapper with a NULL default, had its\nname read as a column name, so every mapper tier failed with \"already has\na column\". Any key argument that evaluates to NULL now counts as not\nspecified.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/83e9f666be6383671da38f806a799826bce0262d",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "bbdddef",
+            "message": "Turn a number restore_zeros() cannot write out into NA",
+            "body": "* An exponent beyond the integer range, as in \"0e99999999999\", made\nwrite_out_decimal() fail on an NA decimal point, and one inside it, as\nin \"1e-2147483647\", asked R for a string longer than it allows. The\nexponent is now read as a double, and a value whose integer or decimal\npart would have more than WRITTEN_OUT_MAX digits becomes NA with a\nwarning, as a non-number does.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/bbdddefbf4ee3a3db99d6b0f7061d70affa7ae5c",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "5dce354",
+            "message": "Take a character NA items_averaged as missing in grim_total()",
+            "body": "* The type check from 933b877 let it through, as grim() does, but the\ncount then multiplied n by a string and failed in base R. grim() returns\nNA there, and so does grim_total() now.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/5dce35478d360409df0a6ab653074eff22c255c8",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "15dbbe6",
+            "message": "Reject a character NA in the sd_binary_*() functions",
+            "body": "* The type check from 901d5c8 let any all-NA vector through, so a\ncharacter NA reached the arithmetic and failed in base R.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/15dbbe62b4b1fabe2af5c054ff65816b606353fb",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "ad24c83",
+            "message": "Return NA from is_seq_*() for strings that are all missing",
+            "body": "* c(\"NaN\", \"NaN\", \"NaN\") errored with \"argument of length 0\" since\n5d6a90c made is_numeric_like() take \"NaN\" as missing, and all-\"NA\"\nstrings always had. Such strings only become NA after coercion, so they\ngot past the all-NA check and left no known value to index.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/ad24c83e54219912f8a45b15130a6e27eb94c683",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "0830da9",
+            "message": "Take a from of \"NA\" or \"NaN\" as missing in is_seq_dispersed()",
+            "body": "* is_numeric_like() returns NA for these strings, which reached an if()\nand errored. For \"NaN\", this was a regression from 5d6a90c; it used to\nreturn FALSE.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/0830da9fcb5d7e8640185f05d52e85a5af58b2a7",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "2ff94aa",
+            "message": "Round near-whole steps in seq_disperse() before dropping zeros",
+            "body": "* A step like (0.1 + 0.2) * 10 - 3 passed the whole-number check but not\nthe zero filter, so the reported value was returned three times and the\nsequence mappers tested it repeatedly.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/2ff94aafc080fbac59989253770c5415d0e0b0b4",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "788e0f3",
+            "message": "Say that sequence mappers drop the other columns of data",
+            "body": "* The docs said that *_map_seq() output has the columns of the basic\nmapper's output, and NEWS that mappers keep row names as a rowname\ncolumn. Sequence mappers drop both by design; case joins them back.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/788e0f383f56f08555751a54912fbddb9fe5b1e2",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "1a10077",
+            "message": "Drop the empty \"consistency with\" line for a single key column",
+            "body": "* With only one key column, as in add_up_to_map() without a total, the\nmissing-column error ended on \"tested for consistency with .\".",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/1a1007772ae48a105b1e20fe5368fb56ddf916b1",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "901d5c8",
+            "message": "Check the input of the sd_binary_*() functions",
+            "body": "* A string failed in base R, mismatched lengths recycled with a base\nwarning, and a negative n was blamed on the count. Each is now an error\nthat names the argument.\n* A fractional n or count gives NA, as it describes no data set and is\nundecidable everywhere else in scrutiny.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/901d5c8d7e66a622db977f3a0e8b5277dd0a6b3c",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "933b877",
+            "message": "Check types in grim_total() and take 10^digits mod n exactly",
+            "body": "* grim_total() and grim_exp_incon() returned a silent NA for a string n,\nand failed in base R for a string items_averaged or a missing percent.\nThey now check these as grim() does.\n* With percent = TRUE and digits_x of 14 or 15, the first step of Euclid's\nalgorithm took 10^16 or 10^17 modulo n in doubles, which warned about a\ncomplete loss of accuracy. That remainder is now built digit by digit.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/933b8778a9f253c3351c49233e2558fe933f1f2a",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "b118369",
+            "message": "Show a negative zero as zero in explanations",
+            "body": "* formatC() printed round(-0.04, 1) as \"-0.0\", next to \"rounds to 0.0\".",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/b118369a9ee4398087a53d870a5a250773065e82",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "b7a8015",
+            "message": "Name both roundings of a tie in an inconsistent GRIM explanation",
+            "body": "* Under \"even\" and \"ties_even\", grim_explain() said that a neighboring\nmean like 0.025 rounds to 0.03, from its binary value, although the test\ntakes such a tie to round either way. It now says \"0.02 or 0.03 (a tie)\".\ngrimmer_explain() inherits the fix.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/b7a8015d556d558ce3849981c1b279b974719f07",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "84f8a15",
+            "message": "Reject an empty decimal separator",
+            "body": "* sep = \"\" matched at the start of every string, so decimal_places()\ncounted all digits as decimals and restore_zeros() failed in base R.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/84f8a15f88b92579896067f66817e410bc96ec35",
+            "type": "chore",
+            "branch": "polishing"
+          },
+          {
+            "sha": "5d6a90c",
+            "message": "Take the string \"NaN\" as missing in is_numeric_like(), quiet is_seq_*()",
+            "body": "* is_numeric_like(c(\"1\", \"NaN\")) was FALSE, so restore_zeros_df() and\ndecimal_places_df() skipped such a column although the vector functions\nhandle it.\n* The is_seq_*() functions leaked a coercion warning for the string \"NA\",\nwhich is_numeric_like() had already accepted as missing.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/5d6a90c7ef02645a6933b597d58c9e981a4e390a",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "df2f710",
+            "message": "Rule out a dispersed sequence by the center its known values imply",
+            "body": "* is_seq_dispersed(c(1, 2, NA, NA, NA), from = 10) was NA although the\nknown values fix the step, and so the center, at 3. Only fully known\nmirrored pairs were compared to from.",
+            "author": "Lukas Jung",
+            "date": "2026-11-02",
+            "url": "https://github.com/lhdjung/scrutiny/commit/df2f710cd9d60ddd70230ea00be131bb3cffd900",
+            "type": "other",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 5,
+        "pushed_at": "2026-11-03T17:45:27Z",
+        "recent_commits": [
+          {
+            "sha": "87bc8b4",
+            "message": "reproducibility_check: counts per paper in summary_table; packages found nowhere (#568, item 24; #389)",
+            "body": "summary_table gives, for each paper, the scripts with a result of their own\n(repro_scripts_n), the software files not run because they are not part of the\nanalysis (repro_not_analysis_n), and for each reason in the reason column how\nmany scripts did not run through for it (repro_fail_file, repro_fail_package and\nso on). A corpus can now be counted from summary_table alone.\n\nA package the Docker install finds in none of the places it looks (Bioconductor,\nthe CRAN Archive, the list of known places, R-universe) gets the install category\nsource_unknown. The report names it, since the code does not say where it comes\nfrom, and the checklist says so for the script that needs it. A failed search of\nR-universe is reported as a failed search, and the search now works in a bare\nrocker/r-ver image, which lacked jsonlite: there it always failed, which looked\nlike a package R-universe lacks. Tried in both images: ecodeal is found nowhere,\nand weathercan installs from the CRAN Archive.",
+            "author": "Lakens",
+            "date": "2026-11-03",
+            "url": "https://github.com/scienceverse/metacheck/commit/87bc8b482024e94f22c37d056389eea98915f2af",
+            "type": "chore",
+            "branch": "repro_checkable_inputs"
+          },
+          {
+            "sha": "293ef55",
+            "message": "reproducibility_check: link the pipeline behind the paper's results; notebooks are not imported (#568)",
+            "body": "A file of software that nothing names, but that the analysis depends on, runs\ntoo: in the same repository, a script that runs reads a file it writes, sources\nor imports it; it reads a file such a script writes; or it runs a script linked\nto the paper; along the whole chain. A name built from a pattern\n(\"{metric}_per_hour.csv\") matches the names it stands for. In the corpus this\nlinks four FluxRGNN scripts that train the models and choose their settings, and\nnothing else. The new paper_link column of table says what links each file of\nsoftware that runs to the paper's results, in words.\n\nA Jupyter notebook is no longer taken as imported: `import audio` named a\npackage's module, and a tutorial notebook audio.ipynb got run_by_import and was\nnever run. Only .py files can be imported.",
+            "author": "Lakens",
+            "date": "2026-11-03",
+            "url": "https://github.com/scienceverse/metacheck/commit/293ef55b5920597fe877521c45a95264645737a8",
+            "type": "chore",
+            "branch": "repro_checkable_inputs"
+          },
+          {
+            "sha": "220ac8d",
+            "message": "reproducibility_check: run software files only when linked to the paper; rgdal again (#568)",
+            "body": "Inside software (a package, application or copied tool), a script runs only when\nsomething links it to the paper's results: the paper names it or an appendix it\nnames, it names the paper's figures or tables or writes a file named after one, a\nREADME names it next to a figure or table, or it reads data deposited with the\npaper outside the software. Otherwise it is not_analysis, with the reason. Trinity's\ngenerated scripts that read the paper's data, and a package run by a workflow\n(Snakefile, _targets.R, make.R), are the paper's analysis.\n\nrgdal, rgeos and maptools install again from the CRAN Archive when the image has the\nGDAL and GEOS header files: sp 2.1-4, the last version with sp.h, is installed first.\nA script that crashes R in compiled code gets the reason environment.",
+            "author": "Lakens",
+            "date": "2026-11-03",
+            "url": "https://github.com/scienceverse/metacheck/commit/220ac8d63bfba97722f3c56f66bb582e80e8d6fc",
+            "type": "chore",
+            "branch": "repro_checkable_inputs"
+          },
+          {
+            "sha": "da184f8",
+            "message": "reproducibility_check: run the authors' folders, fetch what the code needs, the internet, software files (#568)",
+            "body": "The code always runs in the repository as the authors organised it; the layout\nargument is gone. A path that works nowhere is pointed to the one file with that\nname in the repository, and the report lists it so the authors can change it. A\npath to a file that exists nowhere is a missing input again.\n\nWhen the code will run, the first module that downloads also fetches what the run\nneeds, in one request to each host; GitHub, GitLab and Dryad archives are kept\nwhole. Before the run a file the code names is fetched, and after the run a file\na script could not open is fetched and that script runs again.\n\nA new argument, internet (off by default), lets scripts use the internet within\nthe download limits, checked every two seconds. A first rule marks files that\nbelong to software (package code, tests, documentation, generated files, web\napplications, copied tools) as not_analysis. The option metacheck.docker_image_py\nselects the large Python image with torch. Four functions no longer undo their\nown clean-up with a later on.exit() without add = TRUE.",
+            "author": "Lakens",
+            "date": "2026-11-03",
+            "url": "https://github.com/scienceverse/metacheck/commit/da184f805291452f780b2589c453572faf8813f4",
+            "type": "chore",
+            "branch": "repro_checkable_inputs"
+          },
+          {
+            "sha": "41b23f8",
+            "message": "reproducibility_check: the install's second pass reaches more packages (#568, items 9, 14)",
+            "body": "A package on CRAN that needs one from Bioconductor gets it (speaq needs\nMassSpecWavelet). Old packages compile: the warning this R treats as an error is\nallowed in this pass, and Calloc() and the like, which R has dropped, map to their\ncurrent names, so maptools installs. What stopped a package is kept in its message.\nrgdal and rgeos, withdrawn from CRAN in 2023, still do not install.",
+            "author": "Lakens",
+            "date": "2026-11-03",
+            "url": "https://github.com/scienceverse/metacheck/commit/41b23f8e5f13e143a1f267713d7a5543ae56f718",
+            "type": "chore",
+            "branch": "repro_checkable_inputs"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-10-15T15:25:58Z",
+        "recent_commits": [
+          {
+            "sha": "b977710",
+            "message": "Built site for tenzing@0.4.1: 85425d1",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/b977710bb300115ece3b676f92b9a062db2605e2",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "85425d1",
+            "message": "bumped roxygen version and updated the doc files",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/85425d19e4527b05928eacb15626612f762c300f",
+            "type": "docs",
+            "branch": "master"
+          },
+          {
+            "sha": "f267e64",
+            "message": "Built site for tenzing@0.4.1: 7116563",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/f267e64ea83d2c419d91390fb164ca52feed6a33",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "7116563",
+            "message": "bug fix: certain outputs included acknowledgees even though those outputs should not use them",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/71165636d127f1f7ce22276af54d4207751f018b",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "cjvanlissa",
+        "repo": "worcs",
+        "url": "https://github.com/cjvanlissa/worcs",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-10-07T09:04:00Z",
+        "recent_commits": [
+          {
+            "sha": "ed306b5",
+            "message": "Deploying to gh-pages from @ cjvanlissa/worcs@d883359de0250edf90f4f88c2384bdb23e2d1d9f \ud83d\ude80",
+            "body": "",
+            "author": "cjvanlissa",
+            "date": "2026-10-07",
+            "url": "https://github.com/cjvanlissa/worcs/commit/ed306b5195d5b2d856478a82bbb20cdbaa8c8607",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "d883359",
+            "message": "update 2026-10-07 10:58:54.664894",
+            "body": "",
+            "author": "cjvanlissa",
+            "date": "2026-10-07",
+            "url": "https://github.com/cjvanlissa/worcs/commit/d883359de0250edf90f4f88c2384bdb23e2d1d9f",
+            "type": "other",
+            "branch": "master"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-11-04T04:53:33.167610+00:00",
     "narrative": "",
     "repos": [
@@ -39038,112 +39494,6 @@
             "url": "https://github.com/brandmaier/reproducibleRchunks/commit/1fed484b95e6e1a663996ebd928ad39093420679",
             "type": "other",
             "branch": "styling"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-10-09T12:43:30.385545+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 3,
-        "pushed_at": "2026-10-04T09:25:40Z",
-        "recent_commits": [
-          {
-            "sha": "d9c3ec7",
-            "message": "docs: add screenshots for provider settings and run defaults",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d9c3ec77a1a78d2cf8104b1c9b53796717360ae1",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "a4a2f9a",
-            "message": "Release 0.12.9",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4a2f9a9c91bd227d574872a6572d581c4c2843f",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "23a6a90",
-            "message": "updated docs",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/23a6a903c46eda361e0c833a77118195afbd7c10",
-            "type": "other",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "cjvanlissa",
-        "repo": "worcs",
-        "url": "https://github.com/cjvanlissa/worcs",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-10-07T09:04:00Z",
-        "recent_commits": [
-          {
-            "sha": "ed306b5",
-            "message": "Deploying to gh-pages from @ cjvanlissa/worcs@d883359de0250edf90f4f88c2384bdb23e2d1d9f \ud83d\ude80",
-            "body": "",
-            "author": "cjvanlissa",
-            "date": "2026-10-07",
-            "url": "https://github.com/cjvanlissa/worcs/commit/ed306b5195d5b2d856478a82bbb20cdbaa8c8607",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "d883359",
-            "message": "update 2026-10-07 10:58:54.664894",
-            "body": "",
-            "author": "cjvanlissa",
-            "date": "2026-10-07",
-            "url": "https://github.com/cjvanlissa/worcs/commit/d883359de0250edf90f4f88c2384bdb23e2d1d9f",
-            "type": "other",
-            "branch": "master"
-          }
-        ]
-      },
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-10-01T15:40:33Z",
-        "recent_commits": [
-          {
-            "sha": "079d5a6",
-            "message": "Fix CI: keep cost-tracking test offline; bump nltk to 3.10.3",
-            "body": "- test_general_orchestrator_attaches_cost made a real OpenAI embeddings\n  call while building the evidence index (key picked up from .env via\n  load_dotenv locally; 401 in CI). Stub openai_embed_segments.\n- Bump nltk 3.10.0 -> 3.10.3 (fixes 12 PYSEC advisories surfaced once the\n  test step passed); requirements.lock regenerated (nltk lines only).\n- pip-audit: ignore PYSEC-2026-3740 (no fixed nltk release; affects model\n  save/load APIs RegCheck does not use).",
-            "author": "Jamie Cummins",
-            "date": "2026-10-01",
-            "url": "https://github.com/JamieCummins/regcheck/commit/079d5a64adfa7695aec363761003cee828a8a2b6",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "ac05237",
-            "message": "Rename external parser connector to bibr and support its jobs API",
-            "body": "- pdf2bibr: submit to /papers/jobs, poll the job, fetch /result\n  (hosted bibr service); BIBR_URL / BIBR_API_KEY (also BIBR_TOKEN),\n  legacy EXTERNAL_PARSER_* env names still honoured.\n- Parser choice \"bibr\"; \"external\" kept as an alias (CLI, API, extractor).\n- extract_bibr_text: schema 12.1 support; drop the references section;\n  keep headings of sections without their own text; append captions,\n  footnotes and tables; tolerant HTML table flattening; strip inline\n  LaTeX and literal \"\\n\" from OCR output.\n- Tests for the job flow, failure handling and text reconstruction.",
-            "author": "Jamie Cummins",
-            "date": "2026-10-01",
-            "url": "https://github.com/JamieCummins/regcheck/commit/ac05237c8244105eb2fd1ee557f5bea9c8270ff8",
-            "type": "feat",
-            "branch": "bibr-jobs-connector"
           }
         ]
       }
