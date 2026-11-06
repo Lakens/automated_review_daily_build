@@ -1,5 +1,351 @@
 [
   {
+    "generated_at": "2026-11-06T13:53:25.711102+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 28,
+        "pushed_at": "2026-11-06T10:05:07Z",
+        "recent_commits": [
+          {
+            "sha": "c54b0e5",
+            "message": "Merge pull request #579 from scienceverse/repro_missing_files_575",
+            "body": "Version 0.4.3.4: reproducibility_check fixes for #575 and #578, and guidance on how to make code run",
+            "author": "Daniel Lakens",
+            "date": "2026-11-06",
+            "url": "https://github.com/scienceverse/metacheck/commit/c54b0e5b1575cd04d837e3f00ce12d9dbe52dddc",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "2f385c0",
+            "message": "reproducibility_check: fix the eight faults behind \"other\" errors (#578)",
+            "body": "- a setwd()/os.chdir() call over several lines is taken out whole\n- a folder given to list.files(), dir(), Sys.glob(), os.listdir(),\n  glob.glob() and the like is rewritten to where the deposit holds it\n- a path under the folder of a removed setwd() counts from the working folder\n- a folder variable made with paste0(\"...\") is recognised, every value it is\n  given is rewritten, and it becomes the run folder when a pasted file is\n  found by its name\n- four more messages of text no longer read as a factor start the run with\n  R's old default\n- a program that prints its usage and reads arguments needs a person;\n  optparse, argparser and docopt count as reading arguments\n- JAVA_TOOL_OPTIONS opens java.util to rJava under Java 21 (tested in the image)\n- new outcome out_of_memory, also when a compiler ran out of memory\n\nTests added; their expectations were checked directly, the suite not yet run.",
+            "author": "Lakens",
+            "date": "2026-11-06",
+            "url": "https://github.com/scienceverse/metacheck/commit/2f385c07e053e56a09980eafe211b09c040c86e8",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "1b1ce86",
+            "message": "Version 0.4.3.4: reproducibility_check fixes for #575 (work in progress)",
+            "body": "Fixes for the scripts that stopped on a missing file in the BES run (#575):\n- a path written into a script gets the same changed name as its copy\n  (a colon in a folder name)\n- a file the deposit holds in another folder is copied to where a script\n  looked, and the script runs again (file_placed); sf and terra errors read\n- of several files with one name, the copy outside another project's folder\n  is chosen; a name still ambiguous is counted, not kept as written\n- a script runs again each time it stops on a new file another script wrote,\n  up to five times\n- an empty file the listing reports is written when the host refuses it;\n  empty archive members are kept; folders of uncopied files are made\n- a path inside here() counts from where here() starts\n- the failure reason comes from the error that stopped the script; a program\n  that cannot be started is 'environment'\n- the package library is writable while scripts run\n- a renamed file is suggested when one name is the other plus a piece\n\nThe checklist section now guides authors under \"How to make your code run\non another computer\": one block per problem, with the scripts affected and\nthe steps to fix it, and says so when the cause cannot be established. The\nper-script table no longer repeats this advice.\n\nTests added but not yet run.",
+            "author": "Lakens",
+            "date": "2026-11-06",
+            "url": "https://github.com/scienceverse/metacheck/commit/1b1ce8603be1c67b024b5e5bdfaaaae3d63579cf",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "2cc8f9b",
+            "message": "Merge pull request #577 from scienceverse/dev",
+            "body": "Merge dev into main: 0.4.3.3",
+            "author": "Daniel Lakens",
+            "date": "2026-11-06",
+            "url": "https://github.com/scienceverse/metacheck/commit/2cc8f9b0fc48fe58f9e3a57369f84ec6475fa8ba",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "a1fc0f6",
+            "message": "Merge pull request #574 from scienceverse/researchbox_aspredicted_api",
+            "body": "AsPredicted preregistrations through ResearchBox's API (0.4.3.3)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-06",
+            "url": "https://github.com/scienceverse/metacheck/commit/a1fc0f64c7eadd5eaf05d386a3499cfb6f433105",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "629535f",
+            "message": "Merge remote-tracking branch 'origin/dev' into researchbox_aspredicted_api",
+            "body": "# Conflicts:\n#\tDESCRIPTION",
+            "author": "Lakens",
+            "date": "2026-11-06",
+            "url": "https://github.com/scienceverse/metacheck/commit/629535f847f96e7b2389ec9aa7c754368a4f4dc4",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "21e2ca1",
+            "message": "Version 0.4.3.3: AsPredicted preregistrations through ResearchBox's API",
+            "body": "aspredicted_info(), and with it prereg_check, reads AsPredicted's\npreregistrations through ResearchBox's API (get_aspredicted) when a\nResearchBox key is set, and AsPredicted's web page otherwise. After\nAsPredicted's captcha the API is still asked. New columns AP_registered,\nAP_anonymous, AP_secondary, and from the API AP_number, AP_status,\nAP_authors_count and AP_bundle; a cache argument, off by default (#570).\nVersion 1.05 of AsPredicted's questions is read correctly. ResearchBox's\nlimits for AsPredicted are kept apart from its limits for boxes.\n\nprereg_check names an AsPredicted link that could not be read, with the\nreason, instead of counting an empty row. Without a ResearchBox key, its\nreport and aspredicted_info() say that the web pages were read and how\nto set a key; api_key_status() also reports ResearchBox's limit for\nAsPredicted, so the apps tell visitors when it is reached.\n\nTwo faults found by the test warnings: .url_decode() keeps a % that\nstarts no code, where URLdecode() dropped characters or stopped (six\nplaces), and paper_write() makes a new folder before asking for its\nfull path.",
+            "author": "Lakens",
+            "date": "2026-11-06",
+            "url": "https://github.com/scienceverse/metacheck/commit/21e2ca14e16c428c7c694a864e02e2558dd947b0",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "2fa1ac8",
+            "message": "Version 0.4.3.2: help text sits directly above its function again",
+            "body": "Three helpers added in 8760708c and 45f57797 (#568) were placed between a\nfunction's roxygen block and the function: .binary_kind_raw() above\ncode_read(), .repro_binary_kind() above .repro_content_sniff(), and the\nPython import helpers above .repro_py_imported(). The next run of\nroxygen2::roxygenise() gave each block to the helper, which removed\ncode_read's help page and export(code_read) from NAMESPACE. The helpers now\ncome before the blocks; no line of code changed, and roxygenise() now\nchanges no file.",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/2fa1ac8e3d3083e4fbe3b4bbe2ae2f7bee95b31e",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "bd27c1d",
+            "message": "Merge pull request #573: reproducibility_check corpus fixes from the BES validation (#568)",
+            "body": "reproducibility_check: corpus fixes from the BES validation (#568)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/bd27c1db1d7a8475c42edba2348219b2f1068f29",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "be5572f",
+            "message": "Version 0.4.3.1: the reproducibility_check corpus fixes get a NEWS section of their own",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/be5572f60bbab3027214d70dae8804fbbf251db0",
+            "type": "docs",
+            "branch": "dev"
+          },
+          {
+            "sha": "e5e3138",
+            "message": "Version 0.4.2.5",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/e5e3138886f427378d199cf8b35dd005ee078f4f",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "e936da2",
+            "message": "reproducibility_check: Stan in R code, poisson_log after ~, stand-ins that survive rm(list = ls()) (#568)",
+            "body": "- Stan programs held in R code as a multi-line quoted text get the newer\n  syntax (10.1111/1365-2435.14436: three models now compile).\n- After ~, poisson_log() and neg_binomial_2_log() are left alone: the\n  _log conversion turned y ~ poisson_log(x) into poisson_lpmf.\n- The stand-ins for View(), windowsFonts() and the file choosers are in an\n  attached environment, so rm(list = ls()) does not remove them\n  (10.1111/1365-2656.13193 now runs).",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/e936da20d0d3f59f7eac29766eeecf2f67c11b98",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "77d90af",
+            "message": "reproducibility_check: a failed install says why, from the install's output (#568)",
+            "body": "7 of 111 failed installs gave only \"had non-zero exit status\"; the\nreason (missing dependencies, a compiler error) is in the output.",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/77d90afc851839b550f97779fa9fc750d3df0d56",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "55204c2",
+            "message": "reproducibility_check: a Python 2 script not started for lack of time says so, not python2 (#568)",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/55204c23eb828fb4e1c3e740a5b40f2efa817a68",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "b51781b",
+            "message": "Python installs: fall back to --target when --prefix cannot install (#568)",
+            "body": "A package that needs another version of one the image has made pip try to\nchange the image's copy (\"Permission denied: 'REQUESTED'\", pygam in\n10.1111/2041-210X.14007); it is then installed apart, with --target.",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/b51781b4aee9ad81aef72559535cd58340244ad2",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "32a4e41",
+            "message": "repro_rewrite_paths: a name kept in a variable that the code joins to a folder is left as written (#568)",
+            "body": "datname <- \"Fig_2\" with paste(\"Data/\", datname) became \"Data/Data/Fig_2\"\n(10.1111/1365-2664.13539: 10 scripts run, where 5 did). 9 names in 5\nscripts of 2 papers.",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/32a4e41843b683e66bbe58da233f966919fb8395",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "959d058",
+            "message": "reproducibility_check: binary .R files are not run; Python 2's missing-module message (#568)",
+            "body": "- A file that is not text (code_read() gives no lines) is looked at by the\n  not-R check and is not run: 13967's 109 MB R data named .r is\n  not_r_content, and its one script ran (0.6 minutes, was over an hour).\n- \"No module named librosa\" (Python 2, no quotes) is a missing package.",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/959d058ff29cc36bd5bb73018939fe6c1a2a5d9c",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "d397b91",
+            "message": "file_category: compare each extension once with all names; reproducibility_check reads code with code_read() (#568)",
+            "body": "file_category() built a regular expression per known extension per file\nname: most of a 36-minute data_check (10.1111/2041-210X.14428). Same types,\n8258 names in 1.5 s. The named-file search read 13967's 109 MB of R data\nnamed .r with readLines().",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/d397b9113c116b4efeb849cf4b3570a1ba66d2a5",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "aa80805",
+            "message": "reproducibility_check: memory-limit stops named; Python installs reuse the image; install time limit for Python (#568)",
+            "body": "- Exit status 137 in Docker adds a note on the memory limit, reason\n  environment (10.1111/2041-210X.14359: nimble's compiler over 3 GB).\n- pip --prefix instead of --target, so the image's packages are used, with\n  PyTorch's CPU index (14327: torch reinstalled, install out of time).\n- install_timeout also applies to Python installs.",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/aa808059e9d8134c3055babf0795686ceeb91a6f",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "c565c41",
+            "message": "repro_rewrite_paths: checksums only for compared candidates, kept for the session (#568)",
+            "body": "Every file of the plan was hashed for every script: in 10.1111/2041-210X.13798\n(12064 files, 281 scripts) 75% of a 34-minute check in which nothing ran.",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/c565c418ef68bb016d2ad5ac1e91b141712dd270",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "8760708",
+            "message": "reproducibility_check, code_check: binary files are not read as code; empty files; Stan bars; /vsicurl/ (#568)",
+            "body": "- code_read() returns no lines (attr binary) for a file that is not text:\n  code_check spent more than 35 minutes on 109 MB of R data named .r\n  (10.1111/2041-210X.13967). UTF-16 text is still read.\n- A download of a file listed with size 0 that comes back empty is the file\n  (13798: 55 empty files reported as failed).\n- Stan update: a vertical bar in _cdf/_lcdf/_lccdf/_lpdf/_lpmf calls (14079).\n- /vsicurl/ reads count as needing the internet.",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/8760708c7a157c74701d5351933547e95c6c44f4",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "a91f6cf",
+            "message": "reproducibility_check: PWD in containers, modules imported modules need, LFS pointers without a file (#568)",
+            "body": "- PWD is set to the run folder: Hydra/OmegaConf ${oc.env:PWD} stopped\n  three scripts of 10.1111/2041-210X.14007.\n- A Python script finds the repository's modules that the files it imports\n  need (14007: run.py -> run_NNs -> fluxrgnn).\n- A script that stopped on a Git LFS pointer with no file in the deposit\n  gets the reason file, and the report says so (14054).",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/a91f6cf95000e05fb0c22ff81eed3d59d832c317",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "b7b49e2",
+            "message": "reproducibility_check: run again after a later write, keep data files, programs needing arguments, R_LIBS (#568)",
+            "body": "- A script that stopped on a file another script wrote later (at a new path)\n  runs once more, after the file is copied to where it looked when it was\n  written in another folder (10.1111/2041-210X.13814, 13923).\n- A file that is not text, such as R data saved as .R, is not_r_content and\n  is never written over (13897: load() failed with bad restore file magic\n  number).\n- A program that stopped for want of its command-line arguments is\n  needs_a_person (19 scripts in 5 papers).\n- R_LIBS is set in Docker, so R processes a script starts find the run's\n  packages (13910: gbm's cross-validation workers).",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/b7b49e2277850fcb298875986c132b478c773cc0",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "0c79b5c",
+            "message": "reproducibility_check: install only for files that run; find named files fast (#568)",
+            "body": "Packages imported only by files that are not run (a package's code, tests,\na copy of a tool or web application, a server) are no longer installed: in\n10.1111/2041-210X.13787 one script ran for 2 seconds after 35 minutes of\ninstalls. .repro_named_files() looked for every listed file in all of the\ncode; it now looks only for the files still to fetch, among the code's words\n(more than 4 minutes without ending in 10.1111/2041-210X.13798).",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/0c79b5c431daafe6d3507f3876cd7f0a3edf9cf3",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "57f44b9",
+            "message": "Downloads: an empty cached file of a listed non-empty file is fetched again (#568)",
+            "body": "Older versions kept an empty file when a download failed; an empty copy of\nphy_spp_names.csv, cached in August, made 23 scripts of\n10.1111/1365-2435.14173 stop with 'no lines available in input'.",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/57f44b9a93af84b0183e885adb8fbe3d6b5ee6ad",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "45e3a1b",
+            "message": "reproducibility_check: Python 2 code runs with Python 2.7 in Docker (#568)",
+            "body": "Scripts recognised as Python 2, and scripts that stop on a Python 2 module\nthey import, run again in python:2.7-slim, with their packages in a library\nof their own (pip there picks the last versions that support Python 2). The\ncode is not converted. The report and the modifications table (python2) say\nso. Option metacheck.docker_image_py2; FALSE keeps the old outcome.",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/45e3a1b9c267716c4372561ce9f2cd2e62c4bba0",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "319c51c",
+            "message": "reproducibility_check: programs may run from /tmp; Cairo's PDF device; a lost container is Docker's failure (#568)",
+            "body": "rstan's compiled models and Rcpp::sourceCpp() could not be loaded from /tmp, which Docker mounts noexec. Plots go to Cairo's PDF device, which takes any font name (theme_ipsum()'s Arial Narrow). \"error waiting for container\" counts as docker_failed.",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/319c51cdb668877c6c1545a4c59de71c599bfc76",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "45f5779",
+            "message": "reproducibility_check: corpus fixes, round 3 (#568)",
+            "body": "Model families are not fonts; package lists loaded through a function; absolute folders in variables get the deposit's folder; folders of writes in variables and file = are made; libraries in a Docker volume (INLA); archived dependencies first (ggsn); Stan syntax before 2.33 converted; Python programs with a window need a person; the run's echo no longer goes into sink() files (JAGS models); Git LFS pointers replaced by the deposit's copy; bare names read directly are found; here() no longer gets a .here in every run folder. Each change is reported.",
+            "author": "Lakens",
+            "date": "2026-11-05",
+            "url": "https://github.com/scienceverse/metacheck/commit/45f577975ea904eed737b6215c62aecac44bc652",
+            "type": "chore",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-10-15T15:25:58Z",
+        "recent_commits": [
+          {
+            "sha": "b977710",
+            "message": "Built site for tenzing@0.4.1: 85425d1",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/b977710bb300115ece3b676f92b9a062db2605e2",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "85425d1",
+            "message": "bumped roxygen version and updated the doc files",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/85425d19e4527b05928eacb15626612f762c300f",
+            "type": "docs",
+            "branch": "master"
+          },
+          {
+            "sha": "f267e64",
+            "message": "Built site for tenzing@0.4.1: 7116563",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/f267e64ea83d2c419d91390fb164ca52feed6a33",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "7116563",
+            "message": "bug fix: certain outputs included acknowledgees even though those outputs should not use them",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/71165636d127f1f7ce22276af54d4207751f018b",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-11-06T05:08:11.690877+00:00",
     "narrative": "",
     "repos": [
@@ -39978,132 +40324,6 @@
             "url": "https://github.com/brandmaier/reproducibleRchunks/commit/1fed484b95e6e1a663996ebd928ad39093420679",
             "type": "other",
             "branch": "styling"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-10-11T03:57:40.204191+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 3,
-        "pushed_at": "2026-10-04T09:25:40Z",
-        "recent_commits": [
-          {
-            "sha": "d9c3ec7",
-            "message": "docs: add screenshots for provider settings and run defaults",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d9c3ec77a1a78d2cf8104b1c9b53796717360ae1",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "a4a2f9a",
-            "message": "Release 0.12.9",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4a2f9a9c91bd227d574872a6572d581c4c2843f",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "23a6a90",
-            "message": "updated docs",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/23a6a903c46eda361e0c833a77118195afbd7c10",
-            "type": "other",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "cjvanlissa",
-        "repo": "worcs",
-        "url": "https://github.com/cjvanlissa/worcs",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-10-07T09:04:00Z",
-        "recent_commits": [
-          {
-            "sha": "ed306b5",
-            "message": "Deploying to gh-pages from @ cjvanlissa/worcs@d883359de0250edf90f4f88c2384bdb23e2d1d9f \ud83d\ude80",
-            "body": "",
-            "author": "cjvanlissa",
-            "date": "2026-10-07",
-            "url": "https://github.com/cjvanlissa/worcs/commit/ed306b5195d5b2d856478a82bbb20cdbaa8c8607",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "d883359",
-            "message": "update 2026-10-07 10:58:54.664894",
-            "body": "",
-            "author": "cjvanlissa",
-            "date": "2026-10-07",
-            "url": "https://github.com/cjvanlissa/worcs/commit/d883359de0250edf90f4f88c2384bdb23e2d1d9f",
-            "type": "other",
-            "branch": "master"
-          }
-        ]
-      },
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-10-01T15:40:33Z",
-        "recent_commits": [
-          {
-            "sha": "079d5a6",
-            "message": "Fix CI: keep cost-tracking test offline; bump nltk to 3.10.3",
-            "body": "- test_general_orchestrator_attaches_cost made a real OpenAI embeddings\n  call while building the evidence index (key picked up from .env via\n  load_dotenv locally; 401 in CI). Stub openai_embed_segments.\n- Bump nltk 3.10.0 -> 3.10.3 (fixes 12 PYSEC advisories surfaced once the\n  test step passed); requirements.lock regenerated (nltk lines only).\n- pip-audit: ignore PYSEC-2026-3740 (no fixed nltk release; affects model\n  save/load APIs RegCheck does not use).",
-            "author": "Jamie Cummins",
-            "date": "2026-10-01",
-            "url": "https://github.com/JamieCummins/regcheck/commit/079d5a64adfa7695aec363761003cee828a8a2b6",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "ac05237",
-            "message": "Rename external parser connector to bibr and support its jobs API",
-            "body": "- pdf2bibr: submit to /papers/jobs, poll the job, fetch /result\n  (hosted bibr service); BIBR_URL / BIBR_API_KEY (also BIBR_TOKEN),\n  legacy EXTERNAL_PARSER_* env names still honoured.\n- Parser choice \"bibr\"; \"external\" kept as an alias (CLI, API, extractor).\n- extract_bibr_text: schema 12.1 support; drop the references section;\n  keep headings of sections without their own text; append captions,\n  footnotes and tables; tolerant HTML table flattening; strip inline\n  LaTeX and literal \"\\n\" from OCR output.\n- Tests for the job flow, failure handling and text reconstruction.",
-            "author": "Jamie Cummins",
-            "date": "2026-10-01",
-            "url": "https://github.com/JamieCummins/regcheck/commit/ac05237c8244105eb2fd1ee557f5bea9c8270ff8",
-            "type": "feat",
-            "branch": "bibr-jobs-connector"
-          }
-        ]
-      },
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-10-10T13:46:47Z",
-        "recent_commits": [
-          {
-            "sha": "109a9aa",
-            "message": "Fetch Dryad zip members by downloading the archive once (#471)",
-            "body": "Fetching members by byte range costs two requests per member, which\nexhausts Dryad's daily request limit on corpus runs. .zip_fetch_members()\ngains a whole-archive mode: when at least 3 members are wanted and the\narchive (size estimated from its central directory) fits the budget, it\ndownloads the archive once, keeps it on disk for restarted runs, and\nextracts the wanted members locally; anything not delivered falls back to\nthe per-member fetch. Enabled only for datadryad.org archives, in\ndownload_repo_files() and code_check's zip expansion. Version 0.3.2.2.",
-            "author": "Lakens",
-            "date": "2026-10-10",
-            "url": "https://github.com/scienceverse/metacheck/commit/109a9aa580a920e9c647a3eef1142493ae2c483c",
-            "type": "other",
-            "branch": "dev"
           }
         ]
       }
