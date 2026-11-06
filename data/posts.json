@@ -1,5 +1,431 @@
 [
   {
+    "generated_at": "2026-11-06T05:08:11.690877+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 21,
+        "pushed_at": "2026-11-04T15:17:47Z",
+        "recent_commits": [
+          {
+            "sha": "e5558e3",
+            "message": "Drop the minor gridlines in grim_plot_rates()",
+            "body": "* Rates between the quarters mean nothing, and debit_plot() drops them too.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/e5558e3a6041373f7f150adf60c75bdeb2a0ec6f",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "97c5b96",
+            "message": "Limit `grim_plot_rates()` between 0 and 1",
+            "body": "* The reference lines are segments from 0 to 1, drawn with annotate():\n  geom_segment() with constant positions drew one copy per study.\n* They are grey40, which is about as dark as the stacked grey50 copies\n  looked.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/97c5b9631e5161f8afbf165e0ded29ab1afaafde",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "237c0c4",
+            "message": "Write \"GRIM inconsistency\" without a hyphen",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/237c0c45456013a7aab3f9039213c8c09a026aed",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "9fb2d93",
+            "message": "Recycle grim_granularity() arguments by the tidyverse rules",
+            "body": "* Base `*` recycled any length into any other, such as 2 into 4, silently.\n* grim_items() gets the same check while it is deprecated.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/9fb2d9304c4c42486b24cf605b419720cc48c112",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "703ea9b",
+            "message": "Report n in grim_values() and grimmer_values()",
+            "body": "* case counts through n when x is a single value, which the docs now say.\n* An undecidable row keeps its n, so it can be told apart from the others.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/703ea9b73aadbb596dfe3ad68268943533adffe5",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "b54e458",
+            "message": "Compute the threshold's scale once per value set",
+            "body": "* grim_scalar(), grimmer_scalar(), and debit_scalar() called\n  rounding_scale() two or three times per row, and grim_scalar() called\n  check_sum_range_exact() for every row; together with the flag check, the\n  exactness checks of this release made grim() about 40% slower. The scale\n  is now computed once, and the sum check is inlined, calling the function\n  only for the error. grim() takes 0.25 s for 10,000 value sets, against\n  0.30 s before and 0.21 s before the checks.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/b54e45863822da2c1013645943910327307fe987",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "ba26ed2",
+            "message": "State the size limits in the help pages instead of NEWS",
+            "body": "* The limits on significant digits and sums were only in NEWS, where the\n  \"Numeric inputs\" bullet quoted their formulas. ?grim now states them,\n  ?grimmer and ?debit say what they refuse beyond, and NEWS points there.\n  The GRIMMER limit for n from 2 to 4 is the new one, about 3e5; the old\n  \"4.7e7 to 6.7e7\" had only held for sd_sample.\n\n* ?seq_disperse said dispersion \"can be any numeric vector\"; it takes\n  non-negative whole numbers, and drops zeros and repeats.\n\n* A NEWS line described a missing string by the development state before\n  it.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/ba26ed22b0a1d8facad21bd8b465a748cdfa696e",
+            "type": "docs",
+            "branch": "polishing"
+          },
+          {
+            "sha": "5c3f053",
+            "message": "Abort in big() for a negative or infinite input",
+            "body": "* floor(x / 2^24) never reaches 0 for either, so big() would loop forever.\n  No caller passes one today; this makes a future one an internal error.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/5c3f053f39003bfc07f3453198fdd22066a946a8",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "ced7d50",
+            "message": "Let empty data frames bind to mapper output, and reject added rows in the audits",
+            "body": "* bind_rows(out, tibble(x = numeric())) was an error, though it adds no\n  rows. vec_rbind() passes the vec_ptype2() methods prototypes without\n  rows, so a plain data frame is now only rejected when it is cast, which\n  skips inputs without rows. Two mapper outputs are still compared in\n  vec_ptype2(), where the error names both arguments.\n\n* full_join() and rbind() add rows that the vctrs methods never see, and\n  audit_seq() then read them under the first call's verdicts, as NA for a\n  case beyond its record. audit_seq() and audit_total_n() now reject any\n  case or group with more rows than the call recorded. Basic mapper output\n  records no rows, so joins remain uncovered there; NEWS says so.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/ced7d5098bb28789e87c6edd7cf2fd3dfbf50396",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "64173ae",
+            "message": "Write the bounds of the mean and the number of ones in full in debit_explain()",
+            "body": "* The product of n and a bound of the mean was printed as a double rounded\n  to 15 digits, so debit_explain(0, 0.3, 899999999999999, 0, 1) said\n  \"0.5 * 899999999999999 = 450000000000000\" next to a range ending at\n  449999999999999. The bound itself was rounded to four places, as 0.0222\n  for 0.02225. Both are now written out exactly from the numerators.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/64173ae65d5140d1d0b853e74beffd0f16c03501",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "3f10974",
+            "message": "Prune GRIMMER's remainders with the mean known, and refuse large SDs below n = 5 sooner",
+            "body": "* With the mean known, the sums can cover every remainder modulo n, as\n  with digits_x = 0, and then GRIMMER tried all of them:\n  grimmer(5, 0.0001, 999999, 0, 4, 1) took 19 s. The pruning of remainders\n  out of the SD's reach, until now only applied with the mean unknown, now\n  applies there too, and the case takes 0.08 s. 211,200 small-n\n  brute-force cases and 6,000 random cases with n up to 5000 get the same\n  verdicts as before.\n\n* For n from 2 to 4, sums of squares from 2^40 on are refused, rather than\n  from 2^52 or 2^53: deciding them took seconds and gigabytes for n = 3,\n  13 s and 5.4 GB at an SD of 4.7e7. This rules out SDs of about 3e5 to 1e6,\n  depending on n and sd_meaning, which no study reports for so few values.\n\n* The too-large-n error writes n and the count in full, not as 2e+06.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/3f10974c2cc4cb78de83791ae508d0d10be4fa6b",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "306720c",
+            "message": "Call .cols_derived functions once per mapper call, not once per row",
+            "body": "* grim_map() spent about three quarters of its time calling\n  grim_exp_incon() row by row, 1.2 s of 1.6 s for 10,000 rows. The function\n  is vectorized, and called once on the columns, it gives the same values;\n  grim_map() now takes 0.36 s for those rows.\n\n* .cols_derived is new in 1.0.0, so its contract changes without a\n  deprecation: each function is vectorized, and a .reported_variadic\n  argument comes as a list of each row's values.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/306720cf69a543c1d0ef0733230a2b4b9f686be9",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "a0ee87e",
+            "message": "Judge logical() like numeric() in is_seq_*() and use a repeated row once",
+            "body": "* is_seq_linear(logical()) was FALSE where is_seq_linear(numeric()) is\n  TRUE; an empty logical vector is how R writes an empty vector of no type.\n\n* row_to_colnames(row = c(1, 1)) pasted the row to itself, as in \"x x\".",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/a0ee87e518986c69d4b358bdb360e13a26babeb6",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "a1ce10a",
+            "message": "Raise scrutiny's own errors for list-columns, unnamed columns, and a list from",
+            "body": "* duplicate_count() failed in sort.int() on a list-column, and\n  duplicate_tally() and duplicate_count_colpair() compared its elements as\n  deparsed strings such as \"1:3\". All three now reject list-columns.\n\n* duplicate_count_colpair() names unnamed columns by position, as the other\n  duplicate_*() functions do; tibble rejected them.\n\n* seq_disperse(from = list(1)) failed in is.finite().",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/a1ce10a72353b72f0bdf849c40eeb15ba3f291f9",
+            "type": "fix",
+            "branch": "polishing"
+          },
+          {
+            "sha": "3e693c9",
+            "message": "Reject a name repeated in constant",
+            "body": "* disperse(), disperse2(), disperse_total(), and the total-n mappers kept\n  only the last of the columns that a repeated name in `constant` gave.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/3e693c92b374931b2a268ba370cd51fd1baa5ac8",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "fc73af3",
+            "message": "Refuse group sizes and dispersed values from 2^52 on",
+            "body": "* disperse2() took the mean of its two n values before any check, and from\n  2^52 on that rounded the half away, so c(2^52 + 1, 2^52 + 2) gave wrong\n  group sizes. All three disperse*() functions now refuse group sizes from\n  2^52 on, one limit in place of 2^52 for halves and 2^53 for whole numbers.\n\n* seq_disperse() checked decimal values against 2^53 units of their last\n  place, where a double's spacing has long passed a unit, so\n  \"80000000000000.01\" gave repeated values off the decimal grid. The limit\n  is now 2^52 units, and the units are counted without dividing by `by`,\n  which reported Inf for a tiny one.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/fc73af32be2c20260147203af94ae4049ed86eb6",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "556cec6",
+            "message": "Leave hits unknown in audit_total_n() that an undecided split might add to",
+            "body": "* A split whose both_consistent is NA might be a hit, so the hits of its\n  direction and the total are NA, as audit_seq() has had it since 6f0f1b5.\n  They were counted as misses.\n\n* The audit sections of the sequence and total-n mappers now say that\n  removed rows, as by filter(), make a count NA too.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/556cec6e672422c9a5687cbe2488d796b2373eb2",
+            "type": "feat",
+            "branch": "polishing"
+          },
+          {
+            "sha": "0e0b704",
+            "message": "Narrow the tolerance floor of is_seq_*() to two units in the last place",
+            "body": "* The floor of 8 * eps times the largest value, from 8306180, merged steps\n  one unit apart in the 15th significant digit, so that\n  is_seq_linear(c(9e14, 9e14 + 1, 9e14 + 3)) was TRUE. Steps and centers are\n  off by at most two units in the last place, and such a step is at least\n  4.5 of them. 30,000 generated sequences with 10 to 15 significant digits\n  are now all judged right, linear and not.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/0e0b704702f1238d8d05000367d7e963e7bb12a2",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "d0ea550",
+            "message": "Take n as a double in GRIMMER's candidate sums",
+            "body": "* With an integer n, as from read.csv(), the shift q * (s + r) overflowed\n  once the mean was large, so grimmer_explain(), grimmer_values(), and\n  explain_map() failed with a missing value where TRUE/FALSE was needed, and\n  grimmer() warned. The verdict was unaffected.",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/d0ea550156117e1e4225954e14e2ce8d822c93cc",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "fbe363c",
+            "message": "Replace stray `ifelse()`s by `dplyr::if_else()`",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/fbe363c79ae73a74a1febb344bc0753667dbdd80",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "0941a79",
+            "message": "Let columns be added to mapper output again",
+            "body": "* Since a67f24d, bind_cols(), tidyr::nest(), and group_modify() on mapper\n  output failed with \"Can't combine mapper output with other data\":\n  vec_cbind() asks the same vec_ptype2() methods for the type of its inputs,\n  which it passes without columns. Only rows can be read under the wrong\n  record, so the guard now skips inputs without columns, and casts of inputs\n  without rows, as in bind_rows(out, tibble()).",
+            "author": "Lukas Jung",
+            "date": "2026-11-04",
+            "url": "https://github.com/lhdjung/scrutiny/commit/0941a79fc3a49d486778ddc31f3c1518bda1b799",
+            "type": "other",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "MicheleNuijten",
+        "repo": "statcheck",
+        "url": "https://github.com/MicheleNuijten/statcheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 6,
+        "pushed_at": "2026-10-29T13:57:18Z",
+        "recent_commits": [
+          {
+            "sha": "1088bb1",
+            "message": "Merge pull request #121 from MicheleNuijten/update-manual",
+            "body": "Add the statcheck manual source (updated for 1.6.1)",
+            "author": "Mich\u00e8le Nuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/1088bb199331145c4eaa4cbdb14e79ba02bafa92",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "0251fa8",
+            "message": "don't sync rsconnect files (to publish manual)",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/0251fa8bf03f598fa5a89958eb050d7e573d0706",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "b67f521",
+            "message": "small fixes",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/b67f5214b899f6a4c2d21dd06b38ebd2bd04f786",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "7d4b667",
+            "message": "type setting",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/7d4b66754126292d77dc1fc1becdb3aef38cc7c5",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "7403951",
+            "message": "restructure some text",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/7403951adc699710248d80b48f3aa6fedf342b99",
+            "type": "refactor",
+            "branch": "master"
+          },
+          {
+            "sha": "03f602d",
+            "message": "update text and add additional screenshots and figs",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/03f602d1e61e76efb44e82e82a45fe4a13af2107",
+            "type": "feat",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "brandmaier",
+        "repo": "reproducibleRchunks",
+        "url": "https://github.com/brandmaier/reproducibleRchunks",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-10-22T11:46:24Z",
+        "recent_commits": [
+          {
+            "sha": "eabbdb8",
+            "message": "updated JSON files for vignettes",
+            "body": "",
+            "author": "brandmaier",
+            "date": "2026-10-22",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/eabbdb8b4a66c3b2386c824fe49b5c37b1b5f064",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "376f7e2",
+            "message": "updated docs/vignettes",
+            "body": "",
+            "author": "brandmaier",
+            "date": "2026-10-22",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/376f7e25612ec8b26a9b5c790cd0beaf4eede676",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "f494d4c",
+            "message": "vignettes",
+            "body": "",
+            "author": "brandmaier",
+            "date": "2026-10-22",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/f494d4cf88aea95c861814c6d795a452215d59e1",
+            "type": "docs",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-10-23T12:35:51Z",
+        "recent_commits": [
+          {
+            "sha": "16a3cea",
+            "message": "version bump",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-10-23",
+            "url": "https://github.com/quest-bih/oddpub/commit/16a3cea30aa4742fc6a6fb5321f58864ffb9dbae",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "eb4f800",
+            "message": "patch nature portfolio removal",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-10-23",
+            "url": "https://github.com/quest-bih/oddpub/commit/eb4f8006c823ae6bd3a17e26ef90b68a2a320a95",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "JamieCummins",
+        "repo": "regcheck",
+        "url": "https://github.com/JamieCummins/regcheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-11-05T08:29:06Z",
+        "recent_commits": [
+          {
+            "sha": "69a3563",
+            "message": "add citation info",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-11-05",
+            "url": "https://github.com/JamieCummins/regcheck/commit/69a356365423a439dbf627809c9679a5aeed965a",
+            "type": "feat",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "escicheck",
+        "url": "https://github.com/giladfeldman/escicheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-10-08T12:30:35Z",
+        "recent_commits": [
+          {
+            "sha": "a12feaf",
+            "message": "sync from escicheckapp@7e5f5d8 (effectcheck v0.7.17) (#46)",
+            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 7e5f5d8364916e5c0fce80982efe976b7b60e906\nPackage version: 0.7.17\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
+            "author": "Gilad Feldman",
+            "date": "2026-10-08",
+            "url": "https://github.com/giladfeldman/escicheck/commit/a12feafb5becbae29ce6d6360eb221becba51efa",
+            "type": "chore",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-11-03T04:28:53Z",
+        "recent_commits": [
+          {
+            "sha": "abd17f9",
+            "message": "Migrate JavaScript test dependencies to pnpm",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-03",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/abd17f9829353b127fea0a8b3ad6797b881cf9f5",
+            "type": "test",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-11-05T23:26:24.105699+00:00",
     "narrative": "",
     "repos": [
@@ -39678,392 +40104,6 @@
             "url": "https://github.com/scienceverse/metacheck/commit/109a9aa580a920e9c647a3eef1142493ae2c483c",
             "type": "other",
             "branch": "dev"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-10-10T21:16:53.111803+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "Davidvandijcke",
-        "repo": "coarse",
-        "url": "https://github.com/Davidvandijcke/coarse",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 18,
-        "pushed_at": "2026-10-05T19:23:40Z",
-        "recent_commits": [
-          {
-            "sha": "7af2cca",
-            "message": "fix: preserve native Unicode text and avoid unused credential loading (#309)",
-            "body": "",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/7af2cca465dffb31337fa50b9f95ce956d348a32",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "a15825c",
-            "message": "fix: preserve native Unicode text and avoid unused credential loading",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/a15825cc290a3b5fc1a6dce800b9959d6176ad51",
-            "type": "fix",
-            "branch": "codex/native-pilot-text"
-          },
-          {
-            "sha": "a81633d",
-            "message": "Clarify native pilot app handoff (#308)",
-            "body": "* fix(web): clarify native pilot app handoff copy\n\n* docs: clarify native pilot publication lifetime",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/a81633d58a403539cdc6b9064414dee9f9cb760c",
-            "type": "other",
-            "branch": "codex/native-pilot-text"
-          },
-          {
-            "sha": "e76c24c",
-            "message": "docs: clarify native pilot publication lifetime",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/e76c24cd52cf5d4be93c8a3f5c6cf6fa3a4714d8",
-            "type": "other",
-            "branch": "codex/native-pilot-copy"
-          },
-          {
-            "sha": "22c9e76",
-            "message": "fix(web): clarify native pilot app handoff copy",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/22c9e76ee2e9a5ba2a213dbb87a164b9a2ec9a56",
-            "type": "fix",
-            "branch": "codex/native-pilot-copy"
-          },
-          {
-            "sha": "1132cb4",
-            "message": "Add opt-in native app review pilot (#307)",
-            "body": "* feat: add opt-in native app review pilot\n\n* fix: preserve native author notes and checkpoint dependencies",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/1132cb49062633510e34ae3067fe9a3b3834b9cd",
-            "type": "feat",
-            "branch": "codex/native-pilot-copy"
-          },
-          {
-            "sha": "be810bb",
-            "message": "fix: preserve native author notes and checkpoint dependencies",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/be810bbfbd6898e179c3995c63fcbadde0087538",
-            "type": "fix",
-            "branch": "codex/native-review-pilot"
-          },
-          {
-            "sha": "91e17db",
-            "message": "feat: add opt-in native app review pilot",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/91e17dbecc2657478cb68aceee045a11326bc359",
-            "type": "feat",
-            "branch": "codex/native-review-pilot"
-          },
-          {
-            "sha": "2e813b2",
-            "message": "Merge pull request #306 from Davidvandijcke/dev",
-            "body": "Release v1.9.6: fix subscription handoff links",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/2e813b28b76ee0679aa48bb174f6de8700f692db",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "6aedb6f",
-            "message": "Fix Markdown-wrapped subscription review handoffs (#305)",
-            "body": "* fix: normalize Markdown-wrapped subscription handoff URLs\n\n* test: exercise all subscription handoff transports and shell arguments\n\n* release: prepare subscription handoff hotfix v1.9.6\n\n* docs: synchronize README with hotfix package version",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/6aedb6f55d3635df462dac8130cc4497726d8648",
-            "type": "fix",
-            "branch": "codex/native-pilot-copy"
-          },
-          {
-            "sha": "38e7e64",
-            "message": "docs: synchronize README with hotfix package version",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/38e7e640a737805869b29659c65ceb822eb1c407",
-            "type": "docs",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "72063e2",
-            "message": "release: prepare subscription handoff hotfix v1.9.6",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/72063e20b0c917bc8daeb1008506fd47c689a15d",
-            "type": "chore",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "1736525",
-            "message": "test: exercise all subscription handoff transports and shell arguments",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/1736525fc748154715cefa0d3ff05abf30ac1678",
-            "type": "test",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "f9e66a6",
-            "message": "fix: normalize Markdown-wrapped subscription handoff URLs",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/f9e66a631b57894d00549376f21ceac4310e4834",
-            "type": "fix",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "f02f00e",
-            "message": "Merge pull request #304 from Davidvandijcke/dev",
-            "body": "Release v1.9.5: current model defaults and subscription handoffs",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/f02f00e8208bc65a065409e845da4099be19e0a4",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "1a0cb67",
-            "message": "Refresh model defaults and Claude Code/Codex handoffs for October (#303)",
-            "body": "* Refresh October model defaults and subscription handoffs\n\n* Verify native handoffs and update urllib3 security floor",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/1a0cb67aedd3aede256802319339865dddcd1ec4",
-            "type": "other",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "bba0213",
-            "message": "Verify native handoffs and update urllib3 security floor",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/bba0213481ec6417e037063ec1776c39cfa7424e",
-            "type": "other",
-            "branch": "fix/october-model-refresh"
-          },
-          {
-            "sha": "23aac17",
-            "message": "Refresh October model defaults and subscription handoffs",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/23aac179ca8813678c38b02f66d810567bddbf5d",
-            "type": "other",
-            "branch": "fix/october-model-refresh"
-          }
-        ]
-      },
-      {
-        "owner": "lhdjung",
-        "repo": "scrutiny",
-        "url": "https://github.com/lhdjung/scrutiny",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 11,
-        "pushed_at": "2026-10-03T22:02:44Z",
-        "recent_commits": [
-          {
-            "sha": "903d8cd",
-            "message": "Use new .lintr.R file to avoid false positives",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-10-03",
-            "url": "https://github.com/lhdjung/scrutiny/commit/903d8cdddf28acbf2b713c2eb198f6f1405e43d3",
-            "type": "feat",
-            "branch": "polishing"
-          },
-          {
-            "sha": "a25bbb9",
-            "message": "Re-import last-export file from unsum",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-10-03",
-            "url": "https://github.com/lhdjung/scrutiny/commit/a25bbb9a2a4b9301047f2a3dea933d8130222dfb",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "2d9d29d",
-            "message": "Mark two formulas in comments as such for lintr",
-            "body": "* `commented_code_linter` flags any comment line that parses as R, so it\n  took the sum-of-squares formula in unround.R and the DEBIT condition in\n  debit.R for commented-out code. A trailing `# nolint` keeps them as they\n  are.",
-            "author": "Lukas Jung",
-            "date": "2026-10-03",
-            "url": "https://github.com/lhdjung/scrutiny/commit/2d9d29dd5447f43d68bd302babcdf1266b78b1cc",
-            "type": "docs",
-            "branch": "polishing"
-          },
-          {
-            "sha": "7454b58",
-            "message": "Refer to the `reported` column explicitly in the total-n proto",
-            "body": "* Since 2a3d35d renamed the proto's argument to `.reported`, the bare\n  `reported` in `mutate()` and `unnest_wider()` named only the data-mask\n  column, which R CMD check reported as a global variable without a binding.\n  It now reads `.data$reported` and `\"reported\"`.",
-            "author": "Lukas Jung",
-            "date": "2026-10-03",
-            "url": "https://github.com/lhdjung/scrutiny/commit/7454b5893bb609618542736927b6927d9d284403",
-            "type": "chore",
-            "branch": "polishing"
-          },
-          {
-            "sha": "a2d4a60",
-            "message": "Throw all user-facing errors via `abort_in_export()`",
-            "body": "* Converted the 33 `cli::cli_abort()` calls with `call = rlang::caller_env()`\n  or a `call` parameter, which blamed whatever function called the check:\n  an internal helper if one was in between, or `seq_disperse()` within\n  `grim_map_seq()`. Dropped the `call` parameters of\n  `abort_symmetric_invalid()`, `check_comb_value()`,\n  `check_decidable_n_items()`, and `recycle_length_common()`.\n* Converted 17 more input checks without a `call`, which blamed themselves,\n  e.g. \"Error in `check_debit_inputs()`\" for `debit_map()`.\n* `vectorize_test()` no longer builds the wrapper's call for errors, and its\n  mapper hint names `grim_map()` under `lapply()`, not `FUN_map()`.\n* Left internal errors and the generic `class_with()` and `call_on()` as\n  they were.",
-            "author": "Lukas Jung",
-            "date": "2026-10-03",
-            "url": "https://github.com/lhdjung/scrutiny/commit/a2d4a6068d60b5873dbfc8bedb512f42bba0e980",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "a2798c6",
-            "message": "Fix two misattributed error messages in `reround()` and the dispersers",
-            "body": "* An invalid `rounding` string in `reround()` named the internal\n  `reconstruct_rounded_numbers_scalar()`; it now goes through\n  `abort_in_export()`.\n* A non-numeric `dispersion` in `seq_disperse()` and `disperse()` failed in\n  base R's `round()`; both now check its type first.",
-            "author": "Lukas Jung",
-            "date": "2026-10-03",
-            "url": "https://github.com/lhdjung/scrutiny/commit/a2798c675ac2f6634451966332521a141df0736a",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "50a394c",
-            "message": "Attribute errors in mapper and factory helpers to the user-called function",
-            "body": "* Replaced the hard-coded frame counts of `name_caller_call(n = 2L)`,\n  `(n = 3L)`, and `error_digits_flawed()`'s `rlang::caller_env(4)` by\n  `name_last_export_code()` and `abort_in_export()`. Errors used to say,\n  e.g., \"Error in `check_factory_dots()`\" and named `FUN()` under\n  `lapply()`; they now name `grim_map()` either way.\n* Added jarl.toml so that jarl accepts repeated bullet names in\n  `abort_in_export()`, as it does for cli functions.",
-            "author": "Lukas Jung",
-            "date": "2026-10-03",
-            "url": "https://github.com/lhdjung/scrutiny/commit/50a394ce7351e51ea8436072616350561e9829a8",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "8bee8d6",
-            "message": "Fix #93: name the user-called function in `digits_*` errors",
-            "body": "* `check_newly_numeric()` and `error_digits_missing()` use\n  `name_last_export()` and `index_last_export()` instead of\n  `caller_test_fn()`, which matched names against a pattern and so took\n  `grim_plot()` for the culprit in `grim_plot(grim_map(x))`.\n* Updated the standalone file: it now finds the innermost export not called by\n  package code, so a lazily evaluated argument like `grim_map(x)` above is\n  named itself. Under `lapply()`, the name is the export's own, not `FUN`.\n* Removed `caller_test_fn()` and `PATTERN_NAME_TEST_FN`.",
-            "author": "Lukas Jung",
-            "date": "2026-10-03",
-            "url": "https://github.com/lhdjung/scrutiny/commit/8bee8d6da3ea3b34364c3296e381d96a85ef962d",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "cbefb80",
-            "message": "Attribute the invalid `rounding` error to the user-called function",
-            "body": "* `bound_numerators()` now throws it via `abort_in_export()`, so it names\n  e.g. `grim_map()` rather than an internal helper.",
-            "author": "Lukas Jung",
-            "date": "2026-10-03",
-            "url": "https://github.com/lhdjung/scrutiny/commit/cbefb80da55c03b0641cfe037c6408c4bbeec3ea",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "132d366",
-            "message": "Import standalone last-export file from unsum",
-            "body": "* `abort_in_export()` and `arg_match_in_export()` attribute errors to the\n  exported function the user called, found on the call stack by identity.\n* Requires cli (>= 3.0.0) for `cli_abort()`.",
-            "author": "Lukas Jung",
-            "date": "2026-10-03",
-            "url": "https://github.com/lhdjung/scrutiny/commit/132d366ff176ce8e99ec4774787c8d57576b5173",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "8df7f5d",
-            "message": "Dissolve helper to simplify code",
-            "body": "",
-            "author": "Lukas Jung",
-            "date": "2026-10-03",
-            "url": "https://github.com/lhdjung/scrutiny/commit/8df7f5dee63eadb437462f46261a170722bec4ae",
-            "type": "refactor",
-            "branch": "polishing"
-          }
-        ]
-      },
-      {
-        "owner": "marton-balazs-kovacs",
-        "repo": "tenzing",
-        "url": "https://github.com/marton-balazs-kovacs/tenzing",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-10-10T09:22:27Z",
-        "recent_commits": [
-          {
-            "sha": "48c89b8",
-            "message": "Built site for tenzing@0.4.1: 61c9930",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-10-10",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/48c89b872901db7a707a388020de75e62ad5987b",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "61c9930",
-            "message": "Add CITATION.cff for preferred citation details",
-            "body": "main citation the paper by Kovacs et al.,\r\nsecondary the older paper Holcombe et al.",
-            "author": "Alex O. Holcombe",
-            "date": "2026-10-10",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/61c9930c1f00cae4521772ff6ceaef05d17d9cce",
-            "type": "feat",
-            "branch": "master"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "escicheck",
-        "url": "https://github.com/giladfeldman/escicheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-10-08T12:30:35Z",
-        "recent_commits": [
-          {
-            "sha": "a12feaf",
-            "message": "sync from escicheckapp@7e5f5d8 (effectcheck v0.7.17) (#46)",
-            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 7e5f5d8364916e5c0fce80982efe976b7b60e906\nPackage version: 0.7.17\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-08",
-            "url": "https://github.com/giladfeldman/escicheck/commit/a12feafb5becbae29ce6d6360eb221becba51efa",
-            "type": "chore",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "brandmaier",
-        "repo": "reproducibleRchunks",
-        "url": "https://github.com/brandmaier/reproducibleRchunks",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-09-30T05:58:14Z",
-        "recent_commits": [
-          {
-            "sha": "1fed484",
-            "message": "fixed rendering of LaTeX warning",
-            "body": "",
-            "author": "brandmaier",
-            "date": "2026-09-30",
-            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/1fed484b95e6e1a663996ebd928ad39093420679",
-            "type": "other",
-            "branch": "styling"
           }
         ]
       }
