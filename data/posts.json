@@ -1,5 +1,501 @@
 [
   {
+    "generated_at": "2026-11-07T21:36:49.592357+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 30,
+        "pushed_at": "2026-11-07T14:00:23Z",
+        "recent_commits": [
+          {
+            "sha": "51ce062",
+            "message": "Fix four details of the recent mapper and guard commits",
+            "body": "* d9b8138 reserved index, index_given, and cols_renamed for every\nmapper, so function_map() refused a test with an index argument. Like\nthe other names of the variadic code, they are reserved only for a\nvariadic mapper now.\n\n* On no rows, the test of a row of missing values passed on what .fn\nsaid about them, such as warnings. Only a deprecation warning is.\n\n* x[i, , drop = FALSE] <- value passed the guard that x[i, ] <- value\ndoesn't, and vctrs::vec_assign() called with its namespace refused\nplain data.\n\n* Grouped duplicate_tally() output got the hint that grouping removed\nthe class of mapper output, as it now has a \"scrutiny\" attribute, too.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/51ce06226d766252fada7e4c1ec1b75d234b167a",
+            "type": "fix",
+            "branch": "polishing"
+          },
+          {
+            "sha": "7acc542",
+            "message": "Test a large number as written in full, not by its last digits",
+            "body": "* R on Windows writes 1e23 as \"99999999999999991618642\", macOS and\nLinux as \"99999999999999991611392\". The test now checks that it is\nwritten in full, without a leading space or an exponent, and reads back\nas about 1e23, which R's parser doesn't hit exactly from either string.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/7acc542c7468069f38c9ca9fff641cf0b6d5d4a4",
+            "type": "test",
+            "branch": "polishing"
+          },
+          {
+            "sha": "9d67722",
+            "message": "Strip source references from manufactured mappers",
+            "body": "* With R_KEEP_PKG_SOURCE=yes, as in the CI workflow, the code blocks\nspliced into a mapper's body keep source references that no longer\nmatch its statements, and codetools failed in R CMD check with\n\"subscript out of bounds\" for every mapper made by the three factories.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/9d67722c28166f72a895b861e41801ebec1b68b4",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "5ecf616",
+            "message": "Let columns of another mapper call replace columns again",
+            "body": "* fbb60fc refused x[j] <- value as well as x[i, ] <- value, so\ndebit_plot() failed when it recomputed the bound columns. Only rows can\nbe read under the wrong record, so only rows are refused.\n\n* A test of duplicate_tally() now ignores the attribute that records\ncolname_end.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/5ecf6166c3bcade241354806bc5e4a661e71400b",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "825e7d8",
+            "message": "Name a summand that a key argument renamed as the user knows it",
+            "body": "* add_up_to_map(d, summands = c(a, sum), total = sum) said that it\nselected `total` and suggested summands = !total, though the user's\ncolumn is sum. The selection is now checked against the columns as\ngiven first.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/825e7d823bbe681ea9972361d8af395669f6db6c",
+            "type": "refactor",
+            "branch": "polishing"
+          },
+          {
+            "sha": "0519fd8",
+            "message": "Give a factor total n the factor message, and drop a hint that misnamed columns",
+            "body": "* A factor n column of a total-n mapper got the generic type error, not\nthe one that says how to convert it.\n\n* The hint showed as.numeric(as.character(x)) with the argument's name,\nwhich is not the column's name if a key argument renamed it, as in\ngrim_map(df, x = m). It now shows the conversion without a name.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/0519fd8733579db0cecb1eaf8f767896d0174b54",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "fbb60fc",
+            "message": "Refuse rows of another mapper call that replace rows of the output",
+            "body": "* out[1, ] <- other[1, ] and rows_update(out, other) put verdicts of a\ncall with other settings into rows that audit() and the others read\nunder this call's settings. tibble's [<- assigns column by column, so\nthe vctrs methods never saw it; a [<- method is now registered for\neach mapper class, and rows_update(), rows_patch(), and vec_assign()\nonly pass plain data or rows of the same output.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/fbb60fc84e966c47233922923962b6570cee9659",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "d9b8138",
+            "message": "Give mapper output without rows the columns it has with rows",
+            "body": "* A mapper called on no rows returned only the key result column, so\ngrimmer_map() lacked reason, and a total-n mapper whose totals left no\npair of group sizes did, too. function_map() now tests a row of missing\nvalues and takes the columns of its result, or only the key result\ncolumn if .fn fails on missing values.\n\n* The variadic part of the body assigns index, index_given, and\ncols_renamed before it reads the arguments, so they are reserved names\nnow, too.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/d9b81387038dac472ee245fc47fc6d2b7a7f733d",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "fc02078",
+            "message": "Stop grimmer_explain() after three failures when the verdict is FALSE",
+            "body": "* grimmer_explain() tried every sum within reach of the SD although the\ncount of the ones not shown comes from the range, so it took 8 s at\nn = 1e6 where grimmer() takes 0.05 s since cd30bc1.\n\n* With n missing and sd_meaning = \"se\", it calls the SE an SE.\n\n* debit_explain() loses three branches that could not be reached.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/fc0207841fd9d059a7d313918d99498319572296",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "900e8be",
+            "message": "Return 0 from grim_exp_incon() for continuous data without digits_x",
+            "body": "* grim_total() gave 0 there, but grim_exp_incon() divided it by 10^NA,\nso its result was NA where grim() is TRUE, contrary to ?grim_exp_incon.\n\n* The value section of ?grim-stats said that a missing x always gives\nNA, which holds for integer data only.\n\n* NEWS.md named the smallest SD that GRIMMER refuses but not the\nsmaller SE, and ?grim_plot_line said that n + 1 percentages are\nattainable even where fewer can be reported.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/900e8bee3b91640443aba71b279d907e2214f61a",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "212491e",
+            "message": "Drop value sets without n or items_averaged from grim_plot_grid() itself",
+            "body": "* Since b1c8bbe, a value set with n or items_averaged missing can be\ndecided, so it reached ggplot2, which dropped it with its own vague\nmessage. Such rows are now dropped with the warning about value sets\nthat have no place on the grid.\n\n* The warning about undecidable value sets no longer counts the rows\nthat remain, which later drops made wrong, and its plural agrees.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/212491e521dd10d9149c3cff90a6b25f51166e78",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "ac74a9e",
+            "message": "Find the tally columns by the suffix duplicate_tally() gave them",
+            "body": "* 28bbaf5 hard-coded the \"_n\" suffix in audit(), so\naudit(duplicate_tally(pigs4, colname_end = \"count\")) failed with a\ndplyr error. duplicate_tally() now records colname_end in the\n\"scrutiny\" attribute, and audit() reads it, with \"n\" as the fallback.\n\n* With no tally column left, as after renaming them, audit() says so.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/ac74a9e3a75ecae9f3741c38b140eb2c7953574b",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "f9bc31a",
+            "message": "Correct the size limits of GRIMMER and two lists of NA cases in the docs",
+            "body": "* GRIMMER refuses a population SD from about 5e5 on for n from 2 to 4,\nwhich NEWS.md and ?grimmer left out; the technical notes now say that\nthe sample SD refused for two values is above about 1.05 million.\n\n* The technical notes list x missing next to sd missing as never TRUE\nunder GRIMMER and DEBIT, and ?grim_exp_incon lists a missing digits_x.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/f9bc31a3be02241ff4802b9a6c31e5cf74b03ed0",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "9cb0bf5",
+            "message": "Drop the ticks past the values in the line plots, and fix a plural",
+            "body": "* breaks_reportable() moved the units that pretty() puts beyond the\nvalues onto the nearest end, which added a tick a fraction of a step\nfrom its neighbor at each end of the axis.\n\n* grim_plot_grid() warned about several negative means in the singular.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/9cb0bf5105fc5e499b383a6f0e1966375fa4c824",
+            "type": "fix",
+            "branch": "polishing"
+          },
+          {
+            "sha": "28bbaf5",
+            "message": "Fix add_up_to_map() positions next to row names, and four mapper details",
+            "body": "* add_up_to_map(summands = 1:2) counted positions after the rowname\ncolumn that a data frame's character row names become, so it tested\nthe wrong columns, silently: only `a` instead of `a` and `b`.\n\n* A factor key column in a total-n mapper got the message about\ndefunct string columns, as the rows are split into strings before the\nbasic mapper sees them. It now gets the factor message, too.\n\n* audit_total_n() and reverse_map_total_n() summed group sizes as\nintegers, which overflowed for totals from 2^31 to 2^32.\n\n* audit() on duplicate_tally() output counted any integer column as a\ntally, such as one added by mutate(). Tallies end in \"_n\".\n\n* An n_min within the tolerance of 1, such as 1 - 1e-12, was refused.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/28bbaf55c9b5c175dcaa8af5556725671723f9c5",
+            "type": "fix",
+            "branch": "polishing"
+          },
+          {
+            "sha": "28fe2fc",
+            "message": "Stop grim_closest() from recursing without decimal places to go on",
+            "body": "* With digits_x and n or items_averaged missing, a value set that is\nconsistent anyway had no decimal count to settle on, so grim_closest()\ncalled itself until the stack ran out, some 3,400 calls and 0.7 s per\nvalue, before the error became NA.\n\n* debit_n_missing() stops at the first n that passes or is open, rather\nthan testing every n up to its limit.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/28fe2fc647868764aa409336f14b6aa1299d8ea5",
+            "type": "chore",
+            "branch": "polishing"
+          },
+          {
+            "sha": "0de85e3",
+            "message": "Accept scrutiny's own explanation column at another console width",
+            "body": "* explain_print() and explain_map() compared an earlier explanation\ncolumn with a new one character by character, but the lines are wrapped\nat the console width, so narrowing the console made them refuse their\nown column as the user's. Whitespace is ignored now.\n\n* The hint for grouped data named explain_map() when explain_print() was\ncalled.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/0de85e3fa52cc7ecf44fa45c35fba36c28b261ec",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "38cfa0f",
+            "message": "Leave a value set open where a missing n or SD can still decide it",
+            "body": "* debit() with sd_meaning = \"sd_sample_or_pop\" and n missing returned\nFALSE when no population SD fit, though a sample SD did for some n:\ndebit(0.5, 0.53, NA, 2, 2, \"integer\", sd_meaning = \"sd_sample_or_pop\")\nwas FALSE, but TRUE with n = 8. combine_sd_sample_or_pop() only kept NA\nfor an n known to be above 1.\n\n* grimmer() with items_averaged missing asked GRIM about the given n\nrather than a single value, so it passed data that are all the same\nwhere none can be: grimmer(5.4, 0, 18, 1, 1, NA, \"integer\") was TRUE,\nbut FALSE with items_averaged from 1 to 4. It also passed n = 1 under a\nsample SD or SE, which leaves the case open.\n\n* Continuous data with n missing passed any SD under \"sd_pop\" and\n\"sd_sample_or_pop\", though a single value has an SD of 0; with n = 1, a\nmissing SD passed. Both are NA now, with explanations that say why.\n\n* The explanation of continuous data no longer builds the one for\nintegers first, which the test refuses at sizes continuous data can\nhave, so grimmer_explain() and grim_explain() erred where the test\npassed.\n\n* Explanations: plurals with x missing, the inputs line shows a value\nwhose decimal count is missing as given, an SE is called an SE, and\n\"No n from 2 to 2\" is gone.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/38cfa0fcd5ecdeb912f08ea69d11fd244dc632a7",
+            "type": "chore",
+            "branch": "polishing"
+          },
+          {
+            "sha": "e575ee2",
+            "message": "Add a vignette of technical notes, and point the tests' docs to it",
+            "body": "* vignette(\"technical-notes\") explains how the tests treat missing\nvalues, including the few cases that stay NA although every value would\ngive the same result, and the rounding, exact arithmetic, and decimal\nplaces behind the results.\n\n* The Value sections of ?grim, ?grimmer, and ?debit are short again and\npoint to the vignette instead of listing these cases each.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/e575ee281667d87ebc774c349c190e3fca565222",
+            "type": "feat",
+            "branch": "polishing"
+          },
+          {
+            "sha": "bc42dc5",
+            "message": "Link archived copies of the two sources that refuse automated requests",
+            "body": "* PeerJ and Medium answer R's URL check with 403 Forbidden, which made R\nCMD check --as-cran note them. The Wayback Machine copies answer it, so\nthe related vignette links those, and cran-comments.md no longer needs to\nexplain the note.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/bc42dc53be979ef6610bf12da4131313b088c6b0",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "b442fd1",
+            "message": "Mention the population SD under sd_sample_or_pop when its words repeat",
+            "body": "* With x missing, the sample SD and the population SD are explained word\nfor word the same, so the population SD's paragraphs were all dropped as\nduplicates and it went unmentioned, although it was tested.\n\n* debit_explain() drops a branch for formula = \"mean_n\" that the check at\nits top made unreachable.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/b442fd137e8ed063c523e7c51585edd1c2af6da5",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "2ebe14a",
+            "message": "Correct size limits, an examples pointer, and a plot description in the docs",
+            "body": "* NEWS.md said that GRIMMER and DEBIT only refuse an n of 2^52 or more,\nwhich the limit on x with n shared with GRIM preempts, and left out the\nmillion candidate sums. ?grimmer gave 6e5 as the refused SD for n from 2\nto 4, which holds for n = 4 only; it is up to 1e6 for n = 2.\n\n* The x_meaning docs of the sequence and total-n mappers pointed to\nexamples that only ?grim_map has.\n\n* The GRIM vignette called the column at n = 40 grey, though 40% of it is\nwhite.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/2ebe14a5f965d787d1402f3edb40406c02f12635",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "64dc212",
+            "message": "Say that DEBIT applies to binary data when debit_plot() drops rows",
+            "body": "* The warning about continuous rows, shared with grim_plot_grid(), said\nthat DEBIT only applies to whole numbers.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/64dc212ac196a675d487d09aa0650535ec69b83a",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "85912a5",
+            "message": "Give factor columns and the total-n helper hint messages of their own",
+            "body": "* A factor data_type, as read.csv(stringsAsFactors = TRUE) makes, failed\nwith rlang's generic type error, and a factor x with the message about\nstring columns, which are defunct. Both now say what to convert.\n\n* The total-n mappers asked for \"an `data_type` column\".",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/85912a502b0eea1ea4dd21cdf7cfaeafad954ea1",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "b3a64f8",
+            "message": "Name an item count the test can't take even if n is missing",
+            "body": "* grim_explain(5.19, NA, 2, 0, \"integer\") said the case was open because\nn is missing, but no n would help with 0 items. Each count is checked on\nits own now, as the comment above explain_undecidable() says.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/b3a64f8ed5f2ae76a244d36ec9c003a465927de6",
+            "type": "test",
+            "branch": "polishing"
+          },
+          {
+            "sha": "0b99950",
+            "message": "Say what is wrong with the data in explain_print() and explain_map()",
+            "body": "* explain_print() sliced grouped output first, which dropped its record,\nso the error lost the hint that group_by() was the cause. It checks the\ndata before slicing now.\n\n* explain_map() asked to specify a helper column that was dropped, as if\nit were an argument of its own. It names the missing column now.",
+            "author": "Lukas Jung",
+            "date": "2026-11-07",
+            "url": "https://github.com/lhdjung/scrutiny/commit/0b9995093a98da0c310ae055c465964b85b2e7b1",
+            "type": "fix",
+            "branch": "polishing"
+          },
+          {
+            "sha": "6c2f307",
+            "message": "Treat NaN in any spelling as missing in restore_zeros()",
+            "body": "* \"NaN\" passed silently, but \"nan\", which as.numeric() also reads as\nNaN, got a warning that it was not a number.",
+            "author": "Lukas Jung",
+            "date": "2026-11-06",
+            "url": "https://github.com/lhdjung/scrutiny/commit/6c2f307bef025cfe2699cefc3a2ee4a7985e0bde",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "6c97c8f",
+            "message": "Write numbers in full and with a point in row_to_colnames()",
+            "body": "* as.character() turned a header cell of 100000 into the name 1e+05, and\n1.5 into 1,5 under options(OutDec = \",\").",
+            "author": "Lukas Jung",
+            "date": "2026-11-06",
+            "url": "https://github.com/lhdjung/scrutiny/commit/6c97c8f4fdc1243901c9e698b0d5baa6cf2cb863",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "96c4cd7",
+            "message": "Read the limits and from in seq_disperse() as the numbers they show",
+            "body": "* A factor limit was read by its level code, so out_max = factor(\"10\")\nwas 1, and a logical one was taken as a number. Factors are read by their\nlabels now, as from is, and anything but a number or string is an error.\n\n* A non-breaking space next to from or a limit was an error, though\ndecimal_places() and the is_seq_*() functions read past it.\n\n* A hexadecimal from was dispersed on the level of its hexadecimal digits:\n\"0x1p-2\" around 0. It is an error now.\n\n* A by with too many decimal places, such as 1 / 3, is named as the\ncause rather than from.",
+            "author": "Lukas Jung",
+            "date": "2026-11-06",
+            "url": "https://github.com/lhdjung/scrutiny/commit/96c4cd7a6acde4e3c4f7a694d5619435c0309628",
+            "type": "other",
+            "branch": "polishing"
+          },
+          {
+            "sha": "6b545da",
+            "message": "Fix three details of grim_plot_grid()",
+            "body": "* A near-whole digits, such as 2 + 1e-12, passed the check but was used\nas it is, so the raster of two decimal places gave way to the gradient.\nIt is rounded now.\n\n* The number of GRIMMER inconsistencies is announced after the value sets\nthat are not drawn are dropped, so it no longer counts them.\n\n* With three or more decimal places and show_gradient = FALSE, the panel\nis white, as without the raster. Grey, the color of consistent cells,\ncalled every cell consistent.",
+            "author": "Lukas Jung",
+            "date": "2026-11-06",
+            "url": "https://github.com/lhdjung/scrutiny/commit/6b545da6131e8e17bc67374814065ad91a937efd",
+            "type": "fix",
+            "branch": "polishing"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 12,
+        "pushed_at": "2026-11-07T20:55:43Z",
+        "recent_commits": [
+          {
+            "sha": "3f74d1a",
+            "message": "Merge pull request #602 from scienceverse/dev",
+            "body": "Merge dev into main: 0.4.3.9",
+            "author": "Daniel Lakens",
+            "date": "2026-11-07",
+            "url": "https://github.com/scienceverse/metacheck/commit/3f74d1ab723c5be12170114fae250fea79f79cc6",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "a6850fd",
+            "message": "Merge pull request #601 from scienceverse/covr_skip_581",
+            "body": "Leave the #581 time-limit test out of the coverage run",
+            "author": "Daniel Lakens",
+            "date": "2026-11-07",
+            "url": "https://github.com/scienceverse/metacheck/commit/a6850fd1b51695e9ac7b921936b352fc9a9c61ad",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "1be626c",
+            "message": "The #581 time-limit test is left out of the coverage run, which makes R too slow for its limits",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-07",
+            "url": "https://github.com/scienceverse/metacheck/commit/1be626cd72d91b548576682b2bd8808f26ea7a29",
+            "type": "test",
+            "branch": "covr_skip_581"
+          },
+          {
+            "sha": "2d13dd1",
+            "message": "Merge pull request #600 from scienceverse/dev",
+            "body": "Merge dev into main: 0.4.3.8",
+            "author": "Daniel Lakens",
+            "date": "2026-11-07",
+            "url": "https://github.com/scienceverse/metacheck/commit/2d13dd180f6a33d26fc97838b6038768ef7b9cbb",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "b2a2e67",
+            "message": "Merge pull request #599 from scienceverse/code_check_write_opens",
+            "body": "Code check: a file the code writes is not a missing file; SAS, SPSS and Mplus ignore capitals",
+            "author": "Daniel Lakens",
+            "date": "2026-11-07",
+            "url": "https://github.com/scienceverse/metacheck/commit/b2a2e672ec2689191b3eb4339492fbc8109d7cb9",
+            "type": "chore",
+            "branch": "covr_skip_581"
+          },
+          {
+            "sha": "1d5408c",
+            "message": "Code check: a file the code writes is not a missing file; SAS, SPSS and Mplus ignore capitals",
+            "body": "code_file_refs() took every file name in Python's open(), MATLAB's fopen()\nand Mplus's FILE = as an input, so open(\"out.txt\", \"w\"), fopen('x.txt', 'w')\nand the FILE = of SAVEDATA: were reported as files the repository lacks.\nA call whose mode creates the file, and the SAVEDATA command, are now left\nout (.code_blank_write_opens(), .code_blank_mplus_savedata());\n.py_open_writes() uses the same reading of the mode.\n\nSAS, SPSS and Mplus ignore capitals, but only one way of writing each\ncommand was found: PROC IMPORT DATAFILE= and INFILE in SAS, get file= in\nSPSS and file = in Mplus were never checked. The search now ignores\ncapitals for these languages.",
+            "author": "Lakens",
+            "date": "2026-11-07",
+            "url": "https://github.com/scienceverse/metacheck/commit/1d5408cda5c4e5de1e708a938a8c56eeb7530265",
+            "type": "other",
+            "branch": "code_check_write_opens"
+          },
+          {
+            "sha": "4a61888",
+            "message": "Merge pull request #596 from scienceverse/linux_docker_fixes",
+            "body": "Docker on Linux runs as the user running R; Python 2 on Python 3.14; full tests and stricter checks on dev",
+            "author": "Daniel Lakens",
+            "date": "2026-11-07",
+            "url": "https://github.com/scienceverse/metacheck/commit/4a618882a3b1b94fa349abbf071e2abd21fe2dd5",
+            "type": "chore",
+            "branch": "code_check_write_opens"
+          },
+          {
+            "sha": "d443075",
+            "message": "Web address check: urlchecker 2.0.0 no longer stops before the rules apply",
+            "body": "urlchecker 2.0.0 stops by itself on a bad address (fail = TRUE), so the\nrules for large files and time-outs never ran. fail = FALSE where the\ninstalled version has it. Run here with urlchecker 2.0.0: it tries again,\nwarns about an address that did not answer, and passes.",
+            "author": "Lakens",
+            "date": "2026-11-07",
+            "url": "https://github.com/scienceverse/metacheck/commit/d4430757c46060cbf1bb77f620296de48cb98a49",
+            "type": "other",
+            "branch": "code_check_write_opens"
+          },
+          {
+            "sha": "e2ae01a",
+            "message": "Web address check: an address that does not answer on both tries is a warning",
+            "body": "GitHub's machines could not connect to CRAN.R-project.org within 5 seconds,\ntwice in a row and in two runs. A time-out is a network condition, not a\nwrong address; every other error still fails the check.",
+            "author": "Lakens",
+            "date": "2026-11-07",
+            "url": "https://github.com/scienceverse/metacheck/commit/e2ae01ada7e6ac069e01b17f22dafaa351816382",
+            "type": "other",
+            "branch": "code_check_write_opens"
+          },
+          {
+            "sha": "0bb2667",
+            "message": "Web address check: a large file that is still arriving after 5 seconds works",
+            "body": "The Retraction Watch database (api.labs.crossref.org/data/retractionwatch)\nsent 68 MB within the checker's 5 seconds and then timed out, which failed\nthe check on the pull request. An address that sent data before the\ntime-out is reported as working but large.",
+            "author": "Lakens",
+            "date": "2026-11-07",
+            "url": "https://github.com/scienceverse/metacheck/commit/0bb266726d85a769369502d4efc304996c435e13",
+            "type": "other",
+            "branch": "code_check_write_opens"
+          },
+          {
+            "sha": "388f8d3",
+            "message": "Full tests install metacheck; second-run test independent of speed; new website address; HTML Tidy and a second try for web addresses",
+            "body": "- The parallel workers (callr) and the rendered reports load the\n  installed metacheck, so the full-test workflow installs it from the\n  branch (3 failures on GitHub).\n- The #581 test left its changed script the second that was left; on a\n  fast machine it still finished. The changed script now runs first, so\n  the slow script uses up the time on any machine.\n- README and FAIR_repo()'s README link to www.scienceverse.org/metacheck.\n- The PDF manual job installs HTML Tidy, which R CMD check uses, as CRAN\n  does; the web address check tries failed addresses a second time.",
+            "author": "Lakens",
+            "date": "2026-11-07",
+            "url": "https://github.com/scienceverse/metacheck/commit/388f8d38eb5e971e0097e2234e95c111da33c080",
+            "type": "feat",
+            "branch": "code_check_write_opens"
+          },
+          {
+            "sha": "79adf20",
+            "message": "Docker containers on Linux run as the user running R; Python 2 on Python 3.14; full tests on Linux before main",
+            "body": "- On Linux the containers ran as user 1000, who may not write in the\n  folders R makes when R runs as another user (GitHub's Linux machine,\n  servers): installs stopped with Permission denied. They now run as the\n  user running R; as root, they run as 1000 and the folders are opened.\n- Python 3.14 parses Python 2's except E, e: (PEP 758); a file the 3.13\n  grammar refuses only for that is Python 2.\n- New full-tests workflow on dev; stricter R CMD check (Windows devel,\n  PDF manual, Imports only, notes fail, web addresses); coverage run no\n  longer finds stats::cov after a failed test.",
+            "author": "Lakens",
+            "date": "2026-11-07",
+            "url": "https://github.com/scienceverse/metacheck/commit/79adf20ee09d8e468fc499f76ef03b4b13086223",
+            "type": "other",
+            "branch": "code_check_write_opens"
+          }
+        ]
+      },
+      {
+        "owner": "marton-balazs-kovacs",
+        "repo": "tenzing",
+        "url": "https://github.com/marton-balazs-kovacs/tenzing",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-10-15T15:25:58Z",
+        "recent_commits": [
+          {
+            "sha": "b977710",
+            "message": "Built site for tenzing@0.4.1: 85425d1",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/b977710bb300115ece3b676f92b9a062db2605e2",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "85425d1",
+            "message": "bumped roxygen version and updated the doc files",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/85425d19e4527b05928eacb15626612f762c300f",
+            "type": "docs",
+            "branch": "master"
+          },
+          {
+            "sha": "f267e64",
+            "message": "Built site for tenzing@0.4.1: 7116563",
+            "body": "",
+            "author": "Anka",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/f267e64ea83d2c419d91390fb164ca52feed6a33",
+            "type": "other",
+            "branch": "gh-pages"
+          },
+          {
+            "sha": "7116563",
+            "message": "bug fix: certain outputs included acknowledgees even though those outputs should not use them",
+            "body": "",
+            "author": "Marton Kovacs",
+            "date": "2026-10-15",
+            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/71165636d127f1f7ce22276af54d4207751f018b",
+            "type": "fix",
+            "branch": "master"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-11-07T12:35:20.213082+00:00",
     "narrative": "",
     "repos": [
@@ -40858,132 +41354,6 @@
             "url": "https://github.com/brandmaier/reproducibleRchunks/commit/1fed484b95e6e1a663996ebd928ad39093420679",
             "type": "other",
             "branch": "styling"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-10-12T14:30:45.735970+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 3,
-        "pushed_at": "2026-10-04T09:25:40Z",
-        "recent_commits": [
-          {
-            "sha": "d9c3ec7",
-            "message": "docs: add screenshots for provider settings and run defaults",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d9c3ec77a1a78d2cf8104b1c9b53796717360ae1",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "a4a2f9a",
-            "message": "Release 0.12.9",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4a2f9a9c91bd227d574872a6572d581c4c2843f",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "23a6a90",
-            "message": "updated docs",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/23a6a903c46eda361e0c833a77118195afbd7c10",
-            "type": "other",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "cjvanlissa",
-        "repo": "worcs",
-        "url": "https://github.com/cjvanlissa/worcs",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-10-07T09:04:00Z",
-        "recent_commits": [
-          {
-            "sha": "ed306b5",
-            "message": "Deploying to gh-pages from @ cjvanlissa/worcs@d883359de0250edf90f4f88c2384bdb23e2d1d9f \ud83d\ude80",
-            "body": "",
-            "author": "cjvanlissa",
-            "date": "2026-10-07",
-            "url": "https://github.com/cjvanlissa/worcs/commit/ed306b5195d5b2d856478a82bbb20cdbaa8c8607",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "d883359",
-            "message": "update 2026-10-07 10:58:54.664894",
-            "body": "",
-            "author": "cjvanlissa",
-            "date": "2026-10-07",
-            "url": "https://github.com/cjvanlissa/worcs/commit/d883359de0250edf90f4f88c2384bdb23e2d1d9f",
-            "type": "other",
-            "branch": "master"
-          }
-        ]
-      },
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-10-01T15:40:33Z",
-        "recent_commits": [
-          {
-            "sha": "079d5a6",
-            "message": "Fix CI: keep cost-tracking test offline; bump nltk to 3.10.3",
-            "body": "- test_general_orchestrator_attaches_cost made a real OpenAI embeddings\n  call while building the evidence index (key picked up from .env via\n  load_dotenv locally; 401 in CI). Stub openai_embed_segments.\n- Bump nltk 3.10.0 -> 3.10.3 (fixes 12 PYSEC advisories surfaced once the\n  test step passed); requirements.lock regenerated (nltk lines only).\n- pip-audit: ignore PYSEC-2026-3740 (no fixed nltk release; affects model\n  save/load APIs RegCheck does not use).",
-            "author": "Jamie Cummins",
-            "date": "2026-10-01",
-            "url": "https://github.com/JamieCummins/regcheck/commit/079d5a64adfa7695aec363761003cee828a8a2b6",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "ac05237",
-            "message": "Rename external parser connector to bibr and support its jobs API",
-            "body": "- pdf2bibr: submit to /papers/jobs, poll the job, fetch /result\n  (hosted bibr service); BIBR_URL / BIBR_API_KEY (also BIBR_TOKEN),\n  legacy EXTERNAL_PARSER_* env names still honoured.\n- Parser choice \"bibr\"; \"external\" kept as an alias (CLI, API, extractor).\n- extract_bibr_text: schema 12.1 support; drop the references section;\n  keep headings of sections without their own text; append captions,\n  footnotes and tables; tolerant HTML table flattening; strip inline\n  LaTeX and literal \"\\n\" from OCR output.\n- Tests for the job flow, failure handling and text reconstruction.",
-            "author": "Jamie Cummins",
-            "date": "2026-10-01",
-            "url": "https://github.com/JamieCummins/regcheck/commit/ac05237c8244105eb2fd1ee557f5bea9c8270ff8",
-            "type": "feat",
-            "branch": "bibr-jobs-connector"
-          }
-        ]
-      },
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-10-10T13:46:47Z",
-        "recent_commits": [
-          {
-            "sha": "109a9aa",
-            "message": "Fetch Dryad zip members by downloading the archive once (#471)",
-            "body": "Fetching members by byte range costs two requests per member, which\nexhausts Dryad's daily request limit on corpus runs. .zip_fetch_members()\ngains a whole-archive mode: when at least 3 members are wanted and the\narchive (size estimated from its central directory) fits the budget, it\ndownloads the archive once, keeps it on disk for restarted runs, and\nextracts the wanted members locally; anything not delivered falls back to\nthe per-member fetch. Enabled only for datadryad.org archives, in\ndownload_repo_files() and code_check's zip expansion. Version 0.3.2.2.",
-            "author": "Lakens",
-            "date": "2026-10-10",
-            "url": "https://github.com/scienceverse/metacheck/commit/109a9aa580a920e9c647a3eef1142493ae2c483c",
-            "type": "other",
-            "branch": "dev"
           }
         ]
       }
