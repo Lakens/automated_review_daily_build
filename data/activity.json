@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-12T19:43:26.844123+00:00",
+  "generated_at": "2026-11-13T05:07:35.901318+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -196,7 +196,7 @@
         {
           "name": "checklist_to_check",
           "last_commit": "2026-11-08",
-          "commits_30d": 331
+          "commits_30d": 330
         },
         {
           "name": "ci_skip_text_changes",
@@ -224,8 +224,8 @@
           "commits_30d": 1
         }
       ],
-      "commits_30d": 366,
-      "commits_7d": 87,
+      "commits_30d": 365,
+      "commits_7d": 82,
       "commits_1d": 2,
       "commits_90d": 574,
       "authors_30d": [
@@ -234,7 +234,7 @@
       ],
       "type_breakdown": {
         "other": 167,
-        "fix": 39,
+        "fix": 38,
         "chore": 136,
         "test": 5,
         "feat": 6,
@@ -737,26 +737,87 @@
         },
         {
           "week": 1791763200,
-          "total": 8
+          "total": 10
         },
         {
           "week": 1792368000,
-          "total": 194
+          "total": 192
         },
         {
           "week": 1792972800,
-          "total": 17
+          "total": 23
         },
         {
           "week": 1793577600,
-          "total": 63
+          "total": 61
         },
         {
           "week": 1794182400,
-          "total": 86
+          "total": 82
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 937,
+          "deletions": -114
+        },
+        {
+          "week": 1788048000,
+          "additions": 2617,
+          "deletions": -169
+        },
+        {
+          "week": 1788652800,
+          "additions": 6377,
+          "deletions": -552
+        },
+        {
+          "week": 1789257600,
+          "additions": 1670,
+          "deletions": -310
+        },
+        {
+          "week": 1789862400,
+          "additions": 38399,
+          "deletions": -787
+        },
+        {
+          "week": 1790467200,
+          "additions": 39032,
+          "deletions": -38559
+        },
+        {
+          "week": 1791072000,
+          "additions": 8043,
+          "deletions": -969
+        },
+        {
+          "week": 1791676800,
+          "additions": 13772,
+          "deletions": -2322
+        },
+        {
+          "week": 1792281600,
+          "additions": 10909,
+          "deletions": -2164
+        },
+        {
+          "week": 1792886400,
+          "additions": 9667,
+          "deletions": -1377
+        },
+        {
+          "week": 1793491200,
+          "additions": 17704,
+          "deletions": -2547
+        },
+        {
+          "week": 1794096000,
+          "additions": 3387,
+          "deletions": -625
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.4.3.27",
@@ -1195,205 +1256,6 @@
           "branch": "checklist_to_check",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "f0e5c95",
-          "message": "Merge pull request #638 from scienceverse/repro-deadline-prep",
-          "body": "reproducibility_check: keep to a clock time limit before the scripts run too (0.4.3.28)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-12",
-          "url": "https://github.com/scienceverse/metacheck/commit/f0e5c95363248fb3ee3daa9e880a1989909b0dc5",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {
-            "additions": 125,
-            "deletions": 21,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,6 +1,6 @@\n Package: metacheck\n Title: Check Research Outputs for Best Practices\n-Version: 0.4.3.27\n+Version: 0.4.3.28\n Date: 2026-11-06\n Authors@R: c(\n   person(  given = \"Lisa\","
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 0,
-                "patch": "@@ -1,5 +1,7 @@\n # metacheck 0.4.3\n \n+* `reproducibility_check()` with a clock time as `total_timeout` (a server's job limit minus the time for its report) keeps to it before the scripts run too, so the job still gets its report. When less than 15 minutes are left as the check starts (the option `metacheck.repro_min_time`, in seconds), it copies, installs and runs nothing: every script is `skipped_time_limit`, and the report says how much time the checks before it had left. Copying the repositor"
-              },
-              {
-                "filename": "R/reproducibility_check.R",
-                "status": "modified",
-                "additions": 53,
-                "deletions": 3,
-                "patch": "@@ -2749,9 +2749,14 @@ repro_missing_inputs <- function(refs, plan, structure_df, skipped = NULL) {\n #' @param structure_df the `data_check` structure table (`file_name`,\n #'   `file_location`)\n #' @param root the temp directory to build into (created if absent)\n+#' @param deadline a clock time (`POSIXct`) after which no further file is\n+#'   copied; its folder is still made, and its row has `ok = FALSE`. `NULL` (the\n+#'   default) copies every file.\n #'\n #' @returns `root`, invisibly, with attr"
-              },
-              {
-                "filename": "inst/modules/reproducibility_check.R",
-                "status": "modified",
-                "additions": 61,
-                "deletions": 15,
-                "patch": "@@ -325,6 +325,27 @@ reproducibility_check <- function(paper, local_path = NULL, local_only = FALSE,\n   sandbox <- match.arg(sandbox)\n   # set when the first script starts (see total_timeout)\n   script_deadline <- NULL\n+  # the seconds that were left when the code check started with too little time\n+  # to copy, install and run (see .repro_no_time_to_prepare(), below); NULL otherwise\n+  prep_skipped_left <- NULL\n+  # With a clock time as total_timeout (a server's job limit): when less than\n+  # "
-              },
-              {
-                "filename": "man/repro_materialize_layout.Rd",
-                "status": "modified",
-                "additions": 8,
-                "deletions": 2,
-                "patch": "@@ -4,7 +4,7 @@\n \\alias{repro_materialize_layout}\n \\title{Copy a paper's files into a throwaway directory, as a plan places them}\n \\usage{\n-repro_materialize_layout(plan, structure_df, root)\n+repro_materialize_layout(plan, structure_df, root, deadline = NULL)\n }\n \\arguments{\n \\item{plan}{the \\code{psychds_check} table (\\code{file_name}, \\code{target_path}), or the\n@@ -15,10 +15,16 @@ names each row's own file}\n \\code{file_location})}\n \n \\item{root}{the temp directory to build into (created if ab"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "202ef05",
-          "message": "reproducibility_check: keep to a clock time limit before the scripts run too; skip copying, installing and running with less than 15 minutes left (0.4.3.28)",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-12",
-          "url": "https://github.com/scienceverse/metacheck/commit/202ef05ef9be8679acfa769d33b4be1dadd50818",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "92a6574",
-          "message": "Merge pull request #633 from scienceverse/dev",
-          "body": "Merge dev into main: 0.4.3.27",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-10",
-          "url": "https://github.com/scienceverse/metacheck/commit/92a657412fb6d93f58c999e20b5bb1787482ae69",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "e6a4340",
-          "message": "Merge pull request #632 from scienceverse/credit_levi_baruch",
-          "body": "0.4.3.27: credit Levi Baruch, private corpora, GitHub-only module packages, eta squared is not a p-value, and more",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-10",
-          "url": "https://github.com/scienceverse/metacheck/commit/e6a434079607a8de15e88a2fce7e23ba0772342b",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "1602ea5",
-          "message": "text-extractors.R: write eta and the squared sign as \\u codes, as CRAN requires in R code (0.4.3.27)",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-10",
-          "url": "https://github.com/scienceverse/metacheck/commit/1602ea50eb2de5752d6afcdb2d25ebf8027c9a21",
-          "type": "docs",
-          "branch": "credit_levi_baruch",
-          "diff": {}
-        },
-        {
-          "sha": "e03a197",
-          "message": "Credit Levi Baruch; private corpora; GitHub-only module packages; eta squared is not a p-value; table rows menu; Retraction Watch fallback (0.4.3.27)",
-          "body": "- Levi Baruch credited as a contributor in DESCRIPTION, as an author of the\n  data_check module and its public helper functions, and in the help pages of\n  logger() and lastlog() (#566).\n- ref_replication, ref_retraction and ref_pubpeer descriptions corrected: no\n  ref_doi_check module exists, and ref_replication does not warn when the\n  replication is already cited (#175, #631); plumber README example fixed.\n- report_table(): the full report's tables have a menu to show 10, 25, 50 or\n  all rows (#408).\n- papers_available(), papers_load() and papers_metadata() read private\n  repositories with the GitHub token (#369).\n- Modules can name a GitHub-only package as @import owner/pkg; module_run()\n  and module_install() give remotes::install_github() for it, and an @import\n  line with several packages no longer stops module_run() (#223).\n- rw_update() falls back to Crossref's GitLab copy of Retraction Watch, and\n  no longer reads a refused download as the data (#305).\n- \"eta-squared p = .06\" is no longer read as a p-value by extract_p_values()\n  and extract_eq() (#336).\n- man/dot-detect_no_participants.Rd, missing since the ethics_check commit.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-10",
-          "url": "https://github.com/scienceverse/metacheck/commit/e03a197635d3ccb110d492aff41bf897b88df5c8",
-          "type": "other",
-          "branch": "credit_levi_baruch",
-          "diff": {}
-        },
-        {
-          "sha": "d3aab6c",
-          "message": "Merge pull request #630 from scienceverse/dev",
-          "body": "Merge dev into main: 0.4.3.26",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-10",
-          "url": "https://github.com/scienceverse/metacheck/commit/d3aab6cdd96c167dada19e15ac84d5ccb8dcc151",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "985cdff",
-          "message": "Merge pull request #629 from scienceverse/ci_skip_text_changes",
-          "body": "Checks: skip website and text changes; full tests on pull requests into main (0.4.3.26)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-10",
-          "url": "https://github.com/scienceverse/metacheck/commit/985cdff8e9a2aede9938727a3f858ac7093d14c2",
-          "type": "chore",
-          "branch": "credit_levi_baruch",
-          "diff": {}
-        },
-        {
-          "sha": "5775f58",
-          "message": "Checks: skip website and text changes; full tests on pull requests into main; stop outdated runs (0.4.3.26)",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-10",
-          "url": "https://github.com/scienceverse/metacheck/commit/5775f5877871b25199ad10ee83aff55c38055e6f",
-          "type": "other",
-          "branch": "ci_skip_text_changes",
-          "diff": {}
-        },
-        {
-          "sha": "7bd0db9",
-          "message": "Merge pull request #628 from scienceverse/dev",
-          "body": "Merge dev into main: 0.4.3.25",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-10",
-          "url": "https://github.com/scienceverse/metacheck/commit/7bd0db95ee11628be401305ad96a52aa951cc3d8",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "e33d1d3",
-          "message": "Merge pull request #627 from scienceverse/website_journals",
-          "body": "Website: adoption by journals; the look of the SURF site (0.4.3.25)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-10",
-          "url": "https://github.com/scienceverse/metacheck/commit/e33d1d3c1413941512c241467ecca1eb8ac9e3c7",
-          "type": "chore",
-          "branch": "ci_skip_text_changes",
-          "diff": {}
-        },
-        {
-          "sha": "e4251a9",
-          "message": "Website: the look of the SURF site; Funding box removed; 'Use Metacheck Online' link first (0.4.3.25)",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-10",
-          "url": "https://github.com/scienceverse/metacheck/commit/e4251a9f585e5b49a96801fc0850406f8a766061",
-          "type": "other",
-          "branch": "ci_skip_text_changes",
-          "diff": {}
-        },
-        {
-          "sha": "62faf57",
-          "message": "Website: home page section on adoption by journals (0.4.3.25)",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-10",
-          "url": "https://github.com/scienceverse/metacheck/commit/62faf57a7ad90633d26ea1aa7c57f5dce2f2fc85",
-          "type": "other",
-          "branch": "ci_skip_text_changes",
-          "diff": {}
-        }
       ]
     },
     {
@@ -1472,8 +1334,8 @@
       "commits_1d": 0,
       "commits_90d": 34,
       "authors_30d": [
-        "MicheleNuijten",
-        "Mich\u00e8le Nuijten"
+        "Mich\u00e8le Nuijten",
+        "MicheleNuijten"
       ],
       "type_breakdown": {
         "other": 17,
@@ -2018,7 +1880,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 243,
+          "deletions": -226
+        },
+        {
+          "week": 1792886400,
+          "additions": 2003,
+          "deletions": -886
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.6.1.9000",
@@ -2443,114 +2366,6 @@
           "branch": "master",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "1088bb1",
-          "message": "Merge pull request #121 from MicheleNuijten/update-manual",
-          "body": "Add the statcheck manual source (updated for 1.6.1)",
-          "author": "Mich\u00e8le Nuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/1088bb199331145c4eaa4cbdb14e79ba02bafa92",
-          "type": "other",
-          "branch": "master",
-          "diff": {
-            "additions": 643,
-            "deletions": 452,
-            "files": [
-              {
-                "filename": "vignettes/articles/.gitignore",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -1,2 +1,3 @@\n *.html\n *.R\n+rsconnect/\n\\ No newline at end of file"
-              },
-              {
-                "filename": "vignettes/articles/figures/html-report.png",
-                "status": "added",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "vignettes/articles/figures/infograph.png",
-                "status": "added",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "vignettes/articles/manual.Rmd",
-                "status": "modified",
-                "additions": 642,
-                "deletions": 452,
-                "patch": "@@ -7,6 +7,9 @@ output:\n     toc: true\n     toc_float: true\n     number_sections: true\n+editor_options: \n+  markdown: \n+    wrap: 72\n ---\n \n ```{r, include = FALSE}\n@@ -24,154 +27,224 @@ library(statcheck)\n knitr::include_graphics(\"../../man/figures/statcheck-logo.png\")\n ```\n \n-# What's new in 1.6.1\n-\n-statcheck now reads PDF files with the R package pdftools. You no longer need\n-to install the external program Xpdf. Furthermore, `statcheckReport()` has\n-been rewritten and its argument `outputFi"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "0251fa8",
-          "message": "don't sync rsconnect files (to publish manual)",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/0251fa8bf03f598fa5a89958eb050d7e573d0706",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "b67f521",
-          "message": "small fixes",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/b67f5214b899f6a4c2d21dd06b38ebd2bd04f786",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "7d4b667",
-          "message": "type setting",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/7d4b66754126292d77dc1fc1becdb3aef38cc7c5",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "7403951",
-          "message": "restructure some text",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/7403951adc699710248d80b48f3aa6fedf342b99",
-          "type": "refactor",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "03f602d",
-          "message": "update text and add additional screenshots and figs",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/03f602d1e61e76efb44e82e82a45fe4a13af2107",
-          "type": "feat",
-          "branch": "master",
-          "diff": {}
-        }
       ]
     },
     {
@@ -2676,8 +2491,8 @@
       "commits_1d": 0,
       "commits_90d": 11,
       "authors_30d": [
-        "Anka",
-        "Marton Kovacs"
+        "Marton Kovacs",
+        "Anka"
       ],
       "type_breakdown": {
         "other": 2,
@@ -3246,7 +3061,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 12,
+          "deletions": -10
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 42,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 1037,
+          "deletions": -606
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.4.1",
@@ -3284,6 +3160,118 @@
       "readme_excerpt": "[![Lifecycle:\nexperimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/\n\nTenzing, an easy-to-use web-based app, allows researchers to generate\nreports about the contribution of each team member on a project using\nCRediT, for insertion into their manuscripts and for publishers to\npotentially incorporate into article metadata.\n\n[CRediT](http://credit.niso.org/) (Contributor Roles Taxonomy) is a\ntaxonomy of 14 categories of contributions to scientific scholarly\noutput. Each researcher can indicate which category they contributed to\nin a sc",
       "scopus_citations": null,
       "recent_commits": [
+        {
+          "sha": "b977710",
+          "message": "Built site for tenzing@0.4.1: 85425d1",
+          "body": "",
+          "author": "Anka",
+          "author_login": "",
+          "date": "2026-10-15",
+          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/b977710bb300115ece3b676f92b9a062db2605e2",
+          "type": "other",
+          "branch": "gh-pages",
+          "diff": {
+            "additions": 161,
+            "deletions": 182,
+            "files": [
+              {
+                "filename": "pkgdown.yml",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -5,7 +5,7 @@ articles:\n   app_use: app_use.html\n   local_use: local_use.html\n   validation: validation.html\n-last_built: 2026-10-15T15:11Z\n+last_built: 2026-10-15T15:25Z\n urls:\n   reference: https://marton-balazs-kovacs.github.io/tenzing/reference\n   article: https://marton-balazs-kovacs.github.io/tenzing/articles"
+              },
+              {
+                "filename": "reference/ColumnValidator.html",
+                "status": "modified",
+                "additions": 43,
+                "deletions": 41,
+                "patch": "@@ -1,7 +1,19 @@\n <!DOCTYPE html>\n-<!-- Generated by pkgdown: do not edit by hand --><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\"><title>ColumnValidator Class for Contributors Table \u2014 ColumnValidator \u2022 tenzing</title><!-- favicons --><link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href=\"../favi"
+              },
+              {
+                "filename": "reference/ColumnValidator.md",
+                "status": "modified",
+                "additions": 5,
+                "deletions": 11,
+                "patch": "@@ -1,11 +1,5 @@\n # ColumnValidator Class for Contributors Table\n \n-ColumnValidator Class for Contributors Table\n-\n-ColumnValidator Class for Contributors Table\n-\n-## Details\n-\n The `ColumnValidator` class performs column-level validation for a\n contributors table. It ensures that required columns exist, applying\n logical validation rules such as:\n@@ -99,7 +93,7 @@ which integrates this class for validation.\n \n ### Public methods\n \n-- [`ColumnValidator$new()`](#method-ColumnValidator-new)\n+- [`C"
+              },
+              {
+                "filename": "reference/ValidateOutput.html",
+                "status": "modified",
+                "additions": 44,
+                "deletions": 38,
+                "patch": "@@ -1,7 +1,23 @@\n <!DOCTYPE html>\n-<!-- Generated by pkgdown: do not edit by hand --><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\"><title>ValidateOutput Class for Contributors Table Validation \u2014 ValidateOutput \u2022 tenzing</title><!-- favicons --><link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href"
+              },
+              {
+                "filename": "reference/ValidateOutput.md",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 10,
+                "patch": "@@ -1,11 +1,5 @@\n # ValidateOutput Class for Contributors Table Validation\n \n-ValidateOutput Class for Contributors Table Validation\n-\n-ValidateOutput Class for Contributors Table Validation\n-\n-## Details\n-\n The `ValidateOutput` class runs both **column-based validation**\n (ensuring required columns exist) and **data-based validation**\n (checking correctness of values) for a contributors table.\n@@ -146,15 +140,15 @@ The class runs in the following order:\n \n ### Public methods\n \n-- [`ValidateOutp"
+              },
+              {
+                "filename": "reference/Validator.html",
+                "status": "modified",
+                "additions": 55,
+                "deletions": 58,
+                "patch": "@@ -1,7 +1,15 @@\n <!DOCTYPE html>\n-<!-- Generated by pkgdown: do not edit by hand --><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\"><title>Validator Class for Contributors Table \u2014 Validator \u2022 tenzing</title><!-- favicons --><link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href=\"../favicon-96x96.pn"
+              },
+              {
+                "filename": "reference/Validator.md",
+                "status": "modified",
+                "additions": 8,
+                "deletions": 14,
+                "patch": "@@ -1,11 +1,5 @@\n # Validator Class for Contributors Table\n \n-Validator Class for Contributors Table\n-\n-Validator Class for Contributors Table\n-\n-## Details\n-\n The `Validator` class runs a set of user-defined validation functions on\n a contributors table. It allows for configuring which validations should\n be executed, handling dependencies between validations, evaluating\n@@ -135,7 +129,7 @@ Example:\n \n ### Public methods\n \n-- [`Validator$new()`](#method-Validator-new)\n+- [`Validator$new()`](#me"
+              },
+              {
+                "filename": "reference/dot-config_cache.html",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 4,
+                "patch": "@@ -51,10 +51,6 @@ <h2 id=\"ref-usage\">Usage<a class=\"anchor\" aria-label=\"anchor\" href=\"#ref-usage\">\n     <div class=\"sourceCode\"><pre class=\"sourceCode r\"><code><span><span class=\"va\">.config_cache</span></span></code></pre></div>\n     </div>\n \n-    <div class=\"section level2\">\n-    <h2 id=\"format\">Format<a class=\"anchor\" aria-label=\"anchor\" href=\"#format\"></a></h2>\n-    <p>An object of class <code>environment</code> of length 0.</p>\n-    </div>\n     <div class=\"section level2\">\n     <h2 id=\"det"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "85425d1",
+          "message": "bumped roxygen version and updated the doc files",
+          "body": "",
+          "author": "Marton Kovacs",
+          "author_login": "marton-balazs-kovacs",
+          "date": "2026-10-15",
+          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/85425d19e4527b05928eacb15626612f762c300f",
+          "type": "docs",
+          "branch": "master",
+          "diff": {}
+        },
+        {
+          "sha": "f267e64",
+          "message": "Built site for tenzing@0.4.1: 7116563",
+          "body": "",
+          "author": "Anka",
+          "author_login": "",
+          "date": "2026-10-15",
+          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/f267e64ea83d2c419d91390fb164ca52feed6a33",
+          "type": "other",
+          "branch": "gh-pages",
+          "diff": {}
+        },
+        {
+          "sha": "7116563",
+          "message": "bug fix: certain outputs included acknowledgees even though those outputs should not use them",
+          "body": "",
+          "author": "Marton Kovacs",
+          "author_login": "marton-balazs-kovacs",
+          "date": "2026-10-15",
+          "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/71165636d127f1f7ce22276af54d4207751f018b",
+          "type": "fix",
+          "branch": "master",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
         {
           "sha": "b977710",
           "message": "Built site for tenzing@0.4.1: 85425d1",
@@ -3455,25 +3443,25 @@
         {
           "name": "main",
           "last_commit": "2026-11-11",
-          "commits_30d": 692
+          "commits_30d": 682
         }
       ],
-      "commits_30d": 694,
-      "commits_7d": 293,
+      "commits_30d": 684,
+      "commits_7d": 253,
       "commits_1d": 0,
-      "commits_90d": 854,
+      "commits_90d": 853,
       "authors_30d": [
+        "Lukas Jung",
         "github-actions[bot]",
-        "lhdjung",
-        "Lukas Jung"
+        "lhdjung"
       ],
       "type_breakdown": {
-        "other": 447,
+        "other": 441,
         "chore": 39,
         "test": 35,
-        "docs": 55,
+        "docs": 53,
         "fix": 71,
-        "feat": 33,
+        "feat": 31,
         "refactor": 14
       },
       "dormant_revived": false,
@@ -3890,22 +3878,83 @@
         },
         {
           "week": 1792368000,
-          "total": 89
+          "total": 92
         },
         {
           "week": 1792972800,
-          "total": 112
+          "total": 109
         },
         {
           "week": 1793577600,
-          "total": 179
+          "total": 219
         },
         {
           "week": 1794182400,
-          "total": 293
+          "total": 253
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 1105,
+          "deletions": -350
+        },
+        {
+          "week": 1788048000,
+          "additions": 1059,
+          "deletions": -1918
+        },
+        {
+          "week": 1788652800,
+          "additions": 645,
+          "deletions": -478
+        },
+        {
+          "week": 1789257600,
+          "additions": 1034,
+          "deletions": -77
+        },
+        {
+          "week": 1789862400,
+          "additions": 1417,
+          "deletions": -974
+        },
+        {
+          "week": 1790467200,
+          "additions": 5731,
+          "deletions": -4056
+        },
+        {
+          "week": 1791072000,
+          "additions": 5253,
+          "deletions": -8311
+        },
+        {
+          "week": 1791676800,
+          "additions": 4753,
+          "deletions": -3900
+        },
+        {
+          "week": 1792281600,
+          "additions": 5897,
+          "deletions": -3185
+        },
+        {
+          "week": 1792886400,
+          "additions": 9996,
+          "deletions": -12827
+        },
+        {
+          "week": 1793491200,
+          "additions": 22141,
+          "deletions": -9735
+        },
+        {
+          "week": 1794096000,
+          "additions": 5400,
+          "deletions": -2685
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.0.0",
@@ -4365,6 +4414,118 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "d004cca",
+          "message": "Deploying to gh-pages from @ lhdjung/scrutiny@6a2174e158b1b85f0cbe08e5c0f2b1f8cfe80845 \ud83d\ude80",
+          "body": "",
+          "author": "lhdjung",
+          "author_login": "lhdjung",
+          "date": "2026-11-11",
+          "url": "https://github.com/lhdjung/scrutiny/commit/d004cca4aee645de3da6f5de30ddb83a5d550319",
+          "type": "other",
+          "branch": "gh-pages",
+          "diff": {
+            "additions": 92,
+            "deletions": 92,
+            "files": [
+              {
+                "filename": "AGENTS.html",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -50,7 +50,7 @@\n <div class=\"row\">\n   <main id=\"main\" class=\"col-md-9\"><div class=\"page-header\">\n       <img src=\"logo.png\" class=\"logo\" alt=\"\"><h1>AGENTS.md \u2014 scrutiny</h1>\n-      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/main/AGENTS.md\" class=\"external-link\"><code>AGENTS.md</code></a></small>\n+      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/v1.0.0/AGENTS.md\" class=\"external-link\"><code>AGENTS.md</code></a></s"
+              },
+              {
+                "filename": "CLAUDE.html",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -50,7 +50,7 @@\n <div class=\"row\">\n   <main id=\"main\" class=\"col-md-9\"><div class=\"page-header\">\n       <img src=\"logo.png\" class=\"logo\" alt=\"\"><h1>NA</h1>\n-      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/main/CLAUDE.md\" class=\"external-link\"><code>CLAUDE.md</code></a></small>\n+      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/v1.0.0/CLAUDE.md\" class=\"external-link\"><code>CLAUDE.md</code></a></small>\n     </div>\n"
+              },
+              {
+                "filename": "CODE_OF_CONDUCT.html",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -50,7 +50,7 @@\n <div class=\"row\">\n   <main id=\"main\" class=\"col-md-9\"><div class=\"page-header\">\n       <img src=\"logo.png\" class=\"logo\" alt=\"\"><h1>Contributor Covenant Code of Conduct</h1>\n-      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/main/CODE_OF_CONDUCT.md\" class=\"external-link\"><code>CODE_OF_CONDUCT.md</code></a></small>\n+      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/v1.0.0/CODE_OF_CONDUCT.md\" class=\"e"
+              },
+              {
+                "filename": "LICENSE.html",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -50,7 +50,7 @@\n <div class=\"row\">\n   <main id=\"main\" class=\"col-md-9\"><div class=\"page-header\">\n       <img src=\"logo.png\" class=\"logo\" alt=\"\"><h1>MIT License</h1>\n-      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/main/LICENSE.md\" class=\"external-link\"><code>LICENSE.md</code></a></small>\n+      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/v1.0.0/LICENSE.md\" class=\"external-link\"><code>LICENSE.md</code></a></small>"
+              },
+              {
+                "filename": "articles/consistency-tests-in-depth.html",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -80,7 +80,7 @@\n       <img src=\"../logo.png\" class=\"logo\" alt=\"\"><h1>Consistency tests in depth</h1>\n             \n       \n-      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/main/vignettes/consistency-tests-in-depth.Rmd\" class=\"external-link\"><code>vignettes/consistency-tests-in-depth.Rmd</code></a></small>\n+      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/v1.0.0/vignettes/consistency-tests-in-depth.Rmd\" class=\"e"
+              },
+              {
+                "filename": "articles/debit.html",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -80,7 +80,7 @@\n       <img src=\"../logo.png\" class=\"logo\" alt=\"\"><h1>DEBIT</h1>\n             \n       \n-      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/main/vignettes/debit.Rmd\" class=\"external-link\"><code>vignettes/debit.Rmd</code></a></small>\n+      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/v1.0.0/vignettes/debit.Rmd\" class=\"external-link\"><code>vignettes/debit.Rmd</code></a></small>\n       <div class=\"d-none"
+              },
+              {
+                "filename": "articles/duplicates.html",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -80,7 +80,7 @@\n       <img src=\"../logo.png\" class=\"logo\" alt=\"\"><h1>Duplication analysis</h1>\n             \n       \n-      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/main/vignettes/duplicates.Rmd\" class=\"external-link\"><code>vignettes/duplicates.Rmd</code></a></small>\n+      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/v1.0.0/vignettes/duplicates.Rmd\" class=\"external-link\"><code>vignettes/duplicates.Rmd</code></a"
+              },
+              {
+                "filename": "articles/grim-in-depth.html",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -80,7 +80,7 @@\n       <img src=\"../logo.png\" class=\"logo\" alt=\"\"><h1>GRIM in depth</h1>\n             \n       \n-      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/main/vignettes/grim-in-depth.Rmd\" class=\"external-link\"><code>vignettes/grim-in-depth.Rmd</code></a></small>\n+      <small class=\"dont-index\">Source: <a href=\"https://github.com/lhdjung/scrutiny/blob/v1.0.0/vignettes/grim-in-depth.Rmd\" class=\"external-link\"><code>vignettes/grim-in-depth.Rmd</cod"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "1cae4d1",
+          "message": "Deploying to gh-pages from @ lhdjung/scrutiny@3c7a5dcc03b32314da509e3e624d2d18f1469f1e \ud83d\ude80",
+          "body": "",
+          "author": "lhdjung",
+          "author_login": "lhdjung",
+          "date": "2026-11-11",
+          "url": "https://github.com/lhdjung/scrutiny/commit/1cae4d1f351dd416949675176ed04efe9ca38fcf",
+          "type": "other",
+          "branch": "gh-pages",
+          "diff": {}
+        },
+        {
+          "sha": "58f69dc",
+          "message": "Update CITATION.cff",
+          "body": "",
+          "author": "github-actions[bot]",
+          "author_login": "github-actions[bot]",
+          "date": "2026-11-11",
+          "url": "https://github.com/lhdjung/scrutiny/commit/58f69dcb414e8b3084ae79aade4a5888459317f8",
+          "type": "chore",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "3c7a5dc",
+          "message": "Merge pull request #96 from lhdjung/polishing",
+          "body": "",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-11-11",
+          "url": "https://github.com/lhdjung/scrutiny/commit/3c7a5dcc03b32314da509e3e624d2d18f1469f1e",
+          "type": "other",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -4695,7 +4856,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 189,
+          "deletions": -80
+        },
+        {
+          "week": 1788048000,
+          "additions": 45,
+          "deletions": -3
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "7.4.1",
@@ -4727,45 +4949,6 @@
       "readme_excerpt": "ODDPub is a text mining algorithm that parses a set of publications and detects\nwhich publications disseminated Open Data or Open Code together with the\npublication. It is tailored towards biomedical literature.\n\n\nNico Riedel, Vladislav Nachev (vladislav.nachev@charite.de), Miriam Kip, Evgeny Bobrov (evgeny.bobrov@bih-charite.de) - QUEST Center for Transforming Biomedical Research, Berlin Institute of Health\n\n\nMore information on the development and validation of the algorithm can be found in the publication https://doi.org/10.5334/dsj-2020-042. The related training and validation datasets can",
       "scopus_citations": null,
       "recent_commits": [
-        {
-          "sha": "16a3cea",
-          "message": "version bump",
-          "body": "",
-          "author": "ontogenerator",
-          "author_login": "",
-          "date": "2026-10-23",
-          "url": "https://github.com/quest-bih/oddpub/commit/16a3cea30aa4742fc6a6fb5321f58864ffb9dbae",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 1,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,7 +1,7 @@\n Package: oddpub\n Type: Package\n Title: Detection of Open Data & Open Code statements in biomedical publications\n-Version: 7.4.0\n+Version: 7.4.1\n Authors@R: \n     c(person(\"Nico\", \"Riedel\",\n     role = \"aut\"),"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "eb4f800",
-          "message": "patch nature portfolio removal",
-          "body": "",
-          "author": "ontogenerator",
-          "author_login": "",
-          "date": "2026-10-23",
-          "url": "https://github.com/quest-bih/oddpub/commit/eb4f8006c823ae6bd3a17e26ef90b68a2a320a95",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
         {
           "sha": "16a3cea",
           "message": "version bump",
@@ -5420,7 +5603,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 39,
+          "deletions": -79
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.1.21.2",
@@ -5504,7 +5748,7 @@
       ],
       "commits_30d": 86,
       "commits_7d": 3,
-      "commits_1d": 2,
+      "commits_1d": 1,
       "commits_90d": 326,
       "authors_30d": [
         "Gilad Feldman"
@@ -5577,7 +5821,7 @@
       "commit_activity": [
         {
           "week": 1787529600,
-          "total": 12
+          "total": 7
         },
         {
           "week": 1788134400,
@@ -5593,19 +5837,19 @@
         },
         {
           "week": 1789948800,
-          "total": 44
+          "total": 61
         },
         {
           "week": 1790553600,
-          "total": 86
+          "total": 73
         },
         {
           "week": 1791158400,
-          "total": 20
+          "total": 22
         },
         {
           "week": 1791763200,
-          "total": 26
+          "total": 20
         },
         {
           "week": 1792368000,
@@ -5624,7 +5868,68 @@
           "total": 3
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 2460,
+          "deletions": -82
+        },
+        {
+          "week": 1788048000,
+          "additions": 10042,
+          "deletions": -350
+        },
+        {
+          "week": 1788652800,
+          "additions": 2969,
+          "deletions": -178
+        },
+        {
+          "week": 1789257600,
+          "additions": 5538,
+          "deletions": -2377
+        },
+        {
+          "week": 1789862400,
+          "additions": 20499,
+          "deletions": -4049
+        },
+        {
+          "week": 1790467200,
+          "additions": 6810,
+          "deletions": -4322
+        },
+        {
+          "week": 1791072000,
+          "additions": 2455,
+          "deletions": -185
+        },
+        {
+          "week": 1791676800,
+          "additions": 2780,
+          "deletions": -162
+        },
+        {
+          "week": 1792281600,
+          "additions": 3269,
+          "deletions": -125
+        },
+        {
+          "week": 1792886400,
+          "additions": 13887,
+          "deletions": -599
+        },
+        {
+          "week": 1793491200,
+          "additions": 417,
+          "deletions": -34
+        },
+        {
+          "week": 1794096000,
+          "additions": 1451,
+          "deletions": -140
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "**Text, section, table and statistic extraction from academic papers (PDF, DOCX, HTML), built\nfor meta-science.**\n\ndocpluck turns a research article into text you can run statistical checks on. It extracts the\ntext layer, repairs the damage extraction itself causes (lost minus signs, split ligatures,\ninterleaved columns, Greek letters decoded as Latin), identifies the paper's sections, pulls\ntables out as cell grids, flattens table rows into records a statistics checker can read, and\nrenders the whole paper as Markdown. Every output carries a record of what the library had to\nguess or refused ",
@@ -6024,6 +6329,66 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "805c28c",
+          "message": "fix: /ship fixes for 2.4.159 (silent handlers record a fallback, firing counts, ORCID)",
+          "body": "",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-11-12",
+          "url": "https://github.com/giladfeldman/docpluck/commit/805c28c6897507d907396f6ea1f798a69bfdb191",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 19,
+            "deletions": 5,
+            "files": [
+              {
+                "filename": "CHANGELOG.md",
+                "status": "modified",
+                "additions": 8,
+                "deletions": 1,
+                "patch": "@@ -4,7 +4,14 @@\n \n Fixes from the 2026-11-11 debt bundle. Each change was measured with a two-arm diff (new code against the\n old behaviour, in one process) over the 125-paper test manifest, and every changed table was read against\n-the page image.\n+the page image. Firings in the manifest (38 of 125 papers fire any new rule): raised footnote letters 73\n+in 17 papers; partial-grid set-aside 16 in 14 papers; caption tie-break 2 in 2 papers; straddling sign 1;\n+printed continuation head 7 pages of"
+              },
+              {
+                "filename": "CITATION.cff",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 0,
+                "patch": "@@ -11,6 +11,7 @@ authors:\n   - family-names: Feldman\n     given-names: Gilad\n     affiliation: \"University of Innsbruck\"\n+    orcid: \"https://orcid.org/0000-0003-2812-6599\"\n repository-code: \"https://github.com/giladfeldman/docpluck\"\n url: \"https://docpluck.app\"\n license: MIT"
+              },
+              {
+                "filename": "docpluck/extract_structured.py",
+                "status": "modified",
+                "additions": 6,
+                "deletions": 2,
+                "patch": "@@ -2685,7 +2685,9 @@ def _caption_gap_above_table(layout_doc, camelot_table: Table, cap: CaptionMatch\n             return None\n         grid_top = float(page_obj.height) - max(float(bbox[1]), float(bbox[3]))\n         return grid_top - float(cap_box[3])\n-    except Exception:\n+    except Exception as exc:\n+        # The tie-break then falls back to text order; say so.\n+        record_fallback(\"table_caption_gap_unreadable\", detail=f\"p{cap.page}:{type(exc).__name__}\")\n         return None\n \n \n@@ "
+              },
+              {
+                "filename": "docpluck/normalize.py",
+                "status": "modified",
+                "additions": 4,
+                "deletions": 2,
+                "patch": "@@ -6079,8 +6079,10 @@ def layout_letter_marker_fusions(layout) -> \"collections.Counter[tuple[str, str]\n             del out[key]\n     try:\n         layout._letter_marker_fusions = out\n-    except Exception:  # a layout object that refuses attributes is not cached\n-        pass\n+    except Exception as exc:\n+        # Not cached: the next call recomputes the same answer; recorded so a\n+        # slow table pass on such an object can be traced here.\n+        record_fallback(\"layout_letter_marker_"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "ee30e4f",
+          "message": "fix(tables,render): consult fixes for 2.4.159",
+          "body": "- descending printed CI fails closed: CI_order label, printed bounds in fields_raw\n- printed continuation head links a grid only at Table N's column extent\n- a grid set aside as partial is not re-kept as an uncaptioned candidate when the replacing text carries its words\n- render phantom-table strip leaves continuation-page grids in place\n- partial guard judges a caption-below grid only when another caption sits above it\n- unreadable page in the furniture scan is recorded",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-11-12",
+          "url": "https://github.com/giladfeldman/docpluck/commit/ee30e4f701c7bb7348b9e4be08260b97d7cbb638",
+          "type": "fix",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -6116,8 +6481,118 @@
           "html_url": "https://github.com/ontogenerator"
         }
       ],
-      "commit_activity": [],
-      "code_frequency": [],
+      "commit_activity": [
+        {
+          "week": 1787443200,
+          "total": 0
+        },
+        {
+          "week": 1788048000,
+          "total": 0
+        },
+        {
+          "week": 1788652800,
+          "total": 0
+        },
+        {
+          "week": 1789257600,
+          "total": 0
+        },
+        {
+          "week": 1789862400,
+          "total": 0
+        },
+        {
+          "week": 1790467200,
+          "total": 0
+        },
+        {
+          "week": 1791072000,
+          "total": 0
+        },
+        {
+          "week": 1791676800,
+          "total": 0
+        },
+        {
+          "week": 1792281600,
+          "total": 0
+        },
+        {
+          "week": 1792886400,
+          "total": 0
+        },
+        {
+          "week": 1793491200,
+          "total": 0
+        },
+        {
+          "week": 1794096000,
+          "total": 0
+        }
+      ],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.0.0.9000",
@@ -6213,7 +6688,68 @@
         }
       ],
       "commit_activity": [],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.2.6",
@@ -7058,7 +7594,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 471,
+          "deletions": -203
+        },
+        {
+          "week": 1788048000,
+          "additions": 377,
+          "deletions": -14
+        },
+        {
+          "week": 1788652800,
+          "additions": 4799,
+          "deletions": -2398
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 2913,
+          "deletions": -207
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "Free, open-source AI academic paper reviewer that outperforms popular paid AI reviewers.\n\nYou provide your own API key and pay the LLM provider directly \u2014 typically **under $2 per review**.\n\nDon't want to run it locally? Use the [web interface](https://coarse.ink/) instead.\n\n\nGet an API key from [OpenRouter](https://openrouter.ai/keys) (free to sign up), then:\n\n```bash\nuvx coarse-ink review paper.pdf --api-key sk-or-v1-YOUR_KEY\n```\n\nThat's it. The review is written to `paper_review.md` in the current directory.\n\n\ncoarse requires Python 3.12+. If you don't have `uvx`, install [uv](https://docs.",
@@ -7298,7 +7895,68 @@
           "total": 1
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 2146,
+          "deletions": -587
+        },
+        {
+          "week": 1790467200,
+          "additions": 366,
+          "deletions": -75
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 85,
+          "deletions": -9
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 4150,
+          "deletions": -456
+        },
+        {
+          "week": 1794096000,
+          "additions": 10,
+          "deletions": -10
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "AI-assisted comparison tool for preregistrations/clinical trial registrations/preclinical (animals) registrations and published papers. FastAPI serves the web UI and HTTP API; a CLI entrypoint enables backend-only runs with CSV-defined dimensions. Redis is used for task state when running via the web app.\n\nStatus: v1.0.0 (see [CHANGELOG.md](CHANGELOG.md)). AI judgements should be verified against the quoted sources in the report; accuracy notes live in the FAQ.\n\n- `app.py` / `backend/`: FastAPI app, routes, services (comparisons, embeddings, parsing).\n- `templates/` + `static/`: Frontend pages",
@@ -7555,68 +8213,6 @@
           "type": "other",
           "branch": "main",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "67798cc",
-          "message": "update model default",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-11-09",
-          "url": "https://github.com/JamieCummins/regcheck/commit/67798ccc293dae048a9ebc3771a0a49fbe76e46e",
-          "type": "other",
-          "branch": "main",
-          "diff": {
-            "additions": 10,
-            "deletions": 10,
-            "files": [
-              {
-                "filename": ".env.example",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 3,
-                "patch": "@@ -56,9 +56,9 @@ GPUSTACK_API_KEY=\n GPUSTACK_BASE_URL=https://gpustack.unibe.ch/v1\n \n # Optional model overrides\n-OPENAI_MODEL=gpt-5\n-OPENAI_COMPARISON_MODEL=gpt-5\n-OPENAI_EXPERIMENT_MODEL=gpt-5\n+OPENAI_MODEL=gpt-6.1-terra\n+OPENAI_COMPARISON_MODEL=gpt-6.1-terra\n+OPENAI_EXPERIMENT_MODEL=gpt-6.1-terra\n OPENAI_EXPERIMENT_REASONING_EFFORT=medium\n DEEPSEEK_MODEL=deepseek-reasoner\n QWEN_MODEL=qwen/qwen3.6-27b"
-              },
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 3,
-                "patch": "@@ -43,9 +43,9 @@ DEEPSEEK_API_KEY=...\n CLAUDE_API_KEY=...\n \n # Optional model overrides\n-OPENAI_MODEL=gpt-5.5\n-OPENAI_COMPARISON_MODEL=gpt-5.5\n-OPENAI_EXPERIMENT_MODEL=gpt-5.5\n+OPENAI_MODEL=gpt-6.1-terra\n+OPENAI_COMPARISON_MODEL=gpt-6.1-terra\n+OPENAI_EXPERIMENT_MODEL=gpt-6.1-terra\n OPENAI_EXPERIMENT_REASONING_EFFORT=medium        # low | medium | high\n DEEPSEEK_MODEL=deepseek-reasoner\n CLAUDE_MODEL=claude-opus-4-8"
-              },
-              {
-                "filename": "backend/routes/comparisons.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -344,7 +344,7 @@ def _normalize_client(client: str) -> str:\n \n def _normalize_reasoning_effort(client: str, reasoning_effort: str | None) -> str | None:\n     effort_normalized = (reasoning_effort or \"\").strip().lower()\n-    # ChatGPT (gpt-5.5) is the only reasoning-effort model exposed to users.\n+    # ChatGPT (gpt-6.1-terra) is the only reasoning-effort model exposed to users.\n     if client == \"openai\":\n         if effort_normalized not in {\"low\", \"medium\", \"high\"}:\n             effort_norm"
-              },
-              {
-                "filename": "backend/services/llm.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -27,7 +27,7 @@\n \n logger = logging.getLogger(__name__)\n \n-DEFAULT_OPENAI_MODEL = \"gpt-5.5\"\n+DEFAULT_OPENAI_MODEL = \"gpt-6.1-terra\"\n DEFAULT_DEEPSEEK_MODEL = \"deepseek-reasoner\"\n DEFAULT_CLAUDE_MODEL = \"claude-opus-4-8\"\n # Open-weight Qwen, served via Groq's OpenAI-compatible endpoint (uses GROQ_API_KEY)."
-              },
-              {
-                "filename": "templates/api.html",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -162,7 +162,7 @@ <h2>2) Submit a comparison</h2>\n             <tr><td><code>clinical_registration</code></td><td>no</td><td><code>yes</code>/<code>no</code> (default <code>no</code>). When <code>yes</code>, fetches the trial registration named by <code>registration_id</code>.</td></tr>\n             <tr><td><code>registration_id</code></td><td>cond.</td><td>ClinicalTrials.gov identifier (e.g. <code>NCT01234567</code>) or ISRCTN identifier (e.g. <code>ISRCTN17573805</code>), or a link to either"
-              },
-              {
-                "filename": "templates/faq.html",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -180,7 +180,7 @@ <h2 class=\"accordion-header\">\n           </h2>\n           <div id=\"faq-q7\" class=\"accordion-collapse collapse\" data-bs-parent=\"#faqAccordion\">\n             <div class=\"accordion-body\">\n-              The model menu lists families; the exact default models are ChatGPT = <code>gpt-5.5</code>, Claude Opus 4.8 = <code>claude-opus-4-8</code>, DeepSeek = <code>deepseek-reasoner</code>, and Qwen3.6 27B = <code>qwen/qwen3.6-27b</code> (open-weight, served via Groq). These are the def"
-              }
-            ]
-          },
-          "diff_summary": ""
         }
       ]
     },
@@ -7963,7 +8559,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 317,
+          "deletions": -74
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 6367,
+          "deletions": -1657
+        },
+        {
+          "week": 1791072000,
+          "additions": 1483,
+          "deletions": -372
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.7.17",
@@ -8156,8 +8813,118 @@
           "html_url": "https://github.com/ingmarboeschen"
         }
       ],
-      "commit_activity": [],
-      "code_frequency": [],
+      "commit_activity": [
+        {
+          "week": 1787443200,
+          "total": 0
+        },
+        {
+          "week": 1788048000,
+          "total": 0
+        },
+        {
+          "week": 1788652800,
+          "total": 0
+        },
+        {
+          "week": 1789257600,
+          "total": 0
+        },
+        {
+          "week": 1789862400,
+          "total": 0
+        },
+        {
+          "week": 1790467200,
+          "total": 0
+        },
+        {
+          "week": 1791072000,
+          "total": 0
+        },
+        {
+          "week": 1791676800,
+          "total": 0
+        },
+        {
+          "week": 1792281600,
+          "total": 0
+        },
+        {
+          "week": 1792886400,
+          "total": 0
+        },
+        {
+          "week": 1793491200,
+          "total": 0
+        },
+        {
+          "week": 1794096000,
+          "total": 0
+        }
+      ],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.3.1",
@@ -8205,7 +8972,7 @@
       "topics": [],
       "pushed_at": "2026-11-03T04:28:53Z",
       "created_at": "2026-05-26",
-      "last_push_days": 9,
+      "last_push_days": 10,
       "default_branch": "main",
       "license": "MIT",
       "branches": [
@@ -8339,74 +9106,73 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 1,
+          "deletions": -1
+        },
+        {
+          "week": 1788652800,
+          "additions": 215,
+          "deletions": -67
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 231,
+          "deletions": -18
+        },
+        {
+          "week": 1791072000,
+          "additions": 6253,
+          "deletions": -257
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 360,
+          "deletions": -565
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "> [!TIP]\n> New to auto-zcurve? The [user guide](https://shaheedazaad.github.io/auto-zcurve/)\n> is written for researchers, not developers, and covers install, adding an\n> API key, running your first project, and reading the results.\n\nauto-zcurve reads PDF articles, uses a supported LLM provider to extract focal\nstatistical results, and creates a z-curve analysis report with a plot, summary\nstatistics, and full disclosure table.\n\nThe default interface is a private browser app running only on your computer.\nYour PDFs, projects, and results stay local; only the PDF or its locally parsed\ntext is s",
       "scopus_citations": null,
       "recent_commits": [
-        {
-          "sha": "abd17f9",
-          "message": "Migrate JavaScript test dependencies to pnpm",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-11-03",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/abd17f9829353b127fea0a8b3ad6797b881cf9f5",
-          "type": "test",
-          "branch": "main",
-          "diff": {
-            "additions": 360,
-            "deletions": 565,
-            "files": [
-              {
-                "filename": ".github/workflows/locked-environment.yml",
-                "status": "modified",
-                "additions": 7,
-                "deletions": 5,
-                "patch": "@@ -11,12 +11,13 @@ jobs:\n     runs-on: ubuntu-24.04\n     steps:\n       - uses: actions/checkout@v4\n+      - uses: pnpm/action-setup@v4\n       - uses: actions/setup-node@v4\n         with:\n           node-version: '24'\n-          cache: npm\n-      - run: npm ci\n-      - run: npm run test:coverage\n+          cache: pnpm\n+      - run: pnpm install --frozen-lockfile\n+      - run: pnpm run test:coverage\n \n   install-and-smoke:\n     name: ${{ matrix.name }}\n@@ -35,12 +36,13 @@ jobs:\n     runs-on: ${{ "
-              },
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 4,
-                "patch": "@@ -219,13 +219,14 @@ pixi run test\n pixi run release-smoke\n ```\n \n-Browser behavior tests require Node.js 24 and use a simulated DOM with mocked\n+Browser behavior tests require Node.js 24 and pnpm 10.12.1 (pinned in\n+`package.json`) and use a simulated DOM with mocked\n network requests; they do not call model providers or access credentials:\n \n ```sh\n-npm ci\n-npm test\n-npm run test:coverage\n+pnpm install --frozen-lockfile\n+pnpm test\n+pnpm run test:coverage\n ```\n \n The browser coverage command m"
-              },
-              {
-                "filename": "package-lock.json",
-                "status": "removed",
-                "additions": 0,
-                "deletions": 555,
-                "patch": "@@ -1,555 +0,0 @@\n-{\n-  \"name\": \"auto-zcurve-client-tests\",\n-  \"lockfileVersion\": 3,\n-  \"requires\": true,\n-  \"packages\": {\n-    \"\": {\n-      \"name\": \"auto-zcurve-client-tests\",\n-      \"devDependencies\": {\n-        \"jsdom\": \"^29.1.1\"\n-      }\n-    },\n-    \"node_modules/@asamuzakjp/css-color\": {\n-      \"version\": \"5.1.11\",\n-      \"resolved\": \"https://registry.npmjs.org/@asamuzakjp/css-color/-/css-color-5.1.11.tgz\",\n-      \"integrity\": \"sha512-KVw6qIiCTUQhByfTd78h2yD1/00waTmm9uy/R7Ck/ctUyAPj+AEDLkQ"
-              },
-              {
-                "filename": "package.json",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -1,6 +1,7 @@\n {\n   \"name\": \"auto-zcurve-client-tests\",\n   \"private\": true,\n+  \"packageManager\": \"pnpm@10.12.1\",\n   \"scripts\": {\n     \"test\": \"node --test tests/js/*.test.cjs\",\n     \"test:coverage\": \"node --experimental-test-coverage --test-coverage-include=**/auto_zcurve/static/app.js --test-coverage-lines=100 --test tests/js/*.test.cjs\""
-              },
-              {
-                "filename": "pnpm-lock.yaml",
-                "status": "added",
-                "additions": 346,
-                "deletions": 0,
-                "patch": "@@ -0,0 +1,346 @@\n+lockfileVersion: '9.0'\n+\n+settings:\n+  autoInstallPeers: true\n+  excludeLinksFromLockfile: false\n+\n+importers:\n+\n+  .:\n+    devDependencies:\n+      jsdom:\n+        specifier: ^29.1.1\n+        version: 29.1.1\n+\n+packages:\n+\n+  '@asamuzakjp/css-color@5.1.11':\n+    resolution: {integrity: sha512-KVw6qIiCTUQhByfTd78h2yD1/00waTmm9uy/R7Ck/ctUyAPj+AEDLkQIdJW0T8+qGgj3j5bpNKK7Q3G+LedJWg==}\n+    engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}\n+\n+  '@asamuzakjp/dom-selector@7.1.1':\n+  "
-              },
-              {
-                "filename": "tests/test_browser_templates.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -21,7 +21,7 @@ def setUpClass(cls):\n             raise unittest.SkipTest('Node.js is required for template integration tests')\n         available = subprocess.run([cls.node, '-e', \"require('jsdom')\"], cwd=cls.root, capture_output=True)\n         if available.returncode:\n-            raise unittest.SkipTest('Run npm ci to install browser test dependencies')\n+            raise unittest.SkipTest('Run pnpm install --frozen-lockfile to install browser test dependencies')\n \n     def test_rendered_pa"
-              }
-            ]
-          },
-          "diff_summary": ""
-        }
-      ],
-      "_new_commits": [
         {
           "sha": "abd17f9",
           "message": "Migrate JavaScript test dependencies to pnpm",
@@ -9081,7 +9847,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1787443200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 1,
+          "deletions": -1
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 3295,
+          "deletions": -428
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.2.1",
@@ -9304,106 +10131,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "eabbdb8",
-          "message": "updated JSON files for vignettes",
-          "body": "",
-          "author": "brandmaier",
-          "author_login": "brandmaier",
-          "date": "2026-10-22",
-          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/eabbdb8b4a66c3b2386c824fe49b5c37b1b5f064",
-          "type": "docs",
-          "branch": "main",
-          "diff": {
-            "additions": 269,
-            "deletions": 84,
-            "files": [
-              {
-                "filename": "vignettes/.repro_regression_example.Rmd_bootstrap.json",
-                "status": "modified",
-                "additions": 41,
-                "deletions": 13,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
-              },
-              {
-                "filename": "vignettes/.repro_regression_example.Rmd_linreg.json",
-                "status": "modified",
-                "additions": 39,
-                "deletions": 11,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
-              },
-              {
-                "filename": "vignettes/.repro_regression_example.Rmd_loadData.json",
-                "status": "modified",
-                "additions": 39,
-                "deletions": 11,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
-              },
-              {
-                "filename": "vignettes/.repro_regression_example.Rmd_outliers.json",
-                "status": "modified",
-                "additions": 41,
-                "deletions": 13,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
-              },
-              {
-                "filename": "vignettes/.repro_renv_example.Rmd_unnamed-chunk-4.json",
-                "status": "modified",
-                "additions": 29,
-                "deletions": 12,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,1"
-              },
-              {
-                "filename": "vignettes/.repro_use_case_simulation.Rmd_unnamed-chunk-1.json",
-                "status": "modified",
-                "additions": 39,
-                "deletions": 11,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
-              },
-              {
-                "filename": "vignettes/.repro_use_case_simulation.Rmd_unnamed-chunk-2.json",
-                "status": "modified",
-                "additions": 40,
-                "deletions": 12,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
-              },
-              {
-                "filename": "vignettes/plots.Rmd",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -22,7 +22,7 @@ library(reproducibleRchunks)\n \n Note that base R plots typically produce graphical output directly to the current graphics device, without assigning the result to a variable. By design, the `reproducibleRchunks` package only tracks metadata for variables that are explicitly created within each code chunk. Since standard plotting commands do not involve variable assignment, their output is not checked for reproducibility. See the following example, in which only the newly declar"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "376f7e2",
-          "message": "updated docs/vignettes",
-          "body": "",
-          "author": "brandmaier",
-          "author_login": "brandmaier",
-          "date": "2026-10-22",
-          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/376f7e25612ec8b26a9b5c790cd0beaf4eede676",
-          "type": "docs",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "f494d4c",
-          "message": "vignettes",
-          "body": "",
-          "author": "brandmaier",
-          "author_login": "brandmaier",
-          "date": "2026-10-22",
-          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/f494d4cf88aea95c861814c6d795a452215d59e1",
-          "type": "docs",
-          "branch": "main",
-          "diff": {}
-        }
       ]
     },
     {
@@ -9458,7 +10185,56 @@
           "html_url": "https://github.com/giovannacdelsordo"
         }
       ],
-      "commit_activity": [],
+      "commit_activity": [
+        {
+          "week": 1787443200,
+          "total": 0
+        },
+        {
+          "week": 1788048000,
+          "total": 0
+        },
+        {
+          "week": 1788652800,
+          "total": 0
+        },
+        {
+          "week": 1789257600,
+          "total": 0
+        },
+        {
+          "week": 1789862400,
+          "total": 0
+        },
+        {
+          "week": 1790467200,
+          "total": 0
+        },
+        {
+          "week": 1791072000,
+          "total": 0
+        },
+        {
+          "week": 1791676800,
+          "total": 0
+        },
+        {
+          "week": 1792281600,
+          "total": 0
+        },
+        {
+          "week": 1792886400,
+          "total": 0
+        },
+        {
+          "week": 1793491200,
+          "total": 0
+        },
+        {
+          "week": 1794096000,
+          "total": 0
+        }
+      ],
       "code_frequency": [],
       "star_history": [],
       "r_meta": {},
@@ -10084,9 +10860,9 @@
     }
   ],
   "digest": {
-    "week_start": "2026-11-05",
+    "week_start": "2026-11-06",
     "active_repos": 4,
-    "total_commits_7d": 384,
+    "total_commits_7d": 339,
     "dormant_revived": [
       {
         "owner": "shaheedazaad",
@@ -10104,12 +10880,12 @@
       {
         "owner": "lhdjung",
         "repo": "scrutiny",
-        "commits": 293
+        "commits": 253
       },
       {
         "owner": "scienceverse",
         "repo": "metacheck",
-        "commits": 87
+        "commits": 82
       },
       {
         "owner": "giladfeldman",
@@ -10580,9 +11356,9 @@
     "total_repos": 16,
     "total_stars": 732,
     "total_forks": 134,
-    "total_commits_30d": 1215,
-    "total_commits_7d": 384,
-    "total_commits_1d": 4,
+    "total_commits_30d": 1204,
+    "total_commits_7d": 339,
+    "total_commits_1d": 3,
     "active_repos_7d": 4,
     "dormant_revived": 1,
     "total_open_issues": 179,
