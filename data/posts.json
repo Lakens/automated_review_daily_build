@@ -1,5 +1,161 @@
 [
   {
+    "generated_at": "2026-11-16T14:56:15.614632+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 7,
+        "pushed_at": "2026-11-15T20:41:05Z",
+        "recent_commits": [
+          {
+            "sha": "958ad78",
+            "message": "Merge pull request #646 from scienceverse/fix/p-values-whole-numbers",
+            "body": "p-values without a decimal point, with a correction or test name, and one reader for written numbers (#642, #21; 0.4.4.3)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-15",
+            "url": "https://github.com/scienceverse/metacheck/commit/958ad78c18d5440d07b0b14a5573d8d60ba9b764",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "4fb79aa",
+            "message": "Tests: the psychsci tests run again under devtools::test(); stored OSF file-server responses; two tests brought up to date",
+            "body": "- skip_no_psychsci() looked for `psychsci` from the package environment,\n  where devtools::load_all() puts the helpers, so the 25 tests that need it\n  were always skipped (since 73dbb872). It now looks in the calling test.\n- code_check \"OSF\" and \"code_check paper + local_path\": since #640 an OSF\n  Storage file is downloaded from its file server (files.de-1.osf.io), for\n  which no stored response existed. The two responses were recorded, with the\n  file's bytes inside the response like the older osf.io/download ones.\n- \"total_timeout can be a clock time\" sets metacheck.repro_min_time to 0: since\n  202ef05e a clock time leaving less than 15 minutes starts no script.\n- paperlist() test expects the warning for a renamed duplicate (U208).",
+            "author": "Lakens",
+            "date": "2026-11-15",
+            "url": "https://github.com/scienceverse/metacheck/commit/4fb79aac9684dc2bbe72853cd56eb1263f6b3619",
+            "type": "test",
+            "branch": "dev"
+          },
+          {
+            "sha": "bb4cddc",
+            "message": "Table notes and figure legends: GROBID's asterisks and markers in brackets; stat_p_nonsig leaves notes and legends out (#604, #642)",
+            "body": "- .p_not_test() knows the low asterisk, \"@\", and A with a tilde (GROBID's\n  reading of an asterisk), and a marker in brackets before or after the\n  p-value (\"(*) p < .05\", \"p < .01 (**)\"); never when a test statistic comes\n  before it. 482 more p-values marked in 15,430 papers, none lost its mark.\n- stat_p_nonsig leaves out p-values .p_not_test() takes for a marker or a\n  legend, not for a threshold: in 40 \"thresholds\", 14 were results reported\n  against the level.\n- Validation figures of stat_p_nonsig from the rerun after this change\n  (94.8% of detections in the ground truth); both help pages say the figures\n  measure agreement with a hand-coding that has known errors\n  (scienceverse/validation#48).",
+            "author": "Lakens",
+            "date": "2026-11-15",
+            "url": "https://github.com/scienceverse/metacheck/commit/bb4cddcb8208e09efcc31f3096f00a66164b9a8f",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "f1b0c6f",
+            "message": "Validation figures of stat_p_exact and stat_p_nonsig from a rerun on the hand-coded sets of scienceverse/validation with 0.4.4.3 (#642)",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-15",
+            "url": "https://github.com/scienceverse/metacheck/commit/f1b0c6fc4b258e9e8ef6484ec24db31a91f83ea2",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "22b147b",
+            "message": "One reader of written p-values for extract_p_values, extract_eq and the reproducibility matcher; stat_p_exact sets aside named p-values without a statistic; p_name column; faster sentence lookup (#642)",
+            "body": "- .sci_text() reads scientific notation as papers write it (\"1.8 x 10 -6\",\n  Unicode minus, GROBID's A-accent signs; \"10 -15\" for a p-value). Used by\n  extract_p_values() and .norm_value(), which read \"1.8 x 10 -6\" as 1.8, so\n  a reported p was left out of the reproducibility comparison.\n- extract_eq() keeps \"p < 10 -15\" whole (only for a p-value), reads the\n  A-accent signs, and names \"p adj\" (was \"adj\").\n- stat_p_exact: a p with a correction or test name counts as imprecise only\n  after a test statistic in its clause; otherwise not_a_test is \"named\".\n  .p_clause() finds a p-value's clause for this and for .p_not_test(),\n  which gives the same results as before.\n- \"p = 0\" needs a test statistic whose value is not 0; the zero report says\n  that p = 0 can also be a model parameter.\n- New column p_name: the correction or test name after p, NA for a plain p.\n- The sentence of a whole 0 or 1 is looked up from the matching sentences\n  only: text_expand() took 13 of 14 seconds for 1,000 papers.",
+            "author": "Lakens",
+            "date": "2026-11-15",
+            "url": "https://github.com/scienceverse/metacheck/commit/22b147bf39ae5a3b67be86971cf78e5cd5921804",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "46c6bb6",
+            "message": "extract_p_values reads p-values without a decimal point and p with a correction or test name; stat_p_exact and stat_p_nonsig fixes (#642, #21; 0.4.4.3)",
+            "body": "- Scientific notation with a whole first number (p < 1e-10), capital E\n  (p = 2.4E-08 was read as 2.4), 10 to a power (p < 10 -15), and GROBID's\n  A-accent signs for the multiplication and minus signs.\n- p = 0 and p = 1 after =, ~ or approximately-equal, followed by a bracket,\n  semicolon, comma or (after 1) a full stop, in a sentence that reports a test.\n- p with a correction name (pFWE, p adj, P MCMC) or a test name (pMantel,\n  p ANOVA, p Wilcoxon).\n- One shared test-statistic pattern (.test_stat_pattern) for .p_not_test()\n  and the new .reports_test().\n- stat_p_exact: a value written with an exponent is never exactly zero.\n- stat_p_nonsig: p approximately 0 and p ~ .01 count as significant.",
+            "author": "Lakens",
+            "date": "2026-11-15",
+            "url": "https://github.com/scienceverse/metacheck/commit/46c6bb6c618fe783a39cfb9a0dab772f7ff5c491",
+            "type": "test",
+            "branch": "dev"
+          },
+          {
+            "sha": "68d9b7a",
+            "message": "Merge pull request #640 from scienceverse/link_repair",
+            "body": "Link repair, whose deposit each link is (#634), fewer OSF requests, OSF request limit (0.4.4.2)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-15",
+            "url": "https://github.com/scienceverse/metacheck/commit/68d9b7a33fbbad33b0eadf631fbd2ccdb4c6eb8e",
+            "type": "chore",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "giladfeldman",
+        "repo": "docpluck",
+        "url": "https://github.com/giladfeldman/docpluck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 4,
+        "pushed_at": "2026-11-15T20:09:13Z",
+        "recent_commits": [
+          {
+            "sha": "25a82a0",
+            "message": "test: build placeholder ids at run time so the public-repo check passes",
+            "body": "The open-list test held invented ledger-shaped ids as literals, which the\npublic-repo hygiene test rejects. They are now built at run time; the\nassertions are unchanged. no-debt",
+            "author": "Gilad Feldman",
+            "date": "2026-11-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/25a82a063a62fa2475aa55b34a56ff324c451b97",
+            "type": "test",
+            "branch": "main"
+          },
+          {
+            "sha": "3f6e59e",
+            "message": "test: build the consumer-contract probe PDF on demand",
+            "body": "The PDF was gitignored and untracked, so the contract test could not run on a\nclone, and the custody scan counted it. A deterministic reportlab builder\nreplaces it; same 24 contract assertions pass. no-debt",
+            "author": "Gilad Feldman",
+            "date": "2026-11-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/3f6e59e8b826e3a80658faba24d978f2958af693",
+            "type": "test",
+            "branch": "main"
+          },
+          {
+            "sha": "19eabc1",
+            "message": "gates: debt trace reads a whole list of ids a commit leaves open",
+            "body": "'logged as d-a d-b' read only the first id. tests/test_check_debt_trace_open_list.py:\n2 failed before, 2 pass. no-debt",
+            "author": "Gilad Feldman",
+            "date": "2026-11-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/19eabc1bbb7da9d6a06c26a951e11aafd34ff130",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "e985495",
+            "message": "fix: second-model review fixes and full-suite fixes for 2.4.160",
+            "body": "Review round 2 (Sonnet + Haiku, 2026-11-13), each reproduced on invented text and\neach test watched failing on the first 2.4.160 commit:\n- effect-size header symbols are case-exact; study/panel/figure letters are not\n  effect symbols (d-e1db37)\n- a unit (bpm, ms, kg...) vetoes the ratio reading of a generic estimate\n- A1 column-bleed and garbage rules need a whole-token p and never cross a blank\n  line; every deletion is counted\n- a page boundary whose 16-char key repeats tries the whole line, then the next\n  line, and only then keeps the first hit, counted (section_page_boundary_ambiguous,\n  5 firings in 125 papers; pages filled 85, was 84)\n- one neighbour window (4 lines) for both furniture votes\n- glyph repair reads the decrypted copy, which is validated\n\nFull suite (18 failures, all fixed): debt ids and a skills path removed from public\nfiles; new fields documented; docs/citation versions; section goldens regenerated\n(only the version and pages=[1] changed); one memory failure no longer counted twice\nin cell_geometry (class scan: no other handler double-records).\n\nClosed: d-e1db37 d-5e7de3 d-18e1a2 d-15561f. Logged as d-273f84 d-53dd18 d-1c5564.",
+            "author": "Gilad Feldman",
+            "date": "2026-11-15",
+            "url": "https://github.com/giladfeldman/docpluck/commit/e9854957a42f544cd0c8c505cd1290da1c6af86f",
+            "type": "fix",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "lhdjung",
+        "repo": "scrutiny",
+        "url": "https://github.com/lhdjung/scrutiny",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-11-15T16:32:11Z",
+        "recent_commits": [
+          {
+            "sha": "6cc90a5",
+            "message": "Use larger logo, update favicons, and supply full-size logo",
+            "body": "",
+            "author": "Lukas Jung",
+            "date": "2026-11-15",
+            "url": "https://github.com/lhdjung/scrutiny/commit/6cc90a561c2ba6e216aaf960069a3aa9b93effcf",
+            "type": "other",
+            "branch": "polishing"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-11-16T04:49:35.044997+00:00",
     "narrative": "",
     "repos": [
@@ -39298,212 +39454,6 @@
             "url": "https://github.com/brandmaier/reproducibleRchunks/commit/1fed484b95e6e1a663996ebd928ad39093420679",
             "type": "other",
             "branch": "styling"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-10-19T03:17:50.834701+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "lhdjung",
-        "repo": "scrutiny",
-        "url": "https://github.com/lhdjung/scrutiny",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 7,
-        "pushed_at": "2026-10-18T14:58:39Z",
-        "recent_commits": [
-          {
-            "sha": "fa7df62",
-            "message": "Give a value that would look like a bound just enough places",
-            "body": "* format_number() fell back to 12 significant digits for a value that\nwould look whole or like a bound, e.g. 0.146504464074. It now adds the\nfewest decimal places that set the value apart, e.g. 0.146504.",
-            "author": "Lukas Jung",
-            "date": "2026-10-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/fa7df6237e92f2ea54a97a617a1fc4071b9fd36f",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "064687c",
-            "message": "Say that explain_map()'s data was tested with formula = \"mean_n\"",
-            "body": "* Through explain_map(), debit_explain()'s own check said `formula` is\n\"mean_n\", though the user never passed `formula`.",
-            "author": "Lukas Jung",
-            "date": "2026-10-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/064687cdd5a5868d437031f530e0d55d4e6ee530",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "d35e628",
-            "message": "Make unexplainable GRIMMER reasons an internal error",
-            "body": "* \"GRIM undecidable\" and \"SD rounding bounds undefined\" can't happen,\nand explain_undecidable() has no words for them: it said the number of\nitems had to be a positive whole number, but was 1.",
-            "author": "Lukas Jung",
-            "date": "2026-10-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/d35e6285c7e21c6c774ec27e541a768d57fc4497",
-            "type": "fix",
-            "branch": "polishing"
-          },
-          {
-            "sha": "7b8834f",
-            "message": "Don't show DEBIT's example SD as an excluded bound",
-            "body": "* Picking the k closest to the middle of the range didn't help when only\none k passes: debit_explain(0, sd = 0.147, n = 320, digits_x = 1,\ndigits_sd = 3, rounding = \"down\") showed an SD of 0.1465 as in a range\nabove 0.1465. format_number() now takes the bounds a value is compared\nto and shows it in more detail if it would look like one of them.",
-            "author": "Lukas Jung",
-            "date": "2026-10-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/7b8834f63490e8a2205d11f9c50444e28314f8de",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "d71b74b",
-            "message": "Share explanation helpers with the tests they explain",
-            "body": "* spread_out_most() gives the values behind sum_squares_scale_max() to\nboth it and describe_spread_out(), and binary_spread_root() the root\nbehind binary_sd_attainable() to both it and binary_ones_shown().\n* debit_explain() gets a `formula` argument that rejects \"mean_n\", so\nexplain_map() no longer has to know what the explainer can't do.\n* Align the pipes in the mapper-tier test.",
-            "author": "Lukas Jung",
-            "date": "2026-10-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/d71b74b47046fcb0a3970642d0489684eb811968",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "d342bed",
-            "message": "Don't blame the scale for a GRIMMER range that was already empty",
-            "body": "* grimmer_candidate() applied the scale ceiling even when the sum of\nsquares range held no whole number without it, so the reason became\n\"scale range\" instead of \"test 1\", and grimmer_explain() said the\nceiling was \"too small\" rather than that the range was empty.",
-            "author": "Lukas Jung",
-            "date": "2026-10-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/d342bedead7882c14f1c020a4816b6885cbdb445",
-            "type": "other",
-            "branch": "polishing"
-          },
-          {
-            "sha": "b153535",
-            "message": "Show rounding bounds in full at 4+ decimal places",
-            "body": "* format_number() rounded to 4 places, so the bounds of a value reported\nwith 4 or more decimals were cut off, and describe_range() could then\ncall an interval a single point. It now shows `digits + 2` places, at\nleast four.\n* grimmer_explain() routes the \"GRIM undecidable\" and \"SD rounding\nbounds undefined\" reasons to explain_undecidable() rather than letting\nthem reach the candidate loop with an NA verdict.",
-            "author": "Lukas Jung",
-            "date": "2026-10-18",
-            "url": "https://github.com/lhdjung/scrutiny/commit/b15353540c7dc773d8a4378901c43127b290dc56",
-            "type": "chore",
-            "branch": "polishing"
-          }
-        ]
-      },
-      {
-        "owner": "marton-balazs-kovacs",
-        "repo": "tenzing",
-        "url": "https://github.com/marton-balazs-kovacs/tenzing",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 4,
-        "pushed_at": "2026-10-15T15:25:58Z",
-        "recent_commits": [
-          {
-            "sha": "b977710",
-            "message": "Built site for tenzing@0.4.1: 85425d1",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-10-15",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/b977710bb300115ece3b676f92b9a062db2605e2",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "85425d1",
-            "message": "bumped roxygen version and updated the doc files",
-            "body": "",
-            "author": "Marton Kovacs",
-            "date": "2026-10-15",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/85425d19e4527b05928eacb15626612f762c300f",
-            "type": "docs",
-            "branch": "master"
-          },
-          {
-            "sha": "f267e64",
-            "message": "Built site for tenzing@0.4.1: 7116563",
-            "body": "",
-            "author": "Anka",
-            "date": "2026-10-15",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/f267e64ea83d2c419d91390fb164ca52feed6a33",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "7116563",
-            "message": "bug fix: certain outputs included acknowledgees even though those outputs should not use them",
-            "body": "",
-            "author": "Marton Kovacs",
-            "date": "2026-10-15",
-            "url": "https://github.com/marton-balazs-kovacs/tenzing/commit/71165636d127f1f7ce22276af54d4207751f018b",
-            "type": "fix",
-            "branch": "master"
-          }
-        ]
-      },
-      {
-        "owner": "shaheedazaad",
-        "repo": "auto-zcurve",
-        "url": "https://github.com/shaheedazaad/auto-zcurve",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 3,
-        "pushed_at": "2026-10-04T09:25:40Z",
-        "recent_commits": [
-          {
-            "sha": "d9c3ec7",
-            "message": "docs: add screenshots for provider settings and run defaults",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d9c3ec77a1a78d2cf8104b1c9b53796717360ae1",
-            "type": "feat",
-            "branch": "main"
-          },
-          {
-            "sha": "a4a2f9a",
-            "message": "Release 0.12.9",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a4a2f9a9c91bd227d574872a6572d581c4c2843f",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "23a6a90",
-            "message": "updated docs",
-            "body": "",
-            "author": "Shaheed Azaad",
-            "date": "2026-10-04",
-            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/23a6a903c46eda361e0c833a77118195afbd7c10",
-            "type": "other",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "cjvanlissa",
-        "repo": "worcs",
-        "url": "https://github.com/cjvanlissa/worcs",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 2,
-        "pushed_at": "2026-10-07T09:04:00Z",
-        "recent_commits": [
-          {
-            "sha": "ed306b5",
-            "message": "Deploying to gh-pages from @ cjvanlissa/worcs@d883359de0250edf90f4f88c2384bdb23e2d1d9f \ud83d\ude80",
-            "body": "",
-            "author": "cjvanlissa",
-            "date": "2026-10-07",
-            "url": "https://github.com/cjvanlissa/worcs/commit/ed306b5195d5b2d856478a82bbb20cdbaa8c8607",
-            "type": "other",
-            "branch": "gh-pages"
-          },
-          {
-            "sha": "d883359",
-            "message": "update 2026-10-07 10:58:54.664894",
-            "body": "",
-            "author": "cjvanlissa",
-            "date": "2026-10-07",
-            "url": "https://github.com/cjvanlissa/worcs/commit/d883359de0250edf90f4f88c2384bdb23e2d1d9f",
-            "type": "other",
-            "branch": "master"
           }
         ]
       }
