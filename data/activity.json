@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-15T22:39:53.211338+00:00",
+  "generated_at": "2026-11-16T04:49:35.081217+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -200,7 +200,7 @@
         {
           "name": "checklist_to_check",
           "last_commit": "2026-11-08",
-          "commits_30d": 322
+          "commits_30d": 318
         },
         {
           "name": "ci_skip_text_changes",
@@ -228,21 +228,21 @@
           "commits_30d": 1
         }
       ],
-      "commits_30d": 376,
+      "commits_30d": 372,
       "commits_7d": 42,
       "commits_1d": 7,
-      "commits_90d": 566,
+      "commits_90d": 565,
       "authors_30d": [
-        "Lakens",
-        "Daniel Lakens"
+        "Daniel Lakens",
+        "Lakens"
       ],
       "type_breakdown": {
         "other": 170,
-        "fix": 39,
+        "fix": 36,
         "chore": 137,
         "test": 7,
         "feat": 7,
-        "docs": 14,
+        "docs": 13,
         "refactor": 2
       },
       "dormant_revived": false,
@@ -715,51 +715,51 @@
       ],
       "commit_activity": [
         {
-          "week": 1787529600,
-          "total": 15
-        },
-        {
           "week": 1788134400,
-          "total": 16
+          "total": 15
         },
         {
           "week": 1788739200,
-          "total": 32
+          "total": 16
         },
         {
           "week": 1789344000,
-          "total": 26
-        },
-        {
-          "week": 1789948800,
-          "total": 11
-        },
-        {
-          "week": 1790553600,
-          "total": 36
-        },
-        {
-          "week": 1791158400,
-          "total": 15
-        },
-        {
-          "week": 1791763200,
-          "total": 30
-        },
-        {
-          "week": 1792368000,
-          "total": 177
-        },
-        {
-          "week": 1792972800,
           "total": 32
         },
         {
+          "week": 1789948800,
+          "total": 26
+        },
+        {
+          "week": 1790553600,
+          "total": 12
+        },
+        {
+          "week": 1791158400,
+          "total": 35
+        },
+        {
+          "week": 1791763200,
+          "total": 15
+        },
+        {
+          "week": 1792368000,
+          "total": 30
+        },
+        {
+          "week": 1792972800,
+          "total": 177
+        },
+        {
           "week": 1793577600,
-          "total": 105
+          "total": 32
         },
         {
           "week": 1794182400,
+          "total": 105
+        },
+        {
+          "week": 1794787200,
           "total": 42
         }
       ],
@@ -1284,202 +1284,6 @@
           "branch": "ci_skip_text_changes",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "958ad78",
-          "message": "Merge pull request #646 from scienceverse/fix/p-values-whole-numbers",
-          "body": "p-values without a decimal point, with a correction or test name, and one reader for written numbers (#642, #21; 0.4.4.3)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-15",
-          "url": "https://github.com/scienceverse/metacheck/commit/958ad78c18d5440d07b0b14a5573d8d60ba9b764",
-          "type": "fix",
-          "branch": "dev",
-          "diff": {
-            "additions": 506,
-            "deletions": 64,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,6 +1,6 @@\n Package: metacheck\n Title: Check Research Outputs for Best Practices\n-Version: 0.4.4.2\n+Version: 0.4.4.3\n Date: 2026-11-06\n Authors@R: c(\n   person(  given = \"Lisa\","
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 25,
-                "deletions": 0,
-                "patch": "@@ -1,5 +1,30 @@\n # metacheck 0.4.4\n \n+* `extract_p_values()` reads p-values written without a decimal point, and a p with the name of a correction or a test (#642, #21). This changes the tables of `all_p_values`, `stat_p_exact` and `stat_p_nonsig`.\n+  * Scientific notation with a whole first number (\"p < 1e-10\", \"p = 5 \u00d7 10 -8\"), with a capital E (\"p = 2.4E-08\"), and 10 to a power with nothing before it (\"p < 10 -15\", where reading the PDF lost the superscript). In some PDFs GROBID writes the m"
-              },
-              {
-                "filename": "R/match-reported.R",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 2,
-                "patch": "@@ -282,7 +282,8 @@\n           list(family = \"ci_upper\", name = \"ci_upper\", value = ivl$hi$num,\n                dec = ivl$hi$dec, censored = \"\")))\n       }\n-      nv <- .norm_value(g$rhs[i])\n+      # a p-value may be 10 to a power with nothing before it (\"p < 10 -15\"; #642)\n+      nv <- .norm_value(g$rhs[i], ten_power = identical(fam, \"p\"))\n       if (is.na(nv$num)) return(NULL)\n       cens <- nv$censored\n       if (!nzchar(cens) && !is.na(cc) && cc %in% c(\"<\", \">\")) cens <- cc\n@@ -353,7 +354,7 "
-              },
-              {
-                "filename": "R/stat_helpers.R",
-                "status": "modified",
-                "additions": 129,
-                "deletions": 34,
-                "patch": "@@ -147,14 +147,35 @@\n \n # ---- reported values --------------------------------------------------\n \n+# A number as a paper writes it, in the form R reads: spaces removed, the\n+# Unicode minus and A with a grave accent (GROBID's reading of the minus in\n+# some PDFs) as \"-\", and \"x 10^\", the multiplication sign or A with a\n+# circumflex or a tilde (GROBID's readings of it) before 10 and an exponent\n+# as \"e\": \"1.8 x 10 -6\" and \"2.2\\u00c210 \\u00c016\" are \"1.8e-6\" and \"2.2e-16\".\n+# With `ten_power`"
-              },
-              {
-                "filename": "R/text-extractors.R",
-                "status": "modified",
-                "additions": 110,
-                "deletions": 12,
-                "patch": "@@ -32,18 +32,50 @@ extract_urls <- function(paper) {\n # extract_eq() do not read as a p-value (#336)\n .eta_p_prefix <- \"[\\u03b7\\u019e]\\\\s*[\\u00b22\\u2082]?\\\\s*\"\n \n+# Names written after p, glued or after a space, hyphen or underscore, that\n+# make it a corrected or otherwise named p-value (\"pFWE = .006\", \"p adj =\n+# .034\", \"P MCMC = 0.27\", \"p interaction = 0.003\", \"pMantel < .01\"):\n+# correction methods, names of p-values and names of tests. A fixed list,\n+# so that \"PSA (ng/ml) = 0.5\" or \"SD = "
-              },
-              {
-                "filename": "inst/modules/all_p_values.R",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 2,
-                "patch": "@@ -6,7 +6,7 @@\n #' @details\n #' Note that this will not catch p-values reported like \"the p-value is 0.03\" because that results in a ton of false positives when papers discuss p-value thresholds. If you need to detect text like that, use `text_search()` function and a custom pattern like \"\\\\bp(-| )?values?\\\\s+.{1,20}\\\\s+[0-9\\\\.]+\"\n #'\n-#' This will catch most comparators like =<>~\u2248\u2260\u2264\u2265\u226a\u226b and most versions of scientific notation like 5.0 x 10^-2 or 5.0e-2. If you find any formats that are not cor"
-              },
-              {
-                "filename": "inst/modules/stat_p_exact.R",
-                "status": "modified",
-                "additions": 21,
-                "deletions": 4,
-                "patch": "@@ -6,13 +6,15 @@\n #' @details\n #' This module uses regular expressions to identify p-values. It will flag any values reported as p > ? or p < numbers greater than .001. It will also flag p-values reported as exactly zero (e.g., p = .000, p = 0.00), which are mathematically impossible \u2014 p-values are never exactly zero and should instead be reported as p < .001.\n #'\n-#' A p-value that is not the result of a test is not flagged: a table note (\"* p < .05, ** p < .01\"), a figure legend (\"Asterisks i"
-              },
-              {
-                "filename": "inst/modules/stat_p_nonsig.R",
-                "status": "modified",
-                "additions": 16,
-                "deletions": 2,
-                "patch": "@@ -8,9 +8,11 @@\n #'\n #' In the future, the Metacheck team aims to incorporate a machine learning classifier to only return sentences likely to contain misinterpretations. If you want to help to improve the module, reach out to the Metacheck development team.\n #'\n+#' A p-value in a table note (\"\u2020 p < .10, * p < .05\") or a figure legend (\"dashed lines indicate non-significant paths (p > .05)\") is left out, as in stat_p_exact; the column `not_a_test` says why. A p-value next to words that state a "
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "4fb79aa",
-          "message": "Tests: the psychsci tests run again under devtools::test(); stored OSF file-server responses; two tests brought up to date",
-          "body": "- skip_no_psychsci() looked for `psychsci` from the package environment,\n  where devtools::load_all() puts the helpers, so the 25 tests that need it\n  were always skipped (since 73dbb872). It now looks in the calling test.\n- code_check \"OSF\" and \"code_check paper + local_path\": since #640 an OSF\n  Storage file is downloaded from its file server (files.de-1.osf.io), for\n  which no stored response existed. The two responses were recorded, with the\n  file's bytes inside the response like the older osf.io/download ones.\n- \"total_timeout can be a clock time\" sets metacheck.repro_min_time to 0: since\n  202ef05e a clock time leaving less than 15 minutes starts no script.\n- paperlist() test expects the warning for a renamed duplicate (U208).",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-15",
-          "url": "https://github.com/scienceverse/metacheck/commit/4fb79aac9684dc2bbe72853cd56eb1263f6b3619",
-          "type": "test",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "bb4cddc",
-          "message": "Table notes and figure legends: GROBID's asterisks and markers in brackets; stat_p_nonsig leaves notes and legends out (#604, #642)",
-          "body": "- .p_not_test() knows the low asterisk, \"@\", and A with a tilde (GROBID's\n  reading of an asterisk), and a marker in brackets before or after the\n  p-value (\"(*) p < .05\", \"p < .01 (**)\"); never when a test statistic comes\n  before it. 482 more p-values marked in 15,430 papers, none lost its mark.\n- stat_p_nonsig leaves out p-values .p_not_test() takes for a marker or a\n  legend, not for a threshold: in 40 \"thresholds\", 14 were results reported\n  against the level.\n- Validation figures of stat_p_nonsig from the rerun after this change\n  (94.8% of detections in the ground truth); both help pages say the figures\n  measure agreement with a hand-coding that has known errors\n  (scienceverse/validation#48).",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-15",
-          "url": "https://github.com/scienceverse/metacheck/commit/bb4cddcb8208e09efcc31f3096f00a66164b9a8f",
-          "type": "other",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "f1b0c6f",
-          "message": "Validation figures of stat_p_exact and stat_p_nonsig from a rerun on the hand-coded sets of scienceverse/validation with 0.4.4.3 (#642)",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-15",
-          "url": "https://github.com/scienceverse/metacheck/commit/f1b0c6fc4b258e9e8ef6484ec24db31a91f83ea2",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "22b147b",
-          "message": "One reader of written p-values for extract_p_values, extract_eq and the reproducibility matcher; stat_p_exact sets aside named p-values without a statistic; p_name column; faster sentence lookup (#642)",
-          "body": "- .sci_text() reads scientific notation as papers write it (\"1.8 x 10 -6\",\n  Unicode minus, GROBID's A-accent signs; \"10 -15\" for a p-value). Used by\n  extract_p_values() and .norm_value(), which read \"1.8 x 10 -6\" as 1.8, so\n  a reported p was left out of the reproducibility comparison.\n- extract_eq() keeps \"p < 10 -15\" whole (only for a p-value), reads the\n  A-accent signs, and names \"p adj\" (was \"adj\").\n- stat_p_exact: a p with a correction or test name counts as imprecise only\n  after a test statistic in its clause; otherwise not_a_test is \"named\".\n  .p_clause() finds a p-value's clause for this and for .p_not_test(),\n  which gives the same results as before.\n- \"p = 0\" needs a test statistic whose value is not 0; the zero report says\n  that p = 0 can also be a model parameter.\n- New column p_name: the correction or test name after p, NA for a plain p.\n- The sentence of a whole 0 or 1 is looked up from the matching sentences\n  only: text_expand() took 13 of 14 seconds for 1,000 papers.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-15",
-          "url": "https://github.com/scienceverse/metacheck/commit/22b147bf39ae5a3b67be86971cf78e5cd5921804",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "46c6bb6",
-          "message": "extract_p_values reads p-values without a decimal point and p with a correction or test name; stat_p_exact and stat_p_nonsig fixes (#642, #21; 0.4.4.3)",
-          "body": "- Scientific notation with a whole first number (p < 1e-10), capital E\n  (p = 2.4E-08 was read as 2.4), 10 to a power (p < 10 -15), and GROBID's\n  A-accent signs for the multiplication and minus signs.\n- p = 0 and p = 1 after =, ~ or approximately-equal, followed by a bracket,\n  semicolon, comma or (after 1) a full stop, in a sentence that reports a test.\n- p with a correction name (pFWE, p adj, P MCMC) or a test name (pMantel,\n  p ANOVA, p Wilcoxon).\n- One shared test-statistic pattern (.test_stat_pattern) for .p_not_test()\n  and the new .reports_test().\n- stat_p_exact: a value written with an exponent is never exactly zero.\n- stat_p_nonsig: p approximately 0 and p ~ .01 count as significant.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-15",
-          "url": "https://github.com/scienceverse/metacheck/commit/46c6bb6c618fe783a39cfb9a0dab772f7ff5c491",
-          "type": "test",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "68d9b7a",
-          "message": "Merge pull request #640 from scienceverse/link_repair",
-          "body": "Link repair, whose deposit each link is (#634), fewer OSF requests, OSF request limit (0.4.4.2)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-15",
-          "url": "https://github.com/scienceverse/metacheck/commit/68d9b7a33fbbad33b0eadf631fbd2ccdb4c6eb8e",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "b10d48f",
-          "message": "Ownership accuracy: the test on links the rules had not seen is round 8 (97.9% text, 90.2% reference lists); rounds 7 and 8 were used in writing them (NEWS, repo_check help)",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-14",
-          "url": "https://github.com/scienceverse/metacheck/commit/b10d48f2575eab9c5bf8b08746ff4d11b44bab09",
-          "type": "docs",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "499157d",
-          "message": "NEWS: the ownership labels were made by Claude agents from each link's evidence, not by hand; the 169 of 172 is on the links the fixes were made from",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-14",
-          "url": "https://github.com/scienceverse/metacheck/commit/499157d0ea0e138a053ff37cef1ed832fc28dc0a",
-          "type": "docs",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "01e5c5f",
-          "message": "OSF request limit (osf_max_requests = 50) and lasting cache of whole listings; whose deposit: authors from the text, GitHub owner names, deposit words in references, zips of publications (0.4.4.2)",
-          "body": "- repo_check, data_check and code_check gain osf_max_requests (default 50);\n  osf_info() gains max_requests (default Inf). A project that reaches the\n  limit is named in repo_check's report and partial_repos, has listing_cut in\n  ownership, and data_check and code_check warn that its unlisted files are\n  not downloaded. With cache = TRUE the next run goes on where it stopped.\n- With cache = TRUE, osf_info(recursive = TRUE) keeps the whole listing in\n  the lasting cache, not only the project's record.\n- Ownership (#634): authors taken from the byline or correspondence sentence\n  when the author table is empty; the GitHub account's own name (one\n  /users/ request per account); a reference is a publication only when its\n  own words mark no deposit; any OSF project is a deposit there; bare GitHub\n  names in references get their address; doubled link endings get their\n  single form when the PDF's link list has it; \"is located in\" marks the\n  paper's own data statement; a publication-typed record whose only other\n  file is a zip is read inside the zip.\n- An OSF \"private\" answer is not kept in the lasting cache; a GitHub listing\n  without the repository's description is asked for again; a publication set\n  aside keeps its record in ownership.\n\nOn the 162 papers of rounds 7 and 8: 169 of 172 reference links and all 6\ntext links in the right group (was 162 of 173).",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-14",
-          "url": "https://github.com/scienceverse/metacheck/commit/01e5c5f938a03567e768cfc8e37bc223cc9c41a9",
-          "type": "other",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "7f18f20",
-          "message": "Merge dev; ownership lookup of reference-list deposits reads only their records (102 -> 41 requests); OSF files downloaded from the file server directly (0.4.4.2)",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-14",
-          "url": "https://github.com/scienceverse/metacheck/commit/7f18f2042c15dd505df0d9b8b3851769be359f63",
-          "type": "other",
-          "branch": "dev",
-          "diff": {}
-        }
       ]
     },
     {
@@ -1558,8 +1362,8 @@
       "commits_1d": 0,
       "commits_90d": 34,
       "authors_30d": [
-        "MicheleNuijten",
-        "Mich\u00e8le Nuijten"
+        "Mich\u00e8le Nuijten",
+        "MicheleNuijten"
       ],
       "type_breakdown": {
         "other": 17,
@@ -2056,10 +1860,6 @@
       ],
       "commit_activity": [
         {
-          "week": 1787529600,
-          "total": 0
-        },
-        {
           "week": 1788134400,
           "total": 0
         },
@@ -2089,18 +1889,22 @@
         },
         {
           "week": 1792368000,
-          "total": 20
-        },
-        {
-          "week": 1792972800,
-          "total": 14
-        },
-        {
-          "week": 1793577600,
           "total": 0
         },
         {
+          "week": 1792972800,
+          "total": 20
+        },
+        {
+          "week": 1793577600,
+          "total": 14
+        },
+        {
           "week": 1794182400,
+          "total": 0
+        },
+        {
+          "week": 1794787200,
           "total": 0
         }
       ],
@@ -2587,6 +2391,114 @@
           "date": "2026-10-22",
           "url": "https://github.com/MicheleNuijten/statcheck/commit/8603b15e01c8c0249c8249063d272f54d2a56b4f",
           "type": "other",
+          "branch": "master",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "1088bb1",
+          "message": "Merge pull request #121 from MicheleNuijten/update-manual",
+          "body": "Add the statcheck manual source (updated for 1.6.1)",
+          "author": "Mich\u00e8le Nuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-10-29",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/1088bb199331145c4eaa4cbdb14e79ba02bafa92",
+          "type": "other",
+          "branch": "master",
+          "diff": {
+            "additions": 643,
+            "deletions": 452,
+            "files": [
+              {
+                "filename": "vignettes/articles/.gitignore",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 0,
+                "patch": "@@ -1,2 +1,3 @@\n *.html\n *.R\n+rsconnect/\n\\ No newline at end of file"
+              },
+              {
+                "filename": "vignettes/articles/figures/html-report.png",
+                "status": "added",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "vignettes/articles/figures/infograph.png",
+                "status": "added",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "vignettes/articles/manual.Rmd",
+                "status": "modified",
+                "additions": 642,
+                "deletions": 452,
+                "patch": "@@ -7,6 +7,9 @@ output:\n     toc: true\n     toc_float: true\n     number_sections: true\n+editor_options: \n+  markdown: \n+    wrap: 72\n ---\n \n ```{r, include = FALSE}\n@@ -24,154 +27,224 @@ library(statcheck)\n knitr::include_graphics(\"../../man/figures/statcheck-logo.png\")\n ```\n \n-# What's new in 1.6.1\n-\n-statcheck now reads PDF files with the R package pdftools. You no longer need\n-to install the external program Xpdf. Furthermore, `statcheckReport()` has\n-been rewritten and its argument `outputFi"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "0251fa8",
+          "message": "don't sync rsconnect files (to publish manual)",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-10-29",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/0251fa8bf03f598fa5a89958eb050d7e573d0706",
+          "type": "other",
+          "branch": "master",
+          "diff": {}
+        },
+        {
+          "sha": "b67f521",
+          "message": "small fixes",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-10-29",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/b67f5214b899f6a4c2d21dd06b38ebd2bd04f786",
+          "type": "other",
+          "branch": "master",
+          "diff": {}
+        },
+        {
+          "sha": "7d4b667",
+          "message": "type setting",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-10-29",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/7d4b66754126292d77dc1fc1becdb3aef38cc7c5",
+          "type": "other",
+          "branch": "master",
+          "diff": {}
+        },
+        {
+          "sha": "7403951",
+          "message": "restructure some text",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-10-29",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/7403951adc699710248d80b48f3aa6fedf342b99",
+          "type": "refactor",
+          "branch": "master",
+          "diff": {}
+        },
+        {
+          "sha": "03f602d",
+          "message": "update text and add additional screenshots and figs",
+          "body": "",
+          "author": "MicheleNuijten",
+          "author_login": "MicheleNuijten",
+          "date": "2026-10-29",
+          "url": "https://github.com/MicheleNuijten/statcheck/commit/03f602d1e61e76efb44e82e82a45fe4a13af2107",
+          "type": "feat",
           "branch": "master",
           "diff": {}
         }
@@ -3219,16 +3131,12 @@
       ],
       "commit_activity": [
         {
-          "week": 1787529600,
-          "total": 0
-        },
-        {
           "week": 1788134400,
-          "total": 5
+          "total": 0
         },
         {
           "week": 1788739200,
-          "total": 0
+          "total": 5
         },
         {
           "week": 1789344000,
@@ -3244,15 +3152,15 @@
         },
         {
           "week": 1791158400,
-          "total": 2
+          "total": 0
         },
         {
           "week": 1791763200,
-          "total": 4
+          "total": 2
         },
         {
           "week": 1792368000,
-          "total": 0
+          "total": 4
         },
         {
           "week": 1792972800,
@@ -3264,6 +3172,10 @@
         },
         {
           "week": 1794182400,
+          "total": 0
+        },
+        {
+          "week": 1794787200,
           "total": 0
         }
       ],
@@ -3444,9 +3356,9 @@
       "commits_1d": 1,
       "commits_90d": 837,
       "authors_30d": [
-        "Lukas Jung",
         "lhdjung",
-        "github-actions[bot]"
+        "github-actions[bot]",
+        "Lukas Jung"
       ],
       "type_breakdown": {
         "other": 435,
@@ -3838,51 +3750,51 @@
       ],
       "commit_activity": [
         {
-          "week": 1787529600,
+          "week": 1788134400,
           "total": 16
         },
         {
-          "week": 1788134400,
+          "week": 1788739200,
           "total": 5
         },
         {
-          "week": 1788739200,
+          "week": 1789344000,
           "total": 3
         },
         {
-          "week": 1789344000,
+          "week": 1789948800,
           "total": 1
         },
         {
-          "week": 1789948800,
+          "week": 1790553600,
           "total": 36
         },
         {
-          "week": 1790553600,
+          "week": 1791158400,
           "total": 54
         },
         {
-          "week": 1791158400,
+          "week": 1791763200,
           "total": 4
         },
         {
-          "week": 1791763200,
+          "week": 1792368000,
           "total": 60
         },
         {
-          "week": 1792368000,
-          "total": 117
-        },
-        {
           "week": 1792972800,
-          "total": 84
+          "total": 121
         },
         {
           "week": 1793577600,
-          "total": 406
+          "total": 80
         },
         {
           "week": 1794182400,
+          "total": 406
+        },
+        {
+          "week": 1794787200,
           "total": 48
         }
       ],
@@ -4407,154 +4319,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "6cc90a5",
-          "message": "Use larger logo, update favicons, and supply full-size logo",
-          "body": "",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-11-15",
-          "url": "https://github.com/lhdjung/scrutiny/commit/6cc90a561c2ba6e216aaf960069a3aa9b93effcf",
-          "type": "other",
-          "branch": "polishing",
-          "diff": {
-            "additions": 2,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": ".Rbuildignore",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -38,3 +38,4 @@ R\\.Rproj$\n ^jarl\\.toml$\n ^tests/testthat/_problems$\n ^tests/testthat/testthat-problems\\.rds$\n+^man/figures/logo-full-size\\.png$"
-              },
-              {
-                "filename": "man/figures/logo-full-size.png",
-                "status": "added",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "man/figures/logo.png",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "pkgdown/favicon/apple-touch-icon.png",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "pkgdown/favicon/favicon-96x96.png",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "pkgdown/favicon/favicon.ico",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "pkgdown/favicon/favicon.svg",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": ""
-              },
-              {
-                "filename": "pkgdown/favicon/web-app-manifest-192x192.png",
-                "status": "modified",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "decc0af",
-          "message": "Add digit_weights to grim_exp_incon() and grim_binomial()",
-          "body": "* By default, both assume that every decimal digit of a made-up value is\nequally likely. digit_weights gives the final digits 0 to 9 relative\nweights instead, for digit preferences such as heaping on 0 and 5.\n* grim_exp_incon() counts the inconsistent values for each final digit\nexactly, extending the gcd argument of grim_total(). It errors where an\nexact count would need products beyond 2^53.\n* grim_binomial() recomputes its probabilities with the settings of the\ngrim_map() call, and errors if data has lost them.\n* Tests compare the count with grim() on every value for all rounding\nmethods.",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-11-14",
-          "url": "https://github.com/lhdjung/scrutiny/commit/decc0afc64ece5fec16343b29be49d6c6a329db7",
-          "type": "feat",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "d004cca",
-          "message": "Deploying to gh-pages from @ lhdjung/scrutiny@6a2174e158b1b85f0cbe08e5c0f2b1f8cfe80845 \ud83d\ude80",
-          "body": "",
-          "author": "lhdjung",
-          "author_login": "lhdjung",
-          "date": "2026-11-11",
-          "url": "https://github.com/lhdjung/scrutiny/commit/d004cca4aee645de3da6f5de30ddb83a5d550319",
-          "type": "other",
-          "branch": "gh-pages",
-          "diff": {}
-        },
-        {
-          "sha": "33574fd",
-          "message": "Keep code comments in NEWS.md from reading as headings",
-          "body": "* usethis::use_github_release() cut the release notes at the R comment\n  '# scrutiny 0.6.1' in the Key changes code block.",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-11-11",
-          "url": "https://github.com/lhdjung/scrutiny/commit/33574fd06b79e5657c2ac0548913f01e6a11c98a",
-          "type": "docs",
-          "branch": "polishing",
-          "diff": {}
-        },
-        {
-          "sha": "1cae4d1",
-          "message": "Deploying to gh-pages from @ lhdjung/scrutiny@3c7a5dcc03b32314da509e3e624d2d18f1469f1e \ud83d\ude80",
-          "body": "",
-          "author": "lhdjung",
-          "author_login": "lhdjung",
-          "date": "2026-11-11",
-          "url": "https://github.com/lhdjung/scrutiny/commit/1cae4d1f351dd416949675176ed04efe9ca38fcf",
-          "type": "other",
-          "branch": "gh-pages",
-          "diff": {}
-        },
-        {
-          "sha": "58f69dc",
-          "message": "Update CITATION.cff",
-          "body": "",
-          "author": "github-actions[bot]",
-          "author_login": "github-actions[bot]",
-          "date": "2026-11-11",
-          "url": "https://github.com/lhdjung/scrutiny/commit/58f69dcb414e8b3084ae79aade4a5888459317f8",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "3c7a5dc",
-          "message": "Merge pull request #96 from lhdjung/polishing",
-          "body": "",
-          "author": "Lukas Jung",
-          "author_login": "lhdjung",
-          "date": "2026-11-11",
-          "url": "https://github.com/lhdjung/scrutiny/commit/3c7a5dcc03b32314da509e3e624d2d18f1469f1e",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        }
       ]
     },
     {
@@ -4837,16 +4601,12 @@
       ],
       "commit_activity": [
         {
-          "week": 1787529600,
-          "total": 1
-        },
-        {
           "week": 1788134400,
           "total": 1
         },
         {
           "week": 1788739200,
-          "total": 0
+          "total": 1
         },
         {
           "week": 1789344000,
@@ -4870,11 +4630,11 @@
         },
         {
           "week": 1792368000,
-          "total": 2
+          "total": 0
         },
         {
           "week": 1792972800,
-          "total": 0
+          "total": 2
         },
         {
           "week": 1793577600,
@@ -4882,6 +4642,10 @@
         },
         {
           "week": 1794182400,
+          "total": 0
+        },
+        {
+          "week": 1794787200,
           "total": 0
         }
       ],
@@ -4978,6 +4742,45 @@
       "readme_excerpt": "ODDPub is a text mining algorithm that parses a set of publications and detects\nwhich publications disseminated Open Data or Open Code together with the\npublication. It is tailored towards biomedical literature.\n\n\nNico Riedel, Vladislav Nachev (vladislav.nachev@charite.de), Miriam Kip, Evgeny Bobrov (evgeny.bobrov@bih-charite.de) - QUEST Center for Transforming Biomedical Research, Berlin Institute of Health\n\n\nMore information on the development and validation of the algorithm can be found in the publication https://doi.org/10.5334/dsj-2020-042. The related training and validation datasets can",
       "scopus_citations": null,
       "recent_commits": [
+        {
+          "sha": "16a3cea",
+          "message": "version bump",
+          "body": "",
+          "author": "ontogenerator",
+          "author_login": "",
+          "date": "2026-10-23",
+          "url": "https://github.com/quest-bih/oddpub/commit/16a3cea30aa4742fc6a6fb5321f58864ffb9dbae",
+          "type": "chore",
+          "branch": "main",
+          "diff": {
+            "additions": 1,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": "DESCRIPTION",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -1,7 +1,7 @@\n Package: oddpub\n Type: Package\n Title: Detection of Open Data & Open Code statements in biomedical publications\n-Version: 7.4.0\n+Version: 7.4.1\n Authors@R: \n     c(person(\"Nico\", \"Riedel\",\n     role = \"aut\"),"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "eb4f800",
+          "message": "patch nature portfolio removal",
+          "body": "",
+          "author": "ontogenerator",
+          "author_login": "",
+          "date": "2026-10-23",
+          "url": "https://github.com/quest-bih/oddpub/commit/eb4f8006c823ae6bd3a17e26ef90b68a2a320a95",
+          "type": "other",
+          "branch": "main",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
         {
           "sha": "16a3cea",
           "message": "version bump",
@@ -5584,10 +5387,6 @@
       ],
       "commit_activity": [
         {
-          "week": 1787529600,
-          "total": 0
-        },
-        {
           "week": 1788134400,
           "total": 0
         },
@@ -5609,11 +5408,11 @@
         },
         {
           "week": 1791158400,
-          "total": 2
+          "total": 0
         },
         {
           "week": 1791763200,
-          "total": 0
+          "total": 2
         },
         {
           "week": 1792368000,
@@ -5629,6 +5428,10 @@
         },
         {
           "week": 1794182400,
+          "total": 0
+        },
+        {
+          "week": 1794787200,
           "total": 0
         }
       ],
@@ -5849,55 +5652,116 @@
       ],
       "commit_activity": [
         {
-          "week": 1787529600,
+          "week": 1788134400,
           "total": 6
         },
         {
-          "week": 1788134400,
+          "week": 1788739200,
           "total": 23
         },
         {
-          "week": 1788739200,
+          "week": 1789344000,
           "total": 15
         },
         {
-          "week": 1789344000,
+          "week": 1789948800,
           "total": 18
         },
         {
-          "week": 1789948800,
-          "total": 103
-        },
-        {
           "week": 1790553600,
-          "total": 27
+          "total": 112
         },
         {
           "week": 1791158400,
-          "total": 22
+          "total": 18
         },
         {
           "week": 1791763200,
-          "total": 16
+          "total": 22
         },
         {
           "week": 1792368000,
-          "total": 61
+          "total": 16
         },
         {
           "week": 1792972800,
-          "total": 12
+          "total": 61
         },
         {
           "week": 1793577600,
-          "total": 0
+          "total": 12
         },
         {
           "week": 1794182400,
+          "total": 0
+        },
+        {
+          "week": 1794787200,
           "total": 10
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 10042,
+          "deletions": -350
+        },
+        {
+          "week": 1788652800,
+          "additions": 2969,
+          "deletions": -178
+        },
+        {
+          "week": 1789257600,
+          "additions": 5538,
+          "deletions": -2377
+        },
+        {
+          "week": 1789862400,
+          "additions": 20499,
+          "deletions": -4049
+        },
+        {
+          "week": 1790467200,
+          "additions": 6810,
+          "deletions": -4322
+        },
+        {
+          "week": 1791072000,
+          "additions": 2455,
+          "deletions": -185
+        },
+        {
+          "week": 1791676800,
+          "additions": 2780,
+          "deletions": -162
+        },
+        {
+          "week": 1792281600,
+          "additions": 3269,
+          "deletions": -125
+        },
+        {
+          "week": 1792886400,
+          "additions": 13887,
+          "deletions": -599
+        },
+        {
+          "week": 1793491200,
+          "additions": 417,
+          "deletions": -34
+        },
+        {
+          "week": 1794096000,
+          "additions": 3616,
+          "deletions": -393
+        },
+        {
+          "week": 1794700800,
+          "additions": 612,
+          "deletions": -135
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "**Text, section, table and statistic extraction from academic papers (PDF, DOCX, HTML), built\nfor meta-science.**\n\ndocpluck turns a research article into text you can run statistical checks on. It extracts the\ntext layer, repairs the damage extraction itself causes (lost minus signs, split ligatures,\ninterleaved columns, Greek letters decoded as Latin), identifies the paper's sections, pulls\ntables out as cell grids, flattens table rows into records a statistics checker can read, and\nrenders the whole paper as Markdown. Every output carries a record of what the library had to\nguess or refused ",
@@ -6273,129 +6137,6 @@
           "date": "2026-10-25",
           "url": "https://github.com/giladfeldman/docpluck/commit/10071058dc982a5b89f7f6fc0af201976712ac09",
           "type": "docs",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "25a82a0",
-          "message": "test: build placeholder ids at run time so the public-repo check passes",
-          "body": "The open-list test held invented ledger-shaped ids as literals, which the\npublic-repo hygiene test rejects. They are now built at run time; the\nassertions are unchanged. no-debt",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-11-15",
-          "url": "https://github.com/giladfeldman/docpluck/commit/25a82a063a62fa2475aa55b34a56ff324c451b97",
-          "type": "test",
-          "branch": "main",
-          "diff": {
-            "additions": 14,
-            "deletions": 7,
-            "files": [
-              {
-                "filename": "tests/test_check_debt_trace_open_list.py",
-                "status": "modified",
-                "additions": 14,
-                "deletions": 7,
-                "patch": "@@ -1,8 +1,9 @@\n-\"\"\"The debt-trace gate reads a whole list of ids a commit leaves open.\n+\"\"\"The commit-trace gate reads a whole list of ids a commit leaves open.\n \n-\"Logged as d-aaaaaa d-bbbbbb\" used to read only the first id, so the release\n-gate failed the rest as \"cited but still open\" (2.4.160, 2026-11-15).\n-Ids here are invented.\"\"\"\n+\"Logged as <id> <id>\" used to read only the first id, so the release gate\n+failed the rest as \"cited but still open\" (2.4.160, 2026-11-15).\n+Ids are built at r"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "3f6e59e",
-          "message": "test: build the consumer-contract probe PDF on demand",
-          "body": "The PDF was gitignored and untracked, so the contract test could not run on a\nclone, and the custody scan counted it. A deterministic reportlab builder\nreplaces it; same 24 contract assertions pass. no-debt",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-11-15",
-          "url": "https://github.com/giladfeldman/docpluck/commit/3f6e59e8b826e3a80658faba24d978f2958af693",
-          "type": "test",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "19eabc1",
-          "message": "gates: debt trace reads a whole list of ids a commit leaves open",
-          "body": "'logged as d-a d-b' read only the first id. tests/test_check_debt_trace_open_list.py:\n2 failed before, 2 pass. no-debt",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-11-15",
-          "url": "https://github.com/giladfeldman/docpluck/commit/19eabc1bbb7da9d6a06c26a951e11aafd34ff130",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "e985495",
-          "message": "fix: second-model review fixes and full-suite fixes for 2.4.160",
-          "body": "Review round 2 (Sonnet + Haiku, 2026-11-13), each reproduced on invented text and\neach test watched failing on the first 2.4.160 commit:\n- effect-size header symbols are case-exact; study/panel/figure letters are not\n  effect symbols (d-e1db37)\n- a unit (bpm, ms, kg...) vetoes the ratio reading of a generic estimate\n- A1 column-bleed and garbage rules need a whole-token p and never cross a blank\n  line; every deletion is counted\n- a page boundary whose 16-char key repeats tries the whole line, then the next\n  line, and only then keeps the first hit, counted (section_page_boundary_ambiguous,\n  5 firings in 125 papers; pages filled 85, was 84)\n- one neighbour window (4 lines) for both furniture votes\n- glyph repair reads the decrypted copy, which is validated\n\nFull suite (18 failures, all fixed): debt ids and a skills path removed from public\nfiles; new fields documented; docs/citation versions; section goldens regenerated\n(only the version and pages=[1] changed); one memory failure no longer counted twice\nin cell_geometry (class scan: no other handler double-records).\n\nClosed: d-e1db37 d-5e7de3 d-18e1a2 d-15561f. Logged as d-273f84 d-53dd18 d-1c5564.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-11-15",
-          "url": "https://github.com/giladfeldman/docpluck/commit/e9854957a42f544cd0c8c505cd1290da1c6af86f",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "61a1a35",
-          "message": "gates: debt trace lists ids a commit cites as still open (logged as / part of / open) instead of failing them",
-          "body": "",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-11-13",
-          "url": "https://github.com/giladfeldman/docpluck/commit/61a1a355df7bbe0cb911296936ca32691f71d778",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "f7a9bbd",
-          "message": "release: docpluck 2.4.160 (Release A: silent failures labelled, ligature fold class, statistic joins, protected PDFs, section pages)",
-          "body": "Silent failure -> labelled failure:\n- tables_status / figures_status; every *_exception event classified by channel (d-6736e7)\n- no text layer reported as text_layer_failed:no_text_layer; pages_without_text (d-23c3f7)\n- git_state \"stale\"; git identity scoped to docpluck's own checkout (d-2244e2, d-5bf4ee, d-fcb3d3)\n- unmapped_glyph_fonts on the structured result (d-8afcbe)\n- FlattenedRow.unparsed with per-cell reasons (d-6bff50)\n- f0_furniture_line_removed counted (d-338ea7)\n- table_text_cut_at_window counted; trailing-heading trim keeps data rows (d-927624, d-1352e2)\n- include_uncaptioned switch, default True (d-be5166)\n\nCross-channel ligature fold (NFKC) at every text-vs-grid comparison: running-text check, grid\ncoverage, partial-grid guard, caption overlap tokens, note-row survival, caption-row keys, flatten\ncaption key, F0 key (part of d-58ce8d; 10 tests red on v2.4.159).\n\nTables: copy-protected PDFs decrypted for Camelot (d-e23197); fields[\"est_kind\"] (d-cdda61);\ncaption/header/note symbols case-exact and footnote-letter safe, incl. the blank-role gate.\n\nText: A1 joins cross one line break only, whole-token p/OR/CI/RR (d-73fb4a); leading-dot value-only\nlines, 4-line lookahead (d-8930b8).\n\nSections: Section.pages from the text channel through boundary_offsets; fails closed and counted\n(d-a6645c, d-66c8db). 454/462 headings agree; 8 off by one logged as d-b46f12.\n\nMeasured with tools/diag/release_value_diff.py against v2.4.159 on 125 papers: 21 changed, every\nchanged table and text line read; firing counts in CHANGELOG.",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-11-13",
-          "url": "https://github.com/giladfeldman/docpluck/commit/f7a9bbdd73d49d839c4d56580d2592436666ec18",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "8ec5736",
-          "message": "gates: consumer contract test, value diff tool, debt-trace and skill-path checks; delete dead confidence.py (d-5e9b45)",
-          "body": "- tools/diag/release_value_diff.py: what a tree changes for consumers, value by value, against a\n  released tag, with firing counts per fallback event (normalization events included). Caches an\n  uncommitted tree by content hash; writes its JSON before printing; prints UTF-8 on Windows.\n- tests/test_consumer_contract.py: the keys of every result shape consumers read are pinned; a new or\n  removed key fails until it is announced.\n- tests/test_no_new_silent_broad_except.py: a new broad except must record a fallback.\n- scripts/check_debt_trace.py: a closed debt id must be cited by a commit.\n- scripts/check_skill_paths.py: every path a project skill names must exist.\n- docpluck/tables/confidence.py was a dead second implementation with different thresholds (d-5e9b45).",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-11-13",
-          "url": "https://github.com/giladfeldman/docpluck/commit/8ec573602be2d8ed1b5265ea5579a9940ff1a8e9",
-          "type": "test",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "805c28c",
-          "message": "fix: /ship fixes for 2.4.159 (silent handlers record a fallback, firing counts, ORCID)",
-          "body": "",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-11-12",
-          "url": "https://github.com/giladfeldman/docpluck/commit/805c28c6897507d907396f6ea1f798a69bfdb191",
-          "type": "fix",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "ee30e4f",
-          "message": "fix(tables,render): consult fixes for 2.4.159",
-          "body": "- descending printed CI fails closed: CI_order label, printed bounds in fields_raw\n- printed continuation head links a grid only at Table N's column extent\n- a grid set aside as partial is not re-kept as an uncaptioned candidate when the replacing text carries its words\n- render phantom-table strip leaves continuation-page grids in place\n- partial guard judges a caption-below grid only when another caption sits above it\n- unreadable page in the furniture scan is recorded",
-          "author": "Gilad Feldman",
-          "author_login": "giladfeldman",
-          "date": "2026-11-12",
-          "url": "https://github.com/giladfeldman/docpluck/commit/ee30e4f701c7bb7348b9e4be08260b97d7cbb638",
-          "type": "fix",
           "branch": "main",
           "diff": {}
         }
@@ -7605,20 +7346,16 @@
       ],
       "commit_activity": [
         {
-          "week": 1787529600,
+          "week": 1788134400,
           "total": 14
         },
         {
-          "week": 1788134400,
+          "week": 1788739200,
           "total": 5
         },
         {
-          "week": 1788739200,
-          "total": 20
-        },
-        {
           "week": 1789344000,
-          "total": 0
+          "total": 20
         },
         {
           "week": 1789948800,
@@ -7630,11 +7367,11 @@
         },
         {
           "week": 1791158400,
-          "total": 18
+          "total": 0
         },
         {
           "week": 1791763200,
-          "total": 0
+          "total": 18
         },
         {
           "week": 1792368000,
@@ -7650,6 +7387,10 @@
         },
         {
           "week": 1794182400,
+          "total": 0
+        },
+        {
+          "week": 1794787200,
           "total": 0
         }
       ],
@@ -7906,10 +7647,6 @@
       ],
       "commit_activity": [
         {
-          "week": 1787529600,
-          "total": 0
-        },
-        {
           "week": 1788134400,
           "total": 0
         },
@@ -7919,27 +7656,27 @@
         },
         {
           "week": 1789344000,
-          "total": 1
+          "total": 0
         },
         {
           "week": 1789948800,
-          "total": 0
-        },
-        {
-          "week": 1790553600,
-          "total": 2
-        },
-        {
-          "week": 1791158400,
-          "total": 0
-        },
-        {
-          "week": 1791763200,
           "total": 1
         },
         {
-          "week": 1792368000,
+          "week": 1790553600,
           "total": 0
+        },
+        {
+          "week": 1791158400,
+          "total": 2
+        },
+        {
+          "week": 1791763200,
+          "total": 0
+        },
+        {
+          "week": 1792368000,
+          "total": 1
         },
         {
           "week": 1792972800,
@@ -7947,10 +7684,14 @@
         },
         {
           "week": 1793577600,
-          "total": 16
+          "total": 0
         },
         {
           "week": 1794182400,
+          "total": 16
+        },
+        {
+          "week": 1794787200,
           "total": 1
         }
       ],
@@ -8273,6 +8014,68 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "67798cc",
+          "message": "update model default",
+          "body": "",
+          "author": "Jamie Cummins",
+          "author_login": "JamieCummins",
+          "date": "2026-11-09",
+          "url": "https://github.com/JamieCummins/regcheck/commit/67798ccc293dae048a9ebc3771a0a49fbe76e46e",
+          "type": "other",
+          "branch": "main",
+          "diff": {
+            "additions": 10,
+            "deletions": 10,
+            "files": [
+              {
+                "filename": ".env.example",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 3,
+                "patch": "@@ -56,9 +56,9 @@ GPUSTACK_API_KEY=\n GPUSTACK_BASE_URL=https://gpustack.unibe.ch/v1\n \n # Optional model overrides\n-OPENAI_MODEL=gpt-5\n-OPENAI_COMPARISON_MODEL=gpt-5\n-OPENAI_EXPERIMENT_MODEL=gpt-5\n+OPENAI_MODEL=gpt-6.1-terra\n+OPENAI_COMPARISON_MODEL=gpt-6.1-terra\n+OPENAI_EXPERIMENT_MODEL=gpt-6.1-terra\n OPENAI_EXPERIMENT_REASONING_EFFORT=medium\n DEEPSEEK_MODEL=deepseek-reasoner\n QWEN_MODEL=qwen/qwen3.6-27b"
+              },
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 3,
+                "deletions": 3,
+                "patch": "@@ -43,9 +43,9 @@ DEEPSEEK_API_KEY=...\n CLAUDE_API_KEY=...\n \n # Optional model overrides\n-OPENAI_MODEL=gpt-5.5\n-OPENAI_COMPARISON_MODEL=gpt-5.5\n-OPENAI_EXPERIMENT_MODEL=gpt-5.5\n+OPENAI_MODEL=gpt-6.1-terra\n+OPENAI_COMPARISON_MODEL=gpt-6.1-terra\n+OPENAI_EXPERIMENT_MODEL=gpt-6.1-terra\n OPENAI_EXPERIMENT_REASONING_EFFORT=medium        # low | medium | high\n DEEPSEEK_MODEL=deepseek-reasoner\n CLAUDE_MODEL=claude-opus-4-8"
+              },
+              {
+                "filename": "backend/routes/comparisons.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -344,7 +344,7 @@ def _normalize_client(client: str) -> str:\n \n def _normalize_reasoning_effort(client: str, reasoning_effort: str | None) -> str | None:\n     effort_normalized = (reasoning_effort or \"\").strip().lower()\n-    # ChatGPT (gpt-5.5) is the only reasoning-effort model exposed to users.\n+    # ChatGPT (gpt-6.1-terra) is the only reasoning-effort model exposed to users.\n     if client == \"openai\":\n         if effort_normalized not in {\"low\", \"medium\", \"high\"}:\n             effort_norm"
+              },
+              {
+                "filename": "backend/services/llm.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -27,7 +27,7 @@\n \n logger = logging.getLogger(__name__)\n \n-DEFAULT_OPENAI_MODEL = \"gpt-5.5\"\n+DEFAULT_OPENAI_MODEL = \"gpt-6.1-terra\"\n DEFAULT_DEEPSEEK_MODEL = \"deepseek-reasoner\"\n DEFAULT_CLAUDE_MODEL = \"claude-opus-4-8\"\n # Open-weight Qwen, served via Groq's OpenAI-compatible endpoint (uses GROQ_API_KEY)."
+              },
+              {
+                "filename": "templates/api.html",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -162,7 +162,7 @@ <h2>2) Submit a comparison</h2>\n             <tr><td><code>clinical_registration</code></td><td>no</td><td><code>yes</code>/<code>no</code> (default <code>no</code>). When <code>yes</code>, fetches the trial registration named by <code>registration_id</code>.</td></tr>\n             <tr><td><code>registration_id</code></td><td>cond.</td><td>ClinicalTrials.gov identifier (e.g. <code>NCT01234567</code>) or ISRCTN identifier (e.g. <code>ISRCTN17573805</code>), or a link to either"
+              },
+              {
+                "filename": "templates/faq.html",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -180,7 +180,7 @@ <h2 class=\"accordion-header\">\n           </h2>\n           <div id=\"faq-q7\" class=\"accordion-collapse collapse\" data-bs-parent=\"#faqAccordion\">\n             <div class=\"accordion-body\">\n-              The model menu lists families; the exact default models are ChatGPT = <code>gpt-5.5</code>, Claude Opus 4.8 = <code>claude-opus-4-8</code>, DeepSeek = <code>deepseek-reasoner</code>, and Qwen3.6 27B = <code>qwen/qwen3.6-27b</code> (open-weight, served via Groq). These are the def"
+              }
+            ]
+          },
+          "diff_summary": ""
+        }
       ]
     },
     {
@@ -8570,12 +8373,8 @@
       ],
       "commit_activity": [
         {
-          "week": 1787529600,
-          "total": 1
-        },
-        {
           "week": 1788134400,
-          "total": 0
+          "total": 1
         },
         {
           "week": 1788739200,
@@ -8591,15 +8390,15 @@
         },
         {
           "week": 1790553600,
-          "total": 3
-        },
-        {
-          "week": 1791158400,
           "total": 1
         },
         {
+          "week": 1791158400,
+          "total": 2
+        },
+        {
           "week": 1791763200,
-          "total": 0
+          "total": 1
         },
         {
           "week": 1792368000,
@@ -8615,6 +8414,10 @@
         },
         {
           "week": 1794182400,
+          "total": 0
+        },
+        {
+          "week": 1794787200,
           "total": 0
         }
       ],
@@ -9031,7 +8834,7 @@
       "topics": [],
       "pushed_at": "2026-11-03T04:28:53Z",
       "created_at": "2026-05-26",
-      "last_push_days": 12,
+      "last_push_days": 13,
       "default_branch": "main",
       "license": "MIT",
       "branches": [
@@ -9117,12 +8920,8 @@
       ],
       "commit_activity": [
         {
-          "week": 1787529600,
-          "total": 0
-        },
-        {
           "week": 1788134400,
-          "total": 1
+          "total": 0
         },
         {
           "week": 1788739200,
@@ -9130,7 +8929,7 @@
         },
         {
           "week": 1789344000,
-          "total": 0
+          "total": 1
         },
         {
           "week": 1789948800,
@@ -9138,11 +8937,11 @@
         },
         {
           "week": 1790553600,
-          "total": 4
+          "total": 0
         },
         {
           "week": 1791158400,
-          "total": 0
+          "total": 4
         },
         {
           "week": 1791763200,
@@ -9158,10 +8957,14 @@
         },
         {
           "week": 1793577600,
-          "total": 1
+          "total": 0
         },
         {
           "week": 1794182400,
+          "total": 1
+        },
+        {
+          "week": 1794787200,
           "total": 0
         }
       ],
@@ -9232,6 +9035,68 @@
       "readme_excerpt": "> [!TIP]\n> New to auto-zcurve? The [user guide](https://shaheedazaad.github.io/auto-zcurve/)\n> is written for researchers, not developers, and covers install, adding an\n> API key, running your first project, and reading the results.\n\nauto-zcurve reads PDF articles, uses a supported LLM provider to extract focal\nstatistical results, and creates a z-curve analysis report with a plot, summary\nstatistics, and full disclosure table.\n\nThe default interface is a private browser app running only on your computer.\nYour PDFs, projects, and results stay local; only the PDF or its locally parsed\ntext is s",
       "scopus_citations": null,
       "recent_commits": [
+        {
+          "sha": "abd17f9",
+          "message": "Migrate JavaScript test dependencies to pnpm",
+          "body": "",
+          "author": "Shaheed Azaad",
+          "author_login": "shaheedazaad",
+          "date": "2026-11-03",
+          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/abd17f9829353b127fea0a8b3ad6797b881cf9f5",
+          "type": "test",
+          "branch": "main",
+          "diff": {
+            "additions": 360,
+            "deletions": 565,
+            "files": [
+              {
+                "filename": ".github/workflows/locked-environment.yml",
+                "status": "modified",
+                "additions": 7,
+                "deletions": 5,
+                "patch": "@@ -11,12 +11,13 @@ jobs:\n     runs-on: ubuntu-24.04\n     steps:\n       - uses: actions/checkout@v4\n+      - uses: pnpm/action-setup@v4\n       - uses: actions/setup-node@v4\n         with:\n           node-version: '24'\n-          cache: npm\n-      - run: npm ci\n-      - run: npm run test:coverage\n+          cache: pnpm\n+      - run: pnpm install --frozen-lockfile\n+      - run: pnpm run test:coverage\n \n   install-and-smoke:\n     name: ${{ matrix.name }}\n@@ -35,12 +36,13 @@ jobs:\n     runs-on: ${{ "
+              },
+              {
+                "filename": "README.md",
+                "status": "modified",
+                "additions": 5,
+                "deletions": 4,
+                "patch": "@@ -219,13 +219,14 @@ pixi run test\n pixi run release-smoke\n ```\n \n-Browser behavior tests require Node.js 24 and use a simulated DOM with mocked\n+Browser behavior tests require Node.js 24 and pnpm 10.12.1 (pinned in\n+`package.json`) and use a simulated DOM with mocked\n network requests; they do not call model providers or access credentials:\n \n ```sh\n-npm ci\n-npm test\n-npm run test:coverage\n+pnpm install --frozen-lockfile\n+pnpm test\n+pnpm run test:coverage\n ```\n \n The browser coverage command m"
+              },
+              {
+                "filename": "package-lock.json",
+                "status": "removed",
+                "additions": 0,
+                "deletions": 555,
+                "patch": "@@ -1,555 +0,0 @@\n-{\n-  \"name\": \"auto-zcurve-client-tests\",\n-  \"lockfileVersion\": 3,\n-  \"requires\": true,\n-  \"packages\": {\n-    \"\": {\n-      \"name\": \"auto-zcurve-client-tests\",\n-      \"devDependencies\": {\n-        \"jsdom\": \"^29.1.1\"\n-      }\n-    },\n-    \"node_modules/@asamuzakjp/css-color\": {\n-      \"version\": \"5.1.11\",\n-      \"resolved\": \"https://registry.npmjs.org/@asamuzakjp/css-color/-/css-color-5.1.11.tgz\",\n-      \"integrity\": \"sha512-KVw6qIiCTUQhByfTd78h2yD1/00waTmm9uy/R7Ck/ctUyAPj+AEDLkQ"
+              },
+              {
+                "filename": "package.json",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 0,
+                "patch": "@@ -1,6 +1,7 @@\n {\n   \"name\": \"auto-zcurve-client-tests\",\n   \"private\": true,\n+  \"packageManager\": \"pnpm@10.12.1\",\n   \"scripts\": {\n     \"test\": \"node --test tests/js/*.test.cjs\",\n     \"test:coverage\": \"node --experimental-test-coverage --test-coverage-include=**/auto_zcurve/static/app.js --test-coverage-lines=100 --test tests/js/*.test.cjs\""
+              },
+              {
+                "filename": "pnpm-lock.yaml",
+                "status": "added",
+                "additions": 346,
+                "deletions": 0,
+                "patch": "@@ -0,0 +1,346 @@\n+lockfileVersion: '9.0'\n+\n+settings:\n+  autoInstallPeers: true\n+  excludeLinksFromLockfile: false\n+\n+importers:\n+\n+  .:\n+    devDependencies:\n+      jsdom:\n+        specifier: ^29.1.1\n+        version: 29.1.1\n+\n+packages:\n+\n+  '@asamuzakjp/css-color@5.1.11':\n+    resolution: {integrity: sha512-KVw6qIiCTUQhByfTd78h2yD1/00waTmm9uy/R7Ck/ctUyAPj+AEDLkQIdJW0T8+qGgj3j5bpNKK7Q3G+LedJWg==}\n+    engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}\n+\n+  '@asamuzakjp/dom-selector@7.1.1':\n+  "
+              },
+              {
+                "filename": "tests/test_browser_templates.py",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -21,7 +21,7 @@ def setUpClass(cls):\n             raise unittest.SkipTest('Node.js is required for template integration tests')\n         available = subprocess.run([cls.node, '-e', \"require('jsdom')\"], cwd=cls.root, capture_output=True)\n         if available.returncode:\n-            raise unittest.SkipTest('Run npm ci to install browser test dependencies')\n+            raise unittest.SkipTest('Run pnpm install --frozen-lockfile to install browser test dependencies')\n \n     def test_rendered_pa"
+              }
+            ]
+          },
+          "diff_summary": ""
+        }
+      ],
+      "_new_commits": [
         {
           "sha": "abd17f9",
           "message": "Migrate JavaScript test dependencies to pnpm",
@@ -9405,8 +9270,8 @@
       "commits_1d": 0,
       "commits_90d": 12,
       "authors_30d": [
-        "brandmaier",
-        "Andreas Brandmaier"
+        "Andreas Brandmaier",
+        "brandmaier"
       ],
       "type_breakdown": {
         "docs": 3,
@@ -9858,10 +9723,6 @@
       ],
       "commit_activity": [
         {
-          "week": 1787529600,
-          "total": 0
-        },
-        {
           "week": 1788134400,
           "total": 0
         },
@@ -9879,11 +9740,11 @@
         },
         {
           "week": 1790553600,
-          "total": 1
+          "total": 0
         },
         {
           "week": 1791158400,
-          "total": 0
+          "total": 1
         },
         {
           "week": 1791763200,
@@ -9891,11 +9752,11 @@
         },
         {
           "week": 1792368000,
-          "total": 11
+          "total": 0
         },
         {
           "week": 1792972800,
-          "total": 0
+          "total": 11
         },
         {
           "week": 1793577600,
@@ -9903,6 +9764,10 @@
         },
         {
           "week": 1794182400,
+          "total": 0
+        },
+        {
+          "week": 1794787200,
           "total": 0
         }
       ],
@@ -10187,6 +10052,106 @@
           "date": "2026-10-19",
           "url": "https://github.com/brandmaier/reproducibleRchunks/commit/800955482eaaeb9c1be0950a182662814c130e87",
           "type": "fix",
+          "branch": "main",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "eabbdb8",
+          "message": "updated JSON files for vignettes",
+          "body": "",
+          "author": "brandmaier",
+          "author_login": "brandmaier",
+          "date": "2026-10-22",
+          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/eabbdb8b4a66c3b2386c824fe49b5c37b1b5f064",
+          "type": "docs",
+          "branch": "main",
+          "diff": {
+            "additions": 269,
+            "deletions": 84,
+            "files": [
+              {
+                "filename": "vignettes/.repro_regression_example.Rmd_bootstrap.json",
+                "status": "modified",
+                "additions": 41,
+                "deletions": 13,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
+              },
+              {
+                "filename": "vignettes/.repro_regression_example.Rmd_linreg.json",
+                "status": "modified",
+                "additions": 39,
+                "deletions": 11,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
+              },
+              {
+                "filename": "vignettes/.repro_regression_example.Rmd_loadData.json",
+                "status": "modified",
+                "additions": 39,
+                "deletions": 11,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
+              },
+              {
+                "filename": "vignettes/.repro_regression_example.Rmd_outliers.json",
+                "status": "modified",
+                "additions": 41,
+                "deletions": 13,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
+              },
+              {
+                "filename": "vignettes/.repro_renv_example.Rmd_unnamed-chunk-4.json",
+                "status": "modified",
+                "additions": 29,
+                "deletions": 12,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,1"
+              },
+              {
+                "filename": "vignettes/.repro_use_case_simulation.Rmd_unnamed-chunk-1.json",
+                "status": "modified",
+                "additions": 39,
+                "deletions": 11,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
+              },
+              {
+                "filename": "vignettes/.repro_use_case_simulation.Rmd_unnamed-chunk-2.json",
+                "status": "modified",
+                "additions": 40,
+                "deletions": 12,
+                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
+              },
+              {
+                "filename": "vignettes/plots.Rmd",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": "@@ -22,7 +22,7 @@ library(reproducibleRchunks)\n \n Note that base R plots typically produce graphical output directly to the current graphics device, without assigning the result to a variable. By design, the `reproducibleRchunks` package only tracks metadata for variables that are explicitly created within each code chunk. Since standard plotting commands do not involve variable assignment, their output is not checked for reproducibility. See the following example, in which only the newly declar"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "376f7e2",
+          "message": "updated docs/vignettes",
+          "body": "",
+          "author": "brandmaier",
+          "author_login": "brandmaier",
+          "date": "2026-10-22",
+          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/376f7e25612ec8b26a9b5c790cd0beaf4eede676",
+          "type": "docs",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "f494d4c",
+          "message": "vignettes",
+          "body": "",
+          "author": "brandmaier",
+          "author_login": "brandmaier",
+          "date": "2026-10-22",
+          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/f494d4cf88aea95c861814c6d795a452215d59e1",
+          "type": "docs",
           "branch": "main",
           "diff": {}
         }
@@ -10980,7 +10945,7 @@
     }
   ],
   "digest": {
-    "week_start": "2026-11-08",
+    "week_start": "2026-11-09",
     "active_repos": 4,
     "total_commits_7d": 101,
     "dormant_revived": [
@@ -11476,7 +11441,7 @@
     "total_repos": 16,
     "total_stars": 735,
     "total_forks": 134,
-    "total_commits_30d": 1197,
+    "total_commits_30d": 1193,
     "total_commits_7d": 101,
     "total_commits_1d": 12,
     "active_repos_7d": 4,
