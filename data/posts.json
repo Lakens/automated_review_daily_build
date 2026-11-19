@@ -1,5 +1,791 @@
 [
   {
+    "generated_at": "2026-11-19T00:03:30.562451+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 30,
+        "pushed_at": "2026-11-18T23:13:01Z",
+        "recent_commits": [
+          {
+            "sha": "439b297",
+            "message": "reproducibility_check keeps what a TRACE Research Object (TRO) declaration needs (#404): start and end time and exit status of each script run, the SHA-256 hash, size and type of every file as downloaded, before the run and after it (artifacts), the hashes of the scripts metacheck changed, and the system that ran the code (environment: versions, Docker image and digest, network isolation, limits). Version 0.4.4.20",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/439b297d52166d32d8cb19b152bed8b2e7de9f03",
+            "type": "chore",
+            "branch": "tro_provenance"
+          },
+          {
+            "sha": "8b65279",
+            "message": "A report gives at most 20 files their own table in data_check's data previews and descriptives and in codebook_check's column documentation, so a deposit with many data files no longer gives a report pandoc cannot build within the server's time limit. Version 0.4.4.19",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/8b65279a9adeed392c94f71dea5c2a1d43ad4e25",
+            "type": "chore",
+            "branch": "fix_report_file_tabs"
+          },
+          {
+            "sha": "8b1d22a",
+            "message": "Merge pull request #678 from scienceverse/fix_zip_cp437_names",
+            "body": "Zip and tar names, labels and text lines in older encodings no longer stop a module (0.4.4.18)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/8b1d22af0ef07d9ca389c5effb6e065c2d6b90c8",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "e3574dc",
+            "message": "Zips with names in the old DOS characters (CP437) are unpacked, and other text in an older encoding no longer stops a module. Version 0.4.4.18",
+            "body": "medRxiv 2026.11.12.26367900v1: data_check, codebook_check and reproducibility_check stopped with \"input string 19 is invalid\". The Zenodo deposit (German Index of Socioeconomic Deprivation) holds older releases as zips inside a zip, whose names are stored in CP437 (\"Baden-W\\x81rttemberg\"); utils::unzip(list = TRUE) gives them as stored, and gsub() in .archive_keep() stopped on them. .unzip_list() reads a name that is not valid UTF-8 as CP437, as zip_peek() reads a name without the UTF-8 flag, and .zip_extract_local() takes such a member out by its position, since utils::unzip() cannot find it under the new name (on Windows not under the stored one either). Used in .expand_zip(), .download_zip_to_cache(), .zip_extract_members() and .zip_list_local(). Ordinary members are unpacked as before.\n\nSame kind of text, read as Latin-1 when not valid UTF-8 (.utf8_lines()):\n- tar names: .tar_list_file() stopped on them; .expand_tar() undoes GNU tar's escapes (.tar_unescape()), unpacks by the listed name and renames the member to its readable name;\n- variable and value labels of Stata and SPSS files (.utf8_repair_df()), also in the codebook readers of data_check and codebook_check;\n- lines read from authors' files: scripts, codebooks, Stata logs, Mplus and HTML output, a FAIR repository's README, and the scripts and console output of reproducibility runs.\n\nChecked: data_check through the Zenodo link runs to the end; members taken out by position are byte-identical to Linux's utils::unzip(); a Latin-1 tar unpacks under Linux; an ordinary tar unpacks as before on Windows and Linux; the label extractor stops on unrepaired labels and runs on repaired ones.",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/e3574dc2e62b0896c12bb5fac4d68378d710ad9c",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "f92f70f",
+            "message": "Merge pull request #677 from scienceverse/fix_675_archives",
+            "body": "download_repo_files: OSF Storage and GitHub behind OSF as archives (#675) (0.4.4.17)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/f92f70ff6502c671cba5ee84159dc098974a8638",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "7b06105",
+            "message": "download_repo_files() downloads OSF Storage and GitHub repositories linked to an OSF project as archives where that is worth it (#675). Version 0.4.4.17",
+            "body": "A GitHub repository linked to an OSF project was fetched one file at a time, because its files' repo_url is the OSF project: 10,313 files for osf.io/9526a, more than two hours; now one archive per repository and branch, read from the files' addresses (.github_raw_parts()), about 5 minutes. Each OSF component's OSF Storage is fetched as one zip (files.osf.io/v1/resources/<component>/providers/osfstorage/?zip=).\n\nBoth follow the existing archive rule (size estimated from the listing, refused above twice max_download_size, download stopped past it, the rest fetched one by one), and are used only when more than 50 of the storage's files, or at least half, are wanted and the archive is at most twice the size of the wanted files (.storage_archive_skip(), .archive_worth_it()). repo_check records each OSF file's component (osf_node) and its storage's listed size and number of files (storage_size, storage_n, .osf_storage_totals()), since the checks pass download_repo_files() only the files they want. .run_download_want() counts a GitHub repository behind an OSF project as one archive.",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/7b06105ac538c301c4ae108bc235bf86c423ceec",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "8e4cb6f",
+            "message": "Merge pull request #676 from scienceverse/fix_672_673",
+            "body": "OSF file links found again (#672); retry cut-off model answers in data_check (#673) (0.4.4.16)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/8e4cb6f7adaf9a49a9d011f8a4019988b4eb5819",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "fbbc67a",
+            "message": "OSF links to a single file are found again (#672); data_check asks again for a batch whose model answer was cut off (#673). Version 0.4.4.16",
+            "body": "#672: since the contributors were asked for with each OSF item (#634), the OSF refused the request for a file (HTTP 400, \"not embeddable\") and every file link was reported as not found. osf_info() asks for such an item again without the contributors (.osf_embed_refused()). A refused request (HTTP 400) is reported as \"the OSF refused the request\" with the OSF's reason (.osf_error_detail()), no longer as \"not found\".\n\n#673: .llm_classify_batched() asks a batch whose answer was cut off at the length limit again with four times the limit (unless the caller set it), then asks what is still unanswered once in two halves, as .llm_assign_groups() does. At most 3 extra requests for a batch that keeps failing, none for one that is answered. The items still unanswered are named in data_check's report sentence on the model and counted in summary_table (llm_cols_unanswered, llm_files_unanswered; NA when the model was not used); one warning replaces llm()'s note for each failed request.",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/fbbc67a307ef7685bcb776fb716734c015f338ca",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "696a072",
+            "message": "Merge pull request #674 from scienceverse/fix_psyarxiv_rds_xlsx",
+            "body": "data_check: plain tables from .rds/.RData, no readxl crash on LIONESS .xlsx (0.4.4.15)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/696a072ddd57278d4f662253b1490982c8e76f55",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "069d5d7",
+            "message": "data_check reads .rds/.RData tables as plain data frames, and .xlsx files whose text cells hold no value without crashing R. Version 0.4.4.15",
+            "body": "Four PsyArXiv preprints got no result from data_check, codebook_check and reproducibility_check:\n- nm3wd_v1: loo's model comparison marks each column \"matrix\" although it is a row of numbers; unique() stopped (\"MARGIN = 1 is invalid for dim =\").\n- v2x3b_v4: a data.table date (\"IDate\") stored as decimal numbers stopped the report's preview (\"Corrupt <IDate>\").\n- c3skb_v4: marginaleffects tables carry their fitted brms model; writing the preview needed rstan, which the server does not have.\n- mqyu2_v3: readxl crashes R on .xlsx cells marked as text (t=\"s\") that hold no value, as LIONESS writes them.\n\n.plain_table() keeps a table's columns and row names only; a column keeps its class when it is a factor, a date or time, or haven's labelled values, other dates, times and factors become R's own, and any other column its plain values with its label. .head_keep_attrs() keeps all of a column's attributes, so SPSS's missing-value codes of an .rds tibble are kept. .xlsx_safe_path() reads such an .xlsx from a copy in which those cells are empty, at every place readxl is used. In 400 random .rds/.RData files from the corpus downloads, 389 read exactly as before, 9 changed only the table's class, 2 keep SPSS/Stata formats they lost before.",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/069d5d75b88e7c6871f5b96812a20ba38a2f49ae",
+            "type": "fix",
+            "branch": "dev"
+          },
+          {
+            "sha": "d490af4",
+            "message": "Merge pull request #671 from scienceverse/link_improvement",
+            "body": "Zip members at an address with a space (#667), a package in a subfolder (#505)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/d490af4b27d2dfd3f18409bd92d0b07ca5ed6e69",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "49f2a80",
+            "message": "Files inside a zip whose address has a space are downloaded too (#667): the address is encoded in .mc_request(), which nearly every request goes through, including the byte-range requests that fetch a zip's members, and in code_read() and .batch_query(). In metapsych.mp20234008 all 432 members of a GitHub zip still failed in 0.4.4.13. An address already encoded is left as it is. Version 0.4.4.14",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/49f2a80054f8dafb48317f1b0d63e0414f2c5fa5",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "33b9965",
+            "message": "repo_check keeps an R package in a subfolder when the repository holds no other data or code (#505): a package is left out as someone else's software only when real data or code is in the repository outside every package, wherever the package sits. Before, a package in a subfolder was always left out, so 10.1111/2041-210X.14387, whose own package sits in \"good 2/\", had no files. A README (also README.Rmd, which classifies as code) no longer counts as code in this decision.",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/33b9965d04d22d5659b53989d4398781271d33d8",
+            "type": "docs",
+            "branch": "dev"
+          },
+          {
+            "sha": "4725175",
+            "message": "Merge pull request #669 from scienceverse/fix_667_url_spaces",
+            "body": "Download files whose path holds a space, and show failed downloads in the report (#667)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/472517558aada8f29540a72609c10bce9268a8d4",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "4f81dbc",
+            "message": "Merge dev into fix_667_url_spaces: keep the NEWS entries of both. Version 0.4.4.13",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/4f81dbccfd60c13caccd850a29a8be5f8052f468",
+            "type": "docs",
+            "branch": "dev"
+          },
+          {
+            "sha": "0845b72",
+            "message": "Merge pull request #665 from scienceverse/economics_journals",
+            "body": "Recognise replication packages at ICPSR and openICPSR, with the AEA Data and Code Repository (economics journals)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/0845b72277c5877955a8b69ea30017bc23949c89",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "ed7dabb",
+            "message": "Merge pull request #670 from scienceverse/ci_fewer_platforms",
+            "body": "R CMD check: two systems for a pull request into dev, all seven before main",
+            "author": "Daniel Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/ed7dabbb03b1b02a88cd28a665bcc31ba68e8b27",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "49d2659",
+            "message": "Merge remote-tracking branch 'origin/dev' into economics_journals",
+            "body": "# Conflicts:\n#\tDESCRIPTION\n#\tNEWS.md",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/49d2659da26c5e19dd7145ae1eeb174585725995",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "e4b92ba",
+            "message": "R CMD check: a pull request into dev is checked on Linux and Windows with the released R only; all seven systems for a pull request into main, a weekly run, a run by hand and a push to cran_fixes or linux_docker_fixes. A push to dev is no longer checked again after its pull request was.",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/e4b92ba76c45b0550e9eb98d75ad928259c14515",
+            "type": "docs",
+            "branch": "ci_fewer_platforms"
+          },
+          {
+            "sha": "7c895ee",
+            "message": "Files in GitHub and GitLab repositories whose path holds a space are downloaded again, and files that could not be downloaded are shown in the report and counted (#667). Version 0.4.4.12",
+            "body": "- Since the GitHub tree listing came in (0.4.0, 2026-08-09; for OSF projects with a linked GitHub storage since 0.3.3.1), each file's address was built from its path without encoding it, and curl refused every address with a space. The GitHub and GitLab listings now encode each part of the path with utils::URLencode(reserved = TRUE); path and name stay as they are.\n- Addresses kept in the lasting listing cache from before are encoded with utils::URLencode() where a file is downloaded, its size asked, a README read or a zip peeked; a file on disk is left as it is.\n- data_check and code_check name the files that could not be downloaded in the report, with the reasons grouped, say how many in the summary, and count them in summary_table (files_failed, code_files_failed). Before, this was only a message during the run, which is why about 2,070 data and code files in 45 papers of the PsyArXiv, medRxiv and BES runs went missing unnoticed.",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/7c895eef5659237f127efe1b3b09a3a4aa74a8d5",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "c07fbc5",
+            "message": "Merge pull request #666 from scienceverse/osf_example_outage",
+            "body": "osf_api_check() example: warn, not stop, when the OSF is down",
+            "author": "Daniel Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/c07fbc5e54f6779829b9001e81666b5a92c3e2a7",
+            "type": "chore",
+            "branch": "ci_fewer_platforms"
+          },
+          {
+            "sha": "c7a95fc",
+            "message": "osf_api_check(): its example warns instead of stopping when the OSF is down, so an OSF outage no longer fails R CMD check (an Error 500 failed the checks of #664 and #665 on every platform on 2026-11-18). Version 0.4.4.11",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/c7a95fc103ac3eeea805362874b4de256a095bc2",
+            "type": "fix",
+            "branch": "ci_fewer_platforms"
+          },
+          {
+            "sha": "f69c0e5",
+            "message": "Merge branch 'more_services_660' into economics_journals",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/f69c0e5221ce5d9ac98651e0ddb75cff797e2248",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "18c6538",
+            "message": "cran_links() and handle_links(): name the repo_check module in words, not as a help link it does not have, and shorten an example line (R CMD check warned on all platforms)",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/18c6538f841cd82bdb8215dc5d54e9c4c0f83b1b",
+            "type": "docs",
+            "branch": "dev"
+          },
+          {
+            "sha": "7e17a34",
+            "message": "repo_check recognises replication packages at ICPSR and openICPSR, including the AEA Data and Code Repository (economics journals). Version 0.4.4.10",
+            "body": "- icpsr_links() finds openICPSR and ICPSR DOIs (10.3886/E195681V1, 10.3886/ICPSR04652), openICPSR project pages and ICPSR study pages, in the text and the reference list; icpsr_info() reads each record from DataCite.\n- Whose deposit: a study whose creators include no paper author is others' data, also when the sentence presents it (the open-data badge text for reused studies such as MIDUS); as ICPSR relates a study to every publication that used it, only a supplement relation counts as the record naming the paper. In 12 corpus links, the 6 reused studies were others' data and the 3 papers' own deposits their own.\n- The paper's own packages are listed, not checked: ICPSR's site answers automatic requests with a browser check (HTTP 403, also when logged in). summary_table gains icpsr_own_n.\n- The sequence archives' related works are joined with \" | \", as the other readers' are.",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/7e17a3432a23e94f170a41be639168b068ec4ecb",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "3cf0dc8",
+            "message": "repo_check supports more data and code sharing services (#660): file-sharing services get a warning; sequence and expression archives, CRAN packages and Handle links are found and classified, and the paper's own archive deposits and packages are listed. Version 0.4.4.9",
+            "body": "- File-sharing services (Google Drive, Dropbox, OneDrive, Box, WeTransfer, MEGA, iCloud Drive, Baidu Netdisk, SURFdrive): every link gets a warning to share data and code in a stable repository such as Zenodo, and a yellow light (file_share_links(); 48 of 18,708 papers).\n- GEO, the INSDC archives (BioProject, SRA, ENA, DDBJ) and ArrayExpress, mostly named by accession number (seq_archive_links(), seq_archive_info(), seq_archive_size()): whose deposit each is was right for 58 of 59 labelled mentions (29 of 29 on the half not used to write the rules); the submitting institute counts only for records without people. The paper's own deposits are listed with what they hold and not downloaded; code_check names them when files the code reads are missing.\n- CRAN packages (cran_links(), cran_info(), #478): the package's author list decides; 40 of 40 labelled links right. The paper's own packages are listed, not checked.\n- Handle links (handle_links(), #466): followed to the repository they lead to when it is one repo_check reads.\n- A paper whose deposits were all set aside keeps its counts in summary_table.",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/3cf0dc81ec5ba34cccc4164dcfe90b7c32f664cd",
+            "type": "feat",
+            "branch": "dev"
+          },
+          {
+            "sha": "75ee657",
+            "message": "Merge pull request #663 from scienceverse/dev",
+            "body": "Merge dev into main: 0.4.4.8 (#580, #648, #644)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/75ee65733bf139a4de8d0ca225fcd1d24e48456f",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "9733d90",
+            "message": "Merge pull request #661 from scienceverse/fix_648_batches",
+            "body": "Fixes from the hand check of five reports (#648), and deposits cited only in the reference list are checked (#644)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/9733d90b5505958b66e21b14d3c8313769ce888d",
+            "type": "chore",
+            "branch": "ci_fewer_platforms"
+          },
+          {
+            "sha": "1204b52",
+            "message": "data_check_pii_name(): write the month names' accented letters as \\u escapes, as R code must be ASCII (R CMD check warned on all platforms)",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/1204b5224f39af4097f935a8f28295c9b1055f4b",
+            "type": "chore",
+            "branch": "ci_fewer_platforms"
+          },
+          {
+            "sha": "74d8279",
+            "message": "repo_check checks a deposit the paper cites only in its reference list when it is the authors' own for this paper (#644): ownership own_this adds it to the repositories checked, so its files reach table and data_check, code_check and reproducibility_check; the report names it with the advice to link it in the data availability statement; summary_table gains ref_own. A DOI written in a reference and given as its link is one deposit (.own_key()): before, the lookup matched its record to one form only, and one record was both the paper's own deposit and a publication. Two Proc. R. Soc. B papers went from no repository to 2 (1,362 files) and 1 (45 files).",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-18",
+            "url": "https://github.com/scienceverse/metacheck/commit/74d82794f66c0e5a3ed8fef57904c838e33a8888",
+            "type": "chore",
+            "branch": "ci_fewer_platforms"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 30,
+        "pushed_at": "2026-11-18T22:21:29Z",
+        "recent_commits": [
+          {
+            "sha": "088a647",
+            "message": "Merge pull request #27 from shaheedazaad/fix/open-issues",
+            "body": "Fix Cubic follow-up issues from #11",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/088a64789974d8d2c8cae993b8b1269d7e53ae6f",
+            "type": "fix",
+            "branch": "main"
+          },
+          {
+            "sha": "f3045e6",
+            "message": "Address review: shared CSV limit lock, retry malformed OpenRouter bodies",
+            "body": "- One large_csv_fields() lock now guards both in-process CSV readers that\n  raise csv.field_size_limit (spreadsheet copies and disclosure summary)\n- A 2xx OpenRouter response with a malformed or non-object body is a\n  retryable request error, so the Cloudflare -> Mistral OCR switch the\n  FAQ describes also covers it\n- Gemini/OpenRouter import guard checks `import` and `from . import` forms\n- Frontier query docs apply the `Blocked by` fallback on both paths\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/f3045e6212d80451867e6174c2860f07d7c9c725",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "aa8457a",
+            "message": "Merge main into fix/open-issues",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/aa8457a34a3faed8a8c101ebecfa76c6057b6bb2",
+            "type": "fix",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "7939ef7",
+            "message": "Merge pull request #14 from shaheedazaad/openrouter-provider-routing",
+            "body": "Let OpenRouter runs choose a provider and control fallbacks",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/7939ef74c5fdaa20a57e541deadb206329cb542d",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "e5c4a2b",
+            "message": "Scope server-rendered row test to the articles table",
+            "body": "The Sources tab added on main also renders title=\"<pdf>\", so the\nlookup matched the source row first.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/e5c4a2b93dea82c5856df876dc5e20ced1480ccb",
+            "type": "test",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "e6af15a",
+            "message": "Merge branch 'fix/retry-behavior' into fix/open-issues",
+            "body": "# Conflicts:\n#\tauto_zcurve/static/app.js\n#\tauto_zcurve/templates/project.html\n#\ttests/test_needs_review.py",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/e6af15af1644fc512bc507f1881621a64e243b1c",
+            "type": "fix",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "2410ef2",
+            "message": "Merge branch 'fix/web-ui-live-updates' into fix/open-issues",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/2410ef298c2734892bfccea640203604d7c75337",
+            "type": "fix",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "e7f4b60",
+            "message": "Merge branch 'fix/llm-providers' into fix/open-issues",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/e7f4b600ad867da42509e0d20b68c11c86280bd7",
+            "type": "fix",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "cac4bcf",
+            "message": "Merge branch 'fix/spreadsheet-csv' into fix/open-issues",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/cac4bcf15bf093d6b9df83213b572f03540ec1c7",
+            "type": "fix",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "c1d8f25",
+            "message": "Merge branch 'fix/unicode-truncation' into fix/open-issues",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/c1d8f255691bea7e49d66bc3c138683f6d114aba",
+            "type": "fix",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "82677cb",
+            "message": "Merge branch 'fix/issue-tracker-frontier-docs' into fix/open-issues",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/82677cb4aa699077128a0c89a324339860cd2526",
+            "type": "fix",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "6307813",
+            "message": "Document OpenRouter parser fallback retry in the FAQ",
+            "body": "For OpenRouter models without native PDF input (cloudflare_pdf mode),\na failed first attempt is always retried once with the Mistral OCR\nparser, even for non-retryable errors such as HTTP 400 or 401. Note\nthis exception to the \"fail straight away\" statement.\n\nFixes #25\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/63078135d0c91f7b8a7be0db566f13ac3622956b",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "b9aa6d4",
+            "message": "Refresh project header counts during live updates",
+            "body": "The header's article, processed and needs-review counts were rendered only at\npage load, so they went stale while the article table refreshed during runs\nand after failed or cancelled runs. Wrap them in data hooks and update them in\nrenderArticles from the same live project data as the table.\n\nFixes #23\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/b9aa6d42a9c1afdd31157c05bd0949661d1fb3e5",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "980e1a6",
+            "message": "Repair invalid OpenRouter JSON and flag repaired extractions",
+            "body": "OpenRouter now parses responses with the shared parse_json_with_repair\nhelper. A repaired response is kept, marked needs_review with the\n\"JSON was repaired\" reason, and stored as raw and repaired responses.\nResponses that cannot be repaired, or whose repaired JSON fails\nvalidation, are retried as before.\n\nFixes #16\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/980e1a68db3dead2975ff29802e82bc9016667af",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "e285811",
+            "message": "Address review: no keychain read for provider list, clear stale options",
+            "body": "- Provider listing uses only a session key; the OpenRouter endpoints API\n  is public, so it never unlocks the OS credential store\n- Clear the previous model's providers while loading or on failure,\n  keeping the current choice as an explicitly unlisted option\n- Announce provider-list status changes to screen readers\n- Assert the omitted-fields save succeeds; document unlisted providers\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/e2858112012caf790269c2c58144627fec0afdc2",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "11e4d48",
+            "message": "Show parser warnings alongside needs-review reasons in article rows",
+            "body": "Needs-review rows returned early with only the review reasons, hiding any\nparser warning recorded for the same article. Render both messages (escaped)\nin app.js and in the server-rendered project template.\n\nFixes #18\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/11e4d48fbe02d8a6a1645bc73d9dfcd924120666",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "1f51636",
+            "message": "Show every retryable PDF in the TUI retry list",
+            "body": "failed_pdf_rows defaulted to limit=8, so the TUI's \"Failed and\nNeeds-Review Articles\" table silently dropped any further failed or\nneeds-review PDFs. The limit now defaults to None (every row), matching\nthe docstring, which is updated to describe the optional cap.\n\nFixes #20\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/1f5163678d57821bd220840440b5ed40e632fca8",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "672e2f6",
+            "message": "Merge main into openrouter-provider-routing",
+            "body": "",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/672e2f6857c02ae4858a819a43c6537ac7fa78ee",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "e7faa1e",
+            "message": "Merge pull request #13 from shaheedazaad/sources-pdf-list",
+            "body": "Show uploaded PDFs on the Sources tab and reorder project tabs",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/e7faa1e33fac17c99f0735217e998b1cf5f2669e",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "a3a3b19",
+            "message": "Keep needs-review data when its retry fails",
+            "body": "A failed retry of a needs_review PDF used to replace its record with an\nerror record holding no data or effects. The runner now keeps the\nexisting extraction (data, effects, response files) and notes the failed\nattempt as retry_error/retry_failed_at on the record. The attempt is\nstill logged with status \"error\" in the run log. The retry reason in the\nCLI/TUI and the web results table show \"last retry failed\". A retry\nthat returns a result still replaces the whole record.\n\nFixes #17\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a3a3b19cbaaae380a322f88ba53a632411109247",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "4ed50cb",
+            "message": "Merge pull request #12 from shaheedazaad/update-zcurve-2.5.0",
+            "body": "Update zcurve R package to 2.5.0",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/4ed50cb3eb8585ce431219a6d501177ac976f1b5",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "4266f6d",
+            "message": "Note that spreadsheet-safe CSV apostrophes may stay visible",
+            "body": "The escape apostrophe is written into the CSV, so Excel/LibreOffice may\nshow it on import. Stop promising the original text displays unchanged.\n\nFixes #26\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/4266f6dc830c2ecea6d7a013123e3d103cb71c03",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "ffb7d8f",
+            "message": "Convert spreadsheet-safe CSV downloads in a worker thread",
+            "body": "The download route read and converted the whole CSV synchronously on\nthe event loop, so a large download stalled other requests. Run the\nread + conversion via asyncio.to_thread, matching the results ZIP\nroute. Bytes, headers and the canonical CSV files are unchanged.\n\nBecause conversions can now overlap in threads, guard the temporary\nraise of the process-global csv.field_size_limit with a lock so one\nconversion cannot restore the default limit mid-parse of another.\n\nFixes #19\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/ffb7d8fd12606ed8712956695e81064976661aa4",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "0e987fa",
+            "message": "Keep zero-class Unicode marks with their base when truncating upload names",
+            "body": "_truncate_utf8 used unicodedata.combining(), which returns 0 for marks\nsuch as Devanagari and Thai vowel signs, so a truncated stem could end\nin a base letter whose marks were cut off. Treat every mark category\n(Mn, Mc, Me) as part of the preceding cluster instead.\n\nFixes #22\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/0e987fa2b8d18909ed65b64e1c289b70bf4aa3e3",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "da3c95c",
+            "message": "Share provider retry helpers through llm.py",
+            "body": "Move retryable_status, retry_delay and the shared attempt limit\n(MAX_PROVIDER_ATTEMPTS) out of openrouter.py into llm.py so Gemini no\nlonger imports OpenRouter's private internals. Retry timing, retryable\nstatuses, attempt limits, Retry-After handling and cancellation are\nunchanged.\n\nFixes #24\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/da3c95ccbbcdc54fe8a53c4e7e3a0cdd1c3b9300",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "9868fa4",
+            "message": "Escape line-feed-prefixed formulas in spreadsheet-safe CSVs",
+            "body": "Add LF to the formula-prefix set so a cell such as \"\\n=HYPERLINK(...)\"\n(including after leading spaces) gets the apostrophe escape. Signed\nnumbers are still left numeric.\n\nFixes #15\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/9868fa4dcdcf6af29299c7be3f5039bfbdaf5606",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "4495ab7",
+            "message": "Give the frontier query an executable REST recipe",
+            "body": "gh issue list does not return issue_dependencies_summary, so fetch\nREST issue objects (sub_issues endpoint, or per-issue for task lists)\nand filter blocked_by with --jq. Keep the Blocked by: fallback.\n\nFixes #21\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/4495ab798e7f89f6a17278f92bb9edbbd80fd09f",
+            "type": "chore",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "577a253",
+            "message": "Address review: block symlinked sources, keep upload order precise",
+            "body": "- Source PDF route resolves the path and refuses files whose real\n  location is outside the project's sources folder\n- added_at keeps microseconds so a batch of uploads sorts by upload\n  order instead of tying and falling back to filenames\n- Tests: symlink escape, newest-first fixtures that differ from name\n  order, and the Open link's target/rel attributes\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/577a2538a757d90d5a5ba4a8d184262e789e306e",
+            "type": "chore",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "62e3dd2",
+            "message": "Let OpenRouter runs choose a provider and control fallbacks",
+            "body": "- Run analysis gains \"Route to provider\" (populated from the model's\n  OpenRouter endpoints that support structured output) and \"Fallbacks\"\n  (allow / don't fall back), saved per project\n- Requests send provider.order and allow_fallbacks accordingly\n- New API route lists a model's structured-output endpoints\n- Document the options in docs/settings.md\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/62e3dd26d54ea1f9f3ff63e5c8d737d7fafd3fcc",
+            "type": "other",
+            "branch": "fix/open-issues"
+          },
+          {
+            "sha": "97fc98f",
+            "message": "Show uploaded PDFs on the Sources tab and reorder project tabs",
+            "body": "- Sources tab lists the project's PDFs (newest first, 10 per page) with\n  size, date added, and an Open link; fresh uploads are highlighted\n- Add a token-gated route that serves a source PDF inline\n- Move Run analysis above the results tab and rename Articles to\n  Extraction results\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-18",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/97fc98f5153ba87b5caa677d47efca0ca30f6ba8",
+            "type": "other",
+            "branch": "fix/open-issues"
+          }
+        ]
+      },
+      {
+        "owner": "MicheleNuijten",
+        "repo": "statcheck",
+        "url": "https://github.com/MicheleNuijten/statcheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 6,
+        "pushed_at": "2026-10-29T13:57:18Z",
+        "recent_commits": [
+          {
+            "sha": "1088bb1",
+            "message": "Merge pull request #121 from MicheleNuijten/update-manual",
+            "body": "Add the statcheck manual source (updated for 1.6.1)",
+            "author": "Mich\u00e8le Nuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/1088bb199331145c4eaa4cbdb14e79ba02bafa92",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "0251fa8",
+            "message": "don't sync rsconnect files (to publish manual)",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/0251fa8bf03f598fa5a89958eb050d7e573d0706",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "b67f521",
+            "message": "small fixes",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/b67f5214b899f6a4c2d21dd06b38ebd2bd04f786",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "7d4b667",
+            "message": "type setting",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/7d4b66754126292d77dc1fc1becdb3aef38cc7c5",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "7403951",
+            "message": "restructure some text",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/7403951adc699710248d80b48f3aa6fedf342b99",
+            "type": "refactor",
+            "branch": "master"
+          },
+          {
+            "sha": "03f602d",
+            "message": "update text and add additional screenshots and figs",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/03f602d1e61e76efb44e82e82a45fe4a13af2107",
+            "type": "feat",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "brandmaier",
+        "repo": "reproducibleRchunks",
+        "url": "https://github.com/brandmaier/reproducibleRchunks",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-10-22T11:46:24Z",
+        "recent_commits": [
+          {
+            "sha": "eabbdb8",
+            "message": "updated JSON files for vignettes",
+            "body": "",
+            "author": "brandmaier",
+            "date": "2026-10-22",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/eabbdb8b4a66c3b2386c824fe49b5c37b1b5f064",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "376f7e2",
+            "message": "updated docs/vignettes",
+            "body": "",
+            "author": "brandmaier",
+            "date": "2026-10-22",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/376f7e25612ec8b26a9b5c790cd0beaf4eede676",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "f494d4c",
+            "message": "vignettes",
+            "body": "",
+            "author": "brandmaier",
+            "date": "2026-10-22",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/f494d4cf88aea95c861814c6d795a452215d59e1",
+            "type": "docs",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-10-23T12:35:51Z",
+        "recent_commits": [
+          {
+            "sha": "16a3cea",
+            "message": "version bump",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-10-23",
+            "url": "https://github.com/quest-bih/oddpub/commit/16a3cea30aa4742fc6a6fb5321f58864ffb9dbae",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "eb4f800",
+            "message": "patch nature portfolio removal",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-10-23",
+            "url": "https://github.com/quest-bih/oddpub/commit/eb4f8006c823ae6bd3a17e26ef90b68a2a320a95",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "JamieCummins",
+        "repo": "regcheck",
+        "url": "https://github.com/JamieCummins/regcheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-11-09T10:56:19Z",
+        "recent_commits": [
+          {
+            "sha": "67798cc",
+            "message": "update model default",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-11-09",
+            "url": "https://github.com/JamieCummins/regcheck/commit/67798ccc293dae048a9ebc3771a0a49fbe76e46e",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-11-18T15:14:12.749912+00:00",
     "narrative": "",
     "repos": [
@@ -38778,522 +39564,6 @@
             "url": "https://github.com/cjvanlissa/worcs/commit/d883359de0250edf90f4f88c2384bdb23e2d1d9f",
             "type": "other",
             "branch": "master"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-10-20T16:29:59.035582+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "Davidvandijcke",
-        "repo": "coarse",
-        "url": "https://github.com/Davidvandijcke/coarse",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 18,
-        "pushed_at": "2026-10-05T19:23:40Z",
-        "recent_commits": [
-          {
-            "sha": "7af2cca",
-            "message": "fix: preserve native Unicode text and avoid unused credential loading (#309)",
-            "body": "",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/7af2cca465dffb31337fa50b9f95ce956d348a32",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "a15825c",
-            "message": "fix: preserve native Unicode text and avoid unused credential loading",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/a15825cc290a3b5fc1a6dce800b9959d6176ad51",
-            "type": "fix",
-            "branch": "codex/native-pilot-text"
-          },
-          {
-            "sha": "a81633d",
-            "message": "Clarify native pilot app handoff (#308)",
-            "body": "* fix(web): clarify native pilot app handoff copy\n\n* docs: clarify native pilot publication lifetime",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/a81633d58a403539cdc6b9064414dee9f9cb760c",
-            "type": "other",
-            "branch": "codex/native-pilot-text"
-          },
-          {
-            "sha": "e76c24c",
-            "message": "docs: clarify native pilot publication lifetime",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/e76c24cd52cf5d4be93c8a3f5c6cf6fa3a4714d8",
-            "type": "other",
-            "branch": "codex/native-pilot-copy"
-          },
-          {
-            "sha": "22c9e76",
-            "message": "fix(web): clarify native pilot app handoff copy",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/22c9e76ee2e9a5ba2a213dbb87a164b9a2ec9a56",
-            "type": "fix",
-            "branch": "codex/native-pilot-copy"
-          },
-          {
-            "sha": "1132cb4",
-            "message": "Add opt-in native app review pilot (#307)",
-            "body": "* feat: add opt-in native app review pilot\n\n* fix: preserve native author notes and checkpoint dependencies",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/1132cb49062633510e34ae3067fe9a3b3834b9cd",
-            "type": "feat",
-            "branch": "codex/native-pilot-copy"
-          },
-          {
-            "sha": "be810bb",
-            "message": "fix: preserve native author notes and checkpoint dependencies",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/be810bbfbd6898e179c3995c63fcbadde0087538",
-            "type": "fix",
-            "branch": "codex/native-review-pilot"
-          },
-          {
-            "sha": "91e17db",
-            "message": "feat: add opt-in native app review pilot",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/91e17dbecc2657478cb68aceee045a11326bc359",
-            "type": "feat",
-            "branch": "codex/native-review-pilot"
-          },
-          {
-            "sha": "2e813b2",
-            "message": "Merge pull request #306 from Davidvandijcke/dev",
-            "body": "Release v1.9.6: fix subscription handoff links",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/2e813b28b76ee0679aa48bb174f6de8700f692db",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "6aedb6f",
-            "message": "Fix Markdown-wrapped subscription review handoffs (#305)",
-            "body": "* fix: normalize Markdown-wrapped subscription handoff URLs\n\n* test: exercise all subscription handoff transports and shell arguments\n\n* release: prepare subscription handoff hotfix v1.9.6\n\n* docs: synchronize README with hotfix package version",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/6aedb6f55d3635df462dac8130cc4497726d8648",
-            "type": "fix",
-            "branch": "codex/native-pilot-copy"
-          },
-          {
-            "sha": "38e7e64",
-            "message": "docs: synchronize README with hotfix package version",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/38e7e640a737805869b29659c65ceb822eb1c407",
-            "type": "docs",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "72063e2",
-            "message": "release: prepare subscription handoff hotfix v1.9.6",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/72063e20b0c917bc8daeb1008506fd47c689a15d",
-            "type": "chore",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "1736525",
-            "message": "test: exercise all subscription handoff transports and shell arguments",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/1736525fc748154715cefa0d3ff05abf30ac1678",
-            "type": "test",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "f9e66a6",
-            "message": "fix: normalize Markdown-wrapped subscription handoff URLs",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/f9e66a631b57894d00549376f21ceac4310e4834",
-            "type": "fix",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "f02f00e",
-            "message": "Merge pull request #304 from Davidvandijcke/dev",
-            "body": "Release v1.9.5: current model defaults and subscription handoffs",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/f02f00e8208bc65a065409e845da4099be19e0a4",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "1a0cb67",
-            "message": "Refresh model defaults and Claude Code/Codex handoffs for October (#303)",
-            "body": "* Refresh October model defaults and subscription handoffs\n\n* Verify native handoffs and update urllib3 security floor",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/1a0cb67aedd3aede256802319339865dddcd1ec4",
-            "type": "other",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "bba0213",
-            "message": "Verify native handoffs and update urllib3 security floor",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/bba0213481ec6417e037063ec1776c39cfa7424e",
-            "type": "other",
-            "branch": "fix/october-model-refresh"
-          },
-          {
-            "sha": "23aac17",
-            "message": "Refresh October model defaults and subscription handoffs",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/23aac179ca8813678c38b02f66d810567bddbf5d",
-            "type": "other",
-            "branch": "fix/october-model-refresh"
-          }
-        ]
-      },
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 12,
-        "pushed_at": "2026-10-20T14:35:01Z",
-        "recent_commits": [
-          {
-            "sha": "3a3f7f9",
-            "message": "Teams notification survives quotes in the commit message (0.4.0.1)",
-            "body": "The workflow pasted the commit message into a single-quoted shell string,\nso an apostrophe (\"main's\") ended the string and the step failed, and the\nrest of the message was run as shell code. The message now reaches the\nshell as an environment variable and jq writes the JSON; curl --fail makes\na refused webhook show as a failed step.",
-            "author": "Lakens",
-            "date": "2026-10-20",
-            "url": "https://github.com/scienceverse/metacheck/commit/3a3f7f961347f2c64d6109debf914875489cb1ed",
-            "type": "other",
-            "branch": "fix/teams-notify"
-          },
-          {
-            "sha": "23566ed",
-            "message": "Merge pull request #516 from scienceverse/update-main",
-            "body": "Release 0.4.0, and record main's history so main can move to dev",
-            "author": "Daniel Lakens",
-            "date": "2026-10-20",
-            "url": "https://github.com/scienceverse/metacheck/commit/23566ed1bdbdc041d6fbfffeaae5f7dd4be62da2",
-            "type": "chore",
-            "branch": "dev"
-          },
-          {
-            "sha": "8697a34",
-            "message": "Record main's history in dev, keeping dev's files (before main moves to dev)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-20",
-            "url": "https://github.com/scienceverse/metacheck/commit/8697a34dd2574d85bcd65c0d94cda588bc481d9f",
-            "type": "other",
-            "branch": "dev"
-          },
-          {
-            "sha": "b338397",
-            "message": "Release 0.4.0; home page points to the Metacheck Manual",
-            "body": "- Version 0.4.0 (from 0.4.0.11), Date 2026-10-20; inst/CITATION names\n  version 0.4.0.\n- pkgdown/index.Rmd and index.md: the home page text from main's 2ea285e,\n  which points to the Metacheck Manual instead of the Get Started and\n  Articles pages that no longer exist.",
-            "author": "Lakens",
-            "date": "2026-10-20",
-            "url": "https://github.com/scienceverse/metacheck/commit/b338397ad75084db3a0f27830bc95f38befae5a4",
-            "type": "chore",
-            "branch": "dev"
-          },
-          {
-            "sha": "f3821bb",
-            "message": "Merge pull request #515 from scienceverse/report-checklist",
-            "body": "Checklist report; OSF token downloads fixed (#508); reproducibility_check runs local folders in a copy; code_read stops on HTTP errors (0.4.0.11)",
-            "author": "Daniel Lakens",
-            "date": "2026-10-20",
-            "url": "https://github.com/scienceverse/metacheck/commit/f3821bb7a2b90ddff0419a7653db7d08bf131d36",
-            "type": "chore",
-            "branch": "dev"
-          },
-          {
-            "sha": "b35e1b6",
-            "message": "code_read() stops on an HTTP error again instead of reading the error page as code (0.4.0.11)",
-            "body": "The new code_read() (#513) fetches a URL with curl::curl_fetch_memory(),\nwhich does not fail on an HTTP error, so a missing file's error page was\nread as its code: a github.com 404 gave 682 lines of HTML. readLines() used\nto stop there, and code_check recorded the file as not read. code_read()\nnow stops with \"cannot open URL '<url>': HTTP status was <n>\" for a status\nof 400 or above. The manifest test in test-module-code_check.R no longer\nexpects the warning readLines() used to give.",
-            "author": "Lakens",
-            "date": "2026-10-20",
-            "url": "https://github.com/scienceverse/metacheck/commit/b35e1b66f8e2b18d5acbdd5cab5b29254932c4f4",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "74c1d84",
-            "message": "Merge dev into report-checklist (0.4.0.11 after #514's 0.4.0.10)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-20",
-            "url": "https://github.com/scienceverse/metacheck/commit/74c1d8441c8f568361ea5307353f203ae0be7b75",
-            "type": "other",
-            "branch": "dev"
-          },
-          {
-            "sha": "5d7224f",
-            "message": "Merge pull request #514 from scienceverse/fix/module-find-order",
-            "body": "module_find() searches installed modules before the working directory (#512)",
-            "author": "Daniel Lakens",
-            "date": "2026-10-20",
-            "url": "https://github.com/scienceverse/metacheck/commit/5d7224f8751a67f2824b095e25376cdcef124a3f",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "8d6add5",
-            "message": "Merge dev into fix/module-find-order (0.4.0.10 after #513's 0.4.0.9)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-20",
-            "url": "https://github.com/scienceverse/metacheck/commit/8d6add5d17e0444eb837a85555fb2a1354b776aa",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "1cafee0",
-            "message": "Merge pull request #513 from scienceverse/fix/code-read-crash",
-            "body": "code_read() no longer crashes R on an undefined byte (#511)",
-            "author": "Daniel Lakens",
-            "date": "2026-10-20",
-            "url": "https://github.com/scienceverse/metacheck/commit/1cafee0c48d191e038fae04f3740353e0de5c1a0",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "27d8aed",
-            "message": "module_find() searches installed modules before the working directory (0.4.0.10)",
-            "body": "A file modules/<name>.R in the working directory replaced the installed\nmodule <name>, so a server running a check from inside an uploaded folder ran\nthe upload's code. Built-in modules, then installed ones, then the working\ndirectory and its modules/ folder. Fixes #512.",
-            "author": "Lakens",
-            "date": "2026-10-20",
-            "url": "https://github.com/scienceverse/metacheck/commit/27d8aed39c1a510e44d72775067cabdc8c3f4f32",
-            "type": "other",
-            "branch": "dev"
-          },
-          {
-            "sha": "2a71769",
-            "message": "code_read() no longer crashes R on an undefined byte (0.4.0.9)",
-            "body": "readr::read_lines() in the guessed encoding crashed R (vroom segfault while\nunwinding from \"Invalid multibyte sequence\") on a byte that encoding leaves\nundefined, such as 0x81 in windows-1252. code_read() now reads the bytes and\nconverts them with iconv(sub = \"byte\"), in the same guessed encoding. Fixes #511.",
-            "author": "Lakens",
-            "date": "2026-10-20",
-            "url": "https://github.com/scienceverse/metacheck/commit/2a71769bada2594ab70081fe60f904b4c1602559",
-            "type": "fix",
-            "branch": "dev"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "docpluck",
-        "url": "https://github.com/giladfeldman/docpluck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 8,
-        "pushed_at": "2026-10-13T16:43:09Z",
-        "recent_commits": [
-          {
-            "sha": "ca4e816",
-            "message": "docs(cleanup): document W0t, flattened CI level (CI_level) and the table-text-duplicate marker",
-            "body": "",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/ca4e8166dc3be03eb1c3c1afc1a925161dca2fb1",
-            "type": "refactor",
-            "branch": "main"
-          },
-          {
-            "sha": "46207c5",
-            "message": "fix(naming): the compound-hyphen rule is W0t; W0o already names the '<'-as-'b' recovery",
-            "body": "",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/46207c5e33565b156089b02b28743144e32cec72",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "5112521",
-            "message": "fix(tests,docs): v2.4.153 suite follow-ups - citation version, Well-Being heading, flatten helper passes level context",
-            "body": "Full suite on eccd3fa: 5 failed / 3796 passed. Two timing tests failed under machine load and pass\nalone (5.8 s). CITATION.cff and README cited 2.4.152. The ip_feldman heading test asserted the\ndehyphenated \"WellBeing\" that W0o now restores to the printed \"Well-Being\". The blank-header test\nhelper copies flatten_table's row loop but did not pass level_context, so its caption\n\"d or dz [95% CI]\" never reached _interval_level; production passes it (flatten.py:2040).",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/51125214e7df2a423d5f504637a8d5bb6553a3ed",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "ab8a3ef",
-            "message": "fix(diag): render_deletion_scan counts a table-text copy that yields to its grid separately",
-            "body": "QA 3c on v2.4.153 flagged 76 lines in 6 papers deleted by _suppress_orphan_table_cell_text; every\nnumber of them is in an emitted <table>. The \"survives near the same position\" rule cannot see a grid\nplaced elsewhere. A step output carrying a table-text-duplicate marker folds out its removed lines\nonly when their combined numbers (the scan's own tokenizer, with multiplicity) are all in the\n<table> blocks; they are printed as YIELDED TO GRID, never silently. A planted missing value and a\nduplicated value still fail the fold.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/ab8a3efbc9ab50ecfd92c1167b1fbf3de25942b6",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "eccd3fa",
-            "message": "release: v2.4.153 - W0o compound hyphens, table-text duplicate yields to its grid, flattened CI level is the table's own",
-            "body": "normalization 1.9.73, table extraction 2.4.23. Corpus (101 manifest PDFs): 313 hyphen restorations,\n64 duplicate markers in 30 papers with 0 numbers lost, 69 of 10,713 flattened rows change level.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/eccd3fa7d3f5e0f4eb08def104a9029a8c3f0345",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "22b2565",
-            "message": "fix(normalize): W0o leaves a glued span two compounds claim; test that ranges tokenize as ranges",
-            "body": "Tier-2 consult round 3 (Sonnet, 2026-10-13) on c55b34c: pooling sites per prefix let `re-sent`\nand `res-ent` both rewrite one glued `resent`, giving `re-sentres-ent` (reproduced). A span with\ntwo claims is ambiguous, so neither fires. Also pins that `2008\u20132013` and `2008-2013` tokenize as\n2008 and 2013 in the table-text duplicate coverage test.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/22b2565f6ac221242a3f38f567c2f502bfe39e26",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "c55b34c",
-            "message": "fix: W0o never hyphenates a word the page prints glued; table-text duplicate compares every label and symbol",
-            "body": "Tier-2 consult round 2 (Sonnet, 2026-10-13), each finding reproduced before the fix:\n- W0o: the \"printed glued\" test compared whole layout words, so a glued word inside a\n  space-less pdfplumber token was missed. 10.1016/j.jesp.2020.103977 p9 prints \"nonmoral\"\n  and 10.1109/access.2024.3358206 p14 prints \"multimodal\" (rasterized); both rendered\n  hyphenated. The test now searches every hyphen-free letter stretch (NFKC-folded) of every\n  layout word.\n- W0o: one line-end \"A-\" fragment licensed a site in every compound starting A (annals\n  human-: 13 sites, 6 fragments). Sites are now pooled per prefix against the fragments.\n- table-text duplicate: Greek letters, single-letter labels (p, F, d) and the symbols\n  * x ~ != + are compared too; grid tokens come only from grids that survive the later\n  phantom-table strip.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/c55b34c75859b7edc8d0ffebbaa1e597226c7ed0",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "378a2bd",
-            "message": "fix(render): table-text duplicate compares operators, needs specific values, reads ranges as ranges",
-            "body": "Tier-2 consult (Sonnet, 2026-10-13) on ad36764: coverage ignored < > = +- * daggers %, a run of small\nintegers could be covered by coincidence, and 12-15 tokenized as 12 and -15. Operators/markers are\nnow a multiset that must be covered, a run needs 3+ values with a decimal or 3+ digits, and a minus\nafter a word character or dot is a dash. Canary: ip_feldman Table 2 plain caption is italicized\nin the duplicate arm as in the deletion arm.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/378a2bdb3111da3ccfaed907990bc656534e6392",
-            "type": "fix",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "brandmaier",
-        "repo": "reproducibleRchunks",
-        "url": "https://github.com/brandmaier/reproducibleRchunks",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 3,
-        "pushed_at": "2026-10-20T13:24:42Z",
-        "recent_commits": [
-          {
-            "sha": "4ca2056",
-            "message": "added test for canonical representation",
-            "body": "",
-            "author": "brandmaier",
-            "date": "2026-10-20",
-            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/4ca2056446e2139342ae86706af26ae8363dba9d",
-            "type": "test",
-            "branch": "styling"
-          },
-          {
-            "sha": "5c2c33f",
-            "message": "updated version number",
-            "body": "",
-            "author": "brandmaier",
-            "date": "2026-10-20",
-            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/5c2c33fb8c03306bdeeb6ad5cf4ace32c72c97a4",
-            "type": "chore",
-            "branch": "styling"
-          },
-          {
-            "sha": "8009554",
-            "message": "some bugfixes",
-            "body": "",
-            "author": "brandmaier",
-            "date": "2026-10-19",
-            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/800955482eaaeb9c1be0950a182662814c130e87",
-            "type": "fix",
-            "branch": "styling"
-          }
-        ]
-      },
-      {
-        "owner": "MicheleNuijten",
-        "repo": "statcheck",
-        "url": "https://github.com/MicheleNuijten/statcheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-10-20T15:00:22Z",
-        "recent_commits": [
-          {
-            "sha": "7128d9a",
-            "message": "update logo to png as requested by cran and fix some warnings in readme",
-            "body": "",
-            "author": "MicheleNuijten",
-            "date": "2026-10-20",
-            "url": "https://github.com/MicheleNuijten/statcheck/commit/7128d9a651434861911b859cfc81ca93870f08a8",
-            "type": "fix",
-            "branch": "small-updates-release-1.6.0"
-          }
-        ]
-      },
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-10-12T18:28:04Z",
-        "recent_commits": [
-          {
-            "sha": "50c8017",
-            "message": "fix clinical trials versioning issue",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-10-12",
-            "url": "https://github.com/JamieCummins/regcheck/commit/50c80178e8baa3858760cf0d3d04786e23a8602b",
-            "type": "fix",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "escicheck",
-        "url": "https://github.com/giladfeldman/escicheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-10-08T12:30:35Z",
-        "recent_commits": [
-          {
-            "sha": "a12feaf",
-            "message": "sync from escicheckapp@7e5f5d8 (effectcheck v0.7.17) (#46)",
-            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 7e5f5d8364916e5c0fce80982efe976b7b60e906\nPackage version: 0.7.17\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-08",
-            "url": "https://github.com/giladfeldman/escicheck/commit/a12feafb5becbae29ce6d6360eb221becba51efa",
-            "type": "chore",
-            "branch": "main"
           }
         ]
       }
