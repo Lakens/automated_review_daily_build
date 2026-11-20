@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-20T15:06:07.591179+00:00",
+  "generated_at": "2026-11-20T23:53:19.020292+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -199,8 +199,8 @@
         }
       ],
       "commits_30d": 287,
-      "commits_7d": 95,
-      "commits_1d": 7,
+      "commits_7d": 94,
+      "commits_1d": 3,
       "commits_90d": 620,
       "authors_30d": [
         "Lakens",
@@ -701,38 +701,99 @@
         },
         {
           "week": 1790553600,
-          "total": 21
+          "total": 30
         },
         {
           "week": 1791158400,
-          "total": 36
+          "total": 27
         },
         {
           "week": 1791763200,
-          "total": 10
+          "total": 14
         },
         {
           "week": 1792368000,
-          "total": 192
+          "total": 188
         },
         {
           "week": 1792972800,
-          "total": 28
+          "total": 36
         },
         {
           "week": 1793577600,
-          "total": 63
+          "total": 65
         },
         {
           "week": 1794182400,
-          "total": 82
+          "total": 73
         },
         {
           "week": 1794787200,
-          "total": 95
+          "total": 94
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 2617,
+          "deletions": -169
+        },
+        {
+          "week": 1788652800,
+          "additions": 6377,
+          "deletions": -552
+        },
+        {
+          "week": 1789257600,
+          "additions": 1670,
+          "deletions": -310
+        },
+        {
+          "week": 1789862400,
+          "additions": 38399,
+          "deletions": -787
+        },
+        {
+          "week": 1790467200,
+          "additions": 39032,
+          "deletions": -38559
+        },
+        {
+          "week": 1791072000,
+          "additions": 8043,
+          "deletions": -969
+        },
+        {
+          "week": 1791676800,
+          "additions": 13772,
+          "deletions": -2322
+        },
+        {
+          "week": 1792281600,
+          "additions": 10909,
+          "deletions": -2164
+        },
+        {
+          "week": 1792886400,
+          "additions": 9667,
+          "deletions": -1377
+        },
+        {
+          "week": 1793491200,
+          "additions": 17704,
+          "deletions": -2547
+        },
+        {
+          "week": 1794096000,
+          "additions": 23408,
+          "deletions": -911
+        },
+        {
+          "week": 1794700800,
+          "additions": 11375,
+          "deletions": -1363
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.4.4.24",
@@ -1189,394 +1250,6 @@
           "date": "2026-11-18",
           "url": "https://github.com/scienceverse/metacheck/commit/8b1d22af0ef07d9ca389c5effb6e065c2d6b90c8",
           "type": "chore",
-          "branch": "checks_light_dev",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "50f3c0c",
-          "message": "Merge pull request #701 from scienceverse/fix_699_download_limits",
-          "body": "Download limits (first part of #699): no download path without a limit, ResearchBox held to the limits; unreachable sequence archives (0.4.4.28)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/50f3c0cecba8600b0546c5d398127227f7e3b52b",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {
-            "additions": 740,
-            "deletions": 117,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,6 +1,6 @@\n Package: metacheck\n Title: Check Research Outputs for Best Practices\n-Version: 0.4.4.27\n+Version: 0.4.4.28\n Date: 2026-11-06\n Authors@R: c(\n   person(  given = \"Lisa\","
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 12,
-                "deletions": 0,
-                "patch": "@@ -1,5 +1,17 @@\n # metacheck 0.4.4\n \n+* `seq_archive_info()` records a GEO, ENA or ArrayExpress deposit whose archive did not answer (no connection, a time-out, too many requests or a server error) as \"unreachable\". It was recorded as \"unfound\", and repo_check then reported the deposit as one that does not exist.\n+\n+* Downloads that went past the download limits (first part of #699):\n+  * code_check no longer reads from the web a code file that the download left out for its size, for the budget"
-              },
-              {
-                "filename": "R/archive-osf.R",
-                "status": "modified",
-                "additions": 7,
-                "deletions": 5,
-                "patch": "@@ -1076,9 +1076,11 @@ osf_delay <- function(delay = NULL) {\n #' function exists to retrieve a repository in full and someone archiving their\n #' own work wants their own files whatever size they are. Limits are available\n #' for when that is not what you want -- looking at somebody else's repository,\n-#' say. In the default `mode = \"files\"`, files over `max_file_size` are omitted\n-#' individually, while `max_download_size` is an all-or-nothing gate for the\n-#' remaining repository total. Omitte"
-              },
-              {
-                "filename": "R/archive-researchbox.R",
-                "status": "modified",
-                "additions": 194,
-                "deletions": 33,
-                "patch": "@@ -1001,13 +1001,25 @@ rbox_search <- function(q, type = c(\"data\", \"code\", \"paper\"), limit = 100,\n #'   table of contents (see [rbox_files()]) instead of asking ResearchBox\n #'   again. If `FALSE` (the default), the files are kept in a temporary folder\n #'   that R removes when the session ends; within the session they are reused.\n+#' @param max_file_size largest single file to download, in MB (default `Inf`,\n+#'   no limit). Applied only with an API key, which lists each file's size\n+#'   befo"
-              },
-              {
-                "filename": "R/archive-seq.R",
-                "status": "modified",
-                "additions": 38,
-                "deletions": 19,
-                "patch": "@@ -104,13 +104,30 @@ seq_archive_links <- function(paper, max_n = 25) {\n   out\n }\n \n-# A text answer from an archive (NULL when it fails)\n-.seq_get <- function(url) {\n+# A text answer from an archive: `text` (NULL when it fails) and\n+# `unreachable`, TRUE when the archive did not answer (no connection, a\n+# time-out, too many requests or a server error) rather than answering that\n+# it has no such record. A deposit whose archive did not answer was recorded\n+# as \"unfound\", which reads as a depo"
-              },
-              {
-                "filename": "R/code_check.R",
-                "status": "modified",
-                "additions": 45,
-                "deletions": 3,
-                "patch": "@@ -107,6 +107,47 @@ code_read <- function(file_path) {\n   return(file_lines)\n }\n \n+# A code file without a local copy, fetched from its web address into a\n+# temporary file that stops at `max_file_size` MB, so that code_check's read\n+# from the web stays within the download limits: it read the whole file into\n+# memory, also a file left out for its size (#699). Returns the temporary\n+# file's path, or `url` itself when it is not a web address; stops with the\n+# reason when the file cannot be fe"
-              },
-              {
-                "filename": "R/repo-download.R",
-                "status": "modified",
-                "additions": 66,
-                "deletions": 19,
-                "patch": "@@ -1022,12 +1022,22 @@ repo_cache_clear <- function(repo_url = NULL, quiet = FALSE) {\n # into place only when complete, as in .download_one(). Returns NA on success,\n # else the reason; a file over the limit returns \"over the byte limit\" with\n # attributes over_cap = TRUE and bytes (how many had arrived).\n+# `url` may also be a prepared httr2 request (with its own method, headers and\n+# body, such as ResearchBox's download from a box's web page), so that every\n+# download of unknown size goes t"
-              },
-              {
-                "filename": "R/tar-peek.R",
-                "status": "modified",
-                "additions": 13,
-                "deletions": 4,
-                "patch": "@@ -229,7 +229,8 @@\n # copy .tar_peek() downloaded this session; `archive_path` when an earlier run\n # left a readable copy there; or one new download of the whole archive to\n # `archive_path` (a temporary file when NULL), when its size is at most\n-# `max_whole_bytes`.\n+# `max_whole_bytes`. An archive of unknown size is downloaded only up to\n+# `max_whole_bytes`, and refused if it is larger.\n .tar_fetch_members <- function(url, names, dest, archive_path = NULL, size = NULL,\n                     "
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "178dfdd",
-          "message": "An archive downloaded whole to take files out of it is held to max_file_size as well, in download_repo_files() and in code_check's zip reading (#699): on the Meta-Psychology papers, an OSF zip of 20.5 MB reported as left out by a 20 MB limit was still downloaded whole.",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/178dfdd4b440254c30dbf5a23a32a059d12065b5",
-          "type": "other",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "463cd30",
-          "message": "Download limits, first part of #699: no download path without a limit; ResearchBox held to the limits; GEO, ENA and ArrayExpress records whose archive did not answer are \"unreachable\", not \"unfound\". Version 0.4.4.28",
-          "body": "- download_repo_files() names each file a limit left out, with the reason, in a new attribute \"limit_refused\". code_check does not read such a file from the web; any other code file read from the web is fetched through .download_capped() and stops at max_file_size. A code file inside an archive is no longer requested from the address \"NA\" with download = FALSE.\n- reproducibility_check passes max_file_size and max_download_size to the code_check it runs.\n- .tar_fetch_members() stops an archive of unknown size at what is left of the budget.\n- ResearchBox: repo_check (and data_check and code_check, which pass them on) and rbox_file_download() have max_file_size and max_download_size. With an API key the file list is asked first and only the smallest files up to the budget are downloaded; without a key the download stops at the budget and the box is reported as not downloaded. .download_capped() takes a prepared request.\n- The message about files over max_file_size rounds the largest size up to 0.1 MB.\n- seq_archive_info(): .seq_fetch() tells an archive that did not answer from one that has no such record.\n- Documentation corrected: a file of unknown size is downloaded up to a limit, not skipped; osf_file_download()'s default mode is \"all\", without limits; download_repo_files()'s budget counts only the files of one call.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/463cd306b87e895a088e9868530734b0a331d8ef",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "08c7171",
-          "message": "Merge pull request #697 from scienceverse/fix_695_541",
-          "body": "Five faults from the Meta-Psychology run (#695), the OSF part of #541, and one download budget per repository (#698) (0.4.4.27)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/08c717116990f34ba1b9cfab7ac2f37652e9c037",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "998d99e",
-          "message": "test-data-read: build the IDate test table without tibble(), which with vctrs 0.7 refuses an IDate stored as decimal numbers",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/998d99e249d6e07b2feae872e1744aa80388a249",
-          "type": "test",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "be1678d",
-          "message": "download_repo_files() keeps to one max_download_size budget per repository, shared by archive members and files with their own address, counting the cache first (#698)",
-          "body": "- Archive members are chosen per repository, smallest first across all its archives, after counting the repository's cached files with their own address, members saved by an earlier run or cached at their ordinary path, and whole archive copies kept on disk. Each archive had its own budget from zero: 30,237 MB in one call under a 2,000 MB budget for 10.1111/1365-2435.12871.\n- The loop for files with their own address starts from that total.\n- A whole archive is downloaded and kept only when it fits in what is left of the budget.\n- One message per repository instead of one per archive.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/be1678d5e8a672ae4a8efe1737224fefccce0ec2",
-          "type": "other",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "e696c85",
-          "message": "Five faults from the Meta-Psychology run (#695) and the OSF part of #541: PsychArchives DOIs are looked up and listed; ref_replication no longer suggests the citing paper itself; stat_check reads a test as one-sided when its sentence says so; extract_p_values() reads \"p one-sided =\" and \"p (two-tailed) =\"; files read from web addresses are not reported as missing; the stand-in for a failed reproducibility_check run is named; osf_type() returns \"unreachable\" for a failed request, and prereg_check and the OSF app say the link could not be checked. Version 0.4.4.27",
-          "body": "- dspace_links() and psycharchives_links(): DOIs with the prefix 10.23668 are replaced by the address they are registered with (.repo_doi_url()), kept when it is on a legacy-DSpace host (.dspace_legacy_doi_links()).\n- ref_replication: rows whose replication DOI is the paper's own DOI are left out. Replications published after the paper are not, as no year is recorded.\n- stat_check: stats(paper, OneTailedTxt = TRUE).\n- .p_sides, shared by extract_p_values(), extract_eq() and .p_not_test().\n- .code_missing_files() and .repro_ref_checkable() skip names with \"://\".\n- reproducibility_check: the stand-in result gets module = \"reproducibility_check\".\n- osf_type(): \"unreachable\" for osf_error \"request_failed\"; prereg_check lists those links apart, also for a registration whose details fail to load; the OSF app stops with \"The OSF did not answer\".\n- Tests for each change.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/e696c8507ea45b2648cccadf4f4fd1132786947d",
-          "type": "test",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "d865ecb",
-          "message": "Merge pull request #692 from scienceverse/fix_679_osf_storage_totals",
-          "body": "OSF storage archives: totals from whole listings only, time per file, add-on storages kept apart (#679)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/d865ecbebda623b91d5035d2138c0ae37f5f3c86",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "3b4255e",
-          "message": "OSF storage totals come only from listings of whole storages, so a link to single files no longer fetches the project's whole storage as a zip; a storage's zip gets time for its size and number of files; files of an OSF add-on storage (GitHub) are kept apart from OSF Storage files under the same path (#679). Version 0.4.4.25",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/3b4255e62d57962a8be759612129c2e30d1ae1cf",
-          "type": "feat",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "7b8c711",
-          "message": "Merge pull request #691 from scienceverse/dev",
-          "body": "Merge dev into main: 0.4.4.24 (#404, #505, #660, #664, #665, #667, #672, #673, #675, #680, #681, #682, #685)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/7b8c71153e587a04ef3c6d31092ca118f3e1ea2e",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "af00acc",
-          "message": "Merge pull request #689 from scienceverse/fix_685_key_remove",
-          "body": "Key removal in time in step with the size of a result (#685)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/af00acc16b095d4647b403e1ca4a43c15ec83702",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "e153c74",
-          "message": "Merge pull request #690 from scienceverse/checks_light_dev",
-          "body": "Pull requests into dev: one light Linux check",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/e153c742a169146b366ddc9b58697389d5edc956",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "1d5fad6",
-          "message": "R CMD check: a pull request into dev is checked once, on Linux with the released R, without CRAN's settings and failing on errors only; all seven systems with CRAN's settings for main, the weekly run and a run by hand",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/1d5fad696337ab039f1a6eb68a7d581ab22df765",
-          "type": "fix",
-          "branch": "checks_light_dev",
-          "diff": {}
-        },
-        {
-          "sha": "585d8cc",
-          "message": "Merge pull request #686 from scienceverse/fix_680_unzip_all",
-          "body": "Unpack CP437 zip members everywhere, and name members that cannot be unpacked (#680)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/585d8ccff43e61c76e3cdcad86b31b3df12b5ce9",
-          "type": "chore",
-          "branch": "checks_light_dev",
-          "diff": {}
-        },
-        {
-          "sha": "a11efe1",
-          "message": "Removing keys from a module's result takes time in step with its size, not in the square of the number of texts: 95 minutes for one reproducibility_check result (#685). Version 0.4.4.24",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/a11efe18357cf79fa77c4ef7b66df00b2dcc4a14",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "4351276",
-          "message": "Merge pull request #688 from scienceverse/fix_682_name_particles",
-          "body": "Ownership: compare family names as whole words, and get the full OSF contributor list (#682)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/4351276ba7946fe457a2bd8ccdf85b0571b3318a",
-          "type": "chore",
-          "branch": "checks_light_dev",
-          "diff": {}
-        },
-        {
-          "sha": "3372ee7",
-          "message": "Merge pull request #684 from scienceverse/tro_provenance",
-          "body": "reproducibility_check keeps what a TRO declaration needs (#404), version 0.4.4.20",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/3372ee73f7a89a66bf909fd8538ca8a7628003cb",
-          "type": "chore",
-          "branch": "checks_light_dev",
-          "diff": {}
-        },
-        {
-          "sha": "431dfc3",
-          "message": "Merge pull request #683 from scienceverse/fix_report_file_tabs",
-          "body": "Reports give at most 20 files their own table, so large deposits no longer stop the server's jobs (0.4.4.19)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/431dfc3eb5feea3d230a22ae286d5560d095c7f7",
-          "type": "chore",
-          "branch": "checks_light_dev",
-          "diff": {}
-        },
-        {
-          "sha": "d3b7d7d",
-          "message": "Merge remote-tracking branch 'origin/fix_681_osf_incomplete' into fix_680_unzip_all",
-          "body": "# Conflicts:\n#\tDESCRIPTION\n#\tNEWS.md\n#\tinst/modules/data_check.R",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/d3b7d7d24f2a154b8a1251bfdcb30ae601fb9759",
-          "type": "other",
-          "branch": "checks_light_dev",
-          "diff": {}
-        },
-        {
-          "sha": "dbf54d3",
-          "message": "Merge remote-tracking branch 'origin/fix_682_name_particles' into fix_681_osf_incomplete",
-          "body": "# Conflicts:\n#\tDESCRIPTION\n#\tNEWS.md",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/dbf54d32d119740db393925a7f4341e7f5e9e10d",
-          "type": "other",
-          "branch": "checks_light_dev",
-          "diff": {}
-        },
-        {
-          "sha": "7a926c0",
-          "message": "Merge remote-tracking branch 'origin/tro_provenance' into fix_682_name_particles",
-          "body": "# Conflicts:\n#\tDESCRIPTION\n#\tNEWS.md",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/7a926c07f815d53f7825d4b1994ca63471206298",
-          "type": "other",
-          "branch": "checks_light_dev",
-          "diff": {}
-        },
-        {
-          "sha": "8445a2d",
-          "message": "Merge remote-tracking branch 'origin/fix_report_file_tabs' into tro_provenance",
-          "body": "# Conflicts:\n#\tDESCRIPTION\n#\tNEWS.md",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/8445a2d54c0986e4c3a41dc59e5e19897df7ee8a",
-          "type": "other",
-          "branch": "checks_light_dev",
-          "diff": {}
-        },
-        {
-          "sha": "bdfb40f",
-          "message": "bit64 is listed under Suggests, as data_check uses it when it is installed",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/bdfb40f01c676d7f086867902775cdbf365a3525",
-          "type": "other",
-          "branch": "checks_light_dev",
-          "diff": {}
-        },
-        {
-          "sha": "fd1f222",
-          "message": "repo_check compares a paper author's family name only with each contributor's family name, as a whole word, and gets the full list of an OSF project's contributors when the OSF names only the first 10 (#682). Version 0.4.4.21",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/fd1f222daa24515cb4f334f640ea4d2616e46db0",
-          "type": "chore",
-          "branch": "checks_light_dev",
-          "diff": {}
-        },
-        {
-          "sha": "34f3f4d",
-          "message": "A listing the OSF refused in part is asked for again and reported; code_check and data_check name the repositories not listed in full and are then at least yellow (#681). Version 0.4.4.22",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/34f3f4d448d4472bc7c20ecaf357e32b824c51a3",
-          "type": "chore",
-          "branch": "checks_light_dev",
-          "diff": {}
-        },
-        {
-          "sha": "9f463a2",
-          "message": "Every place that unpacks a whole downloaded zip unpacks members with names in the old DOS characters (CP437) and names the members it cannot unpack, also in data_check's report; a password-protected member is no longer written as scrambled bytes and read as data (#680). Version 0.4.4.23",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/9f463a277cc9caa81a7ba7426e33710bfae17b2f",
-          "type": "chore",
-          "branch": "checks_light_dev",
-          "diff": {}
-        },
-        {
-          "sha": "bb2bae9",
-          "message": "repo_check() and .github_raw_parts() no longer stop with \"differing number of rows: 0, 1\" when there are no files or no addresses (from #675)",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-19",
-          "url": "https://github.com/scienceverse/metacheck/commit/bb2bae9be71de8429ede3c84dcee0d257966a282",
-          "type": "other",
           "branch": "checks_light_dev",
           "diff": {}
         }
@@ -2204,7 +1877,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 243,
+          "deletions": -226
+        },
+        {
+          "week": 1792886400,
+          "additions": 2003,
+          "deletions": -886
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794700800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.6.1.9000",
@@ -2629,114 +2363,6 @@
           "branch": "master",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "1088bb1",
-          "message": "Merge pull request #121 from MicheleNuijten/update-manual",
-          "body": "Add the statcheck manual source (updated for 1.6.1)",
-          "author": "Mich\u00e8le Nuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/1088bb199331145c4eaa4cbdb14e79ba02bafa92",
-          "type": "other",
-          "branch": "master",
-          "diff": {
-            "additions": 643,
-            "deletions": 452,
-            "files": [
-              {
-                "filename": "vignettes/articles/.gitignore",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -1,2 +1,3 @@\n *.html\n *.R\n+rsconnect/\n\\ No newline at end of file"
-              },
-              {
-                "filename": "vignettes/articles/figures/html-report.png",
-                "status": "added",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "vignettes/articles/figures/infograph.png",
-                "status": "added",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "vignettes/articles/manual.Rmd",
-                "status": "modified",
-                "additions": 642,
-                "deletions": 452,
-                "patch": "@@ -7,6 +7,9 @@ output:\n     toc: true\n     toc_float: true\n     number_sections: true\n+editor_options: \n+  markdown: \n+    wrap: 72\n ---\n \n ```{r, include = FALSE}\n@@ -24,154 +27,224 @@ library(statcheck)\n knitr::include_graphics(\"../../man/figures/statcheck-logo.png\")\n ```\n \n-# What's new in 1.6.1\n-\n-statcheck now reads PDF files with the R package pdftools. You no longer need\n-to install the external program Xpdf. Furthermore, `statcheckReport()` has\n-been rewritten and its argument `outputFi"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "0251fa8",
-          "message": "don't sync rsconnect files (to publish manual)",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/0251fa8bf03f598fa5a89958eb050d7e573d0706",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "b67f521",
-          "message": "small fixes",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/b67f5214b899f6a4c2d21dd06b38ebd2bd04f786",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "7d4b667",
-          "message": "type setting",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/7d4b66754126292d77dc1fc1becdb3aef38cc7c5",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "7403951",
-          "message": "restructure some text",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/7403951adc699710248d80b48f3aa6fedf342b99",
-          "type": "refactor",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "03f602d",
-          "message": "update text and add additional screenshots and figs",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/03f602d1e61e76efb44e82e82a45fe4a13af2107",
-          "type": "feat",
-          "branch": "master",
-          "diff": {}
-        }
       ]
     },
     {
@@ -2764,7 +2390,7 @@
       ],
       "pushed_at": "2026-10-15T15:25:58Z",
       "created_at": "2020-04-19",
-      "last_push_days": 35,
+      "last_push_days": 36,
       "default_branch": "master",
       "license": "NOASSERTION",
       "branches": [
@@ -3414,7 +3040,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 12,
+          "deletions": -10
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 42,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 1037,
+          "deletions": -606
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794700800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.4.1",
@@ -3475,7 +3162,7 @@
       "topics": [],
       "pushed_at": "2026-11-15T16:32:11Z",
       "created_at": "2021-11-21",
-      "last_push_days": 4,
+      "last_push_days": 5,
       "default_branch": "main",
       "license": "NOASSERTION",
       "branches": [
@@ -3517,7 +3204,7 @@
         {
           "name": "main",
           "last_commit": "2026-11-11",
-          "commits_30d": 641
+          "commits_30d": 633
         },
         {
           "name": "polishing",
@@ -3525,21 +3212,21 @@
           "commits_30d": 3
         }
       ],
-      "commits_30d": 646,
+      "commits_30d": 638,
       "commits_7d": 2,
       "commits_1d": 0,
       "commits_90d": 834,
       "authors_30d": [
-        "lhdjung",
         "Lukas Jung",
+        "lhdjung",
         "github-actions[bot]"
       ],
       "type_breakdown": {
-        "other": 419,
+        "other": 414,
         "chore": 37,
-        "test": 32,
+        "test": 31,
         "docs": 50,
-        "fix": 68,
+        "fix": 66,
         "feat": 29,
         "refactor": 11
       },
@@ -3925,7 +3612,7 @@
       "commit_activity": [
         {
           "week": 1788134400,
-          "total": 10
+          "total": 2
         },
         {
           "week": 1788739200,
@@ -3937,11 +3624,11 @@
         },
         {
           "week": 1789948800,
-          "total": 3
+          "total": 8
         },
         {
           "week": 1790553600,
-          "total": 70
+          "total": 65
         },
         {
           "week": 1791158400,
@@ -3949,11 +3636,11 @@
         },
         {
           "week": 1791763200,
-          "total": 44
+          "total": 53
         },
         {
           "week": 1792368000,
-          "total": 88
+          "total": 79
         },
         {
           "week": 1792972800,
@@ -3961,18 +3648,79 @@
         },
         {
           "week": 1793577600,
-          "total": 229
+          "total": 292
         },
         {
           "week": 1794182400,
-          "total": 244
+          "total": 181
         },
         {
           "week": 1794787200,
           "total": 2
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 1059,
+          "deletions": -1918
+        },
+        {
+          "week": 1788652800,
+          "additions": 645,
+          "deletions": -478
+        },
+        {
+          "week": 1789257600,
+          "additions": 1034,
+          "deletions": -77
+        },
+        {
+          "week": 1789862400,
+          "additions": 1417,
+          "deletions": -974
+        },
+        {
+          "week": 1790467200,
+          "additions": 5731,
+          "deletions": -4056
+        },
+        {
+          "week": 1791072000,
+          "additions": 5253,
+          "deletions": -8311
+        },
+        {
+          "week": 1791676800,
+          "additions": 4753,
+          "deletions": -3900
+        },
+        {
+          "week": 1792281600,
+          "additions": 5897,
+          "deletions": -3185
+        },
+        {
+          "week": 1792886400,
+          "additions": 9996,
+          "deletions": -12827
+        },
+        {
+          "week": 1793491200,
+          "additions": 22141,
+          "deletions": -9735
+        },
+        {
+          "week": 1794096000,
+          "additions": 5400,
+          "deletions": -2685
+        },
+        {
+          "week": 1794700800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.0.0",
@@ -4432,6 +4180,82 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "6cc90a5",
+          "message": "Use larger logo, update favicons, and supply full-size logo",
+          "body": "",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-11-15",
+          "url": "https://github.com/lhdjung/scrutiny/commit/6cc90a561c2ba6e216aaf960069a3aa9b93effcf",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {
+            "additions": 2,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": ".Rbuildignore",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 0,
+                "patch": "@@ -38,3 +38,4 @@ R\\.Rproj$\n ^jarl\\.toml$\n ^tests/testthat/_problems$\n ^tests/testthat/testthat-problems\\.rds$\n+^man/figures/logo-full-size\\.png$"
+              },
+              {
+                "filename": "man/figures/logo-full-size.png",
+                "status": "added",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "man/figures/logo.png",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "pkgdown/favicon/apple-touch-icon.png",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "pkgdown/favicon/favicon-96x96.png",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "pkgdown/favicon/favicon.ico",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "pkgdown/favicon/favicon.svg",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": ""
+              },
+              {
+                "filename": "pkgdown/favicon/web-app-manifest-192x192.png",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              }
+            ]
+          },
+          "diff_summary": ""
+        }
       ]
     },
     {
@@ -4715,7 +4539,7 @@
       "commit_activity": [
         {
           "week": 1788134400,
-          "total": 2
+          "total": 1
         },
         {
           "week": 1788739200,
@@ -4762,7 +4586,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 45,
+          "deletions": -3
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794700800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "7.4.1",
@@ -4794,45 +4679,6 @@
       "readme_excerpt": "ODDPub is a text mining algorithm that parses a set of publications and detects\nwhich publications disseminated Open Data or Open Code together with the\npublication. It is tailored towards biomedical literature.\n\n\nNico Riedel, Vladislav Nachev (vladislav.nachev@charite.de), Miriam Kip, Evgeny Bobrov (evgeny.bobrov@bih-charite.de) - QUEST Center for Transforming Biomedical Research, Berlin Institute of Health\n\n\nMore information on the development and validation of the algorithm can be found in the publication https://doi.org/10.5334/dsj-2020-042. The related training and validation datasets can",
       "scopus_citations": null,
       "recent_commits": [
-        {
-          "sha": "16a3cea",
-          "message": "version bump",
-          "body": "",
-          "author": "ontogenerator",
-          "author_login": "",
-          "date": "2026-10-23",
-          "url": "https://github.com/quest-bih/oddpub/commit/16a3cea30aa4742fc6a6fb5321f58864ffb9dbae",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 1,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,7 +1,7 @@\n Package: oddpub\n Type: Package\n Title: Detection of Open Data & Open Code statements in biomedical publications\n-Version: 7.4.0\n+Version: 7.4.1\n Authors@R: \n     c(person(\"Nico\", \"Riedel\",\n     role = \"aut\"),"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "eb4f800",
-          "message": "patch nature portfolio removal",
-          "body": "",
-          "author": "ontogenerator",
-          "author_login": "",
-          "date": "2026-10-23",
-          "url": "https://github.com/quest-bih/oddpub/commit/eb4f8006c823ae6bd3a17e26ef90b68a2a320a95",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
         {
           "sha": "16a3cea",
           "message": "version bump",
@@ -5487,7 +5333,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 39,
+          "deletions": -79
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794700800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.1.21.2",
@@ -5553,7 +5460,7 @@
       ],
       "pushed_at": "2026-11-19T21:05:04Z",
       "created_at": "2026-04-06",
-      "last_push_days": 0,
+      "last_push_days": 1,
       "default_branch": "main",
       "license": "MIT",
       "branches": [
@@ -5570,8 +5477,8 @@
         }
       ],
       "commits_30d": 100,
-      "commits_7d": 20,
-      "commits_1d": 1,
+      "commits_7d": 17,
+      "commits_1d": 0,
       "commits_90d": 326,
       "authors_30d": [
         "Gilad Feldman"
@@ -5644,7 +5551,7 @@
       "commit_activity": [
         {
           "week": 1788134400,
-          "total": 14
+          "total": 13
         },
         {
           "week": 1788739200,
@@ -5656,11 +5563,11 @@
         },
         {
           "week": 1789948800,
-          "total": 71
+          "total": 78
         },
         {
           "week": 1790553600,
-          "total": 59
+          "total": 52
         },
         {
           "week": 1791158400,
@@ -5672,11 +5579,11 @@
         },
         {
           "week": 1792368000,
-          "total": 0
+          "total": 1
         },
         {
           "week": 1792972800,
-          "total": 67
+          "total": 66
         },
         {
           "week": 1793577600,
@@ -5684,14 +5591,75 @@
         },
         {
           "week": 1794182400,
-          "total": 3
+          "total": 6
         },
         {
           "week": 1794787200,
-          "total": 20
+          "total": 17
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 10042,
+          "deletions": -350
+        },
+        {
+          "week": 1788652800,
+          "additions": 2969,
+          "deletions": -178
+        },
+        {
+          "week": 1789257600,
+          "additions": 5538,
+          "deletions": -2377
+        },
+        {
+          "week": 1789862400,
+          "additions": 20499,
+          "deletions": -4049
+        },
+        {
+          "week": 1790467200,
+          "additions": 6810,
+          "deletions": -4322
+        },
+        {
+          "week": 1791072000,
+          "additions": 2455,
+          "deletions": -185
+        },
+        {
+          "week": 1791676800,
+          "additions": 2780,
+          "deletions": -162
+        },
+        {
+          "week": 1792281600,
+          "additions": 3269,
+          "deletions": -125
+        },
+        {
+          "week": 1792886400,
+          "additions": 13887,
+          "deletions": -599
+        },
+        {
+          "week": 1793491200,
+          "additions": 417,
+          "deletions": -34
+        },
+        {
+          "week": 1794096000,
+          "additions": 3616,
+          "deletions": -393
+        },
+        {
+          "week": 1794700800,
+          "additions": 3481,
+          "deletions": -258
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "**Text, section, table and statistic extraction from academic papers (PDF, DOCX, HTML), built\nfor meta-science.**\n\ndocpluck turns a research article into text you can run statistical checks on. It extracts the\ntext layer, repairs the damage extraction itself causes (lost minus signs, split ligatures,\ninterleaved columns, Greek letters decoded as Latin), identifies the paper's sections, pulls\ntables out as cell grids, flattens table rows into records a statistics checker can read, and\nrenders the whole paper as Markdown. Every output carries a record of what the library had to\nguess or refused ",
@@ -6077,6 +6045,76 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "5c84499",
+          "message": "fix: publish_pypi.py completes a half-published release, checks the tag, survives a network error while confirming",
+          "body": "",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-11-19",
+          "url": "https://github.com/giladfeldman/docpluck/commit/5c844996e9a88e16bb736b8c30a274776fba8fca",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 144,
+            "deletions": 12,
+            "files": [
+              {
+                "filename": "scripts/publish_pypi.py",
+                "status": "modified",
+                "additions": 43,
+                "deletions": 10,
+                "patch": "@@ -14,7 +14,8 @@\n 2. Exports the TAG (git archive), not the working folder, into a temporary\n    directory, so uncommitted edits can never reach PyPI.\n 3. Checks that the version inside the tag equals the tag name.\n-4. Refuses if PyPI already has that version (PyPI never accepts a re-upload).\n+4. Stops if PyPI already has both the sdist and the wheel for that version. If an\n+   earlier upload left only one of them, uploads the missing file (--skip-existing).\n 5. Builds the sdist and wheel, runs"
+              },
+              {
+                "filename": "tests/test_publish_pypi_script.py",
+                "status": "modified",
+                "additions": 101,
+                "deletions": 2,
+                "patch": "@@ -37,15 +37,114 @@ def test_token_is_read(tmp_path, body):\n     assert pp.read_token(f) == \"pypi-abc123\"\n \n \n-@pytest.mark.parametrize(\"body\", [\"\", \"OTHER=1\\n\", \"PYPI_TOKEN=notatoken\\n\"])\n+@pytest.mark.parametrize(\"body\", [\"\", \"OTHER=1\\n\", \"PYPI_TOKEN=notatoken-s3cr3t\\n\"])\n def test_missing_or_malformed_token_stops(tmp_path, body):\n     f = tmp_path / \".env.local\"\n     f.write_text(body, encoding=\"utf-8\")\n     with pytest.raises(SystemExit) as e:\n         pp.read_token(f)\n-    assert \"pypi-abc"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "8aa5413",
+          "message": "feat: publish_pypi.py also reads the token from .env when .env.local is absent",
+          "body": "no-debt: owner request 2026-11-19.",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-11-19",
+          "url": "https://github.com/giladfeldman/docpluck/commit/8aa5413f099498338201f7be4763a767d8be791c",
+          "type": "feat",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "88a7040",
+          "message": "feat: scripts/publish_pypi.py publishes a tag to PyPI with the token from a gitignored .env.local",
+          "body": "Builds from git archive of the tag (never the working folder), checks the\nversion matches the tag, refuses a version PyPI already has, runs twine check,\nuploads, and reads PyPI back. Refuses to run if .env.local is not ignored;\n.gitignore now ignores .env, .env.local and .env.*.local. The token is never printed.\n\nno-debt: owner request 2026-11-19.",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-11-19",
+          "url": "https://github.com/giladfeldman/docpluck/commit/88a7040b9857e5e5c677240e34efe138aa700963",
+          "type": "feat",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "c37df9f",
+          "message": "docs: CHANGELOG 2.4.161 names the three linear-pattern speed fixes",
+          "body": "",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-11-19",
+          "url": "https://github.com/giladfeldman/docpluck/commit/c37df9f069947d499b917cab8bc3e4eb555014f9",
+          "type": "docs",
+          "branch": "main",
+          "diff": {}
+        }
       ]
     },
     {
@@ -6097,7 +6135,7 @@
       "topics": [],
       "pushed_at": "2025-11-13T15:11:14Z",
       "created_at": "2023-09-13",
-      "last_push_days": 371,
+      "last_push_days": 372,
       "default_branch": "main",
       "license": "AGPL-3.0",
       "branches": [
@@ -6169,8 +6207,118 @@
           "html_url": "https://github.com/ontogenerator"
         }
       ],
-      "commit_activity": [],
-      "code_frequency": [],
+      "commit_activity": [
+        {
+          "week": 1788048000,
+          "total": 0
+        },
+        {
+          "week": 1788652800,
+          "total": 0
+        },
+        {
+          "week": 1789257600,
+          "total": 0
+        },
+        {
+          "week": 1789862400,
+          "total": 0
+        },
+        {
+          "week": 1790467200,
+          "total": 0
+        },
+        {
+          "week": 1791072000,
+          "total": 0
+        },
+        {
+          "week": 1791676800,
+          "total": 0
+        },
+        {
+          "week": 1792281600,
+          "total": 0
+        },
+        {
+          "week": 1792886400,
+          "total": 0
+        },
+        {
+          "week": 1793491200,
+          "total": 0
+        },
+        {
+          "week": 1794096000,
+          "total": 0
+        },
+        {
+          "week": 1794700800,
+          "total": 0
+        }
+      ],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794700800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.0.0.9000",
@@ -6265,8 +6413,118 @@
           "html_url": "https://github.com/ontogenerator"
         }
       ],
-      "commit_activity": [],
-      "code_frequency": [],
+      "commit_activity": [
+        {
+          "week": 1788048000,
+          "total": 0
+        },
+        {
+          "week": 1788652800,
+          "total": 0
+        },
+        {
+          "week": 1789257600,
+          "total": 0
+        },
+        {
+          "week": 1789862400,
+          "total": 0
+        },
+        {
+          "week": 1790467200,
+          "total": 0
+        },
+        {
+          "week": 1791072000,
+          "total": 0
+        },
+        {
+          "week": 1791676800,
+          "total": 0
+        },
+        {
+          "week": 1792281600,
+          "total": 0
+        },
+        {
+          "week": 1792886400,
+          "total": 0
+        },
+        {
+          "week": 1793491200,
+          "total": 0
+        },
+        {
+          "week": 1794096000,
+          "total": 0
+        },
+        {
+          "week": 1794700800,
+          "total": 0
+        }
+      ],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794700800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.2.6",
@@ -6325,7 +6583,7 @@
       "topics": [],
       "pushed_at": "2026-10-05T19:23:40Z",
       "created_at": "2026-03-03",
-      "last_push_days": 45,
+      "last_push_days": 46,
       "default_branch": "dev",
       "license": "MIT",
       "branches": [
@@ -7111,7 +7369,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 377,
+          "deletions": -14
+        },
+        {
+          "week": 1788652800,
+          "additions": 4799,
+          "deletions": -2398
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 2913,
+          "deletions": -207
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794700800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "Free, open-source AI academic paper reviewer that outperforms popular paid AI reviewers.\n\nYou provide your own API key and pay the LLM provider directly \u2014 typically **under $2 per review**.\n\nDon't want to run it locally? Use the [web interface](https://coarse.ink/) instead.\n\n\nGet an API key from [OpenRouter](https://openrouter.ai/keys) (free to sign up), then:\n\n```bash\nuvx coarse-ink review paper.pdf --api-key sk-or-v1-YOUR_KEY\n```\n\nThat's it. The review is written to `paper_review.md` in the current directory.\n\n\ncoarse requires Python 3.12+. If you don't have `uvx`, install [uv](https://docs.",
@@ -7351,7 +7670,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 2146,
+          "deletions": -587
+        },
+        {
+          "week": 1790467200,
+          "additions": 366,
+          "deletions": -75
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 85,
+          "deletions": -9
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 4150,
+          "deletions": -456
+        },
+        {
+          "week": 1794096000,
+          "additions": 10,
+          "deletions": -10
+        },
+        {
+          "week": 1794700800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "AI-assisted comparison tool for preregistrations/clinical trial registrations/preclinical (animals) registrations and published papers. FastAPI serves the web UI and HTTP API; a CLI entrypoint enables backend-only runs with CSV-defined dimensions. Redis is used for task state when running via the web app.\n\nStatus: v1.0.0 (see [CHANGELOG.md](CHANGELOG.md)). AI judgements should be verified against the quoted sources in the report; accuracy notes live in the FAQ.\n\n- `app.py` / `backend/`: FastAPI app, routes, services (comparisons, embeddings, parsing).\n- `templates/` + `static/`: Frontend pages",
@@ -7608,68 +7988,6 @@
           "type": "other",
           "branch": "main",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "67798cc",
-          "message": "update model default",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-11-09",
-          "url": "https://github.com/JamieCummins/regcheck/commit/67798ccc293dae048a9ebc3771a0a49fbe76e46e",
-          "type": "other",
-          "branch": "main",
-          "diff": {
-            "additions": 10,
-            "deletions": 10,
-            "files": [
-              {
-                "filename": ".env.example",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 3,
-                "patch": "@@ -56,9 +56,9 @@ GPUSTACK_API_KEY=\n GPUSTACK_BASE_URL=https://gpustack.unibe.ch/v1\n \n # Optional model overrides\n-OPENAI_MODEL=gpt-5\n-OPENAI_COMPARISON_MODEL=gpt-5\n-OPENAI_EXPERIMENT_MODEL=gpt-5\n+OPENAI_MODEL=gpt-6.1-terra\n+OPENAI_COMPARISON_MODEL=gpt-6.1-terra\n+OPENAI_EXPERIMENT_MODEL=gpt-6.1-terra\n OPENAI_EXPERIMENT_REASONING_EFFORT=medium\n DEEPSEEK_MODEL=deepseek-reasoner\n QWEN_MODEL=qwen/qwen3.6-27b"
-              },
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 3,
-                "patch": "@@ -43,9 +43,9 @@ DEEPSEEK_API_KEY=...\n CLAUDE_API_KEY=...\n \n # Optional model overrides\n-OPENAI_MODEL=gpt-5.5\n-OPENAI_COMPARISON_MODEL=gpt-5.5\n-OPENAI_EXPERIMENT_MODEL=gpt-5.5\n+OPENAI_MODEL=gpt-6.1-terra\n+OPENAI_COMPARISON_MODEL=gpt-6.1-terra\n+OPENAI_EXPERIMENT_MODEL=gpt-6.1-terra\n OPENAI_EXPERIMENT_REASONING_EFFORT=medium        # low | medium | high\n DEEPSEEK_MODEL=deepseek-reasoner\n CLAUDE_MODEL=claude-opus-4-8"
-              },
-              {
-                "filename": "backend/routes/comparisons.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -344,7 +344,7 @@ def _normalize_client(client: str) -> str:\n \n def _normalize_reasoning_effort(client: str, reasoning_effort: str | None) -> str | None:\n     effort_normalized = (reasoning_effort or \"\").strip().lower()\n-    # ChatGPT (gpt-5.5) is the only reasoning-effort model exposed to users.\n+    # ChatGPT (gpt-6.1-terra) is the only reasoning-effort model exposed to users.\n     if client == \"openai\":\n         if effort_normalized not in {\"low\", \"medium\", \"high\"}:\n             effort_norm"
-              },
-              {
-                "filename": "backend/services/llm.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -27,7 +27,7 @@\n \n logger = logging.getLogger(__name__)\n \n-DEFAULT_OPENAI_MODEL = \"gpt-5.5\"\n+DEFAULT_OPENAI_MODEL = \"gpt-6.1-terra\"\n DEFAULT_DEEPSEEK_MODEL = \"deepseek-reasoner\"\n DEFAULT_CLAUDE_MODEL = \"claude-opus-4-8\"\n # Open-weight Qwen, served via Groq's OpenAI-compatible endpoint (uses GROQ_API_KEY)."
-              },
-              {
-                "filename": "templates/api.html",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -162,7 +162,7 @@ <h2>2) Submit a comparison</h2>\n             <tr><td><code>clinical_registration</code></td><td>no</td><td><code>yes</code>/<code>no</code> (default <code>no</code>). When <code>yes</code>, fetches the trial registration named by <code>registration_id</code>.</td></tr>\n             <tr><td><code>registration_id</code></td><td>cond.</td><td>ClinicalTrials.gov identifier (e.g. <code>NCT01234567</code>) or ISRCTN identifier (e.g. <code>ISRCTN17573805</code>), or a link to either"
-              },
-              {
-                "filename": "templates/faq.html",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -180,7 +180,7 @@ <h2 class=\"accordion-header\">\n           </h2>\n           <div id=\"faq-q7\" class=\"accordion-collapse collapse\" data-bs-parent=\"#faqAccordion\">\n             <div class=\"accordion-body\">\n-              The model menu lists families; the exact default models are ChatGPT = <code>gpt-5.5</code>, Claude Opus 4.8 = <code>claude-opus-4-8</code>, DeepSeek = <code>deepseek-reasoner</code>, and Qwen3.6 27B = <code>qwen/qwen3.6-27b</code> (open-weight, served via Groq). These are the def"
-              }
-            ]
-          },
-          "diff_summary": ""
         }
       ]
     },
@@ -7969,7 +8287,7 @@
       "commit_activity": [
         {
           "week": 1788134400,
-          "total": 1
+          "total": 0
         },
         {
           "week": 1788739200,
@@ -8016,7 +8334,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 6367,
+          "deletions": -1657
+        },
+        {
+          "week": 1791072000,
+          "additions": 1483,
+          "deletions": -372
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794700800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "0.7.17",
@@ -8209,8 +8588,118 @@
           "html_url": "https://github.com/ingmarboeschen"
         }
       ],
-      "commit_activity": [],
-      "code_frequency": [],
+      "commit_activity": [
+        {
+          "week": 1788048000,
+          "total": 0
+        },
+        {
+          "week": 1788652800,
+          "total": 0
+        },
+        {
+          "week": 1789257600,
+          "total": 0
+        },
+        {
+          "week": 1789862400,
+          "total": 0
+        },
+        {
+          "week": 1790467200,
+          "total": 0
+        },
+        {
+          "week": 1791072000,
+          "total": 0
+        },
+        {
+          "week": 1791676800,
+          "total": 0
+        },
+        {
+          "week": 1792281600,
+          "total": 0
+        },
+        {
+          "week": 1792886400,
+          "total": 0
+        },
+        {
+          "week": 1793491200,
+          "total": 0
+        },
+        {
+          "week": 1794096000,
+          "total": 0
+        },
+        {
+          "week": 1794700800,
+          "total": 0
+        }
+      ],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794700800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.3.1",
@@ -8284,7 +8773,7 @@
       ],
       "commits_30d": 116,
       "commits_7d": 115,
-      "commits_1d": 63,
+      "commits_1d": 2,
       "commits_90d": 122,
       "authors_30d": [
         "Shaheed Azaad"
@@ -8655,11 +9144,11 @@
       "commit_activity": [
         {
           "week": 1788134400,
-          "total": 0
+          "total": 1
         },
         {
           "week": 1788739200,
-          "total": 2
+          "total": 1
         },
         {
           "week": 1789344000,
@@ -8702,436 +9191,73 @@
           "total": 115
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 1,
+          "deletions": -1
+        },
+        {
+          "week": 1788652800,
+          "additions": 215,
+          "deletions": -67
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 231,
+          "deletions": -18
+        },
+        {
+          "week": 1791072000,
+          "additions": 6253,
+          "deletions": -257
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 360,
+          "deletions": -565
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794700800,
+          "additions": 9561,
+          "deletions": -6312
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "> [!TIP]\n> New to auto-zcurve? The [user guide](https://shaheedazaad.github.io/auto-zcurve/)\n> is written for researchers, not developers, and covers install, adding an\n> API key, running your first project, and reading the results.\n\nauto-zcurve reads PDF or XML articles, uses a supported LLM provider to extract focal\nstatistical results, and creates a z-curve analysis report with a plot, summary\nstatistics, and full disclosure table.\n\nThe default interface is a private browser app running only on your computer.\nYour articles, projects, and results stay local; extraction sends the selected\npro",
       "scopus_citations": null,
       "recent_commits": [
-        {
-          "sha": "473bf09",
-          "message": "Merge pull request #50 from shaheedazaad/openrouter-schema-prompt",
-          "body": "Show OpenRouter models the schema; flag extractions with no effects",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-11-20",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/473bf09f32368a79119e9368ae49ae13a9be357b",
-          "type": "other",
-          "branch": "main",
-          "diff": {
-            "additions": 72,
-            "deletions": 6,
-            "files": [
-              {
-                "filename": "auto_zcurve/llm.py",
-                "status": "modified",
-                "additions": 9,
-                "deletions": 0,
-                "patch": "@@ -14,6 +14,7 @@\n EXTRACTED_STATUSES = frozenset({STATUS_OK, STATUS_NEEDS_REVIEW})\n \n JSON_REPAIRED_REASON = \"JSON was repaired\"\n+NO_EFFECTS_REASON = \"no effects extracted\"\n \n # Each provider request gets this many attempts in total before it fails.\n MAX_PROVIDER_ATTEMPTS = 3\n@@ -153,3 +154,11 @@ def pdf_sha256(self) -> str | None:\n     def effect_count(self) -> int:\n         effects = (self.data or {}).get(\"effects\") if self.data else None\n         return len(effects) if isinstance(effects, li"
-              },
-              {
-                "filename": "auto_zcurve/openai_compatible.py",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 1,
-                "patch": "@@ -103,13 +103,14 @@ def _call(\n     cancel_event: threading.Event | None = None,\n ) -> tuple[str, dict[str, int | None], str | None]:\n     from .openrouter import choice_finish_reason\n+    from .prompts import schema_prompt\n \n     payload: dict[str, Any] = {\n         \"model\": model,\n         \"messages\": [\n             {\n                 \"role\": \"user\",\n-                \"content\": prompt + \"\\n\\nReturn only JSON matching this schema:\\n\" + json.dumps(response_schema),\n+                \"content\": "
-              },
-              {
-                "filename": "auto_zcurve/openrouter.py",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 4,
-                "patch": "@@ -21,7 +21,7 @@\n     retryable_status,\n     review_status,\n )\n-from .prompts import build_system_prompt\n+from .prompts import build_system_prompt, schema_prompt\n from .schema import ExtractionSchema, normalize_extracted_json, validate_extracted_json\n from .sources import XML_TEXT_INPUT_MODE\n \n@@ -400,13 +400,14 @@ def extract_document(\n     started = time.monotonic()\n     parsed_document = None\n     estimated_input_tokens = None\n+    strict_schema = strict_response_schema(response_schema)\n    "
-              },
-              {
-                "filename": "auto_zcurve/prompts.py",
-                "status": "modified",
-                "additions": 11,
-                "deletions": 0,
-                "patch": "@@ -1,6 +1,8 @@\n from __future__ import annotations\n \n+import json\n from pathlib import Path\n+from typing import Any\n \n from .schema import ExtractionSchema, build_role_lookup\n \n@@ -19,6 +21,15 @@ def render_text_template(text: str, values: dict[str, str]) -> str:\n The article below is the publisher's XML file, not a PDF, so it has no page numbers. Wherever these instructions or the schema ask for a page number, cite where the text sits in the article instead: the section heading path, for examp"
-              },
-              {
-                "filename": "auto_zcurve/runner.py",
-                "status": "modified",
-                "additions": 9,
-                "deletions": 1,
-                "patch": "@@ -22,7 +22,14 @@\n )\n from .config import RunSettings, load_app_settings, load_run_settings, save_run_settings\n from .console import CliConsole\n-from .llm import EXTRACTED_STATUSES, STATUS_ERROR, STATUS_NEEDS_REVIEW, STATUS_OK, ExtractionResult\n+from .llm import (\n+    EXTRACTED_STATUSES,\n+    STATUS_ERROR,\n+    STATUS_NEEDS_REVIEW,\n+    STATUS_OK,\n+    ExtractionResult,\n+    flag_empty_extraction,\n+)\n from .models import ModelOption, resolve_input_mode, resolve_max_output_tokens, validate_mode"
-              },
-              {
-                "filename": "docs/results.md",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 0,
-                "patch": "@@ -88,6 +88,9 @@ An extraction is marked **Needs review** instead of **Done** when:\n   provider stopped the response early. A normal finish is `STOP` for Gemini\n   and `stop` for the others; a response with no finish reason also counts as\n   normal.\n+- **\"no effects extracted\"**: the response was valid but listed no effects.\n+  Few articles report no statistical tests, so this usually means the model\n+  failed quietly. Check the article, and retry it if it does report tests.\n \n The reasons are "
-              },
-              {
-                "filename": "tests/test_needs_review.py",
-                "status": "modified",
-                "additions": 25,
-                "deletions": 0,
-                "patch": "@@ -28,7 +28,9 @@\n )\n from auto_zcurve.config import RunSettings\n from auto_zcurve.llm import (\n+    NO_EFFECTS_REASON,\n     ExtractionResult,\n+    flag_empty_extraction,\n     finish_reason_review_reason,\n     record_review_reasons,\n     review_status,\n@@ -66,6 +68,20 @@ def test_finish_reasons_and_status(self):\n         self.assertEqual(review_status([]), \"ok\")\n         self.assertEqual(review_status([\"JSON was repaired\"]), \"needs_review\")\n \n+    def test_an_extraction_without_effects_needs_rev"
-              },
-              {
-                "filename": "tests/test_openrouter.py",
-                "status": "modified",
-                "additions": 7,
-                "deletions": 0,
-                "patch": "@@ -1,5 +1,6 @@\n from __future__ import annotations\n \n+import json\n import tempfile\n import unittest\n from pathlib import Path\n@@ -145,6 +146,12 @@ def test_extract_pdf_sends_native_file_and_strict_response_format(self):\n         self.assertEqual(payload[\"plugins\"], [{\"id\": \"file-parser\", \"pdf\": {\"engine\": \"native\"}}])\n         self.assertEqual(payload[\"response_format\"][\"type\"], \"json_schema\")\n         self.assertTrue(payload[\"response_format\"][\"json_schema\"][\"strict\"])\n+        # Some provider"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "51b5de2",
-          "message": "Merge pull request #49 from shaheedazaad/max-output-tokens",
-          "body": "Add a per-extractor maximum output setting",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-11-20",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/51b5de2792a83c10cd0cc9051987b35baa99c29f",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "d1c5da5",
-          "message": "Address review: tolerate any lookup failure, clarify output-limit docs",
-          "body": "- A failed endpoint lookup of any kind now falls back to no cap.\n- Docs say when the article reserve applies, what a failed lookup does,\n  and that Retry (not Run analysis) re-extracts after raising the cap.\n- Comment why an endpoint too small for the article is left out.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d1c5da5742c4c51ee7472f151745a1ecc2fbecc1",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "ade5b05",
-          "message": "Cover an endpoint with an unreadable context length",
-          "body": "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/ade5b059f02fb5ee43162fe346e0a35a235b58f4",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "d498f7a",
-          "message": "Show OpenRouter models the schema; flag extractions with no effects",
-          "body": "Some OpenRouter providers (DeepInfra serving DeepSeek) enforce the\nstructured-output schema without showing it to the model. The model\nthen guessed its own fields, and the enforced schema left it nothing to\nwrite but an empty effects list, saved as Done. The OpenRouter prompt\nnow includes the schema, as the OpenAI-compatible prompt already did.\n\nAn extraction that lists no effects is now marked Needs review with\n\"no effects extracted\", so a silent failure is no longer counted as\ndone.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d498f7a657e3349f1b179b0ec5754704ce428171",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "435c981",
-          "message": "Add a per-extractor maximum output setting",
-          "body": "Long articles with many effects ran out of output space on OpenRouter,\nwhere every PDF request was capped at a hard-coded 32,768 tokens.\n\nEvery extractor now has an optional Maximum output. When empty,\nOpenRouter uses the endpoint's maximum, looked up once per run: the\npinned provider's limit, else the lowest among structured-output\nendpoints, leaving a quarter of the context for the article. Gemini and\nOpenAI-compatible servers keep their own default. OpenAI's API gets the\ncap as max_completion_tokens. Run settings ignore boolean token limits.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/435c981b7f8871a38fe1fea41ddeb7287c2cea03",
-          "type": "feat",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "e639b33",
-          "message": "Docs: add screenshots of extractor settings and the Run analysis tab",
-          "body": "Add the Settings Extractors list, the Add extractor dialog for Gemini and\nfor an OpenAI-compatible server, and a project's Run analysis tab with an\nextractor selected. Taken from the app running on throwaway data with an\nin-memory keyring, so no real keys or project names appear.\n\nCloses #40\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/e639b33c2736509c15976a5afb669e46bce94a34",
-          "type": "feat",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "55cca38",
-          "message": "Release 0.13.0",
-          "body": "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/55cca38f3797c213bd1345190d0276e45d51d020",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "cdde6e6",
-          "message": "Merge pull request #48 from shaheedazaad/extractors",
-          "body": "Extractors: user-defined model setups, key vault, and follow-ups (#41\u2013#47)",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/cdde6e608e967ffe33a59149b6f96c8033ff29e1",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "1cca3d1",
-          "message": "Treat an unreadable last-run settings file as no previous run",
-          "body": "A corrupt run_settings.json no longer stops a run or retry; it is replaced by\nthe next save. Also lowercases the retry choice and rewords its hint.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/1cca3d17dc4d571fd51f7dd45028a89e34f2b7c5",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "fb05f36",
-          "message": "Add a setting for retries with a different extractor; full re-run by default",
-          "body": "A retry whose extractor settings differ from the project's last run no longer\nrecords them by default, so the next run re-runs every article and all\nresults come from one setup. Settings > Files and parsing offers \"Keep other\narticles' results\" for the previous behaviour. retry_project takes\nrerun_all_after_change to override the app setting.\n\nAlso qualifies the FAQ's recovery step for an unreadable extractors.json.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/fb05f36092ddb2705e029946f704ea54e0cb2e86",
-          "type": "feat",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "405f07c",
-          "message": "Docs: context length doesn't reprocess; delete keeps the extractor if its key stays; unreadable extractors.json",
-          "body": "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/405f07c7a59d1e076b9e755a0a32ad8ea5bef6d6",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "a6bc0be",
-          "message": "Merge followup-48c: review follow-ups on #48",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/a6bc0bea6ed3b14279032c5e4b83a4c8247d5c20",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "1d9508d",
-          "message": "Merge followup-48b: review follow-ups on #48",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/1d9508d03b74dd5ef0a3bc297f10cd73f63994f4",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "36ec818",
-          "message": "Never overwrite unreadable extractors or keys; lock the key vault",
-          "body": "- An unreadable or malformed extractors.json raises ExtractorsUnreadable\n  (503 in the app) instead of reading as empty, so no save can wipe it.\n  Records this version can't load are written back unchanged.\n- Migration leaves settings.json and preferences.json in place when it\n  can't read them.\n- Deleting an extractor removes its key first; if that fails the extractor\n  stays (409) so the removal can be retried.\n- The key vault serializes each load-modify-write, publishes keys only after\n  old ones are adopted, and keeps a claim pending until its old item is\n  really gone; failing to remove an old item is reported.\n- Provider checks run outside the extractors lock; changes are applied under\n  it to the latest state. Key-status writes run off the event loop.\n- Unique temporary files for the project's selected extractor; run settings\n  without a snapshot record their concrete values.\n- Clearer messages for a locked vault and a store that refuses a key.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/36ec818a62198a8c45af355acdbd0e96ece138f2",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "d67bc8a",
-          "message": "Address #48 review: markup-safe redaction, cancellable endpoint runs, pending reprocess",
-          "body": "- Redact the text Rich will show, so markup can't split a key past\n  redaction; invalid markup prints literally instead of failing.\n- Forward cancellation to OpenAI-compatible requests and PDF text reading,\n  and record the PDF token estimate on the result.\n- Save a changed extractor's run settings only after every article is\n  reprocessed, so a cancelled run leaves the reprocess for the next run.\n- Name a deleted project extractor in the CLI's fallback message.\n- Clear the OpenRouter provider list when the model changes.\n- Model the OpenRouter catalog's structured-outputs filter in the test.\n- Give each main CI run its own concurrency group so none is dropped.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d67bc8a42ba41b44bc0212d669da13aa80d15b90",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "37cb31e",
-          "message": "Docs: match key-store reads, reprocessing triggers and upgrade behaviour",
-          "body": "- The key vault is read again after a failed read, and removing a key opens it.\n- Name every setting that reprocesses articles.\n- List the actual migration triggers and warn that the upgrade is one-way.\n- Show available models is Gemini and OpenRouter only; name Parallel articles\n  in the quickstart; the CLI uses the project's chosen extractor.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/37cb31e84823fbb85e696ba897155b794e25db7f",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "8900182",
-          "message": "Run CI once per PR commit and save the pixi cache only from main",
-          "body": "Push runs are limited to main, since pull_request already tests every PR\ncommit. A newer commit cancels an unfinished PR run. PRs read main's pixi\ncache instead of saving their own, which cost about a minute on Windows.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/890018226c844c838d3c2f457c1a82cf2da3df82",
-          "type": "chore",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "149d873",
-          "message": "Scroll dialog bodies inside the dialog and widen the extractor form",
-          "body": "Basecoat expects an <article> child to own a dialog's scrolling; our dialogs\nwrap header, section and footer in a <form>, so the section becomes the\nscroll container and the page behind stops scrolling while a dialog is open.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/149d873f6d07f9af5cffbfaec0b8c5d97ca2f3ca",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "d032f21",
-          "message": "Merge followup-44: ignore stale model lists; tighten typed-key tests",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/d032f21a3149c8763dfd932d453d5d0687dc5e84",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "ee2e05b",
-          "message": "Merge pull request #46 from shaheedazaad/issue-39-simplify-extractor-keys",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/ee2e05b4977519d61ed85000d96d93b2b6f3c06b",
-          "type": "refactor",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "30dc66a",
-          "message": "Merge followup-47: redact keys from every CLI output part",
-          "body": "",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/30dc66a769c3b375b413324e349b28ea4c91df89",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "2f891f8",
-          "message": "Ignore stale model lists; tighten typed-key suggestion tests",
-          "body": "A model list that arrives after the provider changed, or after the dialog\nreopened, no longer replaces the suggestions or the hint. The typed-key\ntest now runs every request with a recording credential store and asserts\nit is never used, checks the Gemini success response, and checks that an\ninvalid-provider error never echoes the key.\n\nFollow-up to review on #44.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/2f891f8269f4bfab65aa2b347f4926ef5ea9c621",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "56b4d00",
-          "message": "Redact keys from every part the CLI prints, not only strings",
-          "body": "Objects are redacted through str(). With Rich, a renderable is rendered\nwithout styles, redacted and printed literally whenever there are keys to\nhide, so a key inside a table or panel can't reach the terminal.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/56b4d00caa0e28a2800ab4ce459d30f06eb0589a",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "db90dc9",
-          "message": "Merge extractors; serialize extractor writes and keep lookups off the event loop",
-          "body": "Merge: cli._run_inputs uses prepare_run and still registers the key with\nthe console's secrets; the delete route keeps its early 404.\n\nReview fixes:\n- Every read-modify-write of extractors.json holds one reentrant lock, and\n  each save uses a unique temporary file, so concurrent requests can't lose\n  a change or collide on the temp path.\n- Extractor lookups and project scans in async routes run in a thread.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/db90dc99ee3f754595f12ab28c01190d06f72926",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "7a0c37c",
-          "message": "Test that deleting or unkeying a migrated extractor removes its old key item",
-          "body": "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/7a0c37ca63fb88d46e5f73cfa98997582be21c77",
-          "type": "test",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "55c6744",
-          "message": "Merge origin/extractors",
-          "body": "# Conflicts:\n#\tdocs/settings.md",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/55c6744db61506c665febfae764167dd45f0ce1e",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "ac9303a",
-          "message": "Address second review on extractors",
-          "body": "- Removing a key also deletes the extractor's unmoved old credential item and\n  drops its claim, so a removed key can't return next session.\n- Estimate PDF text at 5 characters per token for the context pre-check, so\n  only clearly oversized PDFs are stopped.\n- Docs: the model check runs on create or model change; context length covers\n  PDFs; spell out when keys stay for the session only.\n- Tests: assert SourceError, cover the model-prompt link, and force the run\n  loop's poll timeout instead of sleeping.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
-          "author": "Shaheed Azaad",
-          "author_login": "",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/ac9303a5222ea8640be7f3d70b8b998c951de33c",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "ae26c18",
-          "message": "Merge pull request #42 from shaheedazaad/issue-34-remove-dotenv",
-          "body": "Remove unused python-dotenv dependency",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/ae26c18a776055c030114386ee9be248ed93cda4",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "e3c0082",
-          "message": "Merge pull request #47 from shaheedazaad/issue-35-cli-redact-keys",
-          "body": "Redact the extractor's API key from CLI output",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-11-19",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/e3c00829e98bfdb607050cbc9dbf4bfd4c9de908",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
         {
           "sha": "473bf09",
           "message": "Merge pull request #50 from shaheedazaad/openrouter-schema-prompt",
@@ -10162,7 +10288,68 @@
           "total": 0
         }
       ],
-      "code_frequency": [],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 1,
+          "deletions": -1
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 3295,
+          "deletions": -428
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794700800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {
         "version": "1.2.1",
@@ -10191,106 +10378,6 @@
       "readme_excerpt": "Also read our Open Access publication about this package in _Collabra: Psychology_:\n[Automated Reproducibility Testing in R Markdown](https://doi.org/10.1525/collabra.138638)\n\n\nThis package allows you to make computational results in R testable for reproduction (does the same script with the same data produce the same results, e.g. on a different computer and/or later in time). There is only a single thing you need to change in your analysis if you are already using RMarkdown: Load the package at the beginning of your R Markdown file (`library(reproducibleRchunks)`) and change the code chunk t",
       "scopus_citations": null,
       "recent_commits": [
-        {
-          "sha": "eabbdb8",
-          "message": "updated JSON files for vignettes",
-          "body": "",
-          "author": "brandmaier",
-          "author_login": "brandmaier",
-          "date": "2026-10-22",
-          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/eabbdb8b4a66c3b2386c824fe49b5c37b1b5f064",
-          "type": "docs",
-          "branch": "main",
-          "diff": {
-            "additions": 269,
-            "deletions": 84,
-            "files": [
-              {
-                "filename": "vignettes/.repro_regression_example.Rmd_bootstrap.json",
-                "status": "modified",
-                "additions": 41,
-                "deletions": 13,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
-              },
-              {
-                "filename": "vignettes/.repro_regression_example.Rmd_linreg.json",
-                "status": "modified",
-                "additions": 39,
-                "deletions": 11,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
-              },
-              {
-                "filename": "vignettes/.repro_regression_example.Rmd_loadData.json",
-                "status": "modified",
-                "additions": 39,
-                "deletions": 11,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
-              },
-              {
-                "filename": "vignettes/.repro_regression_example.Rmd_outliers.json",
-                "status": "modified",
-                "additions": 41,
-                "deletions": 13,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
-              },
-              {
-                "filename": "vignettes/.repro_renv_example.Rmd_unnamed-chunk-4.json",
-                "status": "modified",
-                "additions": 29,
-                "deletions": 12,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,1"
-              },
-              {
-                "filename": "vignettes/.repro_use_case_simulation.Rmd_unnamed-chunk-1.json",
-                "status": "modified",
-                "additions": 39,
-                "deletions": 11,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
-              },
-              {
-                "filename": "vignettes/.repro_use_case_simulation.Rmd_unnamed-chunk-2.json",
-                "status": "modified",
-                "additions": 40,
-                "deletions": 12,
-                "patch": "@@ -14,7 +14,7 @@\n         \"names\": {\n           \"type\": \"character\",\n           \"attributes\": {},\n-          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"code_fingerprint\"]\n+          \"value\": [\"hashing\", \"hashing_algorithm\", \"hashing_package\", \"hashing_package_version\", \"digits\", \"R_version\", \"packages\", \"reproducibleRchunks_package_version\", \"code_fingerprint\"]\n         }\n       },\n       \"value\": [\n@@ -46,14 +46,14 @@\n       "
-              },
-              {
-                "filename": "vignettes/plots.Rmd",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -22,7 +22,7 @@ library(reproducibleRchunks)\n \n Note that base R plots typically produce graphical output directly to the current graphics device, without assigning the result to a variable. By design, the `reproducibleRchunks` package only tracks metadata for variables that are explicitly created within each code chunk. Since standard plotting commands do not involve variable assignment, their output is not checked for reproducibility. See the following example, in which only the newly declar"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "376f7e2",
-          "message": "updated docs/vignettes",
-          "body": "",
-          "author": "brandmaier",
-          "author_login": "brandmaier",
-          "date": "2026-10-22",
-          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/376f7e25612ec8b26a9b5c790cd0beaf4eede676",
-          "type": "docs",
-          "branch": "main",
-          "diff": {}
-        },
-        {
-          "sha": "f494d4c",
-          "message": "vignettes",
-          "body": "",
-          "author": "brandmaier",
-          "author_login": "brandmaier",
-          "date": "2026-10-22",
-          "url": "https://github.com/brandmaier/reproducibleRchunks/commit/f494d4cf88aea95c861814c6d795a452215d59e1",
-          "type": "docs",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
         {
           "sha": "eabbdb8",
           "message": "updated JSON files for vignettes",
@@ -10443,8 +10530,118 @@
           "html_url": "https://github.com/giovannacdelsordo"
         }
       ],
-      "commit_activity": [],
-      "code_frequency": [],
+      "commit_activity": [
+        {
+          "week": 1788048000,
+          "total": 0
+        },
+        {
+          "week": 1788652800,
+          "total": 0
+        },
+        {
+          "week": 1789257600,
+          "total": 0
+        },
+        {
+          "week": 1789862400,
+          "total": 0
+        },
+        {
+          "week": 1790467200,
+          "total": 0
+        },
+        {
+          "week": 1791072000,
+          "total": 0
+        },
+        {
+          "week": 1791676800,
+          "total": 0
+        },
+        {
+          "week": 1792281600,
+          "total": 0
+        },
+        {
+          "week": 1792886400,
+          "total": 0
+        },
+        {
+          "week": 1793491200,
+          "total": 0
+        },
+        {
+          "week": 1794096000,
+          "total": 0
+        },
+        {
+          "week": 1794700800,
+          "total": 0
+        }
+      ],
+      "code_frequency": [
+        {
+          "week": 1788048000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1788652800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789257600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1789862400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1790467200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791072000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1791676800,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792281600,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1792886400,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1793491200,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794096000,
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "week": 1794700800,
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
       "star_history": [],
       "r_meta": {},
       "readme_excerpt": "OIF (Output It Forward) is a Chrome extension that helps researchers detect and document open data indicators in scholarly articles while they browse. As you read a paper, OIF automatically scans the page for phrases and repository links commonly associated with open data practices, and logs matches to a running CSV file for systematic documentation.\nOIF is designed with adaptability in mind: its phrase list and repository domain list are plain, editable text files, so tailoring the extension to your discipline requires no programming expertise, just edit a list.\n\nFollow this link: https://chr",
@@ -11071,7 +11268,7 @@
   "digest": {
     "week_start": "2026-11-13",
     "active_repos": 4,
-    "total_commits_7d": 232,
+    "total_commits_7d": 228,
     "dormant_revived": [],
     "new_releases": [
       {
@@ -11089,12 +11286,12 @@
       {
         "owner": "scienceverse",
         "repo": "metacheck",
-        "commits": 95
+        "commits": 94
       },
       {
         "owner": "giladfeldman",
         "repo": "docpluck",
-        "commits": 20
+        "commits": 17
       },
       {
         "owner": "lhdjung",
@@ -11560,9 +11757,9 @@
     "total_repos": 16,
     "total_stars": 736,
     "total_forks": 135,
-    "total_commits_30d": 1205,
-    "total_commits_7d": 232,
-    "total_commits_1d": 71,
+    "total_commits_30d": 1197,
+    "total_commits_7d": 228,
+    "total_commits_1d": 5,
     "active_repos_7d": 4,
     "dormant_revived": 0,
     "total_open_issues": 180,
