@@ -1,5 +1,551 @@
 [
   {
+    "generated_at": "2026-11-21T05:41:43.011633+00:00",
+    "narrative": "",
+    "repos": [
+      {
+        "owner": "Davidvandijcke",
+        "repo": "coarse",
+        "url": "https://github.com/Davidvandijcke/coarse",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 30,
+        "pushed_at": "2026-11-21T04:22:39Z",
+        "recent_commits": [
+          {
+            "sha": "ca6d896",
+            "message": "feat(agent): ship --refute for comments only; remove the macro-issue half",
+            "body": "The macro-issue gate was built, measured on three papers, and does not earn\nits place. On psi it converted no unsupported issue and dropped a supported\none. On coset_codes its entire upside was two issues flipping to supported\nwhen their narrowed text was re-judged, by a judge already observed to change\nverdict on byte-identical text.\n\nReading the narrowed output settled it. An issue titled 'Multiplicity formulas\nrest on unverified uniformity assumptions' came back with a body saying the\nassumption 'holds for the partitions checked here ... which reproduces the\ntable's 44, 252, 764 and 316': the deletion had removed the criticism and left\ntext confirming the assumption, under a title still asserting the defect. A\ngate that can leave a heading contradicting its own paragraph should not run on\nan author-facing review.\n\nRemoves refute_issues, _refute_issue, narrow_by_deletion and its whitespace\nhelpers, IssueVerdict, refute_review, the issue-refuter prompt, and their\ntests. The pipeline calls refute_comments directly. The overall feedback now\npasses through the stage untouched, which a pipeline-level test asserts.\n\nThe removed code is in this branch's history if it is worth revisiting with\nmore papers and a verdict-stable judge.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/ca6d896e83cb4cce4c5661f79dd1dac66bc1c43e",
+            "type": "feat",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "d000eed",
+            "message": "docs(agent): report the gate gross, add the coverage check, drop an unsupported claim",
+            "body": "Three corrections to how the result is stated.\n\nThe headline was net. Gross it is 9 bad comments dropped, 3 good claims\ndropped, and 2 bad issues that became good when their narrowed text was\nre-judged \u2014 so the macro-issue half's entire upside is two re-judgements by a\njudge that has changed verdict on byte-identical text, which is what this\nmeasurement otherwise excludes.\n\n'Keeps the pipeline's coverage' was asserted, not measured. Crossing each\nreference finding's matching claim against what the gate did to it: no finding\non any of the three papers was carried by a claim the gate dropped. Eight ride\non a narrowed claim, which re-scoring recall would settle and which has not\nbeen done.\n\n'Making the gate subtractive made it reproducible' is withdrawn. It rested on\ntwo runs compared by counts, the second overwrote the first's per-claim record,\nand the comment refuter's prompt and drop rule did not change, so the redesign\ncannot be the cause.\n\nAlso: the Design bullet for --refute described comments only, the CHANGELOG\nstill said a comment is rewritten when misstated, and two caveats were missing\n(the all-refuted notice is English only; nobody has read a deletion-narrowed\nissue end to end).",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/d000eedaf750ece4a1ed884472cee974b7aa14e5",
+            "type": "feat",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "0e603a9",
+            "message": "fix(agent): tidy whitespace only at the cut when narrowing an issue",
+            "body": "narrow_by_deletion collapsed whitespace across the whole body, so every\nnarrowed issue lost its paragraph breaks and the newlines inside display math,\nturning it into one run-on block. That damaged the issue whether or not the\ndeletion itself was right, and 15 of 35 issues across the benchmark papers\nwere narrowed.\n\nWhitespace is now tidied only where a span was removed: a deletion that\nspanned a paragraph boundary keeps the break, one inside a paragraph leaves a\nsingle space, and display math is untouched. Tests cover the paragraph,\ninline, display-math, rewrapped and trailing cases.\n\nrefute_effect.py now also saves the post-refutation review and each narrowed\nissue's before and after text. Nothing was persisting what a narrowed issue\nsays, so no one could read one for a dangling fragment or a lost antecedent.\n\nDeletes evals/refute_saved.py, which still read the removed rewritten_body\nfield and would crash.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/0e603a94690ae615534795493bdd9b4d7b5f9862",
+            "type": "fix",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "458acf8",
+            "message": "docs(agent): final refutation measurement on three papers",
+            "body": "Measured on identical generation with stored verdicts carried forward for\nuntouched claims, reported as good and bad counts under the stricter\nsupported-and-substantive test.\n\nAcross psi, the held-out coset_codes, and targeting: 11 bad claims removed\nagainst 1 good one lost, at about $1.85 a paper.\n\nThree findings that matter more than the total, and one of them reverses this\ndocument's previous claim:\n\n- The comment half carries the benefit (9 bad removed, 2 good lost). The\n  macro-issue half is marginal (2 bad removed, 1 good gained) and was net\n  negative on psi, converting no bad issue and dropping a good one. The\n  earlier claim that the issue half 'mattered most' came from the retracted\n  measurements and does not survive them.\n- On targeting, the only paper no design decision here has touched and whose\n  review was already 26 good to 6 bad, the gate dropped nothing and changed no\n  verdict. The right failure mode, but it means the value depends on the paper.\n- Making the gate subtractive made it reproducible: two genuine psi runs agree\n  exactly, where the rewriting version dropped 4, then 5, then 6 of the same\n  comments.\n\nThe recommendation stays opt-in, and now names the macro-issue half as the\nopen question rather than the main gain.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/458acf896a5d85ed0cca7c55c030fc0e92ab870e",
+            "type": "other",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "cd3cc89",
+            "message": "docs(agent): withdraw the refutation figures and record why they were wrong",
+            "body": "Three successive attempts at what the gate is worth were each wrong: comparing\ntwo different pipeline runs, re-judging unchanged text through a judge that\ndrifts, and scoring an is-this-supported test that a hedged rewrite satisfies.\nThe third changed the design rather than the measurement.\n\nThe doc now states the withdrawal, the three mistakes, and the shape that\nsurvived all of them, rather than a number. It no longer recommends\nconsidering --refute as a default.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/cd3cc896f02f4972b17c565a9233aad619ac3fe3",
+            "type": "fix",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "f6786db",
+            "message": "fix(agent): make the refutation gate purely subtractive",
+            "body": "Reading the saved reviews showed the gate was rewriting the review, not\nverifying it, and that this was the source of its own measured gain.\n\nIssues: asking for a replacement body produced a rewrite longer than the\noriginal on every narrowed issue across both benchmark papers (1.0x to 1.6x),\neach prefixed with the issue title. Refusing those by length left the issue\nhalf drop-only, which pays nothing; accepting them made an agent the author of\nreview prose. Narrowing is now expressed as deletion: the refuter names\nverbatim spans of the body that the paper does not bear out, and the code\nremoves them, so every surviving word is the reviewer's own. Matching is exact\nthen whitespace-insensitive, since a model re-wraps a sentence it quotes; a\nspan that still does not match removes nothing, so a hallucinated span cannot\nalter the issue, and naming every span drops the issue outright.\n\nComments: corrected_claim is no longer applied. Sampling the rewrites found\nones that retreated from 'X is wrong' to 'the paper does not say how X was\nhandled', which satisfies an is-this-supported test while giving the author\nless -- so part of the measured precision gain was an artefact of the metric.\nThe suggestion stays on the verdict for a human to weigh. severity is now only\never lowered: the field defaults to 'major', so applying it unconditionally\nraised the severity of comments the refuter never reconsidered.\n\nBecause the gate now only removes, every surviving comment keeps the verdict\nalready stored for it and the effect measurement needs no re-judging except\nfor narrowed issue bodies. refute_effect.py reports good and bad counts rather\nthan rates, and records per-claim what the gate did.\n\nRefutation tests move to tests/test_agent_refutation.py beside their module.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/f6786dbb55b1c0a8ad612e09bd3894246a14f3e4",
+            "type": "fix",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "10af8c7",
+            "message": "fix(agent): make narrowing actually narrow, and key comments by position",
+            "body": "Three defects, two of them found by reading the saved reviews rather than the\nverdicts.\n\nrefute_comments keyed its lookup maps on comment.number. This stage runs\nbefore _renumber_comments, so the numbers are whatever the editorial pass\nemitted, and on the double-failure fallback path they are raw section order\nwith section-local numbering where duplicates are expected. Comments sharing a\nnumber collapsed the maps and had verdicts misattributed. Keyed on position\nnow, as the issue path already was.\n\nEvery narrowed issue body on the benchmark papers came back LONGER than the\none it replaced, against the prompt's explicit instruction to say less and\nnever more, and each began by repeating the issue title so the rendered review\nshowed the title twice. A prompt cannot enforce either. _clean_narrowed_body\nstrips a repeated title and refuses a body that does not shorten, keeping the\noriginal instead: a rewrite that expands makes this stage an author of review\ncontent rather than a verifier of it, which is the risk the ledger link\nelsewhere exists to prevent.\n\nThe review language now reaches both refuters. A refuter writes author-facing\nprose (corrected_claim, rewritten_body), and the issue refuter rewrites most\nof what it touches, so without this the rewrite came back in English inside a\nlocalized review. The all-issues-refuted notice is still English; that is\nrecorded as a caveat.\n\nAdds a pipeline-level test for review_paper(refute=True), which the benchmark\nnever exercised because it called refute_comments and refute_issues directly.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/10af8c70ffba9d1f3229e52139060d75f08c6808",
+            "type": "fix",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "9b9c486",
+            "message": "docs(agent): measure the refutation gate on identical generation",
+            "body": "refute_saved.py now also refutes the macro issues and can save what survives\nas its own run, so precision before and after is compared on the same\ngeneration rather than across two pipeline runs.\n\nWith both halves refuted, on psi and on the held-out coset_codes: unsupported\nclaims halve (10 to 4, and 16 to 8), precision rises 19 and 17 points, recall\nis unchanged on one paper and loses one finding of 25 on the other, and the\npass costs about $1.85. Issue precision, the gap the comment-only version\nleft at 58% and 36%, reaches 80% and 50%.\n\nThe per-claim cross-tabulation shows why the two halves need separate\ncontracts: the gate drops 8 of 14 false comments for 2 of 25 good ones, while\non issues it narrows 12 of 23 rather than dropping them, and the narrowed text\nis what the precision gain is measured on. Two caveats are stated with it: the\nrefuter has real run-to-run variance, and it also narrowed 6 issues the judge\nhad called supported, so the trade is net positive on these two papers rather\nthan free.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/9b9c486b50f0046520fbbf74e50ff260ea2c8577",
+            "type": "other",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "0b7f0b8",
+            "message": "feat(agent): refute the macro issues too, narrowing rather than dropping",
+            "body": "With comments alone refuted, comment precision reached 94% and 100% on the two\nbenchmark papers while macro-issue precision stayed at 58% and 36%, so every\nsurviving unsupported claim was in the overall feedback.\n\nA macro issue is not a comment and needs a different contract. It carries no\nverbatim anchor, so the refuter locates the passages itself. And it bundles\nseveral points under one theme, so the common outcome is that some hold and\nsome do not: dropping a four-point issue because its third point is answered\nin Section 6 discards three good ones, while keeping it whole ships the wrong\none. IssueVerdict therefore adds 'partly_supported', which replaces the body\nwith the reviewer's narrowed version and records what was dropped and where\nthe paper answers it. The title survives narrowing.\n\nGuards: an issue is kept unchanged when the check could not run or came back\ninconclusive, so neither an infrastructure failure nor honest uncertainty\ndeletes one; a narrowing with no replacement text keeps the original, since\nthe reviewer called it partly right; and if every issue is refuted, an\nexplicit notice replaces them rather than reinstating the least-bad one,\nbecause OverviewFeedback requires an issue and the least-bad one is still a\nclaim the paper contradicts.\n\nrefute_review is now the single entry point the pipeline stage calls, with the\ntwo halves failing independently so a failure in one leaves the other verified.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/0b7f0b85efc898516fa340733c4e41887ea5a138",
+            "type": "feat",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "08b805a",
+            "message": "refactor(agent): split the pipeline-facing refutation gate into its own module",
+            "body": "orchestrator.py reached 804 lines, over the architecture cap. refute_comments\nis the natural seam: orchestrator holds the roles and modes, refutation holds\nthe gate applied to comments produced outside them, which the measurement made\nthe primary use. 702 and 127 lines.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/08b805aa39665e32982dc2712c1235c1a544f802",
+            "type": "refactor",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "a35655c",
+            "message": "fix: validate the agent mode, and don't drop a substantive 'Funding' section",
+            "body": "run_agentic_review fell through to swarm for any unrecognized mode, so a typo\nin --agent silently ran a different and dearer mode; it now raises.\n\nSection eligibility skipped any title starting with a boilerplate word, which\nwould discard an economics paper's 'Funding and acquisition dynamics in\nventure capital'. The prefix test now applies only to headings short enough to\nbe that boilerplate.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/a35655c5865831a311d1ba72d30dc7de9895f8e3",
+            "type": "fix",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "de88f95",
+            "message": "docs(agent): rewrite from the paired refutation measurement",
+            "body": "The refutation result was unpaired: pipeline_refuted was a separate pipeline\nrun, so comparing it with the pipeline arm compared two different reviews.\nevals/refute_saved.py now runs the refuter over the exact comments the judge\nalready adjudicated, one paired observation per comment. The honest figure is\nmuch smaller than the one that was published here: comment precision 64% to\n82% across the two papers, the gate dropping 9 of 14 false criticisms and 2 of\n25 good ones, and the two papers differing a great deal.\n\nAlso: the design section listed two tools that do not exist (web_search,\nfinding_write) and omitted that there is no web search and only one refutation\npass; the tool-judge result is now described as consistent with the diagnosis\nrather than confirming it, since its prompt names the hypothesis; the host\nisolation section no longer describes a particular machine's configuration;\nand a closing section states plainly where the work departs from what was\nasked.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/de88f95ae2ce92829a123cc002322d1ce3233a56",
+            "type": "other",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "b900697",
+            "message": "docs: correct module descriptions and the section-fix changelog entry",
+            "body": "The seven module descriptions added to the package-structure tables were\nwritten from the file names rather than from the modules. Checked against each\ndocstring: handoff_url only parses (it does not construct, and nothing is\nsigned), native_runtime suspends model calls as native tasks and replays\nvalidated responses rather than detecting and launching a runtime, and\nnative_review and review_runtime were also inaccurate. All seven now follow\ntheir docstrings.\n\nThe changelog claimed the fix makes the pipeline review every section. It does\nnot: the cap still binds on a long paper, and the entry now says which\nsections are dropped and that the choice is logged.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/b900697020c982cc3960a960fe085ea4fa614c56",
+            "type": "fix",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "625e62c",
+            "message": "fix(agent): enforce sandbox network denial at the OS level",
+            "body": "The 'no network' claim was false. Denial was a Python-level patch of the\nsocket module, and two one-liners defeated it: subprocess shelling out to\n/usr/bin/curl returned HTTP 200, and 'import _socket' connected directly,\nsince the patch only touches the pure-Python wrapper. A paper is untrusted\ninput, so a prompt-injected paper that induced the model to write an\nexfiltrating check would have had a working path out.\n\nDenial now comes from the OS where a mechanism exists: sandbox-exec with a\ndeny-network seatbelt profile on macOS, 'unshare --net' on Linux where\npermitted. Both are probed by actually running them, because either can be\npresent and refuse. Verified on this host: the curl bypass now exits 6 and\n_socket cannot connect, while sympy still imports and runs.\n\nWhere no mechanism is available there is no network bound, and nothing now\nclaims otherwise: available_isolation() reports the mechanism, and the python\ntool's description is generated from it, so a host without isolation tells the\nmodel so instead of giving it a false assurance. The socket patch stays as a\nlegible error message rather than a bound, and both bypasses are now tests.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/625e62cce4b139ab1cd6cb064896847fbabda4e7",
+            "type": "fix",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "6c4ffd4",
+            "message": "docs(agent): final arm comparison, with a tool-using second adjudication",
+            "body": "Adds the refuted-pipeline arms, which validate the recommendation: refutation\ntook detailed-comment precision from 58% to 100% on the held-out paper and\nfrom 70% to 94% on the other. It also shows where the remaining false\ncriticism is \u2014 entirely in the macro issues, which the stage does not yet\nrefute.\n\nAdds evals/adjudicate.py, a second audit by a judge with the same workspace\nand tools the agents get, because the single-prompt judge never abstained and\nwas being asked to check lookups it had no means to perform. It is more\nlenient, so the single-prompt precision figures were too harsh and are now\nreported alongside it. It confirms the mechanism far more firmly: five of the\nsix unsupported claims it found are objections the paper answers elsewhere,\nand it names the location each time.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/6c4ffd45cce6eed3274bd9604c5cbe9a40b6cfda",
+            "type": "other",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "f285d46",
+            "message": "chore(evals): keep benchmark inputs out of the repository",
+            "body": "structure.json embeds the whole paper text while paper.md was ignored, which\nwas an inconsistent policy for the same content, and the reference reviews are\nthird-party documents. evals/papers/ is now ignored in full. What stays\ncommitted is the atomized finding sets under evals/references/ and\nprepare_paper.py, which regenerates the rest from a local PDF.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/f285d46d2d734f5aac2134cd2d9d2e3c9e9a6cd4",
+            "type": "chore",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "39e1184",
+            "message": "docs(agent): full arm comparison across two papers, with the leakage caveat",
+            "body": "Replaces the single-paper table with both papers and all arms, and states the\nleakage plainly: the role prompts were written after reading the first paper's\nreference review and name the patterns it found, so recall on that paper is\nin-sample and the held-out paper is the honest measurement.\n\nThe recommendation follows what was measured rather than the premise the\nbranch started from: the staged pipeline leads on coverage and asserts the\nmost unsupported claims, the agent arms reverse both, so verification is added\nto the generator instead of replacing it.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/39e1184440cb393359b99803f9055a13c62fe41e",
+            "type": "other",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "69e604a",
+            "message": "feat(pipeline): add --refute, an independent re-check of every comment",
+            "body": "The arm comparison measured generation and verification as complements, not\nsubstitutes. On both benchmark papers the staged pipeline was the coverage\nleader and also asserted the most claims the paper does not support: 15 of 32\non one, 16 of 31 on the other, roughly half. The agent arms reversed both,\nasserting almost nothing unsupported while finding far too little.\n\nSo rather than replacing the staged pipeline, refute_comments applies the\nagent runtime's gate to the comments it already produced. Each one goes to a\nfresh-context agent that sees the claim and its quote, has tool access to the\nwhole paper, and must reproduce the defect; a comment it cannot reproduce is\ndropped, and one that is real but misstated is rewritten from the refuter's\ncorrected claim. A comment whose check could not run is kept, so an\ninfrastructure failure never silently deletes a finding.\n\nExposed as review_paper(refute=True) and 'coarse review --refute', off by\ndefault, with a pipeline_refuted evaluation arm.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/69e604ac4ddfcba83b27b7fb3fa26f64eba89e2b",
+            "type": "feat",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "b43b5c2",
+            "message": "feat(cli): add --agent to run a review through the bounded agent runtime",
+            "body": "Until now the agent runtime had no entry point: review_paper always ran the\nstaged pipeline, so the whole package was unreachable from the CLI or the\nlibrary. review_paper takes agent_mode (sweep|swarm|single) and `coarse\nreview --agent <mode>` sets it. Default None, so the staged path is\nunchanged.\n\nThe agent branch reuses the shared quote verifier and renderer rather than\nits own, so the verbatim-quote guarantee is identical on both paths; a test\ncovers that a fabricated quote is still dropped from an agent review.\n\npipeline.py joins the oversized-module allowlist at 880 lines. Moving the\nquote-repair helpers to review_stages.py would have kept it under the cap but\nbroke 22 tests that patch those names on coarse.pipeline, so that refactor\nbelongs in its own change rather than riding along here.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/b43b5c26812915e57af52f07240fd69827a0b535",
+            "type": "feat",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "c60e665",
+            "message": "chore(tests): record the prompts.py cap bump for the sweep brief",
+            "body": "",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/c60e665ace43b616d0fb6b4c6edf5001c5b8a6a8",
+            "type": "chore",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "d46c9fd",
+            "message": "feat(agent): add sweep mode \u2014 broad coverage behind the refutation gate",
+            "body": "Measured separately on the benchmark paper, the two capabilities were\ncomplementary rather than competing. A single full-paper pass reached nine of\nsixteen reference findings but asserted one the paper does not support. The\nrole swarm asserted nothing unsupported across three runs, and reached two\nappendix findings nothing else reached (a one-sided premise in a composition\nlemma, and a curvature bound off by a factor of two), but only three to five\nfindings in total: narrow targets do not cover a paper.\n\nSweep divides every reviewable section into contiguous regions, one per\ninvestigator, and briefs each for breadth rather than for a single question --\nsame demonstration bar, but abstention is no longer the expected outcome. Every\ncandidate still passes through an independent fresh-context refuter before the\neditor sees it. The brief also tells a sweeper to search the rest of the paper\nbefore reporting that something is missing, which is the failure that produced\nevery unsupported comment in the pipeline arm.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/d46c9fd3d5732b398e06d0ff2aa564c15b080b2b",
+            "type": "feat",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "54031a7",
+            "message": "fix(agent): require the planner to name at least one target",
+            "body": "The planner submitted an empty plan on every run, after seven turns and ten\nof its thirty-five permitted tool calls, so it was not running out of budget:\nInvestigationPlan simply allowed an empty list, and an empty submission\nvalidated. The orchestrator then fell back to structural targets and the\nLLM plan was never used.\n\nAn empty plan is never a useful answer, unlike an empty FindingBatch where\nabstention is the point. Requiring a target makes the empty submission fail\nvalidation, which the runner already feeds back to the agent as a rejection\nto repair.\n\nAlso adds evals/prepare_paper.py, which extracts a held-out paper, analyzes\nits structure and atomizes its reference review mechanically (one finding per\nmacro issue and per detailed comment). Needed because the role prompts were\nwritten after reading the first paper's reference review and name the patterns\nthat review found, so recall on that paper is in-sample and cannot support a\nquality claim on its own.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/54031a76943185d8908b0fae580bd2fed93c6fd8",
+            "type": "fix",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "170f4fe",
+            "message": "fix(agent,evals): enforce the ledger link in code and audit macro issues too",
+            "body": "Two measurement and safety gaps the first arm comparison exposed.\n\nThe editor was told to write only from confirmed findings but nothing checked\nit. Each detailed comment now carries the finding id it reports, and a comment\nwhose id is not in the confirmed set is dropped, so a finding an independent\nrefuter did not reproduce cannot re-enter the report through the editor. When\nthe editor attributes nothing at all the comments are kept and the degradation\nis logged, rather than discarding a whole report over a missing field.\n\nPrecision was adjudicated over detailed comments only while recall credited\nmacro issues as well, so an arm that put its claims in the overall feedback\nwas credited for hits and never charged for misses. On the benchmark paper\nthat asymmetry mattered a great deal: the whole of one arm's measured recall\ncame from its macro issues and none of its 21 detailed comments matched a\nreference finding. Both halves of a review are now adjudicated, and recall\nreports how many hits came from a detailed comment rather than only from a\nmacro issue.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/170f4fe1d7cfda6748027e65da88b6e07687c0fc",
+            "type": "fix",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "2cff4df",
+            "message": "chore(evals): untrack local benchmark run logs",
+            "body": "",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/2cff4df6e175ba8d4414c4aef7e7047ff1613f0c",
+            "type": "chore",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "096db95",
+            "message": "fix(pipeline): keep a proof whose title the heading parser mangled",
+            "body": "Section eligibility filtered on the title, dropping any section titled\n`<!-- PAGE BREAK -->`. When a page break falls immediately before a heading\nthe parser uses the marker as the title and leaves the real heading in the\nbody, so such a section can hold real content: on the benchmark paper one is\n1,107 characters of \"A.6 Proof of Theorem 2\", the proof of the paper's\ncentral result, and the reference review's critical finding is about a step\nin it.\n\nEligibility is now judged on the text alone. The underlying mis-titling in\nstructure.py is untouched.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/096db95f75a49a65be5442b02ddf1506919e096c",
+            "type": "fix",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "0c8265c",
+            "message": "chore(evals): ignore local benchmark run logs",
+            "body": "",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/0c8265c95633e8171d773a0aa6d4e6472f637947",
+            "type": "chore",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "d4ef381",
+            "message": "docs(agent): record the measured arm comparison",
+            "body": "The pipeline matched a plain one-prompt baseline's recall while emitting seven\ncriticisms the adjudicator found unsupported, and all seven fail for the same\nreason: the objection is answered elsewhere in the paper, where a\nsingle-section prompt cannot see it.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/d4ef381dcc54fb4fcaec06002a3b580b75fcfa75",
+            "type": "other",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "abfd94f",
+            "message": "fix(agent): keep the swarm from collapsing to one target when planning fails",
+            "body": "The planner spent its 15-call tool budget skimming the paper, was told the\nbudget was exhausted, and submitted an empty plan. The orchestrator then fell\nback to a single whole-paper target, so an eight-way swarm ran as one broad\ninvestigation and returned one finding.\n\nThree changes: the planner's tool budget goes to 35, since it has to skim\ntheorem statements across a long paper before it can name targets; the\nbudget-exhaustion message now tells an agent to submit what it has rather\nthan inviting an empty result; and the fallback derives one target per\nsection from the paper's own structure, ranked as select_reviewable_sections\nranks, instead of collapsing to a single catch-all.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/abfd94f672c9974b5bf6651fb392196d211980a0",
+            "type": "fix",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "479758a",
+            "message": "refactor(pipeline): move section selection into review_stages",
+            "body": "Keeps pipeline.py under the 800-line architecture cap and puts the helper\nwith the other stage-local helpers it sits beside.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/479758a050f7861d0151a1e10e7704bc18a25af2",
+            "type": "refactor",
+            "branch": "feat/agentic-review-harness"
+          },
+          {
+            "sha": "8dafc31",
+            "message": "fix(pipeline): stop discarding a long paper's appendices before review",
+            "body": "Section selection was [:MAX_REVIEWABLE_SECTIONS] over document order. When a\npaper parses into more sections than the cap, the discarded tail is where the\nappendices are, so on a 41-section theory paper every proof appendix was\ndropped before any agent saw it, including a 14k-character proof of the\npaper's main proposition. All six detailed findings in the reference review\nfor that paper sit in the discarded range.\n\nselect_reviewable_sections now drops what is not reviewable at all (empty or\nmarker-only sections from the heading parser, reference lists, and the\nacknowledgements section that the parser frequently absorbs the bibliography\ninto), then, if the cap still binds, keeps sections by length with\nmathematical content weighted 2.5x rather than by position. Weighting rather\nthan ordering math first matters: strict ordering dropped a 5.6k-character\nnumerical appendix in favour of a 551-character corollary proof. Output stays\nin document order because downstream numbering is positional.\n\nOn the benchmark paper this takes the appendix proofs reviewed from 0 to 11,\nincluding A.10, Appendix B and Appendix C. The cap still binds at 25 of 30\nreviewable sections, so Section 10's short discussion is now the marginal\ndrop; the cross-section stage covers discussion claims separately.\n\nAlso adds the zero-spend test suites for the agent runtime (workspace, tools,\nsandbox, tool loop, role orchestration), documents the agent package and\nseven previously undocumented modules in the package-structure tables that\ndoc-sync-check enforces, and bumps the recorded size caps for prompts.py and\nllm.py.",
+            "author": "David Van Dijcke",
+            "date": "2026-11-21",
+            "url": "https://github.com/Davidvandijcke/coarse/commit/8dafc31a7dbcd20a0cdc8a3435249d26fb192548",
+            "type": "fix",
+            "branch": "feat/agentic-review-harness"
+          }
+        ]
+      },
+      {
+        "owner": "MicheleNuijten",
+        "repo": "statcheck",
+        "url": "https://github.com/MicheleNuijten/statcheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 6,
+        "pushed_at": "2026-10-29T13:57:18Z",
+        "recent_commits": [
+          {
+            "sha": "1088bb1",
+            "message": "Merge pull request #121 from MicheleNuijten/update-manual",
+            "body": "Add the statcheck manual source (updated for 1.6.1)",
+            "author": "Mich\u00e8le Nuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/1088bb199331145c4eaa4cbdb14e79ba02bafa92",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "0251fa8",
+            "message": "don't sync rsconnect files (to publish manual)",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/0251fa8bf03f598fa5a89958eb050d7e573d0706",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "b67f521",
+            "message": "small fixes",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/b67f5214b899f6a4c2d21dd06b38ebd2bd04f786",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "7d4b667",
+            "message": "type setting",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/7d4b66754126292d77dc1fc1becdb3aef38cc7c5",
+            "type": "other",
+            "branch": "master"
+          },
+          {
+            "sha": "7403951",
+            "message": "restructure some text",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/7403951adc699710248d80b48f3aa6fedf342b99",
+            "type": "refactor",
+            "branch": "master"
+          },
+          {
+            "sha": "03f602d",
+            "message": "update text and add additional screenshots and figs",
+            "body": "",
+            "author": "MicheleNuijten",
+            "date": "2026-10-29",
+            "url": "https://github.com/MicheleNuijten/statcheck/commit/03f602d1e61e76efb44e82e82a45fe4a13af2107",
+            "type": "feat",
+            "branch": "master"
+          }
+        ]
+      },
+      {
+        "owner": "scienceverse",
+        "repo": "metacheck",
+        "url": "https://github.com/scienceverse/metacheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-11-20T09:11:42Z",
+        "recent_commits": [
+          {
+            "sha": "50f3c0c",
+            "message": "Merge pull request #701 from scienceverse/fix_699_download_limits",
+            "body": "Download limits (first part of #699): no download path without a limit, ResearchBox held to the limits; unreachable sequence archives (0.4.4.28)",
+            "author": "Daniel Lakens",
+            "date": "2026-11-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/50f3c0cecba8600b0546c5d398127227f7e3b52b",
+            "type": "chore",
+            "branch": "dev"
+          },
+          {
+            "sha": "178dfdd",
+            "message": "An archive downloaded whole to take files out of it is held to max_file_size as well, in download_repo_files() and in code_check's zip reading (#699): on the Meta-Psychology papers, an OSF zip of 20.5 MB reported as left out by a 20 MB limit was still downloaded whole.",
+            "body": "",
+            "author": "Lakens",
+            "date": "2026-11-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/178dfdd4b440254c30dbf5a23a32a059d12065b5",
+            "type": "other",
+            "branch": "dev"
+          },
+          {
+            "sha": "463cd30",
+            "message": "Download limits, first part of #699: no download path without a limit; ResearchBox held to the limits; GEO, ENA and ArrayExpress records whose archive did not answer are \"unreachable\", not \"unfound\". Version 0.4.4.28",
+            "body": "- download_repo_files() names each file a limit left out, with the reason, in a new attribute \"limit_refused\". code_check does not read such a file from the web; any other code file read from the web is fetched through .download_capped() and stops at max_file_size. A code file inside an archive is no longer requested from the address \"NA\" with download = FALSE.\n- reproducibility_check passes max_file_size and max_download_size to the code_check it runs.\n- .tar_fetch_members() stops an archive of unknown size at what is left of the budget.\n- ResearchBox: repo_check (and data_check and code_check, which pass them on) and rbox_file_download() have max_file_size and max_download_size. With an API key the file list is asked first and only the smallest files up to the budget are downloaded; without a key the download stops at the budget and the box is reported as not downloaded. .download_capped() takes a prepared request.\n- The message about files over max_file_size rounds the largest size up to 0.1 MB.\n- seq_archive_info(): .seq_fetch() tells an archive that did not answer from one that has no such record.\n- Documentation corrected: a file of unknown size is downloaded up to a limit, not skipped; osf_file_download()'s default mode is \"all\", without limits; download_repo_files()'s budget counts only the files of one call.",
+            "author": "Lakens",
+            "date": "2026-11-20",
+            "url": "https://github.com/scienceverse/metacheck/commit/463cd306b87e895a088e9868530734b0a331d8ef",
+            "type": "chore",
+            "branch": "dev"
+          }
+        ]
+      },
+      {
+        "owner": "brandmaier",
+        "repo": "reproducibleRchunks",
+        "url": "https://github.com/brandmaier/reproducibleRchunks",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 3,
+        "pushed_at": "2026-10-22T11:46:24Z",
+        "recent_commits": [
+          {
+            "sha": "eabbdb8",
+            "message": "updated JSON files for vignettes",
+            "body": "",
+            "author": "brandmaier",
+            "date": "2026-10-22",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/eabbdb8b4a66c3b2386c824fe49b5c37b1b5f064",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "376f7e2",
+            "message": "updated docs/vignettes",
+            "body": "",
+            "author": "brandmaier",
+            "date": "2026-10-22",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/376f7e25612ec8b26a9b5c790cd0beaf4eede676",
+            "type": "docs",
+            "branch": "main"
+          },
+          {
+            "sha": "f494d4c",
+            "message": "vignettes",
+            "body": "",
+            "author": "brandmaier",
+            "date": "2026-10-22",
+            "url": "https://github.com/brandmaier/reproducibleRchunks/commit/f494d4cf88aea95c861814c6d795a452215d59e1",
+            "type": "docs",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "quest-bih",
+        "repo": "oddpub",
+        "url": "https://github.com/quest-bih/oddpub",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-10-23T12:35:51Z",
+        "recent_commits": [
+          {
+            "sha": "16a3cea",
+            "message": "version bump",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-10-23",
+            "url": "https://github.com/quest-bih/oddpub/commit/16a3cea30aa4742fc6a6fb5321f58864ffb9dbae",
+            "type": "chore",
+            "branch": "main"
+          },
+          {
+            "sha": "eb4f800",
+            "message": "patch nature portfolio removal",
+            "body": "",
+            "author": "ontogenerator",
+            "date": "2026-10-23",
+            "url": "https://github.com/quest-bih/oddpub/commit/eb4f8006c823ae6bd3a17e26ef90b68a2a320a95",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "shaheedazaad",
+        "repo": "auto-zcurve",
+        "url": "https://github.com/shaheedazaad/auto-zcurve",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 2,
+        "pushed_at": "2026-11-20T06:41:19Z",
+        "recent_commits": [
+          {
+            "sha": "473bf09",
+            "message": "Merge pull request #50 from shaheedazaad/openrouter-schema-prompt",
+            "body": "Show OpenRouter models the schema; flag extractions with no effects",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-20",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/473bf09f32368a79119e9368ae49ae13a9be357b",
+            "type": "other",
+            "branch": "main"
+          },
+          {
+            "sha": "51b5de2",
+            "message": "Merge pull request #49 from shaheedazaad/max-output-tokens",
+            "body": "Add a per-extractor maximum output setting",
+            "author": "Shaheed Azaad",
+            "date": "2026-11-20",
+            "url": "https://github.com/shaheedazaad/auto-zcurve/commit/51b5de2792a83c10cd0cc9051987b35baa99c29f",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      },
+      {
+        "owner": "JamieCummins",
+        "repo": "regcheck",
+        "url": "https://github.com/JamieCummins/regcheck",
+        "summary": "Summary unavailable.",
+        "commits_since_last": 1,
+        "pushed_at": "2026-11-09T10:56:19Z",
+        "recent_commits": [
+          {
+            "sha": "67798cc",
+            "message": "update model default",
+            "body": "",
+            "author": "Jamie Cummins",
+            "date": "2026-11-09",
+            "url": "https://github.com/JamieCummins/regcheck/commit/67798ccc293dae048a9ebc3771a0a49fbe76e46e",
+            "type": "other",
+            "branch": "main"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "generated_at": "2026-11-20T23:53:18.980029+00:00",
     "narrative": "",
     "repos": [
@@ -38678,662 +39224,6 @@
             "url": "https://github.com/cjvanlissa/worcs/commit/d883359de0250edf90f4f88c2384bdb23e2d1d9f",
             "type": "other",
             "branch": "master"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "generated_at": "2026-10-22T03:19:33.840938+00:00",
-    "narrative": "",
-    "repos": [
-      {
-        "owner": "scienceverse",
-        "repo": "metacheck",
-        "url": "https://github.com/scienceverse/metacheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 30,
-        "pushed_at": "2026-10-21T13:50:21Z",
-        "recent_commits": [
-          {
-            "sha": "7b6cd21",
-            "message": "Merge pull request #522 from scienceverse/dev",
-            "body": "Update main to dev (0.4.1.2)",
-            "author": "Daniel Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/7b6cd21c3dccbac2a9a2e693aa68150617537bfd",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "3580fdb",
-            "message": "Merge pull request #521 from scienceverse/fix/520",
-            "body": "Fixes for #520 (0.4.1.2)",
-            "author": "Daniel Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/3580fdb53147615d89e6ecacdbce38535d493c03",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "1697fa6",
-            "message": "Version 0.4.1.2",
-            "body": "",
-            "author": "Daniel Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/1697fa64e831cc1b9480822fd4b69312177c71cf",
-            "type": "chore",
-            "branch": "dev"
-          },
-          {
-            "sha": "7cf6b88",
-            "message": "A file only inside an archive is a missing input in the package layout (#520, item 2)",
-            "body": "",
-            "author": "Daniel Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/7cf6b88fd5d1880f55641908143563f0ecf58a3b",
-            "type": "other",
-            "branch": "dev"
-          },
-          {
-            "sha": "e48859b",
-            "message": "codebook_check: a codebook entry without a label no longer stops it (#520, item 1)",
-            "body": "",
-            "author": "Daniel Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/e48859b7eb2355cf0805361dd73c50e871d30f27",
-            "type": "other",
-            "branch": "dev"
-          },
-          {
-            "sha": "712617f",
-            "message": "Merge pull request #519 from scienceverse/bug_fix",
-            "body": "Bug fixes from #507 and the TU/e data manager check batch runs (0.4.1.1)",
-            "author": "Daniel Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/712617fda0ebbc77409152abebd17f06987c1202",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "d4b3f3b",
-            "message": "Merge dev into bug_fix; version 0.4.1.1",
-            "body": "",
-            "author": "Daniel Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/d4b3f3b8d0747f7872d4c1ad49b63d3e1a4cf136",
-            "type": "fix",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "19a1dba",
-            "message": "No S3 warning about library() in script output; the container's capture code knows the statistic names (Lakens/tue_datamanager_check#5, item 4)",
-            "body": "",
-            "author": "Daniel Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/19a1dba153cba280ff486acdc49588edc9d75bcd",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "377ade9",
-            "message": "An .rds file made with save() is opened with the .RData reader, with a warning (Lakens/tue_datamanager_check#5, item 3)",
-            "body": "",
-            "author": "Daniel Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/377ade9671b66987b895a83d042da3cf829bab2e",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "f05e150",
-            "message": "Reports name a local folder by its own name, not the server's job path (Lakens/tue_datamanager_check#5, item 2)",
-            "body": "",
-            "author": "Daniel Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/f05e1508430cba1208fe03dda741bc28d60aa7dd",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "fdb71db",
-            "message": "data_check: columns whose values need an R package are read as their plain values, with a warning (Lakens/tue_datamanager_check#4, item 8a)",
-            "body": "",
-            "author": "Daniel Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/fdb71db8a1ffab5e02047901b6648d215cc8d8ee",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "639cb6c",
-            "message": "reproducibility_check: total_timeout, one time limit for all scripts together (default one hour) (Lakens/tue_datamanager_check#4, item 6)",
-            "body": "",
-            "author": "Daniel Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/639cb6cca2fd19effc9fd0ec9287e705bf5cec5d",
-            "type": "chore",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "272405e",
-            "message": "Repository check app: an empty .zip is called empty, not damaged (Lakens/tue_datamanager_check#4, item 8)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/272405eaaecd4fc15b79091e1e32ee86da75a328",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "4d10adf",
-            "message": "llm(): every request bounded by llm_timeout(); no retry after it (Lakens/tue_datamanager_check#4, item 7)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/4d10adf9a558e7b8bab189ecd28c6aa80998e480",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "9a8378e",
-            "message": "Calls kept as written are not quoted in the sandbox scripts (Lakens/tue_datamanager_check#4, item 9)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/9a8378e9996f8242833a8a3a5092c6ef954b1701",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "f3e02bc",
-            "message": "Old .xls files are first opened in a separate R process (Lakens/tue_datamanager_check#4, item 4)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/f3e02bc2724fc9be239e8841ad904d7fe3f80d2e",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "cdc8d71",
-            "message": "Sandbox removes base::setwd() and chdir() under any module name (Lakens/tue_datamanager_check#4, item 5)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/cdc8d71a3544467a12f2c6643bd5a7671e16e6c9",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "203b661",
-            "message": "psychds_check: each paper of a list checked from its own files (#507: U113)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/203b661608697b4ee1bc5d0c2bc485256fd2ba3c",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "492486a",
-            "message": "LLM cache key without the R version; GITHUB_PAT does not pick the defunct provider (#507: U20, partly)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/492486acd785e12c182bcff0682ee1dee07243e9",
-            "type": "chore",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "48ca590",
-            "message": "Reproducibility helpers: missing file_size, install row columns, mirror ties, undated archive lines (#507: U135)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/48ca590c90f2be931ec446deda9d4399ebb90f8e",
-            "type": "chore",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "faa0c9d",
-            "message": "Statistics ids: NA source prefix, no repeated prefix, both underscores trimmed (#507: U138)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/faa0c9d1c67f5ac963acb31407aba68b724fb1a5",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "a9580a1",
-            "message": "marginal: reference authors as person objects (#507: U3)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/a9580a1c11428e13427eae189cbcc168a804543f",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "f7e21da",
-            "message": "stat_effect_size: both-eta note kept; full stop (#507: U125)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/f7e21da28d9d92960da3d5107aa8de54b20f421f",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "b357480",
-            "message": "bibr12 date-times: four-digit years; vectorised (#507: U26)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/b357480d0d3e968fb457ed57b10e22a289ba2c15",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "d91cb06",
-            "message": "Repeat downloads keep the deposit id in the folder name (#507: U37)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/d91cb06840f1d4077c3124bdf9455b1c2e04dc6e",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "b6c64a2",
-            "message": "RetractionWatch without blank DOIs; stat_check summary rows for a list (#507: U15, U124)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/b6c64a25efa46b0578a1f5f7e47ea26f323d7ab9",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "c7e85da",
-            "message": "Plurals and typos in module text; archive timeout message and file_name matching (#507: U82, U83, U73)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/c7e85daa2332f316bcb4841f49a026bf1644efe3",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "f0479ef",
-            "message": "Report cosmetics: all authors, paper-list file names, line breaks in blank columns, progress width (#507: U6, U130, U131, U50)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/f0479ef3df34bc7773f27dbeb982d20b57c2910c",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "a24f1af",
-            "message": "psychds plan: misplacement against the final target; valid data names kept (#507: U112, partly)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/a24f1af09e6279a6018d9dc92768fc76c1000ceb",
-            "type": "other",
-            "branch": "bug_fix"
-          },
-          {
-            "sha": "e19628b",
-            "message": "CrossRef records with null fields; OpenAlex relevance sorted as numbers (#507: U13, partly)",
-            "body": "",
-            "author": "Lakens",
-            "date": "2026-10-21",
-            "url": "https://github.com/scienceverse/metacheck/commit/e19628be250a65daaf1d5ca3c7425567aaa72932",
-            "type": "other",
-            "branch": "bug_fix"
-          }
-        ]
-      },
-      {
-        "owner": "Davidvandijcke",
-        "repo": "coarse",
-        "url": "https://github.com/Davidvandijcke/coarse",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 18,
-        "pushed_at": "2026-10-05T19:23:40Z",
-        "recent_commits": [
-          {
-            "sha": "7af2cca",
-            "message": "fix: preserve native Unicode text and avoid unused credential loading (#309)",
-            "body": "",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/7af2cca465dffb31337fa50b9f95ce956d348a32",
-            "type": "fix",
-            "branch": "dev"
-          },
-          {
-            "sha": "a15825c",
-            "message": "fix: preserve native Unicode text and avoid unused credential loading",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/a15825cc290a3b5fc1a6dce800b9959d6176ad51",
-            "type": "fix",
-            "branch": "codex/native-pilot-text"
-          },
-          {
-            "sha": "a81633d",
-            "message": "Clarify native pilot app handoff (#308)",
-            "body": "* fix(web): clarify native pilot app handoff copy\n\n* docs: clarify native pilot publication lifetime",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/a81633d58a403539cdc6b9064414dee9f9cb760c",
-            "type": "other",
-            "branch": "codex/native-pilot-text"
-          },
-          {
-            "sha": "e76c24c",
-            "message": "docs: clarify native pilot publication lifetime",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/e76c24cd52cf5d4be93c8a3f5c6cf6fa3a4714d8",
-            "type": "other",
-            "branch": "codex/native-pilot-copy"
-          },
-          {
-            "sha": "22c9e76",
-            "message": "fix(web): clarify native pilot app handoff copy",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/22c9e76ee2e9a5ba2a213dbb87a164b9a2ec9a56",
-            "type": "fix",
-            "branch": "codex/native-pilot-copy"
-          },
-          {
-            "sha": "1132cb4",
-            "message": "Add opt-in native app review pilot (#307)",
-            "body": "* feat: add opt-in native app review pilot\n\n* fix: preserve native author notes and checkpoint dependencies",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/1132cb49062633510e34ae3067fe9a3b3834b9cd",
-            "type": "feat",
-            "branch": "codex/native-pilot-copy"
-          },
-          {
-            "sha": "be810bb",
-            "message": "fix: preserve native author notes and checkpoint dependencies",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/be810bbfbd6898e179c3995c63fcbadde0087538",
-            "type": "fix",
-            "branch": "codex/native-review-pilot"
-          },
-          {
-            "sha": "91e17db",
-            "message": "feat: add opt-in native app review pilot",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/91e17dbecc2657478cb68aceee045a11326bc359",
-            "type": "feat",
-            "branch": "codex/native-review-pilot"
-          },
-          {
-            "sha": "2e813b2",
-            "message": "Merge pull request #306 from Davidvandijcke/dev",
-            "body": "Release v1.9.6: fix subscription handoff links",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/2e813b28b76ee0679aa48bb174f6de8700f692db",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "6aedb6f",
-            "message": "Fix Markdown-wrapped subscription review handoffs (#305)",
-            "body": "* fix: normalize Markdown-wrapped subscription handoff URLs\n\n* test: exercise all subscription handoff transports and shell arguments\n\n* release: prepare subscription handoff hotfix v1.9.6\n\n* docs: synchronize README with hotfix package version",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/6aedb6f55d3635df462dac8130cc4497726d8648",
-            "type": "fix",
-            "branch": "codex/native-pilot-copy"
-          },
-          {
-            "sha": "38e7e64",
-            "message": "docs: synchronize README with hotfix package version",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/38e7e640a737805869b29659c65ceb822eb1c407",
-            "type": "docs",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "72063e2",
-            "message": "release: prepare subscription handoff hotfix v1.9.6",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/72063e20b0c917bc8daeb1008506fd47c689a15d",
-            "type": "chore",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "1736525",
-            "message": "test: exercise all subscription handoff transports and shell arguments",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/1736525fc748154715cefa0d3ff05abf30ac1678",
-            "type": "test",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "f9e66a6",
-            "message": "fix: normalize Markdown-wrapped subscription handoff URLs",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/f9e66a631b57894d00549376f21ceac4310e4834",
-            "type": "fix",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "f02f00e",
-            "message": "Merge pull request #304 from Davidvandijcke/dev",
-            "body": "Release v1.9.5: current model defaults and subscription handoffs",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/f02f00e8208bc65a065409e845da4099be19e0a4",
-            "type": "other",
-            "branch": "main"
-          },
-          {
-            "sha": "1a0cb67",
-            "message": "Refresh model defaults and Claude Code/Codex handoffs for October (#303)",
-            "body": "* Refresh October model defaults and subscription handoffs\n\n* Verify native handoffs and update urllib3 security floor",
-            "author": "David Van Dijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/1a0cb67aedd3aede256802319339865dddcd1ec4",
-            "type": "other",
-            "branch": "codex/fix-handoff-markdown"
-          },
-          {
-            "sha": "bba0213",
-            "message": "Verify native handoffs and update urllib3 security floor",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/bba0213481ec6417e037063ec1776c39cfa7424e",
-            "type": "other",
-            "branch": "fix/october-model-refresh"
-          },
-          {
-            "sha": "23aac17",
-            "message": "Refresh October model defaults and subscription handoffs",
-            "body": "",
-            "author": "Davidvandijcke",
-            "date": "2026-10-05",
-            "url": "https://github.com/Davidvandijcke/coarse/commit/23aac179ca8813678c38b02f66d810567bddbf5d",
-            "type": "other",
-            "branch": "fix/october-model-refresh"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "docpluck",
-        "url": "https://github.com/giladfeldman/docpluck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 8,
-        "pushed_at": "2026-10-13T16:43:09Z",
-        "recent_commits": [
-          {
-            "sha": "ca4e816",
-            "message": "docs(cleanup): document W0t, flattened CI level (CI_level) and the table-text-duplicate marker",
-            "body": "",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/ca4e8166dc3be03eb1c3c1afc1a925161dca2fb1",
-            "type": "refactor",
-            "branch": "main"
-          },
-          {
-            "sha": "46207c5",
-            "message": "fix(naming): the compound-hyphen rule is W0t; W0o already names the '<'-as-'b' recovery",
-            "body": "",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/46207c5e33565b156089b02b28743144e32cec72",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "5112521",
-            "message": "fix(tests,docs): v2.4.153 suite follow-ups - citation version, Well-Being heading, flatten helper passes level context",
-            "body": "Full suite on eccd3fa: 5 failed / 3796 passed. Two timing tests failed under machine load and pass\nalone (5.8 s). CITATION.cff and README cited 2.4.152. The ip_feldman heading test asserted the\ndehyphenated \"WellBeing\" that W0o now restores to the printed \"Well-Being\". The blank-header test\nhelper copies flatten_table's row loop but did not pass level_context, so its caption\n\"d or dz [95% CI]\" never reached _interval_level; production passes it (flatten.py:2040).",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/51125214e7df2a423d5f504637a8d5bb6553a3ed",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "ab8a3ef",
-            "message": "fix(diag): render_deletion_scan counts a table-text copy that yields to its grid separately",
-            "body": "QA 3c on v2.4.153 flagged 76 lines in 6 papers deleted by _suppress_orphan_table_cell_text; every\nnumber of them is in an emitted <table>. The \"survives near the same position\" rule cannot see a grid\nplaced elsewhere. A step output carrying a table-text-duplicate marker folds out its removed lines\nonly when their combined numbers (the scan's own tokenizer, with multiplicity) are all in the\n<table> blocks; they are printed as YIELDED TO GRID, never silently. A planted missing value and a\nduplicated value still fail the fold.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/ab8a3efbc9ab50ecfd92c1167b1fbf3de25942b6",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "eccd3fa",
-            "message": "release: v2.4.153 - W0o compound hyphens, table-text duplicate yields to its grid, flattened CI level is the table's own",
-            "body": "normalization 1.9.73, table extraction 2.4.23. Corpus (101 manifest PDFs): 313 hyphen restorations,\n64 duplicate markers in 30 papers with 0 numbers lost, 69 of 10,713 flattened rows change level.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/eccd3fa7d3f5e0f4eb08def104a9029a8c3f0345",
-            "type": "chore",
-            "branch": "main"
-          },
-          {
-            "sha": "22b2565",
-            "message": "fix(normalize): W0o leaves a glued span two compounds claim; test that ranges tokenize as ranges",
-            "body": "Tier-2 consult round 3 (Sonnet, 2026-10-13) on c55b34c: pooling sites per prefix let `re-sent`\nand `res-ent` both rewrite one glued `resent`, giving `re-sentres-ent` (reproduced). A span with\ntwo claims is ambiguous, so neither fires. Also pins that `2008\u20132013` and `2008-2013` tokenize as\n2008 and 2013 in the table-text duplicate coverage test.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/22b2565f6ac221242a3f38f567c2f502bfe39e26",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "c55b34c",
-            "message": "fix: W0o never hyphenates a word the page prints glued; table-text duplicate compares every label and symbol",
-            "body": "Tier-2 consult round 2 (Sonnet, 2026-10-13), each finding reproduced before the fix:\n- W0o: the \"printed glued\" test compared whole layout words, so a glued word inside a\n  space-less pdfplumber token was missed. 10.1016/j.jesp.2020.103977 p9 prints \"nonmoral\"\n  and 10.1109/access.2024.3358206 p14 prints \"multimodal\" (rasterized); both rendered\n  hyphenated. The test now searches every hyphen-free letter stretch (NFKC-folded) of every\n  layout word.\n- W0o: one line-end \"A-\" fragment licensed a site in every compound starting A (annals\n  human-: 13 sites, 6 fragments). Sites are now pooled per prefix against the fragments.\n- table-text duplicate: Greek letters, single-letter labels (p, F, d) and the symbols\n  * x ~ != + are compared too; grid tokens come only from grids that survive the later\n  phantom-table strip.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/c55b34c75859b7edc8d0ffebbaa1e597226c7ed0",
-            "type": "fix",
-            "branch": "main"
-          },
-          {
-            "sha": "378a2bd",
-            "message": "fix(render): table-text duplicate compares operators, needs specific values, reads ranges as ranges",
-            "body": "Tier-2 consult (Sonnet, 2026-10-13) on ad36764: coverage ignored < > = +- * daggers %, a run of small\nintegers could be covered by coincidence, and 12-15 tokenized as 12 and -15. Operators/markers are\nnow a multiset that must be covered, a run needs 3+ values with a decimal or 3+ digits, and a minus\nafter a word character or dot is a dash. Canary: ip_feldman Table 2 plain caption is italicized\nin the duplicate arm as in the deletion arm.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-13",
-            "url": "https://github.com/giladfeldman/docpluck/commit/378a2bdb3111da3ccfaed907990bc656534e6392",
-            "type": "fix",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "MicheleNuijten",
-        "repo": "statcheck",
-        "url": "https://github.com/MicheleNuijten/statcheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-10-20T15:00:22Z",
-        "recent_commits": [
-          {
-            "sha": "7128d9a",
-            "message": "update logo to png as requested by cran and fix some warnings in readme",
-            "body": "",
-            "author": "MicheleNuijten",
-            "date": "2026-10-20",
-            "url": "https://github.com/MicheleNuijten/statcheck/commit/7128d9a651434861911b859cfc81ca93870f08a8",
-            "type": "fix",
-            "branch": "small-updates-release-1.6.0"
-          }
-        ]
-      },
-      {
-        "owner": "JamieCummins",
-        "repo": "regcheck",
-        "url": "https://github.com/JamieCummins/regcheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-10-12T18:28:04Z",
-        "recent_commits": [
-          {
-            "sha": "50c8017",
-            "message": "fix clinical trials versioning issue",
-            "body": "",
-            "author": "Jamie Cummins",
-            "date": "2026-10-12",
-            "url": "https://github.com/JamieCummins/regcheck/commit/50c80178e8baa3858760cf0d3d04786e23a8602b",
-            "type": "fix",
-            "branch": "main"
-          }
-        ]
-      },
-      {
-        "owner": "giladfeldman",
-        "repo": "escicheck",
-        "url": "https://github.com/giladfeldman/escicheck",
-        "summary": "Summary unavailable.",
-        "commits_since_last": 1,
-        "pushed_at": "2026-10-08T12:30:35Z",
-        "recent_commits": [
-          {
-            "sha": "a12feaf",
-            "message": "sync from escicheckapp@7e5f5d8 (effectcheck v0.7.17) (#46)",
-            "body": "Mirrored from the private escicheckapp repo by scripts/sync-public.sh.\n\nSource commit: 7e5f5d8364916e5c0fce80982efe976b7b60e906\nPackage version: 0.7.17\n\nThis repo is auto-mirrored -- do not hand-edit. Edit effectcheck/ in\nescicheckapp and re-run the sync script.",
-            "author": "Gilad Feldman",
-            "date": "2026-10-08",
-            "url": "https://github.com/giladfeldman/escicheck/commit/a12feafb5becbae29ce6d6360eb221becba51efa",
-            "type": "chore",
-            "branch": "main"
           }
         ]
       }
