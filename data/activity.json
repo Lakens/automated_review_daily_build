@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T22:56:13.414416+00:00",
+  "generated_at": "2026-11-22T05:06:37.856603+00:00",
   "repos": [
     {
       "owner": "scienceverse",
@@ -202,8 +202,8 @@
       "commits_1d": 2,
       "commits_90d": 622,
       "authors_30d": [
-        "Lakens",
-        "Daniel Lakens"
+        "Daniel Lakens",
+        "Lakens"
       ],
       "type_breakdown": {
         "fix": 16,
@@ -718,11 +718,11 @@
         },
         {
           "week": 1793577600,
-          "total": 75
+          "total": 80
         },
         {
           "week": 1794182400,
-          "total": 65
+          "total": 60
         },
         {
           "week": 1794787200,
@@ -1250,130 +1250,6 @@
           "branch": "checks_light_dev",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "4150b31",
-          "message": "Merge pull request #704 from scienceverse/fix_699_parts2_3",
-          "body": "Download limits, parts 2 and 3 of #699: one choice of files per repository, code_check's zips and unpacked archives within the budget (0.4.4.29)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-21",
-          "url": "https://github.com/scienceverse/metacheck/commit/4150b313495511a6bef6be34aeabb00d9bc2ee4d",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {
-            "additions": 936,
-            "deletions": 308,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,6 +1,6 @@\n Package: metacheck\n Title: Check Research Outputs for Best Practices\n-Version: 0.4.4.28\n+Version: 0.4.4.29\n Date: 2026-11-06\n Authors@R: c(\n   person(  given = \"Lisa\","
-              },
-              {
-                "filename": "NEWS.md",
-                "status": "modified",
-                "additions": 10,
-                "deletions": 0,
-                "patch": "@@ -1,5 +1,15 @@\n # metacheck 0.4.4\n \n+* One choice of files per repository for the whole run, and the rest of #699:\n+  * `download_repo_files()` chooses each repository's files once, from its full listing (`repo_listing`, which every check now passes): the kinds of files the checks download, smallest first, none over `max_file_size`, up to `max_download_size`. Every call makes the same choice, so data_check, code_check and reproducibility_check together, in any order and however often, keep a r"
-              },
-              {
-                "filename": "R/archive-4tu.R",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 2,
-                "patch": "@@ -375,8 +375,8 @@ researchdata4tu_pat <- function(pat = NULL) {\n #' }\n researchdata4tu_file_download <- function(researchdata4tu_id,\n                                           download_to,\n-                                          max_file_size = 10,\n-                                          max_download_size = 100,\n+                                          max_file_size = 100,\n+                                          max_download_size = 500,\n                                           unz"
-              },
-              {
-                "filename": "R/archive-dataverse.R",
-                "status": "modified",
-                "additions": 6,
-                "deletions": 5,
-                "patch": "@@ -957,8 +957,9 @@ dataverse_pat <- function(host, pat = NULL) {\n #' (invisibly) a data frame with file info.\n #'\n #' You can limit downloads to only files under a specific size (defaults to\n-#' 10MB) and only a maximum download size (largest files will be omitted until\n-#' total size is under the limit). Omitted files will be listed as messages in\n+#' 100 MB) and to a maximum download size (defaults to 500 MB): the smallest\n+#' files are kept while they fit and the rest omitted, as in\n+#' [dow"
-              },
-              {
-                "filename": "R/archive-dryad.R",
-                "status": "modified",
-                "additions": 6,
-                "deletions": 5,
-                "patch": "@@ -728,8 +728,9 @@ dryad_auth <- function(client_id = NULL, client_secret = NULL,\n #' still be listed (see [dryad_info()]), but nothing can be fetched.\n #'\n #' You can limit downloads to only files under a specific size (defaults to\n-#' 10MB) and only a maximum download size (largest files will be omitted until\n-#' total size is under the limit). Omitted files will be listed as messages in\n+#' 100 MB) and to a maximum download size (defaults to 500 MB): the smallest\n+#' files are kept while the"
-              },
-              {
-                "filename": "R/archive-figshare.R",
-                "status": "modified",
-                "additions": 6,
-                "deletions": 5,
-                "patch": "@@ -1091,8 +1091,9 @@ figshare_pat <- function(pat = NULL) {\n #' zip unless `unzip_types` asks for only specific members out of it.\n #'\n #' You can limit downloads to only files under a specific size (defaults to\n-#' 10MB) and only a maximum download size (largest files will be omitted until\n-#' total size is under the limit). Omitted files will be listed as messages in\n+#' 100 MB) and to a maximum download size (defaults to 500 MB): the smallest\n+#' files are kept while they fit and the rest om"
-              },
-              {
-                "filename": "R/archive-reshare.R",
-                "status": "modified",
-                "additions": 6,
-                "deletions": 5,
-                "patch": "@@ -441,8 +441,9 @@ reshare_info <- function(reshare_url, id_col = 1, pb = NULL, cache = FALSE) {\n #' specific members out of it.\n #'\n #' You can limit downloads to only files under a specific size (defaults to\n-#' 10MB) and only a maximum download size (largest files will be omitted until\n-#' total size is under the limit). Omitted files will be listed as messages in\n+#' 100 MB) and to a maximum download size (defaults to 500 MB): the smallest\n+#' files are kept while they fit and the rest omit"
-              },
-              {
-                "filename": "R/archive-zenodo.R",
-                "status": "modified",
-                "additions": 4,
-                "deletions": 4,
-                "patch": "@@ -489,7 +489,7 @@ zenodo_info <- function(zenodo_url, id_col = 1, pb = NULL, cache = FALSE) {\n #'\n #' Creates a directory for the Zenodo ID and downloads all of the files using a folder structure from the Zenodo project nodes and file storage structure. Returns (invisibly) a data frame with file info.\n #'\n-#' You can limit downloads to only files under a specific size (defaults to 10MB) and only a maximum download size (largest files will be omitted until total size is under the limit). Omitte"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "a2b1f3d",
-          "message": "Download limits, parts 2 and 3 of #699: one choice of files per repository for the whole run, code_check's zips within the budget, archives unpacked within the budget. Version 0.4.4.29",
-          "body": "- download_repo_files() chooses each repository's files once from its full listing (repo_listing, passed by every check), so the checks together keep a repository within one max_download_size; the folder's contents count first, files unpacked from archives at their unpacked size.\n- .code_expand_zip() fetches its code files through download_repo_files().\n- data_check unpacks zip, tar and .gz files only within what is left of the budget, and leaves out archives in renv folders.\n- .safe_write_path() gains root: a long path is shortened below the repository's folder only, so archive files are no longer stored in a second folder the budget did not count.\n- A repository over max_files_per_repo has no files fetched from its archives either.\n- The platform *_file_download() functions default to 100 MB per file and 500 MB in total.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-21",
-          "url": "https://github.com/scienceverse/metacheck/commit/a2b1f3d6c574b34efdde6cbaccf14a7263b8126f",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "50f3c0c",
-          "message": "Merge pull request #701 from scienceverse/fix_699_download_limits",
-          "body": "Download limits (first part of #699): no download path without a limit, ResearchBox held to the limits; unreachable sequence archives (0.4.4.28)",
-          "author": "Daniel Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/50f3c0cecba8600b0546c5d398127227f7e3b52b",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "178dfdd",
-          "message": "An archive downloaded whole to take files out of it is held to max_file_size as well, in download_repo_files() and in code_check's zip reading (#699): on the Meta-Psychology papers, an OSF zip of 20.5 MB reported as left out by a 20 MB limit was still downloaded whole.",
-          "body": "",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/178dfdd4b440254c30dbf5a23a32a059d12065b5",
-          "type": "other",
-          "branch": "dev",
-          "diff": {}
-        },
-        {
-          "sha": "463cd30",
-          "message": "Download limits, first part of #699: no download path without a limit; ResearchBox held to the limits; GEO, ENA and ArrayExpress records whose archive did not answer are \"unreachable\", not \"unfound\". Version 0.4.4.28",
-          "body": "- download_repo_files() names each file a limit left out, with the reason, in a new attribute \"limit_refused\". code_check does not read such a file from the web; any other code file read from the web is fetched through .download_capped() and stops at max_file_size. A code file inside an archive is no longer requested from the address \"NA\" with download = FALSE.\n- reproducibility_check passes max_file_size and max_download_size to the code_check it runs.\n- .tar_fetch_members() stops an archive of unknown size at what is left of the budget.\n- ResearchBox: repo_check (and data_check and code_check, which pass them on) and rbox_file_download() have max_file_size and max_download_size. With an API key the file list is asked first and only the smallest files up to the budget are downloaded; without a key the download stops at the budget and the box is reported as not downloaded. .download_capped() takes a prepared request.\n- The message about files over max_file_size rounds the largest size up to 0.1 MB.\n- seq_archive_info(): .seq_fetch() tells an archive that did not answer from one that has no such record.\n- Documentation corrected: a file of unknown size is downloaded up to a limit, not skipped; osf_file_download()'s default mode is \"all\", without limits; download_repo_files()'s budget counts only the files of one call.",
-          "author": "Lakens",
-          "author_login": "Lakens",
-          "date": "2026-11-20",
-          "url": "https://github.com/scienceverse/metacheck/commit/463cd306b87e895a088e9868530734b0a331d8ef",
-          "type": "chore",
-          "branch": "dev",
-          "diff": {}
-        }
       ]
     },
     {
@@ -1452,8 +1328,8 @@
       "commits_1d": 0,
       "commits_90d": 34,
       "authors_30d": [
-        "MicheleNuijten",
-        "Mich\u00e8le Nuijten"
+        "Mich\u00e8le Nuijten",
+        "MicheleNuijten"
       ],
       "type_breakdown": {
         "other": 12,
@@ -2374,114 +2250,6 @@
           "branch": "master",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "1088bb1",
-          "message": "Merge pull request #121 from MicheleNuijten/update-manual",
-          "body": "Add the statcheck manual source (updated for 1.6.1)",
-          "author": "Mich\u00e8le Nuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/1088bb199331145c4eaa4cbdb14e79ba02bafa92",
-          "type": "other",
-          "branch": "master",
-          "diff": {
-            "additions": 643,
-            "deletions": 452,
-            "files": [
-              {
-                "filename": "vignettes/articles/.gitignore",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 0,
-                "patch": "@@ -1,2 +1,3 @@\n *.html\n *.R\n+rsconnect/\n\\ No newline at end of file"
-              },
-              {
-                "filename": "vignettes/articles/figures/html-report.png",
-                "status": "added",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "vignettes/articles/figures/infograph.png",
-                "status": "added",
-                "additions": 0,
-                "deletions": 0,
-                "patch": ""
-              },
-              {
-                "filename": "vignettes/articles/manual.Rmd",
-                "status": "modified",
-                "additions": 642,
-                "deletions": 452,
-                "patch": "@@ -7,6 +7,9 @@ output:\n     toc: true\n     toc_float: true\n     number_sections: true\n+editor_options: \n+  markdown: \n+    wrap: 72\n ---\n \n ```{r, include = FALSE}\n@@ -24,154 +27,224 @@ library(statcheck)\n knitr::include_graphics(\"../../man/figures/statcheck-logo.png\")\n ```\n \n-# What's new in 1.6.1\n-\n-statcheck now reads PDF files with the R package pdftools. You no longer need\n-to install the external program Xpdf. Furthermore, `statcheckReport()` has\n-been rewritten and its argument `outputFi"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "0251fa8",
-          "message": "don't sync rsconnect files (to publish manual)",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/0251fa8bf03f598fa5a89958eb050d7e573d0706",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "b67f521",
-          "message": "small fixes",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/b67f5214b899f6a4c2d21dd06b38ebd2bd04f786",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "7d4b667",
-          "message": "type setting",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/7d4b66754126292d77dc1fc1becdb3aef38cc7c5",
-          "type": "other",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "7403951",
-          "message": "restructure some text",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/7403951adc699710248d80b48f3aa6fedf342b99",
-          "type": "refactor",
-          "branch": "master",
-          "diff": {}
-        },
-        {
-          "sha": "03f602d",
-          "message": "update text and add additional screenshots and figs",
-          "body": "",
-          "author": "MicheleNuijten",
-          "author_login": "MicheleNuijten",
-          "date": "2026-10-29",
-          "url": "https://github.com/MicheleNuijten/statcheck/commit/03f602d1e61e76efb44e82e82a45fe4a13af2107",
-          "type": "feat",
-          "branch": "master",
-          "diff": {}
-        }
       ]
     },
     {
@@ -3336,8 +3104,8 @@
       "commits_1d": 0,
       "commits_90d": 834,
       "authors_30d": [
-        "lhdjung",
         "Lukas Jung",
+        "lhdjung",
         "github-actions[bot]"
       ],
       "type_breakdown": {
@@ -3743,19 +3511,19 @@
         },
         {
           "week": 1789948800,
-          "total": 10
+          "total": 13
         },
         {
           "week": 1790553600,
-          "total": 74
+          "total": 71
         },
         {
           "week": 1791158400,
-          "total": 9
+          "total": 10
         },
         {
           "week": 1791763200,
-          "total": 53
+          "total": 52
         },
         {
           "week": 1792368000,
@@ -3767,11 +3535,11 @@
         },
         {
           "week": 1793577600,
-          "total": 361
+          "total": 378
         },
         {
           "week": 1794182400,
-          "total": 110
+          "total": 93
         },
         {
           "week": 1794787200,
@@ -4299,6 +4067,82 @@
           "branch": "main",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "6cc90a5",
+          "message": "Use larger logo, update favicons, and supply full-size logo",
+          "body": "",
+          "author": "Lukas Jung",
+          "author_login": "lhdjung",
+          "date": "2026-11-15",
+          "url": "https://github.com/lhdjung/scrutiny/commit/6cc90a561c2ba6e216aaf960069a3aa9b93effcf",
+          "type": "other",
+          "branch": "polishing",
+          "diff": {
+            "additions": 2,
+            "deletions": 1,
+            "files": [
+              {
+                "filename": ".Rbuildignore",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 0,
+                "patch": "@@ -38,3 +38,4 @@ R\\.Rproj$\n ^jarl\\.toml$\n ^tests/testthat/_problems$\n ^tests/testthat/testthat-problems\\.rds$\n+^man/figures/logo-full-size\\.png$"
+              },
+              {
+                "filename": "man/figures/logo-full-size.png",
+                "status": "added",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "man/figures/logo.png",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "pkgdown/favicon/apple-touch-icon.png",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "pkgdown/favicon/favicon-96x96.png",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "pkgdown/favicon/favicon.ico",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              },
+              {
+                "filename": "pkgdown/favicon/favicon.svg",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1,
+                "patch": ""
+              },
+              {
+                "filename": "pkgdown/favicon/web-app-manifest-192x192.png",
+                "status": "modified",
+                "additions": 0,
+                "deletions": 0,
+                "patch": ""
+              }
+            ]
+          },
+          "diff_summary": ""
+        }
       ]
     },
     {
@@ -4722,45 +4566,6 @@
       "readme_excerpt": "ODDPub is a text mining algorithm that parses a set of publications and detects\nwhich publications disseminated Open Data or Open Code together with the\npublication. It is tailored towards biomedical literature.\n\n\nNico Riedel, Vladislav Nachev (vladislav.nachev@charite.de), Miriam Kip, Evgeny Bobrov (evgeny.bobrov@bih-charite.de) - QUEST Center for Transforming Biomedical Research, Berlin Institute of Health\n\n\nMore information on the development and validation of the algorithm can be found in the publication https://doi.org/10.5334/dsj-2020-042. The related training and validation datasets can",
       "scopus_citations": null,
       "recent_commits": [
-        {
-          "sha": "16a3cea",
-          "message": "version bump",
-          "body": "",
-          "author": "ontogenerator",
-          "author_login": "",
-          "date": "2026-10-23",
-          "url": "https://github.com/quest-bih/oddpub/commit/16a3cea30aa4742fc6a6fb5321f58864ffb9dbae",
-          "type": "chore",
-          "branch": "main",
-          "diff": {
-            "additions": 1,
-            "deletions": 1,
-            "files": [
-              {
-                "filename": "DESCRIPTION",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -1,7 +1,7 @@\n Package: oddpub\n Type: Package\n Title: Detection of Open Data & Open Code statements in biomedical publications\n-Version: 7.4.0\n+Version: 7.4.1\n Authors@R: \n     c(person(\"Nico\", \"Riedel\",\n     role = \"aut\"),"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "eb4f800",
-          "message": "patch nature portfolio removal",
-          "body": "",
-          "author": "ontogenerator",
-          "author_login": "",
-          "date": "2026-10-23",
-          "url": "https://github.com/quest-bih/oddpub/commit/eb4f8006c823ae6bd3a17e26ef90b68a2a320a95",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        }
-      ],
-      "_new_commits": [
         {
           "sha": "16a3cea",
           "message": "version bump",
@@ -5661,11 +5466,11 @@
         },
         {
           "week": 1792368000,
-          "total": 23
+          "total": 58
         },
         {
           "week": 1792972800,
-          "total": 47
+          "total": 12
         },
         {
           "week": 1793577600,
@@ -6124,6 +5929,76 @@
           "date": "2026-10-29",
           "url": "https://github.com/giladfeldman/docpluck/commit/2dc5369b67a033b80bc4ed9c2b19ef20c828a274",
           "type": "chore",
+          "branch": "main",
+          "diff": {}
+        }
+      ],
+      "_new_commits": [
+        {
+          "sha": "5c84499",
+          "message": "fix: publish_pypi.py completes a half-published release, checks the tag, survives a network error while confirming",
+          "body": "",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-11-19",
+          "url": "https://github.com/giladfeldman/docpluck/commit/5c844996e9a88e16bb736b8c30a274776fba8fca",
+          "type": "fix",
+          "branch": "main",
+          "diff": {
+            "additions": 144,
+            "deletions": 12,
+            "files": [
+              {
+                "filename": "scripts/publish_pypi.py",
+                "status": "modified",
+                "additions": 43,
+                "deletions": 10,
+                "patch": "@@ -14,7 +14,8 @@\n 2. Exports the TAG (git archive), not the working folder, into a temporary\n    directory, so uncommitted edits can never reach PyPI.\n 3. Checks that the version inside the tag equals the tag name.\n-4. Refuses if PyPI already has that version (PyPI never accepts a re-upload).\n+4. Stops if PyPI already has both the sdist and the wheel for that version. If an\n+   earlier upload left only one of them, uploads the missing file (--skip-existing).\n 5. Builds the sdist and wheel, runs"
+              },
+              {
+                "filename": "tests/test_publish_pypi_script.py",
+                "status": "modified",
+                "additions": 101,
+                "deletions": 2,
+                "patch": "@@ -37,15 +37,114 @@ def test_token_is_read(tmp_path, body):\n     assert pp.read_token(f) == \"pypi-abc123\"\n \n \n-@pytest.mark.parametrize(\"body\", [\"\", \"OTHER=1\\n\", \"PYPI_TOKEN=notatoken\\n\"])\n+@pytest.mark.parametrize(\"body\", [\"\", \"OTHER=1\\n\", \"PYPI_TOKEN=notatoken-s3cr3t\\n\"])\n def test_missing_or_malformed_token_stops(tmp_path, body):\n     f = tmp_path / \".env.local\"\n     f.write_text(body, encoding=\"utf-8\")\n     with pytest.raises(SystemExit) as e:\n         pp.read_token(f)\n-    assert \"pypi-abc"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "8aa5413",
+          "message": "feat: publish_pypi.py also reads the token from .env when .env.local is absent",
+          "body": "no-debt: owner request 2026-11-19.",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-11-19",
+          "url": "https://github.com/giladfeldman/docpluck/commit/8aa5413f099498338201f7be4763a767d8be791c",
+          "type": "feat",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "88a7040",
+          "message": "feat: scripts/publish_pypi.py publishes a tag to PyPI with the token from a gitignored .env.local",
+          "body": "Builds from git archive of the tag (never the working folder), checks the\nversion matches the tag, refuses a version PyPI already has, runs twine check,\nuploads, and reads PyPI back. Refuses to run if .env.local is not ignored;\n.gitignore now ignores .env, .env.local and .env.*.local. The token is never printed.\n\nno-debt: owner request 2026-11-19.",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-11-19",
+          "url": "https://github.com/giladfeldman/docpluck/commit/88a7040b9857e5e5c677240e34efe138aa700963",
+          "type": "feat",
+          "branch": "main",
+          "diff": {}
+        },
+        {
+          "sha": "c37df9f",
+          "message": "docs: CHANGELOG 2.4.161 names the three linear-pattern speed fixes",
+          "body": "",
+          "author": "Gilad Feldman",
+          "author_login": "giladfeldman",
+          "date": "2026-11-19",
+          "url": "https://github.com/giladfeldman/docpluck/commit/c37df9f069947d499b917cab8bc3e4eb555014f9",
+          "type": "docs",
           "branch": "main",
           "diff": {}
         }
@@ -6877,7 +6752,7 @@
       ],
       "commits_30d": 36,
       "commits_7d": 36,
-      "commits_1d": 36,
+      "commits_1d": 2,
       "commits_90d": 93,
       "authors_30d": [
         "David Van Dijcke"
@@ -7840,6 +7715,381 @@
           "branch": "feat/agentic-review-harness",
           "diff": {}
         }
+      ],
+      "_new_commits": [
+        {
+          "sha": "72ff584",
+          "message": "docs(agent): the cross-reference A/B is unresolved; it stays off by default",
+          "body": "Five baseline swarm runs on psi: 3, 5, 5, 5, 7 of 16, precision 100% every\ntime. Two cross-reference runs: 5 and 8 of 16, precision 87% and 100%.\n\nThe pre-registered rule was that recall must rise outside the baseline range\nand precision must not fall. Precision fell in one of the two runs against\n100% in five of five, so the rule is not met and the round is not shipped on.\nrounds=1 stays the default.\n\nThe result is ambiguous rather than negative, and that is reported as such.\nThe 8 of 16 is the highest recall any swarm run has reached, above the\nbaseline ceiling, at unchanged precision; two observations against five with a\nbaseline spread of 3 to 7 cannot separate it from variance. The code stays\nbehind rounds=2, off, rather than being deleted: one run at the best recall\nyet is worth someone's attention and one precision failure is worth nobody's\ntrust. Settling it needs about four more runs per arm.\n\nThe failing run is diagnosed: a round-1 claim about sigma-hat dependency went\nonto the board and came back written up twice, as a comment and as an issue,\nand the adjudicator rejects both because the scores and the noise carry the\nsame scale factor so selection is invariant to it. The refuter confirmed all\neight candidates in that run, so the gate built as the defence against a claim\nspreading undemonstrated did not catch it. That bounds how far that gate can\nbe trusted elsewhere in this design and is recorded separately.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/72ff5845f65f0f1a6bc5b7dcedaff03b9ffd49bd",
+          "type": "other",
+          "branch": "feat/agentic-review-harness",
+          "diff": {
+            "additions": 52,
+            "deletions": 38,
+            "files": [
+              {
+                "filename": "docs/AGENTIC_REVIEW.md",
+                "status": "modified",
+                "additions": 52,
+                "deletions": 38,
+                "patch": "@@ -331,7 +331,7 @@ to weigh. An issue is narrowed only by deleting verbatim spans the refuter\n names, so every surviving word is the reviewer's own; a span that does not\n occur in the body removes nothing, and naming every span drops the issue.\n \n-### The cross-reference round: tested and failed\n+### The cross-reference round: not resolved, not shipped\n \n The swarm's deficiency is coverage, and its investigators work in isolation, so\n the obvious thing to try is letting them see each other's fi"
+              }
+            ]
+          },
+          "diff_summary": ""
+        },
+        {
+          "sha": "0a16133",
+          "message": "docs(agent): the cross-reference round failed its pre-registered test",
+          "body": "Decision rule set before the numbers: recall must rise outside the baseline\nrange and precision must not fall. On psi, one run each on identical code:\nrecall 5/16 both ways, and precision 100% -> 87% with 2 unsupported claims.\nOutput volume nearly tripled, 4 comments to 11, for no new coverage. The\nmatched sets differ by a swap, not a gain: D5 picked up, O4a lost.\n\nThe mechanism does work in isolation. Three of eight candidates came from the\nsecond round and two are real reference findings, D5 and D6. What sank it is\nthat a round-1 claim about sigma-hat dependency went onto the board and came\nback written up twice, as a comment and as an issue, and the adjudicator\nrejects both because the scores and the noise are scaled by the same factor so\nthe selection is invariant to it.\n\nThe refuter confirmed all eight candidates. The gate built specifically as the\ndefence against a claim spreading without being demonstrated did not catch\nthis one, which is worth recording separately from the round's own failure.\n\ncoset_codes cannot resolve the question: its swarm recall is 1/25 and 2/25\nacross runs, structurally capped by a reference whose items are mostly reading\ndifficulties rather than defects.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/0a1613392b852e6d8deb0042688d204e1af1240e",
+          "type": "test",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "0b659a4",
+          "message": "feat(agent): add a cross-reference round over a shared findings board",
+          "body": "Targets the swarm's one measured deficiency, which is coverage rather than\nprecision: three to nine comments against references holding 16 and 25\nfindings, at precision the staged pipeline cannot match. Its investigators\nwork in complete isolation, so one checking an appendix proof never learns\nthat another found the same quantity treated differently in the main text --\nthe exact shape of the cross-location findings this harness exists to recover.\n\nWith rounds=2, the orchestrator writes a digest of every candidate finding to\nthe workspace and re-runs each investigator with it, asking what those leads\nimply for its own part of the paper. The board carries ids, titles, locations\nand one-line claims and nothing of the reasoning or computation behind them,\nand it is written by the orchestrator rather than by the agents: an agent\nshown another's derivation audits the derivation instead of the paper, which\nis the distinction the whole independent-refuter design rests on. The brief\nforbids repeating, citing or relying on an entry, and everything the round\nproduces still passes the independent refuter.\n\nrounds=1 is the default and leaves the existing path untouched, so this is an\nA/B rather than a replacement: agent_swarm against agent_swarm_xref in the\neval harness. Whether it actually raises recall without costing precision is\nmeasured next; if it costs precision it comes out.\n\nAlso splits the five role agents into coarse/agent/roles.py, which keeps\norchestrator under the size cap. That split matters for _refute in\nparticular: it is deliberately given the claim and the paper and NOT the\ninvestigator's reasoning, and the omission is easier to see when the function\nis not buried in the flow that produced the claim.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/0b659a4ca33191c32d9e545428f64d876bb105ef",
+          "type": "feat",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "ca6d896",
+          "message": "feat(agent): ship --refute for comments only; remove the macro-issue half",
+          "body": "The macro-issue gate was built, measured on three papers, and does not earn\nits place. On psi it converted no unsupported issue and dropped a supported\none. On coset_codes its entire upside was two issues flipping to supported\nwhen their narrowed text was re-judged, by a judge already observed to change\nverdict on byte-identical text.\n\nReading the narrowed output settled it. An issue titled 'Multiplicity formulas\nrest on unverified uniformity assumptions' came back with a body saying the\nassumption 'holds for the partitions checked here ... which reproduces the\ntable's 44, 252, 764 and 316': the deletion had removed the criticism and left\ntext confirming the assumption, under a title still asserting the defect. A\ngate that can leave a heading contradicting its own paragraph should not run on\nan author-facing review.\n\nRemoves refute_issues, _refute_issue, narrow_by_deletion and its whitespace\nhelpers, IssueVerdict, refute_review, the issue-refuter prompt, and their\ntests. The pipeline calls refute_comments directly. The overall feedback now\npasses through the stage untouched, which a pipeline-level test asserts.\n\nThe removed code is in this branch's history if it is worth revisiting with\nmore papers and a verdict-stable judge.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/ca6d896e83cb4cce4c5661f79dd1dac66bc1c43e",
+          "type": "feat",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "d000eed",
+          "message": "docs(agent): report the gate gross, add the coverage check, drop an unsupported claim",
+          "body": "Three corrections to how the result is stated.\n\nThe headline was net. Gross it is 9 bad comments dropped, 3 good claims\ndropped, and 2 bad issues that became good when their narrowed text was\nre-judged \u2014 so the macro-issue half's entire upside is two re-judgements by a\njudge that has changed verdict on byte-identical text, which is what this\nmeasurement otherwise excludes.\n\n'Keeps the pipeline's coverage' was asserted, not measured. Crossing each\nreference finding's matching claim against what the gate did to it: no finding\non any of the three papers was carried by a claim the gate dropped. Eight ride\non a narrowed claim, which re-scoring recall would settle and which has not\nbeen done.\n\n'Making the gate subtractive made it reproducible' is withdrawn. It rested on\ntwo runs compared by counts, the second overwrote the first's per-claim record,\nand the comment refuter's prompt and drop rule did not change, so the redesign\ncannot be the cause.\n\nAlso: the Design bullet for --refute described comments only, the CHANGELOG\nstill said a comment is rewritten when misstated, and two caveats were missing\n(the all-refuted notice is English only; nobody has read a deletion-narrowed\nissue end to end).",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/d000eedaf750ece4a1ed884472cee974b7aa14e5",
+          "type": "feat",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "0e603a9",
+          "message": "fix(agent): tidy whitespace only at the cut when narrowing an issue",
+          "body": "narrow_by_deletion collapsed whitespace across the whole body, so every\nnarrowed issue lost its paragraph breaks and the newlines inside display math,\nturning it into one run-on block. That damaged the issue whether or not the\ndeletion itself was right, and 15 of 35 issues across the benchmark papers\nwere narrowed.\n\nWhitespace is now tidied only where a span was removed: a deletion that\nspanned a paragraph boundary keeps the break, one inside a paragraph leaves a\nsingle space, and display math is untouched. Tests cover the paragraph,\ninline, display-math, rewrapped and trailing cases.\n\nrefute_effect.py now also saves the post-refutation review and each narrowed\nissue's before and after text. Nothing was persisting what a narrowed issue\nsays, so no one could read one for a dangling fragment or a lost antecedent.\n\nDeletes evals/refute_saved.py, which still read the removed rewritten_body\nfield and would crash.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/0e603a94690ae615534795493bdd9b4d7b5f9862",
+          "type": "fix",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "458acf8",
+          "message": "docs(agent): final refutation measurement on three papers",
+          "body": "Measured on identical generation with stored verdicts carried forward for\nuntouched claims, reported as good and bad counts under the stricter\nsupported-and-substantive test.\n\nAcross psi, the held-out coset_codes, and targeting: 11 bad claims removed\nagainst 1 good one lost, at about $1.85 a paper.\n\nThree findings that matter more than the total, and one of them reverses this\ndocument's previous claim:\n\n- The comment half carries the benefit (9 bad removed, 2 good lost). The\n  macro-issue half is marginal (2 bad removed, 1 good gained) and was net\n  negative on psi, converting no bad issue and dropping a good one. The\n  earlier claim that the issue half 'mattered most' came from the retracted\n  measurements and does not survive them.\n- On targeting, the only paper no design decision here has touched and whose\n  review was already 26 good to 6 bad, the gate dropped nothing and changed no\n  verdict. The right failure mode, but it means the value depends on the paper.\n- Making the gate subtractive made it reproducible: two genuine psi runs agree\n  exactly, where the rewriting version dropped 4, then 5, then 6 of the same\n  comments.\n\nThe recommendation stays opt-in, and now names the macro-issue half as the\nopen question rather than the main gain.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/458acf896a5d85ed0cca7c55c030fc0e92ab870e",
+          "type": "other",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "cd3cc89",
+          "message": "docs(agent): withdraw the refutation figures and record why they were wrong",
+          "body": "Three successive attempts at what the gate is worth were each wrong: comparing\ntwo different pipeline runs, re-judging unchanged text through a judge that\ndrifts, and scoring an is-this-supported test that a hedged rewrite satisfies.\nThe third changed the design rather than the measurement.\n\nThe doc now states the withdrawal, the three mistakes, and the shape that\nsurvived all of them, rather than a number. It no longer recommends\nconsidering --refute as a default.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/cd3cc896f02f4972b17c565a9233aad619ac3fe3",
+          "type": "fix",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "f6786db",
+          "message": "fix(agent): make the refutation gate purely subtractive",
+          "body": "Reading the saved reviews showed the gate was rewriting the review, not\nverifying it, and that this was the source of its own measured gain.\n\nIssues: asking for a replacement body produced a rewrite longer than the\noriginal on every narrowed issue across both benchmark papers (1.0x to 1.6x),\neach prefixed with the issue title. Refusing those by length left the issue\nhalf drop-only, which pays nothing; accepting them made an agent the author of\nreview prose. Narrowing is now expressed as deletion: the refuter names\nverbatim spans of the body that the paper does not bear out, and the code\nremoves them, so every surviving word is the reviewer's own. Matching is exact\nthen whitespace-insensitive, since a model re-wraps a sentence it quotes; a\nspan that still does not match removes nothing, so a hallucinated span cannot\nalter the issue, and naming every span drops the issue outright.\n\nComments: corrected_claim is no longer applied. Sampling the rewrites found\nones that retreated from 'X is wrong' to 'the paper does not say how X was\nhandled', which satisfies an is-this-supported test while giving the author\nless -- so part of the measured precision gain was an artefact of the metric.\nThe suggestion stays on the verdict for a human to weigh. severity is now only\never lowered: the field defaults to 'major', so applying it unconditionally\nraised the severity of comments the refuter never reconsidered.\n\nBecause the gate now only removes, every surviving comment keeps the verdict\nalready stored for it and the effect measurement needs no re-judging except\nfor narrowed issue bodies. refute_effect.py reports good and bad counts rather\nthan rates, and records per-claim what the gate did.\n\nRefutation tests move to tests/test_agent_refutation.py beside their module.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/f6786dbb55b1c0a8ad612e09bd3894246a14f3e4",
+          "type": "fix",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "10af8c7",
+          "message": "fix(agent): make narrowing actually narrow, and key comments by position",
+          "body": "Three defects, two of them found by reading the saved reviews rather than the\nverdicts.\n\nrefute_comments keyed its lookup maps on comment.number. This stage runs\nbefore _renumber_comments, so the numbers are whatever the editorial pass\nemitted, and on the double-failure fallback path they are raw section order\nwith section-local numbering where duplicates are expected. Comments sharing a\nnumber collapsed the maps and had verdicts misattributed. Keyed on position\nnow, as the issue path already was.\n\nEvery narrowed issue body on the benchmark papers came back LONGER than the\none it replaced, against the prompt's explicit instruction to say less and\nnever more, and each began by repeating the issue title so the rendered review\nshowed the title twice. A prompt cannot enforce either. _clean_narrowed_body\nstrips a repeated title and refuses a body that does not shorten, keeping the\noriginal instead: a rewrite that expands makes this stage an author of review\ncontent rather than a verifier of it, which is the risk the ledger link\nelsewhere exists to prevent.\n\nThe review language now reaches both refuters. A refuter writes author-facing\nprose (corrected_claim, rewritten_body), and the issue refuter rewrites most\nof what it touches, so without this the rewrite came back in English inside a\nlocalized review. The all-issues-refuted notice is still English; that is\nrecorded as a caveat.\n\nAdds a pipeline-level test for review_paper(refute=True), which the benchmark\nnever exercised because it called refute_comments and refute_issues directly.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/10af8c70ffba9d1f3229e52139060d75f08c6808",
+          "type": "fix",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "9b9c486",
+          "message": "docs(agent): measure the refutation gate on identical generation",
+          "body": "refute_saved.py now also refutes the macro issues and can save what survives\nas its own run, so precision before and after is compared on the same\ngeneration rather than across two pipeline runs.\n\nWith both halves refuted, on psi and on the held-out coset_codes: unsupported\nclaims halve (10 to 4, and 16 to 8), precision rises 19 and 17 points, recall\nis unchanged on one paper and loses one finding of 25 on the other, and the\npass costs about $1.85. Issue precision, the gap the comment-only version\nleft at 58% and 36%, reaches 80% and 50%.\n\nThe per-claim cross-tabulation shows why the two halves need separate\ncontracts: the gate drops 8 of 14 false comments for 2 of 25 good ones, while\non issues it narrows 12 of 23 rather than dropping them, and the narrowed text\nis what the precision gain is measured on. Two caveats are stated with it: the\nrefuter has real run-to-run variance, and it also narrowed 6 issues the judge\nhad called supported, so the trade is net positive on these two papers rather\nthan free.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/9b9c486b50f0046520fbbf74e50ff260ea2c8577",
+          "type": "other",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "0b7f0b8",
+          "message": "feat(agent): refute the macro issues too, narrowing rather than dropping",
+          "body": "With comments alone refuted, comment precision reached 94% and 100% on the two\nbenchmark papers while macro-issue precision stayed at 58% and 36%, so every\nsurviving unsupported claim was in the overall feedback.\n\nA macro issue is not a comment and needs a different contract. It carries no\nverbatim anchor, so the refuter locates the passages itself. And it bundles\nseveral points under one theme, so the common outcome is that some hold and\nsome do not: dropping a four-point issue because its third point is answered\nin Section 6 discards three good ones, while keeping it whole ships the wrong\none. IssueVerdict therefore adds 'partly_supported', which replaces the body\nwith the reviewer's narrowed version and records what was dropped and where\nthe paper answers it. The title survives narrowing.\n\nGuards: an issue is kept unchanged when the check could not run or came back\ninconclusive, so neither an infrastructure failure nor honest uncertainty\ndeletes one; a narrowing with no replacement text keeps the original, since\nthe reviewer called it partly right; and if every issue is refuted, an\nexplicit notice replaces them rather than reinstating the least-bad one,\nbecause OverviewFeedback requires an issue and the least-bad one is still a\nclaim the paper contradicts.\n\nrefute_review is now the single entry point the pipeline stage calls, with the\ntwo halves failing independently so a failure in one leaves the other verified.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/0b7f0b85efc898516fa340733c4e41887ea5a138",
+          "type": "feat",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "08b805a",
+          "message": "refactor(agent): split the pipeline-facing refutation gate into its own module",
+          "body": "orchestrator.py reached 804 lines, over the architecture cap. refute_comments\nis the natural seam: orchestrator holds the roles and modes, refutation holds\nthe gate applied to comments produced outside them, which the measurement made\nthe primary use. 702 and 127 lines.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/08b805aa39665e32982dc2712c1235c1a544f802",
+          "type": "refactor",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "a35655c",
+          "message": "fix: validate the agent mode, and don't drop a substantive 'Funding' section",
+          "body": "run_agentic_review fell through to swarm for any unrecognized mode, so a typo\nin --agent silently ran a different and dearer mode; it now raises.\n\nSection eligibility skipped any title starting with a boilerplate word, which\nwould discard an economics paper's 'Funding and acquisition dynamics in\nventure capital'. The prefix test now applies only to headings short enough to\nbe that boilerplate.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/a35655c5865831a311d1ba72d30dc7de9895f8e3",
+          "type": "fix",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "de88f95",
+          "message": "docs(agent): rewrite from the paired refutation measurement",
+          "body": "The refutation result was unpaired: pipeline_refuted was a separate pipeline\nrun, so comparing it with the pipeline arm compared two different reviews.\nevals/refute_saved.py now runs the refuter over the exact comments the judge\nalready adjudicated, one paired observation per comment. The honest figure is\nmuch smaller than the one that was published here: comment precision 64% to\n82% across the two papers, the gate dropping 9 of 14 false criticisms and 2 of\n25 good ones, and the two papers differing a great deal.\n\nAlso: the design section listed two tools that do not exist (web_search,\nfinding_write) and omitted that there is no web search and only one refutation\npass; the tool-judge result is now described as consistent with the diagnosis\nrather than confirming it, since its prompt names the hypothesis; the host\nisolation section no longer describes a particular machine's configuration;\nand a closing section states plainly where the work departs from what was\nasked.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/de88f95ae2ce92829a123cc002322d1ce3233a56",
+          "type": "other",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "b900697",
+          "message": "docs: correct module descriptions and the section-fix changelog entry",
+          "body": "The seven module descriptions added to the package-structure tables were\nwritten from the file names rather than from the modules. Checked against each\ndocstring: handoff_url only parses (it does not construct, and nothing is\nsigned), native_runtime suspends model calls as native tasks and replays\nvalidated responses rather than detecting and launching a runtime, and\nnative_review and review_runtime were also inaccurate. All seven now follow\ntheir docstrings.\n\nThe changelog claimed the fix makes the pipeline review every section. It does\nnot: the cap still binds on a long paper, and the entry now says which\nsections are dropped and that the choice is logged.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/b900697020c982cc3960a960fe085ea4fa614c56",
+          "type": "fix",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "625e62c",
+          "message": "fix(agent): enforce sandbox network denial at the OS level",
+          "body": "The 'no network' claim was false. Denial was a Python-level patch of the\nsocket module, and two one-liners defeated it: subprocess shelling out to\n/usr/bin/curl returned HTTP 200, and 'import _socket' connected directly,\nsince the patch only touches the pure-Python wrapper. A paper is untrusted\ninput, so a prompt-injected paper that induced the model to write an\nexfiltrating check would have had a working path out.\n\nDenial now comes from the OS where a mechanism exists: sandbox-exec with a\ndeny-network seatbelt profile on macOS, 'unshare --net' on Linux where\npermitted. Both are probed by actually running them, because either can be\npresent and refuse. Verified on this host: the curl bypass now exits 6 and\n_socket cannot connect, while sympy still imports and runs.\n\nWhere no mechanism is available there is no network bound, and nothing now\nclaims otherwise: available_isolation() reports the mechanism, and the python\ntool's description is generated from it, so a host without isolation tells the\nmodel so instead of giving it a false assurance. The socket patch stays as a\nlegible error message rather than a bound, and both bypasses are now tests.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/625e62cce4b139ab1cd6cb064896847fbabda4e7",
+          "type": "fix",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "6c4ffd4",
+          "message": "docs(agent): final arm comparison, with a tool-using second adjudication",
+          "body": "Adds the refuted-pipeline arms, which validate the recommendation: refutation\ntook detailed-comment precision from 58% to 100% on the held-out paper and\nfrom 70% to 94% on the other. It also shows where the remaining false\ncriticism is \u2014 entirely in the macro issues, which the stage does not yet\nrefute.\n\nAdds evals/adjudicate.py, a second audit by a judge with the same workspace\nand tools the agents get, because the single-prompt judge never abstained and\nwas being asked to check lookups it had no means to perform. It is more\nlenient, so the single-prompt precision figures were too harsh and are now\nreported alongside it. It confirms the mechanism far more firmly: five of the\nsix unsupported claims it found are objections the paper answers elsewhere,\nand it names the location each time.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/6c4ffd45cce6eed3274bd9604c5cbe9a40b6cfda",
+          "type": "other",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "f285d46",
+          "message": "chore(evals): keep benchmark inputs out of the repository",
+          "body": "structure.json embeds the whole paper text while paper.md was ignored, which\nwas an inconsistent policy for the same content, and the reference reviews are\nthird-party documents. evals/papers/ is now ignored in full. What stays\ncommitted is the atomized finding sets under evals/references/ and\nprepare_paper.py, which regenerates the rest from a local PDF.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/f285d46d2d734f5aac2134cd2d9d2e3c9e9a6cd4",
+          "type": "chore",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "39e1184",
+          "message": "docs(agent): full arm comparison across two papers, with the leakage caveat",
+          "body": "Replaces the single-paper table with both papers and all arms, and states the\nleakage plainly: the role prompts were written after reading the first paper's\nreference review and name the patterns it found, so recall on that paper is\nin-sample and the held-out paper is the honest measurement.\n\nThe recommendation follows what was measured rather than the premise the\nbranch started from: the staged pipeline leads on coverage and asserts the\nmost unsupported claims, the agent arms reverse both, so verification is added\nto the generator instead of replacing it.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/39e1184440cb393359b99803f9055a13c62fe41e",
+          "type": "other",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "69e604a",
+          "message": "feat(pipeline): add --refute, an independent re-check of every comment",
+          "body": "The arm comparison measured generation and verification as complements, not\nsubstitutes. On both benchmark papers the staged pipeline was the coverage\nleader and also asserted the most claims the paper does not support: 15 of 32\non one, 16 of 31 on the other, roughly half. The agent arms reversed both,\nasserting almost nothing unsupported while finding far too little.\n\nSo rather than replacing the staged pipeline, refute_comments applies the\nagent runtime's gate to the comments it already produced. Each one goes to a\nfresh-context agent that sees the claim and its quote, has tool access to the\nwhole paper, and must reproduce the defect; a comment it cannot reproduce is\ndropped, and one that is real but misstated is rewritten from the refuter's\ncorrected claim. A comment whose check could not run is kept, so an\ninfrastructure failure never silently deletes a finding.\n\nExposed as review_paper(refute=True) and 'coarse review --refute', off by\ndefault, with a pipeline_refuted evaluation arm.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/69e604ac4ddfcba83b27b7fb3fa26f64eba89e2b",
+          "type": "feat",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "b43b5c2",
+          "message": "feat(cli): add --agent to run a review through the bounded agent runtime",
+          "body": "Until now the agent runtime had no entry point: review_paper always ran the\nstaged pipeline, so the whole package was unreachable from the CLI or the\nlibrary. review_paper takes agent_mode (sweep|swarm|single) and `coarse\nreview --agent <mode>` sets it. Default None, so the staged path is\nunchanged.\n\nThe agent branch reuses the shared quote verifier and renderer rather than\nits own, so the verbatim-quote guarantee is identical on both paths; a test\ncovers that a fabricated quote is still dropped from an agent review.\n\npipeline.py joins the oversized-module allowlist at 880 lines. Moving the\nquote-repair helpers to review_stages.py would have kept it under the cap but\nbroke 22 tests that patch those names on coarse.pipeline, so that refactor\nbelongs in its own change rather than riding along here.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/b43b5c26812915e57af52f07240fd69827a0b535",
+          "type": "feat",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "c60e665",
+          "message": "chore(tests): record the prompts.py cap bump for the sweep brief",
+          "body": "",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/c60e665ace43b616d0fb6b4c6edf5001c5b8a6a8",
+          "type": "chore",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "d46c9fd",
+          "message": "feat(agent): add sweep mode \u2014 broad coverage behind the refutation gate",
+          "body": "Measured separately on the benchmark paper, the two capabilities were\ncomplementary rather than competing. A single full-paper pass reached nine of\nsixteen reference findings but asserted one the paper does not support. The\nrole swarm asserted nothing unsupported across three runs, and reached two\nappendix findings nothing else reached (a one-sided premise in a composition\nlemma, and a curvature bound off by a factor of two), but only three to five\nfindings in total: narrow targets do not cover a paper.\n\nSweep divides every reviewable section into contiguous regions, one per\ninvestigator, and briefs each for breadth rather than for a single question --\nsame demonstration bar, but abstention is no longer the expected outcome. Every\ncandidate still passes through an independent fresh-context refuter before the\neditor sees it. The brief also tells a sweeper to search the rest of the paper\nbefore reporting that something is missing, which is the failure that produced\nevery unsupported comment in the pipeline arm.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/d46c9fd3d5732b398e06d0ff2aa564c15b080b2b",
+          "type": "feat",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "54031a7",
+          "message": "fix(agent): require the planner to name at least one target",
+          "body": "The planner submitted an empty plan on every run, after seven turns and ten\nof its thirty-five permitted tool calls, so it was not running out of budget:\nInvestigationPlan simply allowed an empty list, and an empty submission\nvalidated. The orchestrator then fell back to structural targets and the\nLLM plan was never used.\n\nAn empty plan is never a useful answer, unlike an empty FindingBatch where\nabstention is the point. Requiring a target makes the empty submission fail\nvalidation, which the runner already feeds back to the agent as a rejection\nto repair.\n\nAlso adds evals/prepare_paper.py, which extracts a held-out paper, analyzes\nits structure and atomizes its reference review mechanically (one finding per\nmacro issue and per detailed comment). Needed because the role prompts were\nwritten after reading the first paper's reference review and name the patterns\nthat review found, so recall on that paper is in-sample and cannot support a\nquality claim on its own.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/54031a76943185d8908b0fae580bd2fed93c6fd8",
+          "type": "fix",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "170f4fe",
+          "message": "fix(agent,evals): enforce the ledger link in code and audit macro issues too",
+          "body": "Two measurement and safety gaps the first arm comparison exposed.\n\nThe editor was told to write only from confirmed findings but nothing checked\nit. Each detailed comment now carries the finding id it reports, and a comment\nwhose id is not in the confirmed set is dropped, so a finding an independent\nrefuter did not reproduce cannot re-enter the report through the editor. When\nthe editor attributes nothing at all the comments are kept and the degradation\nis logged, rather than discarding a whole report over a missing field.\n\nPrecision was adjudicated over detailed comments only while recall credited\nmacro issues as well, so an arm that put its claims in the overall feedback\nwas credited for hits and never charged for misses. On the benchmark paper\nthat asymmetry mattered a great deal: the whole of one arm's measured recall\ncame from its macro issues and none of its 21 detailed comments matched a\nreference finding. Both halves of a review are now adjudicated, and recall\nreports how many hits came from a detailed comment rather than only from a\nmacro issue.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/170f4fe1d7cfda6748027e65da88b6e07687c0fc",
+          "type": "fix",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "2cff4df",
+          "message": "chore(evals): untrack local benchmark run logs",
+          "body": "",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/2cff4df6e175ba8d4414c4aef7e7047ff1613f0c",
+          "type": "chore",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "096db95",
+          "message": "fix(pipeline): keep a proof whose title the heading parser mangled",
+          "body": "Section eligibility filtered on the title, dropping any section titled\n`<!-- PAGE BREAK -->`. When a page break falls immediately before a heading\nthe parser uses the marker as the title and leaves the real heading in the\nbody, so such a section can hold real content: on the benchmark paper one is\n1,107 characters of \"A.6 Proof of Theorem 2\", the proof of the paper's\ncentral result, and the reference review's critical finding is about a step\nin it.\n\nEligibility is now judged on the text alone. The underlying mis-titling in\nstructure.py is untouched.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/096db95f75a49a65be5442b02ddf1506919e096c",
+          "type": "fix",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "0c8265c",
+          "message": "chore(evals): ignore local benchmark run logs",
+          "body": "",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/0c8265c95633e8171d773a0aa6d4e6472f637947",
+          "type": "chore",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        },
+        {
+          "sha": "d4ef381",
+          "message": "docs(agent): record the measured arm comparison",
+          "body": "The pipeline matched a plain one-prompt baseline's recall while emitting seven\ncriticisms the adjudicator found unsupported, and all seven fail for the same\nreason: the objection is answered elsewhere in the paper, where a\nsingle-section prompt cannot see it.",
+          "author": "David Van Dijcke",
+          "author_login": "Davidvandijcke",
+          "date": "2026-11-21",
+          "url": "https://github.com/Davidvandijcke/coarse/commit/d4ef381dcc54fb4fcaec06002a3b580b75fcfa75",
+          "type": "other",
+          "branch": "feat/agentic-review-harness",
+          "diff": {}
+        }
       ]
     },
     {
@@ -8035,11 +8285,11 @@
         },
         {
           "week": 1789344000,
-          "total": 0
+          "total": 1
         },
         {
           "week": 1789948800,
-          "total": 1
+          "total": 0
         },
         {
           "week": 1790553600,
@@ -8392,68 +8642,6 @@
           "type": "other",
           "branch": "main",
           "diff": {}
-        }
-      ],
-      "_new_commits": [
-        {
-          "sha": "67798cc",
-          "message": "update model default",
-          "body": "",
-          "author": "Jamie Cummins",
-          "author_login": "JamieCummins",
-          "date": "2026-11-09",
-          "url": "https://github.com/JamieCummins/regcheck/commit/67798ccc293dae048a9ebc3771a0a49fbe76e46e",
-          "type": "other",
-          "branch": "main",
-          "diff": {
-            "additions": 10,
-            "deletions": 10,
-            "files": [
-              {
-                "filename": ".env.example",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 3,
-                "patch": "@@ -56,9 +56,9 @@ GPUSTACK_API_KEY=\n GPUSTACK_BASE_URL=https://gpustack.unibe.ch/v1\n \n # Optional model overrides\n-OPENAI_MODEL=gpt-5\n-OPENAI_COMPARISON_MODEL=gpt-5\n-OPENAI_EXPERIMENT_MODEL=gpt-5\n+OPENAI_MODEL=gpt-6.1-terra\n+OPENAI_COMPARISON_MODEL=gpt-6.1-terra\n+OPENAI_EXPERIMENT_MODEL=gpt-6.1-terra\n OPENAI_EXPERIMENT_REASONING_EFFORT=medium\n DEEPSEEK_MODEL=deepseek-reasoner\n QWEN_MODEL=qwen/qwen3.6-27b"
-              },
-              {
-                "filename": "README.md",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 3,
-                "patch": "@@ -43,9 +43,9 @@ DEEPSEEK_API_KEY=...\n CLAUDE_API_KEY=...\n \n # Optional model overrides\n-OPENAI_MODEL=gpt-5.5\n-OPENAI_COMPARISON_MODEL=gpt-5.5\n-OPENAI_EXPERIMENT_MODEL=gpt-5.5\n+OPENAI_MODEL=gpt-6.1-terra\n+OPENAI_COMPARISON_MODEL=gpt-6.1-terra\n+OPENAI_EXPERIMENT_MODEL=gpt-6.1-terra\n OPENAI_EXPERIMENT_REASONING_EFFORT=medium        # low | medium | high\n DEEPSEEK_MODEL=deepseek-reasoner\n CLAUDE_MODEL=claude-opus-4-8"
-              },
-              {
-                "filename": "backend/routes/comparisons.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -344,7 +344,7 @@ def _normalize_client(client: str) -> str:\n \n def _normalize_reasoning_effort(client: str, reasoning_effort: str | None) -> str | None:\n     effort_normalized = (reasoning_effort or \"\").strip().lower()\n-    # ChatGPT (gpt-5.5) is the only reasoning-effort model exposed to users.\n+    # ChatGPT (gpt-6.1-terra) is the only reasoning-effort model exposed to users.\n     if client == \"openai\":\n         if effort_normalized not in {\"low\", \"medium\", \"high\"}:\n             effort_norm"
-              },
-              {
-                "filename": "backend/services/llm.py",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -27,7 +27,7 @@\n \n logger = logging.getLogger(__name__)\n \n-DEFAULT_OPENAI_MODEL = \"gpt-5.5\"\n+DEFAULT_OPENAI_MODEL = \"gpt-6.1-terra\"\n DEFAULT_DEEPSEEK_MODEL = \"deepseek-reasoner\"\n DEFAULT_CLAUDE_MODEL = \"claude-opus-4-8\"\n # Open-weight Qwen, served via Groq's OpenAI-compatible endpoint (uses GROQ_API_KEY)."
-              },
-              {
-                "filename": "templates/api.html",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -162,7 +162,7 @@ <h2>2) Submit a comparison</h2>\n             <tr><td><code>clinical_registration</code></td><td>no</td><td><code>yes</code>/<code>no</code> (default <code>no</code>). When <code>yes</code>, fetches the trial registration named by <code>registration_id</code>.</td></tr>\n             <tr><td><code>registration_id</code></td><td>cond.</td><td>ClinicalTrials.gov identifier (e.g. <code>NCT01234567</code>) or ISRCTN identifier (e.g. <code>ISRCTN17573805</code>), or a link to either"
-              },
-              {
-                "filename": "templates/faq.html",
-                "status": "modified",
-                "additions": 1,
-                "deletions": 1,
-                "patch": "@@ -180,7 +180,7 @@ <h2 class=\"accordion-header\">\n           </h2>\n           <div id=\"faq-q7\" class=\"accordion-collapse collapse\" data-bs-parent=\"#faqAccordion\">\n             <div class=\"accordion-body\">\n-              The model menu lists families; the exact default models are ChatGPT = <code>gpt-5.5</code>, Claude Opus 4.8 = <code>claude-opus-4-8</code>, DeepSeek = <code>deepseek-reasoner</code>, and Qwen3.6 27B = <code>qwen/qwen3.6-27b</code> (open-weight, served via Groq). These are the def"
-              }
-            ]
-          },
-          "diff_summary": ""
         }
       ]
     },
@@ -10146,94 +10334,6 @@
           "branch": "main",
           "diff": {}
         }
-      ],
-      "_new_commits": [
-        {
-          "sha": "473bf09",
-          "message": "Merge pull request #50 from shaheedazaad/openrouter-schema-prompt",
-          "body": "Show OpenRouter models the schema; flag extractions with no effects",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-11-20",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/473bf09f32368a79119e9368ae49ae13a9be357b",
-          "type": "other",
-          "branch": "main",
-          "diff": {
-            "additions": 72,
-            "deletions": 6,
-            "files": [
-              {
-                "filename": "auto_zcurve/llm.py",
-                "status": "modified",
-                "additions": 9,
-                "deletions": 0,
-                "patch": "@@ -14,6 +14,7 @@\n EXTRACTED_STATUSES = frozenset({STATUS_OK, STATUS_NEEDS_REVIEW})\n \n JSON_REPAIRED_REASON = \"JSON was repaired\"\n+NO_EFFECTS_REASON = \"no effects extracted\"\n \n # Each provider request gets this many attempts in total before it fails.\n MAX_PROVIDER_ATTEMPTS = 3\n@@ -153,3 +154,11 @@ def pdf_sha256(self) -> str | None:\n     def effect_count(self) -> int:\n         effects = (self.data or {}).get(\"effects\") if self.data else None\n         return len(effects) if isinstance(effects, li"
-              },
-              {
-                "filename": "auto_zcurve/openai_compatible.py",
-                "status": "modified",
-                "additions": 2,
-                "deletions": 1,
-                "patch": "@@ -103,13 +103,14 @@ def _call(\n     cancel_event: threading.Event | None = None,\n ) -> tuple[str, dict[str, int | None], str | None]:\n     from .openrouter import choice_finish_reason\n+    from .prompts import schema_prompt\n \n     payload: dict[str, Any] = {\n         \"model\": model,\n         \"messages\": [\n             {\n                 \"role\": \"user\",\n-                \"content\": prompt + \"\\n\\nReturn only JSON matching this schema:\\n\" + json.dumps(response_schema),\n+                \"content\": "
-              },
-              {
-                "filename": "auto_zcurve/openrouter.py",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 4,
-                "patch": "@@ -21,7 +21,7 @@\n     retryable_status,\n     review_status,\n )\n-from .prompts import build_system_prompt\n+from .prompts import build_system_prompt, schema_prompt\n from .schema import ExtractionSchema, normalize_extracted_json, validate_extracted_json\n from .sources import XML_TEXT_INPUT_MODE\n \n@@ -400,13 +400,14 @@ def extract_document(\n     started = time.monotonic()\n     parsed_document = None\n     estimated_input_tokens = None\n+    strict_schema = strict_response_schema(response_schema)\n    "
-              },
-              {
-                "filename": "auto_zcurve/prompts.py",
-                "status": "modified",
-                "additions": 11,
-                "deletions": 0,
-                "patch": "@@ -1,6 +1,8 @@\n from __future__ import annotations\n \n+import json\n from pathlib import Path\n+from typing import Any\n \n from .schema import ExtractionSchema, build_role_lookup\n \n@@ -19,6 +21,15 @@ def render_text_template(text: str, values: dict[str, str]) -> str:\n The article below is the publisher's XML file, not a PDF, so it has no page numbers. Wherever these instructions or the schema ask for a page number, cite where the text sits in the article instead: the section heading path, for examp"
-              },
-              {
-                "filename": "auto_zcurve/runner.py",
-                "status": "modified",
-                "additions": 9,
-                "deletions": 1,
-                "patch": "@@ -22,7 +22,14 @@\n )\n from .config import RunSettings, load_app_settings, load_run_settings, save_run_settings\n from .console import CliConsole\n-from .llm import EXTRACTED_STATUSES, STATUS_ERROR, STATUS_NEEDS_REVIEW, STATUS_OK, ExtractionResult\n+from .llm import (\n+    EXTRACTED_STATUSES,\n+    STATUS_ERROR,\n+    STATUS_NEEDS_REVIEW,\n+    STATUS_OK,\n+    ExtractionResult,\n+    flag_empty_extraction,\n+)\n from .models import ModelOption, resolve_input_mode, resolve_max_output_tokens, validate_mode"
-              },
-              {
-                "filename": "docs/results.md",
-                "status": "modified",
-                "additions": 3,
-                "deletions": 0,
-                "patch": "@@ -88,6 +88,9 @@ An extraction is marked **Needs review** instead of **Done** when:\n   provider stopped the response early. A normal finish is `STOP` for Gemini\n   and `stop` for the others; a response with no finish reason also counts as\n   normal.\n+- **\"no effects extracted\"**: the response was valid but listed no effects.\n+  Few articles report no statistical tests, so this usually means the model\n+  failed quietly. Check the article, and retry it if it does report tests.\n \n The reasons are "
-              },
-              {
-                "filename": "tests/test_needs_review.py",
-                "status": "modified",
-                "additions": 25,
-                "deletions": 0,
-                "patch": "@@ -28,7 +28,9 @@\n )\n from auto_zcurve.config import RunSettings\n from auto_zcurve.llm import (\n+    NO_EFFECTS_REASON,\n     ExtractionResult,\n+    flag_empty_extraction,\n     finish_reason_review_reason,\n     record_review_reasons,\n     review_status,\n@@ -66,6 +68,20 @@ def test_finish_reasons_and_status(self):\n         self.assertEqual(review_status([]), \"ok\")\n         self.assertEqual(review_status([\"JSON was repaired\"]), \"needs_review\")\n \n+    def test_an_extraction_without_effects_needs_rev"
-              },
-              {
-                "filename": "tests/test_openrouter.py",
-                "status": "modified",
-                "additions": 7,
-                "deletions": 0,
-                "patch": "@@ -1,5 +1,6 @@\n from __future__ import annotations\n \n+import json\n import tempfile\n import unittest\n from pathlib import Path\n@@ -145,6 +146,12 @@ def test_extract_pdf_sends_native_file_and_strict_response_format(self):\n         self.assertEqual(payload[\"plugins\"], [{\"id\": \"file-parser\", \"pdf\": {\"engine\": \"native\"}}])\n         self.assertEqual(payload[\"response_format\"][\"type\"], \"json_schema\")\n         self.assertTrue(payload[\"response_format\"][\"json_schema\"][\"strict\"])\n+        # Some provider"
-              }
-            ]
-          },
-          "diff_summary": ""
-        },
-        {
-          "sha": "51b5de2",
-          "message": "Merge pull request #49 from shaheedazaad/max-output-tokens",
-          "body": "Add a per-extractor maximum output setting",
-          "author": "Shaheed Azaad",
-          "author_login": "shaheedazaad",
-          "date": "2026-11-20",
-          "url": "https://github.com/shaheedazaad/auto-zcurve/commit/51b5de2792a83c10cd0cc9051987b35baa99c29f",
-          "type": "other",
-          "branch": "main",
-          "diff": {}
-        }
       ]
     },
     {
@@ -11712,7 +11812,7 @@
     }
   ],
   "digest": {
-    "week_start": "2026-11-14",
+    "week_start": "2026-11-15",
     "active_repos": 5,
     "total_commits_7d": 261,
     "dormant_revived": [],
@@ -12210,7 +12310,7 @@
     "total_forks": 135,
     "total_commits_30d": 1146,
     "total_commits_7d": 261,
-    "total_commits_1d": 38,
+    "total_commits_1d": 4,
     "active_repos_7d": 5,
     "dormant_revived": 0,
     "total_open_issues": 183,
